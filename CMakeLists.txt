@@ -18,7 +18,7 @@ execute_process(COMMAND git describe --tags WORKING_DIRECTORY ${CMAKE_CURRENT_LI
 string(REGEX MATCH "[0-9]+(\\.[0-9]+)*" PROJECT_VERSION ${GIT_TAG_VERSION} )
 
 if (NOT PROJECT_VERSION)
-	message(FATAL_ERROR "Project must have a version number. If not using git define PROJECT_VERSION variable.")
+	message(FATAL_ERROR "Project must have a version number. If not found in git, please, define PROJECT_VERSION variable.")
 endif()
 
 project("discovery-server" VERSION ${PROJECT_VERSION} LANGUAGES C CXX)
@@ -56,8 +56,8 @@ if(MSVC OR MSVC_IDE)
 endif()
 
 # UNTIL REACHING COLCON AWARENESS WE WILL GIVE SOME LOCAL CLUES TO CMAKE TO FIND PACKAGES ;-) ;-) ;-) ;-) ;-) ;-) ;-) 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
-# IN DIRECTORY MODULES CAN BE FOUND, REMEMBER TO REMOVE THEM WHEN COLCON ENABLED: 
+set(CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/cmake/modules ${CMAKE_PREFIX_PATH} )
+# CONFIG FILES CAN BE FOUND IN DIRECTORY MODULES, REMEMBER TO REMOVE THEM WHEN COLCON ENABLED: 
 #	fastcdr-config-version.cmake	fastrtps-config-version.cmake
 #	fastcdr-config.cmake			fastrtps-config.cmake
 #	fastcdr-targets.cmake			fastrtps-targets.cmake
@@ -66,9 +66,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 
 # colcon will take care of solving any dependency issues
-find_package(fastcdr  REQUIRED)
-find_package(TinyXML2 QUIET) # CMake is able to find it unaided into C:\Program Files\tinyxml2\lib\cmake\tinyxml2
-find_package(fastrtps REQUIRED)
+find_package(fastcdr   REQUIRED  )
+find_package(TinyXML2 QUIET ) # CMake is able to find it unaided into C:\Program Files\tinyxml2\lib\cmake\tinyxml2
+find_package(fastrtps   REQUIRED)
 
 # at present we are going to ignore all packaging, examples and test paraphernalia.
 
@@ -109,6 +109,7 @@ foreach( version_var PROJECT_VERSION_MAJOR PROJECT_VERSION_MINOR PROJECT_VERSION
 	endif()
 endforeach()
 
+
 configure_file(${PROJECT_SOURCE_DIR}/src/config.h.in ${PROJECT_SOURCE_DIR}/include/version/config.h @ONLY)
 
 # we leave the project() generated variables as they were before
@@ -123,10 +124,14 @@ unset(version_unset)
 set(${PROJECT_NAME}_header_files
         include/version/config.h
         include/log/DSLog.h
+		include/PDPServer.h
+		include/DServerEvent.h
     )
 
 set(${PROJECT_NAME}_source_files
         src/main.cpp
+		src/PDPServer.cpp
+		src/DServerEvent.cpp
     )
 
 # Executable and library
