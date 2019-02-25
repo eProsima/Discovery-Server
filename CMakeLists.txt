@@ -23,17 +23,6 @@ endif()
 
 project("discovery-server" VERSION ${PROJECT_VERSION} LANGUAGES C CXX)
 
-# Generate a version.h with version global variables from a template and copy to the current build dir.
-# project() doesn't create 0 valued version variables. We must workaround it.
-
-foreach( version_var PROJECT_VERSION_MAJOR PROJECT_VERSION_MINOR PROJECT_VERSION_PATCH PROJECT_VERSION_TWEAK)
-	if( NOT ${version_var} )
-		set( ${version_var} "0 ")
-	endif()
-endforeach()
- 
-configure_file(version.h.in version.h @ONLY)
-
 set(PROJECT_NAME_STYLED "DiscoveryServer")
 set(PROJECT_NAME_LARGE "Discovery Server")
 set(PROJECT_NAME_UPPER "DS")
@@ -75,18 +64,133 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 #
 # ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) 
 
+
 # colcon will take care of solving any dependency issues
 find_package(fastcdr  REQUIRED)
+find_package(TinyXML2 QUIET) # CMake is able to find it unaided into C:\Program Files\tinyxml2\lib\cmake\tinyxml2
 find_package(fastrtps REQUIRED)
 
+# at present we are going to ignore all packaging, examples and test paraphernalia.
 
+# we configure server log level, note the definitions which are pass to the compiler
+# error logs defaults to ON
 
+IF (NOT DEFINED LOG_LEVEL_DEBUG)
+    SET(LOG_LEVEL_DEBUG OFF)
+ENDIF()
+ADD_DEFINITIONS(-DLOG_LEVEL_DEBUG=${LOG_LEVEL_DEBUG})
 
+IF (NOT DEFINED LOG_LEVEL_INFO)
+    SET(LOG_LEVEL_INFO OFF)
+ENDIF()
+ADD_DEFINITIONS(-DLOG_LEVEL_INFO=${LOG_LEVEL_INFO})
 
+IF (NOT DEFINED LOG_LEVEL_WARN)
+    SET(LOG_LEVEL_WARN OFF)
+ENDIF()
+ADD_DEFINITIONS(-DLOG_LEVEL_WARN=${LOG_LEVEL_WARN})
 
+IF (NOT DEFINED LOG_LEVEL_ERROR)
+    SET(LOG_LEVEL_ERROR ON)
+ENDIF()
+ADD_DEFINITIONS(-DLOG_LEVEL_ERROR=${LOG_LEVEL_ERROR})
 
+# Generate the version and log header files
 
+configure_file(${PROJECT_SOURCE_DIR}/src/log/DSLog.h.in ${PROJECT_SOURCE_DIR}/include/log/DSLog.h @ONLY)
 
+# Generate a config.h with version global variables from a template and copy to the current build dir.
+# project() doesn't create 0 valued version variables. We must workaround it.
 
+foreach( version_var PROJECT_VERSION_MAJOR PROJECT_VERSION_MINOR PROJECT_VERSION_PATCH PROJECT_VERSION_TWEAK)
+	if( NOT ${version_var} )
+		set( ${version_var} "0 ")
+		list(APPEND version_unset ${version_var})
+	endif()
+endforeach()
 
+configure_file(${PROJECT_SOURCE_DIR}/src/version/config.h.in ${PROJECT_SOURCE_DIR}/include/version/config.h @ONLY)
 
+# we leave the project() generated variables as they were before
+foreach( version_var IN LISTS version_unset)
+	unset( ${version_var} )
+endforeach()
+unset(version_unset)
+
+# Create the target and its dependencies, note that variable PROJECT_NAME is created by the closest project() called in the current directory scope or above.
+# We must populate this variables as project sources grow
+
+set(${PROJECT_NAME}_header_files
+        include/version/config.h
+        include/log/DSLog.h
+    )
+
+set(${PROJECT_NAME}_source_files
+        src/main.cpp
+    )
+
+# Executable and library
+add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_source_files} ${${PROJECT_NAME}_header_files})
+
+# BUILD_INTERFACE and INSTALL_INTERFACE are not variables but generator expressions (see under type Output-Related Expressions):
+#	$<BUILD_INTERFACE:...>. Content of ... when the property is exported using export(), or when the target is used by another target in the same buildsystem. Expands to the empty string otherwise.
+#	$<INSTALL_INTERFACE:...>. Content of ... when the property is exported using install(EXPORT), and empty otherwise. Relative paths are allowed within the INSTALL_INTERFACE expression and are interpreted relative to the installation prefix.
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+    PRIVATE $<BUILD_INTERFACE:${TINYXML2_INCLUDE_DIR}>
+    )
+
+# we link dynamically to tinyxml2
+target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr tinyxml2 )
+
+# Properties that change bin names depending on current config. This is convenient because on installation all bins share folder
+set_target_properties(${PROJECT_NAME} PROPERTIES RELEASE_POSTFIX -${PROJECT_VERSION})
+set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX -${PROJECT_VERSION}d)
+
+# old fashion installation
+
+set(BIN_INSTALL_DIR bin/ CACHE PATH "Installation directory for binaries")
+set(INCLUDE_INSTALL_DIR include/ CACHE PATH "Installation directory for C++ headers")
+set(INCLUDE_SOURCE_DIR src/ CACHE PATH "Installation directory for C++ sources")
+set(EXAMPLES_INSTALL_DIR examples/ CACHE PATH "Installation directory for examples")
+set(LIB_INSTALL_DIR lib/ CACHE PATH "Installation directory for libraries")
+set(LICENSE_INSTALL_DIR license/ CACHE PATH "Installation directory for licenses")
+set(EXPORT_INSTALL_DIR export/ CACHE PATH "Installation directory for cmake exports")
+
+# install binaries
+install(TARGETS ${PROJECT_NAME}
+    EXPORT ${PROJECT_NAME}_Targets
+    RUNTIME DESTINATION ${BIN_INSTALL_DIR}
+    LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+    COMPONENT bin
+    )
+
+# Install includes
+install(DIRECTORY include/
+    COMPONENT headers
+    DESTINATION ${INCLUDE_INSTALL_DIR}
+    FILES_MATCHING PATTERN "*.h"
+    )
+
+# export library
+install(EXPORT ${PROJECT_NAME}_Targets
+     DESTINATION ${EXPORT_INSTALL_DIR}
+     )
+	 
+# Sources
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/
+    COMPONENT sources
+    DESTINATION ${INCLUDE_SOURCE_DIR}
+	FILES_MATCHING PATTERN "*.cpp"
+	)
+	
+# Install licenses
+install(FILES ${PROJECT_SOURCE_DIR}/license/LICENSE
+    COMPONENT licenses
+    DESTINATION ${LICENSE_INSTALL_DIR}
+    )	
+	
+	

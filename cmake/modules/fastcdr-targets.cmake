@@ -63,19 +63,6 @@ set_target_properties(fastcdr PROPERTIES
   IMPORTED_LOCATION_RELEASE "C:/Users/MiguelBarro/Documents/Fast-CDR/build64/src/cpp/Release/fastcdr-1.0.dll"
   )
 
-# Import target "fastcdr" for configuration "MinSizeRel"
-set_property(TARGET fastcdr APPEND PROPERTY IMPORTED_CONFIGURATIONS MINSIZEREL)
-set_target_properties(fastcdr PROPERTIES
-  IMPORTED_IMPLIB_MINSIZEREL "C:/Users/MiguelBarro/Documents/Fast-CDR/build64/src/cpp/MinSizeRel/fastcdr.lib"
-  IMPORTED_LOCATION_MINSIZEREL "C:/Users/MiguelBarro/Documents/Fast-CDR/build64/src/cpp/MinSizeRel/fastcdr.dll"
-  )
-
-# Import target "fastcdr" for configuration "RelWithDebInfo"
-set_property(TARGET fastcdr APPEND PROPERTY IMPORTED_CONFIGURATIONS RELWITHDEBINFO)
-set_target_properties(fastcdr PROPERTIES
-  IMPORTED_IMPLIB_RELWITHDEBINFO "C:/Users/MiguelBarro/Documents/Fast-CDR/build64/src/cpp/RelWithDebInfo/fastcdr-1.0.lib"
-  IMPORTED_LOCATION_RELWITHDEBINFO "C:/Users/MiguelBarro/Documents/Fast-CDR/build64/src/cpp/RelWithDebInfo/fastcdr-1.0.dll"
-  )
 
 # This file does not depend on other imported targets which have
 # been exported from the same project but in a separate export set.
