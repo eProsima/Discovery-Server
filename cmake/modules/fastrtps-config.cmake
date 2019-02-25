@@ -28,23 +28,14 @@ macro(set_and_check _var _file)
   endif()
 endmacro()
 
-macro(check_required_components _NAME)
-  foreach(comp ${${_NAME}_FIND_COMPONENTS})
-    if(NOT ${_NAME}_${comp}_FOUND)
-      if(${_NAME}_FIND_REQUIRED_${comp})
-        set(${_NAME}_FOUND FALSE)
-      endif()
-    endif()
-  endforeach()
-endmacro()
+# Note that I cannot distinguish the Debug and Release folders because CMake (using visual studio doesn't make any distinction).
+# The variables CMAKE_BUILD_TYPE, CMAKE_RUNTIME_OUTPUT_DIRECTORY are empty for visual studio run. The way CMake workarounds this situation is by generating binaries with different names in the installation dirs.
+# But the build structure doesn't use common installation dirs so we cannot make <package>_BIN_DIR or <package>_LIB_DIR directly reference this folders from here.
+# The better way of workaround it is see what is the eventual use given to this variables (in order to discover this I leave them unset) because the really useful variables are target linked and introduced by <package>-targets.cmake
 
-####################################################################################
-
-if(MSVC OR MSVC_IDE)
-    set_and_check(fastrtps_BIN_DIR "${PACKAGE_PREFIX_DIR}/bin")
-endif()
-set_and_check(fastrtps_INCLUDE_DIR "${PACKAGE_PREFIX_DIR}/include")
-set_and_check(fastrtps_LIB_DIR "${PACKAGE_PREFIX_DIR}/lib")
+#set_and_check(fastrtps_BIN_DIR "C:/Program Files/fastrtps/bin")
+#set_and_check(fastrtps_INCLUDE_DIR "C:/Program Files/fastrtps//include")
+#set_and_check(fastrtps_LIB_DIR "C:/Program Files/fastrtps//lib")
 
 find_package(fastcdr REQUIRED)
 find_package(TinyXML2 QUIET)

@@ -12,14 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Until concon framework is deployed we'll take care of its duties
+# and fill directly the variables expected from the config file according with my own setup
 set(fastcdr_VERSION 1.0.8)
-
-
-####### Expanded from @PACKAGE_INIT@ by configure_package_config_file() #######
-####### Any changes to this file will be overwritten by the next CMake run ####
-####### The input file was Config.cmake.in                            ########
-
-get_filename_component(PACKAGE_PREFIX_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../" ABSOLUTE)
 
 macro(set_and_check _var _file)
   set(${_var} "${_file}")
@@ -28,23 +23,14 @@ macro(set_and_check _var _file)
   endif()
 endmacro()
 
-macro(check_required_components _NAME)
-  foreach(comp ${${_NAME}_FIND_COMPONENTS})
-    if(NOT ${_NAME}_${comp}_FOUND)
-      if(${_NAME}_FIND_REQUIRED_${comp})
-        set(${_NAME}_FOUND FALSE)
-      endif()
-    endif()
-  endforeach()
-endmacro()
+# Note that I cannot distinguish the Debug and Release folders because CMake (using visual studio doesn't make any distinction).
+# The variables CMAKE_BUILD_TYPE, CMAKE_RUNTIME_OUTPUT_DIRECTORY are empty for visual studio run. The way CMake workarounds this situation is by generating binaries with different names in the installation dirs.
+# But the build structure doesn't use common installation dirs so we cannot make <package>_BIN_DIR or <package>_LIB_DIR directly reference this folders from here.
+# The better way of workaround it is see what is the eventual use given to this variables (in order to discover this I leave them unset) because the really useful variables are target linked and introduced by <package>-targets.cmake
 
-####################################################################################
-
-if(MSVC OR MSVC_IDE)
-    set_and_check(fastcdr_BIN_DIR "${PACKAGE_PREFIX_DIR}/bin")
-endif()
-set_and_check(fastcdr_INCLUDE_DIR "${PACKAGE_PREFIX_DIR}/include")
-set_and_check(fastcdr_LIB_DIR "${PACKAGE_PREFIX_DIR}/lib")
+#set_and_check(fastcdr_BIN_DIR "C:/Program Files/fastcdr/bin")
+#set_and_check(fastcdr_INCLUDE_DIR "C:/Users/MiguelBarro/Documents/Fast-CDR/include")
+#set_and_check(fastcdr_LIB_DIR "C:/Program Files/fastcdr/lib")
 
 include(${CMAKE_CURRENT_LIST_DIR}/fastcdr-targets.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/fastcdr-config-version.cmake)

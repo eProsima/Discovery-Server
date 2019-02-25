@@ -64,19 +64,6 @@ set_target_properties(fastrtps PROPERTIES
   IMPORTED_LOCATION_RELEASE "C:/Users/MiguelBarro/Documents/Fast-RTPS/build64/src/cpp/Release/fastrtps-1.7.dll"
   )
 
-# Import target "fastrtps" for configuration "MinSizeRel"
-set_property(TARGET fastrtps APPEND PROPERTY IMPORTED_CONFIGURATIONS MINSIZEREL)
-set_target_properties(fastrtps PROPERTIES
-  IMPORTED_IMPLIB_MINSIZEREL "C:/Users/MiguelBarro/Documents/Fast-RTPS/build64/src/cpp/MinSizeRel/fastrtps.lib"
-  IMPORTED_LOCATION_MINSIZEREL "C:/Users/MiguelBarro/Documents/Fast-RTPS/build64/src/cpp/MinSizeRel/fastrtps.dll"
-  )
-
-# Import target "fastrtps" for configuration "RelWithDebInfo"
-set_property(TARGET fastrtps APPEND PROPERTY IMPORTED_CONFIGURATIONS RELWITHDEBINFO)
-set_target_properties(fastrtps PROPERTIES
-  IMPORTED_IMPLIB_RELWITHDEBINFO "C:/Users/MiguelBarro/Documents/Fast-RTPS/build64/src/cpp/RelWithDebInfo/fastrtps-1.7.lib"
-  IMPORTED_LOCATION_RELWITHDEBINFO "C:/Users/MiguelBarro/Documents/Fast-RTPS/build64/src/cpp/RelWithDebInfo/fastrtps-1.7.dll"
-  )
 
 # This file does not depend on other imported targets which have
 # been exported from the same project but in a separate export set.
