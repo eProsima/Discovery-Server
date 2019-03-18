@@ -66,6 +66,7 @@ set(CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/cmake/modules ${CMAKE_PREFIX_PATH} )
 
 
 # colcon will take care of solving any dependency issues
+find_package(Asio REQUIRED )
 find_package(fastcdr   REQUIRED  )
 find_package(TinyXML2 QUIET ) # CMake is able to find it unaided into C:\Program Files\tinyxml2\lib\cmake\tinyxml2
 find_package(fastrtps   REQUIRED)
@@ -126,12 +127,18 @@ set(${PROJECT_NAME}_header_files
         include/log/DSLog.h
 		include/PDPServer.h
 		include/DServerEvent.h
+		include/EDPServer.h
+		include/PDPServerListener.h
+		include/EDPServerListeners.h
     )
 
 set(${PROJECT_NAME}_source_files
         src/main.cpp
 		src/PDPServer.cpp
 		src/DServerEvent.cpp
+		src/EDPServer.cpp
+		src/PDPServerListener.cpp
+		src/EDPServerListeners.cpp
     )
 
 # Executable and library
@@ -145,7 +152,14 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     PRIVATE $<BUILD_INTERFACE:${TINYXML2_INCLUDE_DIR}>
+	${ASIO_INCLUDE_DIR}
     )
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+	ASIO_STANDALONE
+    $<$<AND:$<BOOL:${WIN32}>,$<STREQUAL:"${CMAKE_SYSTEM_NAME}","WindowsStore">>:_WIN32_WINNT=0x0603>
+    $<$<AND:$<BOOL:${WIN32}>,$<NOT:$<STREQUAL:"${CMAKE_SYSTEM_NAME}","WindowsStore">>>:_WIN32_WINNT=0x0601>
+	)
 
 # we link dynamically to tinyxml2
 target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr tinyxml2 )

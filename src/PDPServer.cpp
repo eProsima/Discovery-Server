@@ -17,7 +17,6 @@
  *
  */
 
-#include <fastrtps/rtps/builtin/discovery/participant/PDPListener.h>
 #include <fastrtps/rtps/builtin/BuiltinProtocols.h>
 
 #include <fastrtps/rtps/participant/RTPSParticipantListener.h>
@@ -33,7 +32,9 @@
 #include <fastrtps/log/Log.h>
 
 #include "DServerEvent.h"
+#include "PDPServerListener.h"
 #include "PDPServer.h"
+#include "EDPServer.h"
 
 
 using namespace eprosima::fastrtps;
@@ -62,7 +63,7 @@ bool PDPServer::initPDP(RTPSParticipantImpl* part)
     }
 
     //INIT EDP
-    mp_EDP = (EDP*)(new EDPSimple(this, mp_RTPSParticipant));
+    mp_EDP = (EDP*)(new EDPServer(this, mp_RTPSParticipant));
     if (!mp_EDP->initEDP(m_discovery))
     {
         logError(RTPS_PDP, "Endpoint discovery configuration failed");
@@ -79,7 +80,6 @@ bool PDPServer::initPDP(RTPSParticipantImpl* part)
     return true;
 }
 
-// TODO: MODIFY PDP READER TO RECEIVE DATA(P) MESSAGES FROM UNKNOWN CLIENTS
 bool PDPServer::createPDPEndpoints()
 {
     logInfo(RTPS_PDP, "Beginning PDPServer Endpoints creation");
@@ -100,7 +100,7 @@ bool PDPServer::createPDPEndpoints()
     ratt.endpoint.reliabilityKind = RELIABLE;
     ratt.times.heartbeatResponseDelay = pdp_heartbeat_response_delay;
 
-    mp_listener = new PDPListener(this);
+    mp_listener = new PDPServerListener(this);
 
     if (mp_RTPSParticipant->createReader(&mp_PDPReader, ratt, mp_PDPReaderHistory, mp_listener, c_EntityId_SPDPReader, true, false))
     {
@@ -339,7 +339,7 @@ void PDPServer::announceParticipantState(bool new_change, bool dispose)
     {
         StatefulWriter * pW = dynamic_cast<StatefulWriter *>(mp_PDPWriter);
         assert(pW);
-        pW->send_any_unacknowledge_changes();
+        // pW->send_any_unacknowledge_changes();
     }
 }
 

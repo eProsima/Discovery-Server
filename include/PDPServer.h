@@ -41,7 +41,7 @@ class PDPServer : public PDP
 {
     friend class DServerEvent;
 
-    typedef std::list<const ParticipantProxyData &> pending_matches_list;
+    typedef std::list< const ParticipantProxyData *> pending_matches_list;
 
     // EDP pending matches
     pending_matches_list _p2match;
