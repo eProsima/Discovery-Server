@@ -25,7 +25,6 @@
 
 #include <fastrtps/utils/TimeConversion.h>
 
-#include <fastrtps/rtps/builtin/discovery/participant/PDP.h>
 #include <fastrtps/rtps/builtin/discovery/participant/timedevent/RemoteParticipantLeaseDuration.h>
 
 #include <fastrtps/rtps/participant/ParticipantDiscoveryInfo.h>
@@ -38,6 +37,7 @@
 #include <fastrtps/log/Log.h>
 
 #include "PDPServerListener.h"
+#include "PDPServer.h"
 
 namespace eprosima {
 namespace fastrtps{
@@ -118,6 +118,12 @@ void PDPServerListener::onNewCacheChangeAdded(RTPSReader* reader, const CacheCha
                 mp_PDP->mp_EDP->assignRemoteEndpoints(participant_data);
             }
 
+            // update the PDP Writer with this reader info
+            if(!mp_PDP->AddParticipantToHistory(*change))
+            {
+                logError(RTPS_PDP, "Unable to update the PDP Writer from PDPServerListener");
+            }
+
             auto listener = this->mp_PDP->getRTPSParticipant()->getListener();
             if (listener != nullptr)
             {
@@ -150,6 +156,9 @@ void PDPServerListener::onNewCacheChangeAdded(RTPSReader* reader, const CacheCha
                 listener->onParticipantDiscovery(this->mp_PDP->getRTPSParticipant()->getUserRTPSParticipant(), std::move(info));
             }
         }
+
+        assert(change->instanceHandle == info.info.m_key);
+        mp_PDP->RemoveParticipantFromHistory(change->instanceHandle);
     }
 
     //Remove change form history.

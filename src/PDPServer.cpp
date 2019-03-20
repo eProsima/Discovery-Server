@@ -36,6 +36,8 @@
 #include "PDPServer.h"
 #include "EDPServer.h"
 
+#include <algorithm>
+#include <forward_list>
 
 using namespace eprosima::fastrtps;
 
@@ -331,17 +333,6 @@ bool PDPServer::is_all_servers_PDPdata_updated()
     return pR->isInCleanState();
 }
 
-void PDPServer::announceParticipantState(bool new_change, bool dispose)
-{
-    PDP::announceParticipantState(new_change, dispose);
-
-    if (!(dispose || new_change))
-    {
-        StatefulWriter * pW = dynamic_cast<StatefulWriter *>(mp_PDPWriter);
-        assert(pW);
-        // pW->send_any_unacknowledge_changes();
-    }
-}
 
 void PDPServer::match_all_server_EDP_endpoints()
 {
@@ -359,6 +350,80 @@ void PDPServer::match_all_server_EDP_endpoints()
         }
     }
 }
+
+void PDPServer::trimWriterHistory()
+{
+    assert(mp_mutex && mp_PDPWriter && mp_PDPWriter->getMutex());
+
+    // trim demises container
+    key_list disposal, aux;
+    std::lock_guard<std::recursive_mutex> guardP(*mp_mutex);
+
+    if (_demises.empty())
+        return;
+    
+    // sweep away any resurrected participant
+    std::for_each(ParticipantProxiesBegin(), ParticipantProxiesEnd(),
+        [&disposal](const ParticipantProxyData* pD) { disposal.insert(pD->m_key); });
+    std::set_difference(_demises.cbegin(), _demises.cend(), disposal.cbegin(), disposal.cend(),
+        std::inserter(aux,aux.begin()));
+    _demises.swap(aux);
+
+    if (_demises.empty())
+        return;
+
+    // traverse the WriterHistory searching CacheChanges_t with demised keys  
+    std::forward_list<CacheChange_t*> removal;
+    std::lock_guard<std::recursive_mutex> guardW(*mp_PDPWriter->getMutex());
+
+    std::copy_if(mp_PDPWriterHistory->changesBegin(), mp_PDPWriterHistory->changesBegin(), std::front_inserter(removal),
+        [this](const CacheChange_t* chan) { return _demises.find(chan->instanceHandle) != _demises.cend();  });
+
+    if (removal.empty())
+        return;
+
+    aux.clear();
+    key_list & pending = aux;
+
+    // remove outdate CacheChange_ts
+    for (auto pC : removal)
+    {
+        if (mp_PDPWriter->is_acked_by_all(pC))
+            mp_PDPWriterHistory->remove_change(pC);
+        else
+            pending.insert(pC->instanceHandle);
+    }
+
+    // update demises
+    _demises.swap(pending);
+}
+
+bool PDPServer::AddParticipantToHistory(const CacheChange_t & c)
+{
+    assert(mp_PDPWriter && mp_PDPWriter->getMutex() && c.serializedPayload.max_size);
+
+    std::lock_guard<std::recursive_mutex> guardW(*mp_PDPWriter->getMutex());
+    CacheChange_t * pCh = nullptr;
+
+    // mp_PDPWriterHistory->reserve_Cache(&pCh, DISCOVERY_PARTICIPANT_DATA_MAX_SIZE)
+    if (mp_PDPWriterHistory->reserve_Cache(&pCh, c.serializedPayload.max_size) && pCh && pCh->copy(&c) )
+    {
+        pCh->writerGUID = mp_PDPWriter->getGuid();
+        return mp_PDPWriterHistory->add_change(pCh,pCh->write_params);
+    }
+
+    return false;
+}
+
+// Always call after PDP proxies update
+void PDPServer::RemoveParticipantFromHistory(const InstanceHandle_t & key)
+{
+    std::lock_guard<std::recursive_mutex> guardP(*mp_mutex);
+
+    _demises.insert(key);
+    trimWriterHistory(); // first call, TODO: DServerEvent should keep calling
+}
+
 
 } /* namespace rtps */
 } /* namespace fastrtps */

@@ -40,11 +40,16 @@ class StatefulReader;
 class PDPServer : public PDP
 {
     friend class DServerEvent;
+    friend class PDPServerListener;
 
-    typedef std::list< const ParticipantProxyData *> pending_matches_list;
+    typedef std::list<const ParticipantProxyData *> pending_matches_list;
+    typedef std::set<InstanceHandle_t> key_list;
 
-    // EDP pending matches
+    //! EDP pending matches
     pending_matches_list _p2match;
+
+    //! Keys to wipe out from WriterHistory because its related Participants have been removed
+    key_list _demises;
 
     public:
     /**
@@ -70,6 +75,25 @@ class PDPServer : public PDP
     bool createPDPEndpoints() override;
 
     /**
+     * Methods to update WriterHistory with reader information
+     */
+
+    //! Callback to remove unnecesary WriterHistory info
+    void trimWriterHistory();
+
+    /**
+     * Add participant CacheChange_ts from reader to writer
+     * @return True if successfully modified WriterHistory
+     */
+    bool AddParticipantToHistory(const CacheChange_t &);
+
+    /**
+     * Trigger the participant CacheChange_t removal system  
+     * @return True if successfully modified WriterHistory
+     */
+    void RemoveParticipantFromHistory(const InstanceHandle_t &);
+
+    /**
      * Check if all servers have acknowledge the client PDP data
      * @return True if all can reach the client
      */
@@ -80,19 +104,6 @@ class PDPServer : public PDP
      * @return True if we known all the participants the servers are aware of
      */
     bool is_all_servers_PDPdata_updated();
-
-    /**
-     * Force the sending of our local DPD to all servers 
-     * @param new_change If true a new change (with new seqNum) is created and sent; if false the last change is re-sent
-     * @param dispose Sets change kind to NOT_ALIVE_DISPOSED_UNREGISTERED
-     */
-    void announceParticipantState(bool new_change, bool dispose = false) override;
-
-    //! Not currently needed for DSClientEvent announcement
-    void stopParticipantAnnouncement() override {};
-
-    //! Not currently needed for DSClientEvent announcement
-    void resetParticipantAnnouncement() override {};
 
     /**
      * These methods wouldn't be needed under perfect server operation (no need of dynamic endpoint allocation) but must be implemented

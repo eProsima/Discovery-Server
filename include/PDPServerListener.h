@@ -29,7 +29,7 @@ namespace eprosima {
 namespace fastrtps{
 namespace rtps {
 
-class PDP;
+class PDPServer;
 
 /**
  * Class PDPListener, specification used by the PDP to perform the History check when a new message is received.
@@ -41,13 +41,13 @@ public:
 	/**
 	* @param in_PDP
 	*/
-    PDPServerListener(PDP* in_PDP) : mp_PDP(in_PDP)
+    PDPServerListener(PDPServer* in_PDP) : mp_PDP(in_PDP)
 	{
 	}
 
 	~PDPServerListener() override {}
 	//!Pointer to the associated mp_SPDP;
-	PDP* mp_PDP;
+    PDPServer* mp_PDP;
 	/**
 	 * New added cache
 	 * @param reader
