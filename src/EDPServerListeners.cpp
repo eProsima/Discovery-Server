@@ -76,6 +76,8 @@ void EDPServerPUBListener::onNewCacheChangeAdded(RTPSReader* reader, const Cache
 
                 sedp_->pairing_writer_proxy_with_any_local_reader(&pdata, &writerProxyData);
 
+                sedp_->addPublisherFromHistory(*change);
+
                 // Take again the reader lock.
                 reader->getMutex()->lock();
             }
@@ -92,6 +94,7 @@ void EDPServerPUBListener::onNewCacheChangeAdded(RTPSReader* reader, const Cache
 
         GUID_t auxGUID = iHandle2GUID(change->instanceHandle);
         this->sedp_->mp_PDP->removeWriterProxyData(auxGUID);
+        sedp_->removePublisherFromHistory(change->instanceHandle);
     }
 
     //Removing change from history
@@ -154,6 +157,8 @@ void EDPServerSUBListener::onNewCacheChangeAdded(RTPSReader* reader, const Cache
 
                 sedp_->pairing_reader_proxy_with_any_local_writer(&pdata, &readerProxyData);
 
+                sedp_->addSubscriberFromHistory(*change);
+
                 // Take again the reader lock.
                 reader->getMutex()->lock();
             }
@@ -170,6 +175,7 @@ void EDPServerSUBListener::onNewCacheChangeAdded(RTPSReader* reader, const Cache
 
         GUID_t auxGUID = iHandle2GUID(change->instanceHandle);
         this->sedp_->mp_PDP->removeReaderProxyData(auxGUID);
+        sedp_->removeSubscriberFromHistory(change->instanceHandle);
     }
 
     // Remove change from history.

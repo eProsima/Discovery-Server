@@ -357,10 +357,11 @@ void PDPServer::trimWriterHistory()
 
     // trim demises container
     key_list disposal, aux;
-    std::lock_guard<std::recursive_mutex> guardP(*mp_mutex);
 
     if (_demises.empty())
         return;
+
+    std::lock_guard<std::recursive_mutex> guardP(*mp_mutex);
     
     // sweep away any resurrected participant
     std::for_each(ParticipantProxiesBegin(), ParticipantProxiesEnd(),
@@ -398,7 +399,7 @@ void PDPServer::trimWriterHistory()
     _demises.swap(pending);
 }
 
-bool PDPServer::AddParticipantToHistory(const CacheChange_t & c)
+bool PDPServer::addParticipantToHistory(const CacheChange_t & c)
 {
     assert(mp_PDPWriter && mp_PDPWriter->getMutex() && c.serializedPayload.max_size);
 
@@ -416,7 +417,7 @@ bool PDPServer::AddParticipantToHistory(const CacheChange_t & c)
 }
 
 // Always call after PDP proxies update
-void PDPServer::RemoveParticipantFromHistory(const InstanceHandle_t & key)
+void PDPServer::removeParticipantFromHistory(const InstanceHandle_t & key)
 {
     std::lock_guard<std::recursive_mutex> guardP(*mp_mutex);
 

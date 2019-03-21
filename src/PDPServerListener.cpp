@@ -119,7 +119,7 @@ void PDPServerListener::onNewCacheChangeAdded(RTPSReader* reader, const CacheCha
             }
 
             // update the PDP Writer with this reader info
-            if(!mp_PDP->AddParticipantToHistory(*change))
+            if(!mp_PDP->addParticipantToHistory(*change))
             {
                 logError(RTPS_PDP, "Unable to update the PDP Writer from PDPServerListener");
             }
@@ -158,7 +158,7 @@ void PDPServerListener::onNewCacheChangeAdded(RTPSReader* reader, const CacheCha
         }
 
         assert(change->instanceHandle == info.info.m_key);
-        mp_PDP->RemoveParticipantFromHistory(change->instanceHandle);
+        mp_PDP->removeParticipantFromHistory(change->instanceHandle);
     }
 
     //Remove change form history.

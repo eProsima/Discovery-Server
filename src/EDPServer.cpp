@@ -36,6 +36,7 @@
 #include <fastrtps/log/Log.h>
 
 #include <mutex>
+#include <forward_list>
 
 namespace eprosima {
 namespace fastrtps{
@@ -181,6 +182,95 @@ bool EDPServer::createSEDPEndpoints()
     logInfo(RTPS_EDP,"Creation finished");
     return created;
 }
+
+template<class ProxyCont> 
+void EDPServer::trimWriterHistory(key_list & _demises, StatefulWriter & writer, WriterHistory & history, ProxyCont ParticipantProxyData::* pC)
+{
+    // trim demises container
+    key_list disposal, aux;
+
+    if (_demises.empty())
+        return;
+
+    std::lock_guard<std::recursive_mutex> guardP(*mp_PDP->getMutex());
+
+    // sweep away any resurrected endpoint
+    for (auto iD = mp_PDP->ParticipantProxiesBegin(); iD != mp_PDP->ParticipantProxiesEnd(); ++iD)
+    {
+        ProxyCont & readers = (*iD)->*pC;
+
+        for (auto iE : readers)
+        {
+            disposal.insert(iE->key());
+        }
+    }
+    std::set_difference(_demises.cbegin(), _demises.cend(), disposal.cbegin(), disposal.cend(),
+        std::inserter(aux, aux.begin()));
+    _demises.swap(aux);
+
+    if (_demises.empty())
+        return;
+
+    // traverse the WriterHistory searching CacheChanges_t with demised keys  
+    std::forward_list<CacheChange_t*> removal;
+    std::lock_guard<std::recursive_mutex> guardW(*writer.getMutex());
+
+    std::copy_if(history.changesBegin(), history.changesBegin(), std::front_inserter(removal),
+        [_demises](const CacheChange_t* chan) { return _demises.find(chan->instanceHandle) != _demises.cend();  });
+
+    if (removal.empty())
+        return;
+
+    aux.clear();
+    key_list & pending = aux;
+
+    // remove outdate CacheChange_ts
+    for (auto pC : removal)
+    {
+        if (writer.is_acked_by_all(pC))
+            history.remove_change(pC);
+        else
+            pending.insert(pC->instanceHandle);
+    }
+
+    // update demises
+    _demises.swap(pending);
+
+}
+
+bool EDPServer::addEndpointFromHistory(StatefulWriter & writer, WriterHistory & history, const CacheChange_t & c)
+{
+    std::lock_guard<std::recursive_mutex> guardW(*writer.getMutex());
+    CacheChange_t * pCh = nullptr;
+
+    // history.reserve_Cache(&pCh, DISCOVERY_PUBLICATION_DATA_MAX_SIZE )
+    // history.reserve_Cache(&pCh, DISCOVERY_SUBSCRIPTION_DATA_MAX_SIZE )
+    if (history.reserve_Cache(&pCh, c.serializedPayload.max_size) && pCh && pCh->copy(&c))
+    {
+        pCh->writerGUID = writer.getGuid();
+        return history.add_change(pCh, pCh->write_params);
+    }
+
+    return false;
+}
+
+void EDPServer::removePublisherFromHistory(const InstanceHandle_t & key)
+{
+    std::lock_guard<std::recursive_mutex> guardP(*mp_PDP->getMutex());
+
+    _PUBdemises.insert(key);
+    trimPUBWriterHistory();
+
+}
+
+void EDPServer::removeSubscriberFromHistory(const InstanceHandle_t & key)
+{
+    std::lock_guard<std::recursive_mutex> guardP(*mp_PDP->getMutex());
+
+    _SUBdemises.insert(key);
+    trimSUBWriterHistory();
+}
+
 
 } /* namespace rtps */
 } /* namespace fastrtps */

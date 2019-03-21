@@ -85,13 +85,13 @@ class PDPServer : public PDP
      * Add participant CacheChange_ts from reader to writer
      * @return True if successfully modified WriterHistory
      */
-    bool AddParticipantToHistory(const CacheChange_t &);
+    bool addParticipantToHistory(const CacheChange_t &);
 
     /**
      * Trigger the participant CacheChange_t removal system  
      * @return True if successfully modified WriterHistory
      */
-    void RemoveParticipantFromHistory(const InstanceHandle_t &);
+    void removeParticipantFromHistory(const InstanceHandle_t &);
 
     /**
      * Check if all servers have acknowledge the client PDP data
