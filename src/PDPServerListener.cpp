@@ -107,7 +107,8 @@ void PDPServerListener::onNewCacheChangeAdded(RTPSReader* reader, const CacheCha
                 lock.unlock();
 
                 mp_PDP->announceParticipantState(false);
-                mp_PDP->assignRemoteEndpoints(&participant_data);
+                mp_PDP->assignRemoteEndpoints(pdata);
+                mp_PDP->queueParticipantForEDPMatch(pdata);
             }
             else
             {
@@ -115,7 +116,9 @@ void PDPServerListener::onNewCacheChangeAdded(RTPSReader* reader, const CacheCha
                 pdata->isAlive = true;
                 lock.unlock();
 
-                mp_PDP->mp_EDP->assignRemoteEndpoints(participant_data);
+                if (mp_PDP->updateInfoMatchesEDP())
+                    mp_PDP->mp_EDP->assignRemoteEndpoints(*pdata);
+
             }
 
             // update the PDP Writer with this reader info
@@ -159,6 +162,8 @@ void PDPServerListener::onNewCacheChangeAdded(RTPSReader* reader, const CacheCha
 
         assert(change->instanceHandle == info.info.m_key);
         mp_PDP->removeParticipantFromHistory(change->instanceHandle);
+        mp_PDP->removeParticipantForEDPMatch(&info.info);
+
     }
 
     //Remove change form history.
@@ -171,8 +176,6 @@ bool PDPServerListener::getKey(CacheChange_t* change)
 {
     return ParameterList::readInstanceHandleFromCDRMsg(change, PID_PARTICIPANT_GUID);
 }
-
-
 
 }
 } /* namespace rtps */

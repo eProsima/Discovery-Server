@@ -24,8 +24,6 @@
 #include <fastrtps\rtps\builtin\discovery\participant\PDP.h>
 #include "DServerEvent.h"
 
-#include <list>
-
 namespace eprosima {
 namespace fastrtps{
 namespace rtps {
@@ -42,7 +40,7 @@ class PDPServer : public PDP
     friend class DServerEvent;
     friend class PDPServerListener;
 
-    typedef std::list<const ParticipantProxyData *> pending_matches_list;
+    typedef std::set<const ParticipantProxyData *> pending_matches_list;
     typedef std::set<InstanceHandle_t> key_list;
 
     //! EDP pending matches
@@ -83,27 +81,49 @@ class PDPServer : public PDP
 
     /**
      * Add participant CacheChange_ts from reader to writer
+     * @param metatraffic CacheChange_t
      * @return True if successfully modified WriterHistory
      */
     bool addParticipantToHistory(const CacheChange_t &);
 
     /**
-     * Trigger the participant CacheChange_t removal system  
+     * Trigger the participant CacheChange_t removal system
+     * @param instanceHandle associated with participants CacheChange_ts
      * @return True if successfully modified WriterHistory
      */
     void removeParticipantFromHistory(const InstanceHandle_t &);
 
     /**
-     * Check if all servers have acknowledge the client PDP data
-     * @return True if all can reach the client
+     * Add a participant to the queue of pending participants to EDP matching
+     * @param ParticipantProxyData associated with the new participant
      */
-    bool all_servers_acknowledge_PDP();
+    void queueParticipantForEDPMatch(const ParticipantProxyData * );
 
     /**
-     * Check if we have our PDP received data updated
-     * @return True if we known all the participants the servers are aware of
+     * Remove a participant from the queue of pending participants to EDP matching
+     * @param ParticipantProxyData associated with the new participant
      */
-    bool is_all_servers_PDPdata_updated();
+    void removeParticipantForEDPMatch(const ParticipantProxyData *);
+
+    /**
+     * Check if all client have acknowledge the server PDP data
+     * @return True if all clients known each other
+     */
+    bool all_clients_acknowledge_PDP();
+
+    /**
+     * Check if there are pending matches.
+     * @return True if all participants EDP endpoints are already matched
+     */
+    inline bool pendingEDPMatches() 
+    { 
+        std::lock_guard<std::recursive_mutex> guardPDP(*mp_mutex);
+
+        return !_p2match.empty(); 
+    }
+
+    //! Matches all clients EDP endpoints
+    void match_all_clients_EDP_endpoints();
 
     /**
      * These methods wouldn't be needed under perfect server operation (no need of dynamic endpoint allocation) but must be implemented
@@ -112,9 +132,8 @@ class PDPServer : public PDP
      */
     void assignRemoteEndpoints(ParticipantProxyData* pdata) override;
     void removeRemoteEndpoints(ParticipantProxyData * pdata) override;
-
-    //!Matching server EDP endpoints
-    void match_all_server_EDP_endpoints();
+    void notifyAboveRemoteEndpoints(const ParticipantProxyData& pdata) override;
+    
 
     private:
 
