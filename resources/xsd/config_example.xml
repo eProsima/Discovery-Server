@@ -20,7 +20,14 @@
         <builtin>
           <!--<discoveryProtocol>SERVER</discoveryProtocol> // SERVER functionality to be disclosed-->
           <discoveryProtocol>NONE</discoveryProtocol>
-          
+          <metatrafficUnicastLocatorList>
+            <locator>
+              <udpv4>
+                <address>127.0.0.1</address>
+                <port>65215</port>
+              </udpv4>
+            </locator>
+          </metatrafficUnicastLocatorList>
         </builtin>        
       </rtps>
     </participant>
@@ -38,7 +45,7 @@
                 <locator>
                   <udpv4>
                     <address>127.0.0.1</address>
-                    <port>253</port>
+                    <port>65215</port>
                   </udpv4>
                 </locator>
               </metatrafficUnicastLocatorList>
