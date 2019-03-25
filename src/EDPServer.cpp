@@ -20,7 +20,8 @@
 #include "EDPServer.h"
 #include "EDPServerListeners.h"
 
-#include <fastrtps/rtps/builtin/discovery/participant/PDP.h>
+#include "PDPServer.h"
+// #include <fastrtps/rtps/builtin/discovery/participant/PDP.h>
 #include <rtps/participant/RTPSParticipantImpl.h>
 #include <fastrtps/rtps/writer/StatefulWriter.h>
 #include <fastrtps/rtps/reader/StatefulReader.h>
@@ -55,6 +56,9 @@ bool EDPServer::createSEDPEndpoints()
     publications_listener_ = new EDPServerPUBListener(this);
     subscriptions_listener_ = new EDPServerSUBListener(this);
 
+    PDPServer * pPDP = dynamic_cast<PDPServer*>(mp_PDP);
+    assert(pPDP);
+
     if(m_discovery.m_simpleEDP.use_PublicationWriterANDSubscriptionReader)
     {
         hatt.initialReservedCaches = edp_initial_reserved_caches;
@@ -67,6 +71,8 @@ bool EDPServer::createSEDPEndpoints()
         watt.endpoint.unicastLocatorList = this->mp_PDP->getLocalParticipantProxyData()->m_metatrafficUnicastLocatorList;
         watt.endpoint.multicastLocatorList = this->mp_PDP->getLocalParticipantProxyData()->m_metatrafficMulticastLocatorList;
         //watt.endpoint.remoteLocatorList = m_discovery.initialPeersList;
+        watt.endpoint.properties.properties().push_back(Property("dds.persistence.plugin", "builtin.SQLITE3"));
+        watt.endpoint.properties.properties().push_back(Property("dds.persistence.sqlite3.filename", pPDP->GetPersistenceFileName()));
         watt.endpoint.durabilityKind = TRANSIENT;
         watt.times.heartbeatPeriod = edp_heartbeat_period;
         watt.times.nackResponseDelay = edp_nack_response_delay;
@@ -156,6 +162,8 @@ bool EDPServer::createSEDPEndpoints()
         watt.endpoint.unicastLocatorList = this->mp_PDP->getLocalParticipantProxyData()->m_metatrafficUnicastLocatorList;
         watt.endpoint.multicastLocatorList = this->mp_PDP->getLocalParticipantProxyData()->m_metatrafficMulticastLocatorList;
         //watt.endpoint.remoteLocatorList = m_discovery.initialPeersList;
+        watt.endpoint.properties.properties().push_back(Property("dds.persistence.plugin", "builtin.SQLITE3"));
+        watt.endpoint.properties.properties().push_back(Property("dds.persistence.sqlite3.filename", pPDP->GetPersistenceFileName()));
         watt.endpoint.durabilityKind = TRANSIENT;
         watt.times.heartbeatPeriod= edp_heartbeat_period;
         watt.times.nackResponseDelay = edp_nack_response_delay;

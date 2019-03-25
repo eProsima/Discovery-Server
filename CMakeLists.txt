@@ -123,8 +123,11 @@ unset(version_unset)
 # We must populate this variables as project sources grow
 
 set(${PROJECT_NAME}_header_files
+		# application sources
         include/version/config.h
         include/log/DSLog.h
+		include/DSManager.h
+		# library sources
 		include/PDPServer.h
 		include/DServerEvent.h
 		include/EDPServer.h
@@ -133,7 +136,10 @@ set(${PROJECT_NAME}_header_files
     )
 
 set(${PROJECT_NAME}_source_files
+		#application sources
         src/main.cpp
+		src/DSManager.cpp
+		#library sources
 		src/PDPServer.cpp
 		src/DServerEvent.cpp
 		src/EDPServer.cpp
@@ -160,6 +166,8 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     $<$<AND:$<BOOL:${WIN32}>,$<STREQUAL:"${CMAKE_SYSTEM_NAME}","WindowsStore">>:_WIN32_WINNT=0x0603>
     $<$<AND:$<BOOL:${WIN32}>,$<NOT:$<STREQUAL:"${CMAKE_SYSTEM_NAME}","WindowsStore">>>:_WIN32_WINNT=0x0601>
 	)
+
+target_compile_options(${PROJECT_NAME} PRIVATE	-wd4251) 
 
 # we link dynamically to tinyxml2
 target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr tinyxml2 )

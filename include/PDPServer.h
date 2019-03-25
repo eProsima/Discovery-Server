@@ -134,6 +134,14 @@ class PDPServer : public PDP
     void removeRemoteEndpoints(ParticipantProxyData * pdata) override;
     void notifyAboveRemoteEndpoints(const ParticipantProxyData& pdata) override;
     
+    //! Not currently need for DSClientEvent announcement
+    void stopParticipantAnnouncement() override {};
+
+    //! Not currently need for DSClientEvent announcement
+    void resetParticipantAnnouncement() override {};
+
+    //! Get filename for persistence database file
+    std::string GetPersistenceFileName();
 
     private:
 

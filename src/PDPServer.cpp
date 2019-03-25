@@ -143,6 +143,8 @@ bool PDPServer::createPDPEndpoints()
     WriterAttributes watt;
     watt.endpoint.endpointKind = WRITER;
     watt.endpoint.durabilityKind = TRANSIENT;
+    watt.endpoint.properties.properties().push_back(Property("dds.persistence.plugin", "builtin.SQLITE3"));
+    watt.endpoint.properties.properties().push_back(Property("dds.persistence.sqlite3.filename", GetPersistenceFileName()));
     watt.endpoint.reliabilityKind = RELIABLE;
     watt.endpoint.topicKind = WITH_KEY;
     watt.endpoint.multicastLocatorList = mp_builtin->m_metatrafficMulticastLocatorList;
@@ -475,6 +477,24 @@ void PDPServer::removeParticipantForEDPMatch(const ParticipantProxyData * pdata)
 
     // remove the deceased client to the EDP matching list
     _p2match.erase(pdata);
+}
+
+std::string PDPServer::GetPersistenceFileName() 
+{
+    assert(getRTPSParticipant());
+
+   std::ostringstream filename(std::ios_base::ate);
+   std::string prefix;
+
+   // . is not suitable separator for filenames
+   filename << "server-" << getRTPSParticipant()->getGuid().guidPrefix;
+   prefix = filename.str();
+   std::replace(prefix.begin(), prefix.end(), '.', '-');
+   filename.str(std::move(prefix));
+   filename << ".db";
+
+   return filename.str();
+
 }
 
 
