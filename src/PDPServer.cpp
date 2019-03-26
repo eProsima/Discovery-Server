@@ -106,6 +106,9 @@ bool PDPServer::createPDPEndpoints()
 
     if (mp_RTPSParticipant->createReader(&mp_PDPReader, ratt, mp_PDPReaderHistory, mp_listener, c_EntityId_SPDPReader, true, false))
     {
+        // enable unknown clients to reach this reader
+        mp_PDPReader->enableMessagesFromUnkownWriters(true);
+
         for (auto it = mp_builtin->m_DiscoveryServers.begin(); it != mp_builtin->m_DiscoveryServers.end(); ++it)
         {
             RemoteWriterAttributes rwatt;

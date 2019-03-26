@@ -149,7 +149,11 @@ void PDPServerListener::onNewCacheChangeAdded(RTPSReader* reader, const CacheCha
         ParticipantDiscoveryInfo info;
         info.status = ParticipantDiscoveryInfo::REMOVED_PARTICIPANT;
 
-        this->mp_PDP->lookupParticipantProxyData(guid, info.info);
+        if (!mp_PDP->lookupParticipantProxyData(guid, info.info))
+        {
+            logError(RTPS_PDP, "PDPServerListener received DATA(p) NOT_ALIVE_DISPOSED from unknown participant");
+            return;
+        }
 
         if(this->mp_PDP->removeRemoteParticipant(guid))
         {
