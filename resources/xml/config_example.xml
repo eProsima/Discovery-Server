@@ -8,8 +8,8 @@
 
   <clients>
     <client name="client1" profile_name="UDP client"/>
-    <client name="client2" profile_name="UDP client"/>
-    <client name="client3" profile_name="UDP client"/>
+    <!--<client name="client2" profile_name="UDP client"/>
+    <client name="client3" profile_name="UDP client"/>-->
   </clients>
 
   <profiles>

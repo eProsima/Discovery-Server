@@ -99,7 +99,7 @@ DSManager::DSManager(const std::string &xml_file_path)
             tinyxml2::XMLElement *clients = child->FirstChildElement(s_sClients.c_str());
             if (clients)
             {
-                tinyxml2::XMLElement *client = child->FirstChildElement(s_sClient.c_str());
+                tinyxml2::XMLElement *client = clients->FirstChildElement(s_sClient.c_str());
                 while (client)
                 {
                     loadClient(client);

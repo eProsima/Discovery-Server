@@ -245,6 +245,11 @@ void PDPServer::assignRemoteEndpoints(ParticipantProxyData* pdata)
         watt.endpoint.multicastLocatorList = pdata->m_metatrafficMulticastLocatorList;
         watt.endpoint.reliabilityKind = RELIABLE;
         watt.endpoint.durabilityKind = TRANSIENT_LOCAL; 
+
+        // TODO remove the join when Reader and Writer match functions are updated
+        watt.endpoint.remoteLocatorList.push_back(pdata->m_metatrafficUnicastLocatorList);
+        watt.endpoint.remoteLocatorList.push_back(pdata->m_metatrafficMulticastLocatorList);
+
         mp_PDPReader->matched_writer_add(watt);
     }
     auxendp = endp;
@@ -259,6 +264,11 @@ void PDPServer::assignRemoteEndpoints(ParticipantProxyData* pdata)
         ratt.endpoint.multicastLocatorList = pdata->m_metatrafficMulticastLocatorList;
         ratt.endpoint.reliabilityKind = RELIABLE;
         ratt.endpoint.durabilityKind = TRANSIENT_LOCAL;
+
+        // TODO remove the join when Reader and Writer match functions are updated
+        ratt.endpoint.remoteLocatorList.push_back(pdata->m_metatrafficUnicastLocatorList);
+        ratt.endpoint.remoteLocatorList.push_back(pdata->m_metatrafficMulticastLocatorList);
+
         mp_PDPWriter->matched_reader_add(ratt);
     }
 
