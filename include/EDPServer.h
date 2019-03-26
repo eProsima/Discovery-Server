@@ -51,6 +51,9 @@ class EDPServer : public EDPSimple
     //! Keys to wipe out from WriterHistory because its related Participants have been removed
     key_list _PUBdemises, _SUBdemises;
 
+    //! TRANSIENT or TRANSIENT_LOCAL durability;
+    DurabilityKind_t _durability;
+
     public:
 
     /**
@@ -58,7 +61,8 @@ class EDPServer : public EDPSimple
      * @param p Pointer to the PDP
      * @param part Pointer to the RTPSParticipantImpl
      */
-    EDPServer(PDP* p, RTPSParticipantImpl* part) : EDPSimple(p, part) {}
+    EDPServer(PDP* p, RTPSParticipantImpl* part, DurabilityKind_t durability_kind)
+        : EDPSimple(p, part), _durability(durability_kind) {}
     ~EDPServer() override {}
 
     protected:

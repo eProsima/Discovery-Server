@@ -71,7 +71,7 @@ public:
         return partName + "." + epName;
     }
 
-    static PDP * createPDPServer(BuiltinProtocols *);
+    template<bool persist> static PDP * createPDPServer(BuiltinProtocols *);
     static void ReleasePDPServer(PDP *);
 };
 

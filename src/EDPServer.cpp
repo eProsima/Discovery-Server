@@ -73,7 +73,7 @@ bool EDPServer::createSEDPEndpoints()
         //watt.endpoint.remoteLocatorList = m_discovery.initialPeersList;
         watt.endpoint.properties.properties().push_back(Property("dds.persistence.plugin", "builtin.SQLITE3"));
         watt.endpoint.properties.properties().push_back(Property("dds.persistence.sqlite3.filename", pPDP->GetPersistenceFileName()));
-        watt.endpoint.durabilityKind = TRANSIENT;
+        watt.endpoint.durabilityKind = _durability;
         watt.times.heartbeatPeriod = edp_heartbeat_period;
         watt.times.nackResponseDelay = edp_nack_response_delay;
         watt.times.nackSupressionDuration = edp_nack_supression_duration;
@@ -164,7 +164,7 @@ bool EDPServer::createSEDPEndpoints()
         //watt.endpoint.remoteLocatorList = m_discovery.initialPeersList;
         watt.endpoint.properties.properties().push_back(Property("dds.persistence.plugin", "builtin.SQLITE3"));
         watt.endpoint.properties.properties().push_back(Property("dds.persistence.sqlite3.filename", pPDP->GetPersistenceFileName()));
-        watt.endpoint.durabilityKind = TRANSIENT;
+        watt.endpoint.durabilityKind = _durability;
         watt.times.heartbeatPeriod= edp_heartbeat_period;
         watt.times.nackResponseDelay = edp_nack_response_delay;
         watt.times.nackSupressionDuration = edp_nack_supression_duration;

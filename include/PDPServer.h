@@ -49,12 +49,15 @@ class PDPServer : public PDP
     //! Keys to wipe out from WriterHistory because its related Participants have been removed
     key_list _demises;
 
+    //! TRANSIENT or TRANSIENT_LOCAL durability;
+    DurabilityKind_t _durability;
+
     public:
     /**
      * Constructor
      * @param builtin Pointer to the BuiltinProcols object.
      */
-    PDPServer(BuiltinProtocols* builtin);
+    PDPServer(BuiltinProtocols* builtin, DurabilityKind_t durability_kind = TRANSIENT_LOCAL);
     ~PDPServer();
 
     void initializeParticipantProxyData(ParticipantProxyData* participant_data) override;

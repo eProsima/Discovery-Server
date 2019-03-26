@@ -46,8 +46,8 @@ namespace eprosima {
 namespace fastrtps{
 namespace rtps {
 
-PDPServer::PDPServer(BuiltinProtocols* built):
-    PDP(built), mp_sync(nullptr)
+PDPServer::PDPServer(BuiltinProtocols* built, DurabilityKind_t durability_kind) :
+    PDP(built), mp_sync(nullptr), _durability(durability_kind)
     {
 
     }
@@ -66,7 +66,7 @@ bool PDPServer::initPDP(RTPSParticipantImpl* part)
     }
 
     //INIT EDP
-    mp_EDP = (EDP*)(new EDPServer(this, mp_RTPSParticipant));
+    mp_EDP = (EDP*)(new EDPServer(this, mp_RTPSParticipant, _durability));
     if (!mp_EDP->initEDP(m_discovery))
     {
         logError(RTPS_PDP, "Endpoint discovery configuration failed");
@@ -117,7 +117,7 @@ bool PDPServer::createPDPEndpoints()
             rwatt.endpoint.multicastLocatorList.push_back(it->metatrafficMulticastLocatorList);
             rwatt.endpoint.unicastLocatorList.push_back(it->metatrafficUnicastLocatorList);
             rwatt.endpoint.topicKind = WITH_KEY;
-            rwatt.endpoint.durabilityKind = TRANSIENT; // Server Information must be persistent
+            rwatt.endpoint.durabilityKind = _durability; // Server Information must be persistent
             rwatt.endpoint.reliabilityKind = RELIABLE;
 
             // TODO: remove the join when Reader and Writer match functions are updated
@@ -145,7 +145,7 @@ bool PDPServer::createPDPEndpoints()
 
     WriterAttributes watt;
     watt.endpoint.endpointKind = WRITER;
-    watt.endpoint.durabilityKind = TRANSIENT;
+    watt.endpoint.durabilityKind = _durability;
     watt.endpoint.properties.properties().push_back(Property("dds.persistence.plugin", "builtin.SQLITE3"));
     watt.endpoint.properties.properties().push_back(Property("dds.persistence.sqlite3.filename", GetPersistenceFileName()));
     watt.endpoint.reliabilityKind = RELIABLE;

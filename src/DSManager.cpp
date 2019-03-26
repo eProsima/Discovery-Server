@@ -31,6 +31,7 @@ static const std::string s_sServers("servers");
 static const std::string s_sServer("server");
 static const std::string s_sClients("clients");
 static const std::string s_sClient("client");
+static const std::string s_sPersist("persist");
 
 // non exported from fast-RTPS (watch out they are updated)
 namespace eprosima{
@@ -299,6 +300,8 @@ void DSManager::parseProperties(tinyxml2::XMLElement *parent_element,
 
 void DSManager::onTerminate()
 {
+
+
     clients.insert(servers.begin(), servers.end());
 
     for (const auto &e : clients)
@@ -327,11 +330,20 @@ DSManager::~DSManager()
 
 // TODO: keep track of allocated objects in order to prevent memory leaks
 
-/*static*/ PDP * DSManager::createPDPServer(BuiltinProtocols * builtin)
+template<>
+/*static*/ PDP * DSManager::createPDPServer<true>(BuiltinProtocols * builtin)
 {
     assert(builtin);
-    return new PDPServer(builtin);
+    return new PDPServer(builtin,DurabilityKind_t::TRANSIENT);
 }
+
+template<>
+/*static*/ PDP * DSManager::createPDPServer<false>(BuiltinProtocols * builtin)
+{
+    assert(builtin);
+    return new PDPServer(builtin, DurabilityKind_t::TRANSIENT_LOCAL);
+}
+
 
 /*static*/ void DSManager::ReleasePDPServer(PDP * p)
 {
@@ -362,24 +374,33 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     // or inside the profile. 
     GuidPrefix_t & prefix = atts.rtps.prefix;
     if (!(std::istringstream(server->Attribute(xmlparser::PREFIX)) >> prefix)
-        && (prefix == c_GuidPrefix_Unknown) )
+        && (prefix == c_GuidPrefix_Unknown))
     {
         LOG_ERROR("Servers cannot have a framework provided prefix"); // at least for now
         return;
     }
 
     // Check if the guidPrefix is already in use (there is a mistake on config file)
-    if ( servers.find(GUID_t(prefix, c_EntityId_RTPSParticipant)) != servers.end() )
+    if (servers.find(GUID_t(prefix, c_EntityId_RTPSParticipant)) != servers.end())
     {
-        LOG_ERROR("DSManager detected two servers sharing the same prefix " << prefix );
+        LOG_ERROR("DSManager detected two servers sharing the same prefix " << prefix);
         return;
     }
 
     // We define the PDP as external (when moved to fast library it would be SERVER)
     BuiltinAttributes & b = atts.rtps.builtin;
     b.discoveryProtocol = EXTERNAL;
-    b.m_PDPfactory.CreatePDPInstance = &DSManager::createPDPServer;
     b.m_PDPfactory.ReleasePDPInstance = &DSManager::ReleasePDPServer;
+
+    // Choose the kind of server to create:
+    if (server->BoolAttribute(s_sPersist.c_str()))
+    {
+        b.m_PDPfactory.CreatePDPInstance = &DSManager::createPDPServer<true>;  
+    }
+    else
+    { 
+        b.m_PDPfactory.CreatePDPInstance = &DSManager::createPDPServer<false>;
+    }
 
     // now we create the new participant
     RTPSParticipant * pServer = RTPSDomain::createParticipant(atts.rtps);

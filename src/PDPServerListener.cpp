@@ -144,14 +144,15 @@ void PDPServerListener::onNewCacheChangeAdded(RTPSReader* reader, const CacheCha
     else
     {
         GUID_t guid;
-        iHandle2GUID(guid, change->instanceHandle);
+        const InstanceHandle_t ihandle = change->instanceHandle;
+        iHandle2GUID(guid, ihandle);
 
         ParticipantDiscoveryInfo info;
         info.status = ParticipantDiscoveryInfo::REMOVED_PARTICIPANT;
 
         if (!mp_PDP->lookupParticipantProxyData(guid, info.info))
         {
-            logError(RTPS_PDP, "PDPServerListener received DATA(p) NOT_ALIVE_DISPOSED from unknown participant");
+            logWarning(RTPS_PDP, "PDPServerListener received DATA(p) NOT_ALIVE_DISPOSED from unknown participant");
             return;
         }
 
@@ -164,8 +165,8 @@ void PDPServerListener::onNewCacheChangeAdded(RTPSReader* reader, const CacheCha
             }
         }
 
-        assert(change->instanceHandle == info.info.m_key);
-        mp_PDP->removeParticipantFromHistory(change->instanceHandle);
+        assert(ihandle == info.info.m_key);
+        mp_PDP->removeParticipantFromHistory(ihandle);
         mp_PDP->removeParticipantForEDPMatch(&info.info);
 
     }
