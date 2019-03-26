@@ -40,6 +40,7 @@ namespace eprosima{
             const char* PROFILES = "profiles";
             const char* PROFILE_NAME = "profile_name";
             const char* PREFIX = "prefix";
+            const char* NAME = "name";
         }
     }
 }
@@ -85,7 +86,7 @@ DSManager::DSManager(const std::string &xml_file_path)
                 while (server)
                 {
                     loadServer(server);
-                    server = child->NextSiblingElement(s_sServer.c_str());
+                    server = server->NextSiblingElement(s_sServer.c_str());
                 }
             }
             else
@@ -102,7 +103,7 @@ DSManager::DSManager(const std::string &xml_file_path)
                 while (client)
                 {
                     loadClient(client);
-                    client = child->NextSiblingElement(s_sClient.c_str());
+                    client = client->NextSiblingElement(s_sClient.c_str());
                 }
             }
 
@@ -122,14 +123,15 @@ DSManager::DSManager(const std::string &xml_file_path)
 
 void DSManager::addServer(RTPSParticipant* s)
 {
-    assert(s->getParticipantNames().size());
-    servers[s->getParticipantNames()[0]] = s;
+    assert(servers[s->getGuid()] == nullptr);
+    servers[s->getGuid()] = s;
     active = true;
 }
 
 void DSManager::addClient(RTPSParticipant* c)
 {
-    clients[c->getParticipantNames()[0]] = c;
+    assert(clients[c->getGuid()] == nullptr);
+    clients[c->getGuid()] = c;
 }
 
 void DSManager::loadProfiles(tinyxml2::XMLElement *profiles)
@@ -348,7 +350,7 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
         return;
     }
 
-    // recover 
+    // retrieve profile attributes
     ParticipantAttributes atts;
     if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillParticipantAttributes(profile_name, atts))
     {
@@ -363,6 +365,13 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
         && (prefix == c_GuidPrefix_Unknown) )
     {
         LOG_ERROR("Servers cannot have a framework provided prefix"); // at least for now
+        return;
+    }
+
+    // Check if the guidPrefix is already in use (there is a mistake on config file)
+    if ( servers.find(GUID_t(prefix, c_EntityId_RTPSParticipant)) != servers.end() )
+    {
+        LOG_ERROR("DSManager detected two servers sharing the same prefix " << prefix );
         return;
     }
 
@@ -386,6 +395,46 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
 
 void DSManager::loadClient(tinyxml2::XMLElement* client)
 {
-    // TODO: Implement client parsing
+    // clients are created for debugging purposes
+    // profile name is mandatory because they must reference servers
+    std::string profile_name(client->Attribute(xmlparser::PROFILE_NAME));
+
+    if (profile_name.empty())
+    {
+        LOG_ERROR(xmlparser::PROFILE_NAME << " is a mandatory attribute of client tag");
+        return;
+    }
+
+    // retrieve profile attributes
+    ParticipantAttributes atts;
+    if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillParticipantAttributes(profile_name, atts))
+    {
+        LOG_ERROR("DSManager::loadClient couldn't load profile " << profile_name);
+        return;
+    }
+
+    // we must assert that PDPtype is CLIENT
+    if (atts.rtps.builtin.discoveryProtocol != rtps::PDPType_t::CLIENT)
+    {
+        LOG_ERROR("DSManager::loadClient try to create a client with an incompatible profile: " << profile_name);
+        return;
+    }
+
+    // pick the client's name (isn't mandatory to provide it). Takes precedence over profile provided.
+    const char * name = client->Attribute(xmlparser::NAME);
+    if( name != nullptr )
+    {
+        atts.rtps.setName(name);
+    }
+
+    // now we create the new participant
+    RTPSParticipant * pClient = RTPSDomain::createParticipant(atts.rtps);
+    if (!pClient)
+    {
+        LOG_ERROR("DSManager couldn't create a client with profile " << profile_name);
+        return;
+    }
+
+    addClient(pClient);
 }
 

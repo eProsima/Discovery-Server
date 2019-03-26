@@ -42,8 +42,10 @@ namespace eprosima {
 
 class DSManager
 {
-    std::map<std::string, RTPSParticipant*> servers;
-    std::map<std::string, RTPSParticipant*> clients;
+    typedef std::map<GUID_t, RTPSParticipant*> participant_map;
+
+    participant_map servers;
+    participant_map clients;
 
     bool active;
     void parseProperties(tinyxml2::XMLElement *parent_element,
