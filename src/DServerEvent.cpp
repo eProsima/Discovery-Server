@@ -66,11 +66,19 @@ void DServerEvent::event(EventCode code, const char* msg)
             // Wait until we have received all network discovery info currently available
             if (mp_PDP->is_all_servers_PDPdata_updated())
             {
-                restart = !mp_PDP->match_servers_EDP_endpoints();
+                restart != !mp_PDP->match_servers_EDP_endpoints();
                 // we must keep this TimedEvent alive to cope with servers' shutdown
                 // PDPServer::removeRemoteEndpoints would restart_timer if a server vanishes
-                mp_PDP->announceParticipantState(false);
             }
+            else
+            {
+                restart = true;
+            }
+        }
+        else
+        {   // awake the other servers
+            mp_PDP->announceParticipantState(false);
+            restart = true;
         }
 
         // Check EDP matching

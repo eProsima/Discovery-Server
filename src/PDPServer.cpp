@@ -482,7 +482,7 @@ void PDPServer::removeParticipantForEDPMatch(const ParticipantProxyData * pdata)
     {
         if (svr.guidPrefix == pdata->m_guid.guidPrefix)
         {
-            assert(svr.proxy != nullptr); // should be already registered
+            // assert(svr.proxy != nullptr); // should be already registered
             return;
         }
     }
@@ -577,7 +577,7 @@ void PDPServer::announceParticipantState(bool new_change, bool dispose /* = fals
     if (new_change)
     {
         // only builtinprotocols uses new_change = true, delegate in base class
-        // in order to get the ParticipantProxyData into the WriterHistory
+        // in order to get the ParticipantProxyData into the WriterHistory and broadcast the first DATA(p)
         PDP::announceParticipantState(new_change, dispose);
     }
     else

@@ -744,7 +744,7 @@
         <xs:all>
           <xs:element name="profiles" type="profileDescriptorType" minOccurs="1" />
           <xs:element name="servers" type="serversListDescriptorType" minOccurs="1" />
-          <xs:element name="clients" type="clientsListDescriptorType" minOccurs="1" />
+          <xs:element name="clients" type="clientsListDescriptorType" minOccurs="0" />
         </xs:all>
       </xs:complexType>
     </xs:element>
