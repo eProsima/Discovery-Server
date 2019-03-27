@@ -58,14 +58,42 @@ void DServerEvent::event(EventCode code, const char* msg)
         logInfo(RTPS_PDP,"DServerEvent Period");
 
         std::lock_guard<std::recursive_mutex> lock(*mp_PDP->getMutex());
+        bool restart = false;
 
-        if (mp_PDP->pendingEDPMatches() && mp_PDP->all_clients_acknowledge_PDP())
+        // Check Server matching
+        if (mp_PDP->all_servers_acknowledge_PDP())
         {
-            // Do the matching
-            mp_PDP->match_all_clients_EDP_endpoints();
+            // Wait until we have received all network discovery info currently available
+            if (mp_PDP->is_all_servers_PDPdata_updated())
+            {
+                restart = !mp_PDP->match_servers_EDP_endpoints();
+                // we must keep this TimedEvent alive to cope with servers' shutdown
+                // PDPServer::removeRemoteEndpoints would restart_timer if a server vanishes
+                mp_PDP->announceParticipantState(false);
+            }
         }
 
-        restart_timer();
+        // Check EDP matching
+        if (mp_PDP->pendingEDPMatches())
+        {
+            if (mp_PDP->all_clients_acknowledge_PDP())
+            {
+                // Do the matching
+                mp_PDP->match_all_clients_EDP_endpoints();
+                // Whenever new clients appear restart_timer()
+                // see PDPServer::queueParticipantForEDPMatch
+            }
+            else
+            {   // keep trying the match
+                restart = true;  
+            }
+        }  
+
+        if (restart)
+        {
+            restart_timer();
+        }
+
     }
     else if(code == EVENT_ABORT)
     {

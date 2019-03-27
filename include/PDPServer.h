@@ -22,6 +22,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS_PUBLIC
 
 #include <fastrtps\rtps\builtin\discovery\participant\PDP.h>
+#include <fastrtps/rtps/messages/RTPSMessageGroup.h>
+
 #include "DServerEvent.h"
 
 namespace eprosima {
@@ -51,6 +53,9 @@ class PDPServer : public PDP
 
     //! TRANSIENT or TRANSIENT_LOCAL durability;
     DurabilityKind_t _durability;
+
+    //! Messages announcement ancillary
+    RTPSMessageGroup_t _msgbuffer;
 
     public:
     /**
@@ -97,6 +102,10 @@ class PDPServer : public PDP
     void removeParticipantFromHistory(const InstanceHandle_t &);
 
     /**
+     * Methods to synchronize EDP matching
+     */
+
+    /**
      * Add a participant to the queue of pending participants to EDP matching
      * @param ParticipantProxyData associated with the new participant
      */
@@ -129,19 +138,50 @@ class PDPServer : public PDP
     void match_all_clients_EDP_endpoints();
 
     /**
-     * These methods wouldn't be needed under perfect server operation (no need of dynamic endpoint allocation) but must be implemented
-     * to solve server shutdown situations.
-     * @param pdata Pointer to the RTPSParticipantProxyData object.
+     * Methods to synchronize with another servers
      */
-    void assignRemoteEndpoints(ParticipantProxyData* pdata) override;
-    void removeRemoteEndpoints(ParticipantProxyData * pdata) override;
-    void notifyAboveRemoteEndpoints(const ParticipantProxyData& pdata) override;
-    
+
+    /**
+    * Check if all servers have acknowledge this server PDP data
+    * This method must be called from a mutex protected context.
+    * @return True if all can reach the client
+    */
+    bool all_servers_acknowledge_PDP();
+
+    /**
+     * Check if we have our PDP received data updated
+     * This method must be called from a mutex protected context.
+     * @return True if we known all the participants the servers are aware of
+     */
+    bool is_all_servers_PDPdata_updated();
+
+    /**
+     * Matching server EDP endpoints
+     * @return true if all servers have been discovered
+     */
+    bool match_servers_EDP_endpoints();
+
+    /**
+     * Force the sending of our local PDP to all servers
+     * @param new_change If true a new change (with new seqNum) is created and sent; if false the last change is re-sent
+     * @param dispose Sets change kind to NOT_ALIVE_DISPOSED_UNREGISTERED
+     */
+    void announceParticipantState(bool new_change, bool dispose = false) override;
+
     //! Not currently need for DSClientEvent announcement
     void stopParticipantAnnouncement() override {};
 
     //! Not currently need for DSClientEvent announcement
     void resetParticipantAnnouncement() override {};
+
+    /**
+     * These methods wouldn't be needed under perfect server operation (no need of dynamic endpoint allocation)
+     * but must be implemented to solve server shutdown situations.
+     * @param pdata Pointer to the RTPSParticipantProxyData object.
+     */
+    void assignRemoteEndpoints(ParticipantProxyData* pdata) override;
+    void removeRemoteEndpoints(ParticipantProxyData * pdata) override;
+    void notifyAboveRemoteEndpoints(const ParticipantProxyData& pdata) override;
 
     //! Get filename for persistence database file
     std::string GetPersistenceFileName();

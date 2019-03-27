@@ -47,7 +47,8 @@ namespace fastrtps{
 namespace rtps {
 
 PDPServer::PDPServer(BuiltinProtocols* built, DurabilityKind_t durability_kind) :
-    PDP(built), mp_sync(nullptr), _durability(durability_kind)
+    PDP(built), mp_sync(nullptr), _durability(durability_kind),
+    _msgbuffer(DISCOVERY_PARTICIPANT_DATA_MAX_SIZE,built->mp_participantImpl->getGuid().guidPrefix)
     {
 
     }
@@ -394,7 +395,7 @@ void PDPServer::trimWriterHistory()
     if (_demises.empty())
         return;
 
-    std::lock_guard<std::recursive_mutex> guardP(*mp_mutex);
+    std::lock_guard<std::recursive_mutex> guardP(*getMutex());
     
     // sweep away any resurrected participant
     std::for_each(ParticipantProxiesBegin(), ParticipantProxiesEnd(),
@@ -455,7 +456,7 @@ void PDPServer::removeParticipantFromHistory(const InstanceHandle_t & key)
     std::lock_guard<std::recursive_mutex> guardP(*mp_mutex);
 
     _demises.insert(key);
-    trimWriterHistory(); // first call, TODO: DServerEvent should keep calling
+    trimWriterHistory(); 
 }
 
 void PDPServer::queueParticipantForEDPMatch(const ParticipantProxyData * pdata)
@@ -466,6 +467,7 @@ void PDPServer::queueParticipantForEDPMatch(const ParticipantProxyData * pdata)
 
     // add the new client or server to the EDP matching list
     _p2match.insert(pdata);
+    mp_sync->restart_timer();
 }
 
 
@@ -507,7 +509,112 @@ std::string PDPServer::GetPersistenceFileName()
 
 }
 
+bool PDPServer::all_servers_acknowledge_PDP()
+{
+    // check if already initialized
+    assert(mp_PDPWriterHistory && mp_PDPWriter);
 
+    // First check if all servers have been discovered
+    bool discovered = true;
+
+    for (auto & s : mp_builtin->m_DiscoveryServers)
+    {
+        discovered &= (s.proxy != nullptr);
+    }
+
+    if (!discovered)
+    {
+        // The first change in the PDP WriterHistory is this server ParticipantProxyData
+        // see BuiltinProtocols::initBuiltinProtocols call to PDPXXX::announceParticipantState(true)
+        CacheChange_t * pPD;
+        if (mp_PDPWriterHistory->get_min_change(&pPD))
+        {
+            // This answer includes also clients but is accurate enough
+            return mp_PDPWriter->is_acked_by_all(pPD);
+        }
+        else
+        {
+            logError(RTPS_PDP, "ParticipantProxy data should have been added to client PDP history cache by a previous call to announceParticipantState()");
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+bool PDPServer::is_all_servers_PDPdata_updated()
+{
+    StatefulReader * pR = dynamic_cast<StatefulReader *>(mp_PDPReader);
+    assert(pR);
+
+    // This answer includes also clients but is accurate enough
+    return pR->isInCleanState();
+}
+
+
+bool PDPServer::match_servers_EDP_endpoints()
+{
+    std::lock_guard<std::recursive_mutex> lock(*getMutex());
+    bool all = true; // have all servers been discovered?
+
+    for (auto & svr : mp_builtin->m_DiscoveryServers)
+    {
+        all &= (svr.proxy != nullptr);
+
+        if (svr.proxy && !mp_EDP->areRemoteEndpointsMatched(svr.proxy))
+        {
+            this->queueParticipantForEDPMatch(svr.proxy);
+        }
+    }
+
+    return all;
+}
+
+void PDPServer::announceParticipantState(bool new_change, bool dispose /* = false */)
+{
+    // Servers only send direct DATA(p) to servers in order to allow discovery
+    if (new_change)
+    {
+        // only builtinprotocols uses new_change = true, delegate in base class
+        // in order to get the ParticipantProxyData into the WriterHistory
+        PDP::announceParticipantState(new_change, dispose);
+    }
+    else
+    {
+        // retrieve the participant discovery data
+        CacheChange_t * pPD;
+        if (mp_PDPWriterHistory->get_min_change(&pPD))
+        {
+            std::lock_guard<std::recursive_mutex> lock(*getMutex());
+
+            RTPSMessageGroup group(getRTPSParticipant(), mp_PDPWriter, RTPSMessageGroup::WRITER, _msgbuffer);
+
+            std::vector<GUID_t> remote_readers;
+            LocatorList_t locators;
+
+            for (auto & svr : mp_builtin->m_DiscoveryServers)
+            {
+                if (svr.proxy == nullptr)
+                {
+                    remote_readers.push_back(svr.GetPDPReader());
+                    locators.push_back(svr.metatrafficMulticastLocatorList);
+                    locators.push_back(svr.metatrafficUnicastLocatorList);
+                }
+            }
+
+            if (!group.add_data(*pPD, remote_readers, locators, false))
+            {
+                logError(RTPS_PDP, "Error sending announcement from server to servers");
+            }
+        }
+        else
+        {
+            logError(RTPS_PDP, "ParticipantProxy data should have been added to client PDP history cache by a previous call to announceParticipantState()");
+        }
+    }
+}
+    
 } /* namespace rtps */
 } /* namespace fastrtps */
 } /* namespace eprosima */
