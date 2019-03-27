@@ -78,6 +78,7 @@ bool PDPServer::initPDP(RTPSParticipantImpl* part)
         discoveryServer_client_syncperiod parameter has a context defined meaning.
     */
     mp_sync = new DServerEvent(this, TimeConv::Time_t2MilliSecondsDouble(m_discovery.discoveryServer_client_syncperiod));
+    mp_sync->restart_timer();
 
     return true;
 }
