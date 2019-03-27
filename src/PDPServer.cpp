@@ -222,7 +222,7 @@ void PDPServer::initializeParticipantProxyData(ParticipantProxyData* participant
 void PDPServer::assignRemoteEndpoints(ParticipantProxyData* pdata)
 {
     // Verify if this participant is a server
-    for (auto svr : mp_builtin->m_DiscoveryServers)
+    for (auto & svr : mp_builtin->m_DiscoveryServers)
     {
         if (svr.guidPrefix == pdata->m_guid.guidPrefix)
         {
@@ -269,10 +269,6 @@ void PDPServer::assignRemoteEndpoints(ParticipantProxyData* pdata)
         ratt.endpoint.reliabilityKind = RELIABLE;
         ratt.endpoint.durabilityKind = TRANSIENT_LOCAL;
 
-        // TODO remove the join when Reader and Writer match functions are updated
-        ratt.endpoint.remoteLocatorList.push_back(pdata->m_metatrafficUnicastLocatorList);
-        ratt.endpoint.remoteLocatorList.push_back(pdata->m_metatrafficMulticastLocatorList);
-
         mp_PDPWriter->matched_reader_add(ratt);
     }
 
@@ -296,7 +292,7 @@ void PDPServer::removeRemoteEndpoints(ParticipantProxyData* pdata)
 
     // Verify if this participant is a server
     bool is_server = false;
-    for (auto svr : mp_builtin->m_DiscoveryServers)
+    for (auto & svr : mp_builtin->m_DiscoveryServers)
     {
         if (svr.guidPrefix == pdata->m_guid.guidPrefix)
         {

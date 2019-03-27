@@ -57,7 +57,7 @@ void DServerEvent::event(EventCode code, const char* msg)
     {
         logInfo(RTPS_PDP,"DServerEvent Period");
 
-        std::lock_guard<std::recursive_mutex> guardP(*mp_PDP->getMutex());
+        std::lock_guard<std::recursive_mutex> lock(*mp_PDP->getMutex());
 
         if (mp_PDP->pendingEDPMatches() && mp_PDP->all_clients_acknowledge_PDP())
         {
