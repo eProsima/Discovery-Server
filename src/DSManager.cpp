@@ -136,6 +136,8 @@ DSManager::DSManager(const std::string &xml_file_path)
     {
         LOG("Config file not found.");
     }
+
+    LOG_INFO("File " << xml_file_path << " parsed successfully.");
 }
 
 void DSManager::addServer(RTPSParticipant* s)

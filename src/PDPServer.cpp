@@ -440,11 +440,26 @@ bool PDPServer::addParticipantToHistory(const CacheChange_t & c)
     std::lock_guard<std::recursive_mutex> guardW(*mp_PDPWriter->getMutex());
     CacheChange_t * pCh = nullptr;
 
+    // See if this sample is already in the cache. 
+    const SampleIdentity & sid = c.write_params.sample_identity();
+    // TODO: Accelerate this search by using a PublisherHistory as mp_PDPWriterHistory
+    auto it = std::find_if(mp_PDPWriterHistory->changesRbegin(), mp_PDPWriterHistory->changesRend(), [&sid] (auto c) {
+        return sid == c->write_params.sample_identity();
+        });
+    if (it != mp_PDPWriterHistory->changesRend())
+    {
+        return true; // already there 
+    }
+
     // mp_PDPWriterHistory->reserve_Cache(&pCh, DISCOVERY_PARTICIPANT_DATA_MAX_SIZE)
     if (mp_PDPWriterHistory->reserve_Cache(&pCh, c.serializedPayload.max_size) && pCh && pCh->copy(&c) )
     {
+        // keep the original sample identity
         pCh->writerGUID = mp_PDPWriter->getGuid();
-        return mp_PDPWriterHistory->add_change(pCh,pCh->write_params);
+        pCh->write_params.sample_identity(sid);
+       // pCh->write_params.related_sample_identity(sid);
+
+        return mp_PDPWriterHistory->add_change(pCh);
     }
 
     return false;
@@ -579,6 +594,20 @@ void PDPServer::announceParticipantState(bool new_change, bool dispose /* = fals
         // only builtinprotocols uses new_change = true, delegate in base class
         // in order to get the ParticipantProxyData into the WriterHistory and broadcast the first DATA(p)
         PDP::announceParticipantState(new_change, dispose);
+
+        // Add the write params to the sample
+        if (!dispose)
+        {
+            CacheChange_t * pPD;
+            if (mp_PDPWriterHistory->get_min_change(&pPD))
+            {
+                SampleIdentity local;
+                local.writer_guid(mp_PDPWriter->getGuid());
+                local.sequence_number(mp_PDPWriterHistory->next_sequence_number()-1);
+                pPD->write_params.sample_identity(local);
+                // pPD->write_params.related_sample_identity(local);
+            }
+        }
     }
     else
     {
