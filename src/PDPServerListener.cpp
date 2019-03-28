@@ -145,8 +145,7 @@ void PDPServerListener::onNewCacheChangeAdded(RTPSReader* reader, const CacheCha
     else
     {
         GUID_t guid;
-        const InstanceHandle_t ihandle = change->instanceHandle;
-        iHandle2GUID(guid, ihandle);
+        iHandle2GUID(guid, change->instanceHandle);
 
         ParticipantDiscoveryInfo info;
         info.status = ParticipantDiscoveryInfo::REMOVED_PARTICIPANT;
@@ -165,11 +164,6 @@ void PDPServerListener::onNewCacheChangeAdded(RTPSReader* reader, const CacheCha
                 listener->onParticipantDiscovery(this->mp_PDP->getRTPSParticipant()->getUserRTPSParticipant(), std::move(info));
             }
         }
-
-        assert(ihandle == info.info.m_key);
-        mp_PDP->removeParticipantFromHistory(ihandle);
-        mp_PDP->removeParticipantForEDPMatch(&info.info);
-
     }
 
     //Remove change form history.

@@ -81,6 +81,13 @@ class PDPServer : public PDP
     bool createPDPEndpoints() override;
 
     /**
+     * This method removes a remote RTPSParticipant and all its writers and readers.
+     * @param partGUID GUID_t of the remote RTPSParticipant.
+     * @return true if correct.
+     */
+    bool removeRemoteParticipant(GUID_t& partGUID) override;
+
+    /**
      * Methods to update WriterHistory with reader information
      */
 
