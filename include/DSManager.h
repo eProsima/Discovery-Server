@@ -21,7 +21,9 @@
 #include "log/DSLog.h"
 
 #include <fastrtps/rtps/participant/RTPSParticipant.h>
+#include <fastrtps/xmlparser/XMLParser.h>
 
+using namespace eprosima::fastrtps;
 using namespace eprosima::fastrtps::rtps;
 
 namespace tinyxml2
@@ -40,19 +42,23 @@ namespace eprosima {
     }
 }
 
-class DSManager
+class DSManager : public xmlparser::XMLParser // access to parsing protected functions
 {
     typedef std::map<GUID_t, RTPSParticipant*> participant_map;
+    typedef std::map<GUID_t, std::pair<LocatorList_t, LocatorList_t> > serverLocator_map; // multi, unicast locator list
 
-    participant_map servers;
-    participant_map clients;
+    participant_map _servers;
+    participant_map _clients;
 
-    bool active;
+    serverLocator_map _server_locators;
+
+    bool _active;
     void parseProperties(tinyxml2::XMLElement *parent_element,
         std::vector<std::pair<std::string, std::string>> &props);
     void loadProfiles(tinyxml2::XMLElement *profiles);
     void loadServer(tinyxml2::XMLElement* server);
     void loadClient(tinyxml2::XMLElement* client);
+    void MapServerInfo(tinyxml2::XMLElement* server);
 
 public:
     DSManager(const std::string &xml_file_path);

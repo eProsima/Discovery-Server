@@ -717,9 +717,38 @@
     </xs:complexType>
 
     <xs:complexType name="serverType">
-      <xs:attribute name="prefix" type="guid" use="optional" /> <!-- prefix may be specified within the profile -->
+      <xs:all>
+        <xs:element name="ListeningPorts" minOccurs="0" maxOccurs="1"  > <!-- not mandatory may be present in the profile -->
+          <xs:complexType>
+            <xs:choice>
+              <xs:sequence>
+                <xs:element name="metatrafficUnicastLocatorList" type="locatorListType" minOccurs="1" />
+                <xs:element name="metatrafficMulticastLocatorList" type="locatorListType" minOccurs="0" />
+              </xs:sequence>
+              <xs:sequence>
+                <xs:element name="metatrafficMulticastLocatorList" type="locatorListType" minOccurs="1" />
+                <xs:element name="metatrafficUnicastLocatorList" type="locatorListType" minOccurs="0" />
+              </xs:sequence>
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="ServersList" minOccurs="0" maxOccurs="1"  > <!-- not mandatory may be present in the profile -->
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="RServer" minOccurs="1" maxOccurs="unbounded"> 
+                <xs:complexType>
+                  <xs:attribute name="prefix" type="guid" use="required" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:all>
+      <xs:attribute name="prefix" type="guid" use="optional" />
+      <!-- prefix may be specified within the profile -->
       <xs:attribute name="profile_name" type="stringType" use="required" />
-      <xs:attribute name="persist" type="boolean" use="optional" /> <!-- backup server? defaults to NO-->
+      <xs:attribute name="persist" type="boolean" use="optional" />
+      <!-- backup server? defaults to NO-->
     </xs:complexType>
 
     <xs:complexType name="clientType">
@@ -727,24 +756,24 @@
       <xs:attribute name="profile_name" type="stringType" use="required" />
     </xs:complexType>
 
-    <xs:complexType name="serversListDescriptorType">
-      <xs:sequence>
-        <xs:element name="server" type="serverType" minOccurs="1" maxOccurs="unbounded"/>
-      </xs:sequence>
-    </xs:complexType>
-
-  <xs:complexType name="clientsListDescriptorType">
-    <xs:sequence>
-      <xs:element name="client" type="clientType" minOccurs="1" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
-
   <xs:element name="DS">
       <xs:complexType>
         <xs:all>
           <xs:element name="profiles" type="profileDescriptorType" minOccurs="1" />
-          <xs:element name="servers" type="serversListDescriptorType" minOccurs="1" />
-          <xs:element name="clients" type="clientsListDescriptorType" minOccurs="0" />
+          <xs:element name="servers" minOccurs="1">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="server" type="serverType" minOccurs="1" maxOccurs="unbounded"/>
+                </xs:sequence>
+              </xs:complexType>           
+          </xs:element>
+          <xs:element name="clients"  minOccurs="0">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="client" type="clientType" minOccurs="1" maxOccurs="unbounded"/>
+                </xs:sequence>
+              </xs:complexType>
+          </xs:element>
         </xs:all>
       </xs:complexType>
     </xs:element>

@@ -32,6 +32,9 @@ static const std::string s_sServer("server");
 static const std::string s_sClients("clients");
 static const std::string s_sClient("client");
 static const std::string s_sPersist("persist");
+static const std::string s_sLP("ListeningPorts");
+static const std::string s_sSL("ServersList");
+static const std::string s_sRServer("RServer");
 
 // non exported from fast-RTPS (watch out they are updated)
 namespace eprosima{
@@ -42,12 +45,14 @@ namespace eprosima{
             const char* PROFILE_NAME = "profile_name";
             const char* PREFIX = "prefix";
             const char* NAME = "name";
+            const char* META_UNI_LOC_LIST = "metatrafficUnicastLocatorList";
+            const char* META_MULTI_LOC_LIST = "metatrafficMulticastLocatorList";
         }
     }
 }
 
 DSManager::DSManager(const std::string &xml_file_path)
-    : active(false)
+    : _active(false)
 {
     //Log::SetVerbosity(Log::Warning);
     tinyxml2::XMLDocument doc;
@@ -79,11 +84,22 @@ DSManager::DSManager(const std::string &xml_file_path)
                 return;
             }
 
-            // Create the servers according with their configuration
+            // Server processing requires a two pass analysis
             tinyxml2::XMLElement *servers = child->FirstChildElement(s_sServers.c_str());
+
             if (servers)
             {
+            // 1. First map each server with his locators
                 tinyxml2::XMLElement *server = servers->FirstChildElement(s_sServer.c_str());
+                while (server)
+                {
+                    MapServerInfo(server);
+                    server = server->NextSiblingElement(s_sServer.c_str());
+                }
+
+            // 2. Create the servers according with their configuration
+
+                server = servers->FirstChildElement(s_sServer.c_str());
                 while (server)
                 {
                     loadServer(server);
@@ -111,9 +127,9 @@ DSManager::DSManager(const std::string &xml_file_path)
         }
 
         // at least one server must be created from config file
-        if (servers.size() > 0)
+        if (_servers.size() > 0)
         {
-            active = true;
+            _active = true;
         }
     }
     else
@@ -124,15 +140,15 @@ DSManager::DSManager(const std::string &xml_file_path)
 
 void DSManager::addServer(RTPSParticipant* s)
 {
-    assert(servers[s->getGuid()] == nullptr);
-    servers[s->getGuid()] = s;
-    active = true;
+    assert(_servers[s->getGuid()] == nullptr);
+    _servers[s->getGuid()] = s;
+    _active = true;
 }
 
 void DSManager::addClient(RTPSParticipant* c)
 {
-    assert(clients[c->getGuid()] == nullptr);
-    clients[c->getGuid()] = c;
+    assert(_clients[c->getGuid()] == nullptr);
+    _clients[c->getGuid()] = c;
 }
 
 void DSManager::loadProfiles(tinyxml2::XMLElement *profiles)
@@ -302,9 +318,9 @@ void DSManager::onTerminate()
 {
 
 
-    clients.insert(servers.begin(), servers.end());
+    _clients.insert(_servers.begin(), _servers.end());
 
-    for (const auto &e : clients)
+    for (const auto &e : _clients)
     {
         RTPSParticipant *p = e.second;
         if (p)
@@ -313,13 +329,13 @@ void DSManager::onTerminate()
         }
     }
 
-    servers.clear();
-    clients.clear();
+    _servers.clear();
+    _clients.clear();
 }
 
 bool DSManager::isActive()
 {
-    return active;
+    return _active;
 }
 
 
@@ -373,18 +389,69 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     // server GuidPrefix is either pass as an attribute (preferred to allow profile reuse)
     // or inside the profile. 
     GuidPrefix_t & prefix = atts.rtps.prefix;
-    if (!(std::istringstream(server->Attribute(xmlparser::PREFIX)) >> prefix)
+    const char * cprefix = server->Attribute(xmlparser::PREFIX);
+
+    if (cprefix && !(std::istringstream(cprefix) >> prefix)
         && (prefix == c_GuidPrefix_Unknown))
     {
         LOG_ERROR("Servers cannot have a framework provided prefix"); // at least for now
         return;
     }
 
+    GUID_t guid(prefix, c_EntityId_RTPSParticipant);
+
     // Check if the guidPrefix is already in use (there is a mistake on config file)
-    if (servers.find(GUID_t(prefix, c_EntityId_RTPSParticipant)) != servers.end())
+    if (_servers.find(guid) != _servers.end())
     {
         LOG_ERROR("DSManager detected two servers sharing the same prefix " << prefix);
         return;
+    }
+
+    // replace the atts.rtps.builtin lists with the ones from _server_locators (if present)
+    // note that a previous call to DSManager::MapServerInfo
+    serverLocator_map::mapped_type & lists = _server_locators[guid];
+    if (!lists.first.empty() || !lists.second.empty())
+    {   
+        // server elements take precedence over profile ones
+        // I copy them because other servers may need this values
+        atts.rtps.builtin.metatrafficMulticastLocatorList = lists.first;
+        atts.rtps.builtin.metatrafficUnicastLocatorList = lists.second;
+    }
+
+    // TODO: load the server list (if present) and update the atts.rtps.builtin
+    tinyxml2::XMLElement *server_list = server->FirstChildElement(s_sSL.c_str());
+
+    if (server_list)
+    {
+        RemoteServerList_t & list = atts.rtps.builtin.m_DiscoveryServers;
+        list.clear(); // server elements take precedence over profile ones
+
+        tinyxml2::XMLElement * rserver = server_list->FirstChildElement(s_sRServer.c_str());
+
+        while (rserver)
+        {
+            RemoteServerList_t::value_type srv;
+            GuidPrefix_t & prefix = srv.guidPrefix;
+
+            // load the prefix
+            const char * cprefix = rserver->Attribute(xmlparser::PREFIX);
+
+            if (cprefix && !(std::istringstream(cprefix) >> prefix)
+                && (prefix == c_GuidPrefix_Unknown))
+            {
+                LOG_ERROR("RServers must provide a prefix"); // at least for now
+                return;
+            }
+
+            // load the locator lists
+            serverLocator_map::mapped_type & lists = _server_locators[srv.GetParticipant()];
+            srv.metatrafficMulticastLocatorList = lists.first;
+            srv.metatrafficUnicastLocatorList = lists.second;
+
+            list.push_back(std::move(srv));
+
+            rserver = rserver->NextSiblingElement(s_sRServer.c_str());
+        }
     }
 
     // We define the PDP as external (when moved to fast library it would be SERVER)
@@ -459,3 +526,90 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
     addClient(pClient);
 }
 
+void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
+{
+    uint8_t ident = 1;
+
+    // profile name is mandatory
+    std::string profile_name(server->Attribute(xmlparser::PROFILE_NAME));
+
+    if (profile_name.empty())
+    {
+        LOG_ERROR(xmlparser::PROFILE_NAME << " is a mandatory attribute of server tag");
+        return;
+    }
+
+    // server GuidPrefix is either pass as an attribute (preferred to allow profile reuse)
+    // or inside the profile.
+    GuidPrefix_t prefix;
+    std::shared_ptr<ParticipantAttributes> atts;
+
+    const char * cprefix = server->Attribute(xmlparser::PREFIX);
+
+    if (cprefix)
+    {
+        std::istringstream(cprefix) >> prefix;
+    }
+    else
+    {
+        // I must load the prefix from the profile
+        // retrieve profile attributes
+        atts = std::make_shared<ParticipantAttributes>();
+        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillParticipantAttributes(profile_name, *atts))
+        {
+            LOG_ERROR("DSManager::loadServer couldn't load profile " << profile_name);
+            return;
+        }
+
+        prefix = atts->rtps.prefix;
+    }
+
+    if (prefix == c_GuidPrefix_Unknown)
+    {
+        LOG_ERROR("Servers cannot have a framework provided prefix"); // at least for now
+        return;
+    }
+
+    // Now we search the locator lists
+    serverLocator_map::mapped_type pair;
+    
+    tinyxml2::XMLElement *LP = server->FirstChildElement(s_sLP.c_str());
+    if (LP)
+    {
+        tinyxml2::XMLElement * list = LP->FirstChildElement(xmlparser::META_MULTI_LOC_LIST);
+
+        if (list && (xmlparser::XMLP_ret::XML_OK != getXMLLocatorList(list, pair.first, ident)))
+        {
+            LOG_ERROR("Server " << prefix << " has an ill formed " << xmlparser::META_MULTI_LOC_LIST );
+        }
+
+        list = LP->FirstChildElement(xmlparser::META_UNI_LOC_LIST);
+        if (list && (xmlparser::XMLP_ret::XML_OK != getXMLLocatorList(list, pair.second, ident)))
+        {
+            LOG_ERROR("Server " << prefix << " has an ill formed " << xmlparser::META_UNI_LOC_LIST);
+        }
+
+    }
+    else
+    {
+        LocatorList_t multicast, unicast;
+
+        // retrieve profile attributes
+        if (!atts)
+        {
+            atts = std::make_shared<ParticipantAttributes>();
+            if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillParticipantAttributes(profile_name, *atts))
+            {
+                LOG_ERROR("DSManager::loadServer couldn't load profile " << profile_name);
+                return;
+            }
+        }
+
+        pair.first = atts->rtps.builtin.metatrafficMulticastLocatorList;
+        pair.second = atts->rtps.builtin.metatrafficUnicastLocatorList;
+    }
+
+    // now save the value
+    _server_locators[GUID_t(prefix, c_EntityId_RTPSParticipant)] = std::move(pair);
+    
+}
