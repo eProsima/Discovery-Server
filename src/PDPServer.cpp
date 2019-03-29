@@ -455,12 +455,19 @@ bool PDPServer::addRelayedChangeToHistory( CacheChange_t & c)
     CacheChange_t * pCh = nullptr;
 
     // validate the sample, if no sample data update it
-    SampleIdentity & sid = c.write_params.sample_identity();
+    WriteParams & wp = c.write_params;
+    SampleIdentity & sid = wp.sample_identity();
     if (sid == SampleIdentity::unknown())
     {
         sid.writer_guid(c.writerGUID);
         sid.sequence_number(c.sequenceNumber);
-        logError(RTPS_PDP, "A DATA(p) received from participant " << c.writerGUID << " without a valid SampleIdentity");
+        logError(RTPS_PDP, "A DATA(p) received by server " << mp_PDPWriter->getGuid()
+            << " from participant " << c.writerGUID << " without a valid SampleIdentity");
+    }
+
+    if (wp.related_sample_identity() == SampleIdentity::unknown())
+    {
+        wp.related_sample_identity(sid);
     }
 
     // See if this sample is already in the cache. 
@@ -476,10 +483,8 @@ bool PDPServer::addRelayedChangeToHistory( CacheChange_t & c)
         {
             // keep the original sample identity
             pCh->writerGUID = mp_PDPWriter->getGuid();
-            pCh->write_params.sample_identity(sid);
-            // pCh->write_params.related_sample_identity(sid);
 
-            return mp_PDPWriterHistory->add_change(pCh);
+            return mp_PDPWriterHistory->add_change(pCh,wp);
         }
     }
     return false;
@@ -596,28 +601,23 @@ bool PDPServer::match_servers_EDP_endpoints()
     return all;
 }
 
-void PDPServer::announceParticipantState(bool new_change, bool dispose /* = false */)
+void PDPServer::announceParticipantState(bool new_change, bool dispose /* = false */, WriteParams& )
 {
     // Servers only send direct DATA(p) to servers in order to allow discovery
     if (new_change)
     {
         // only builtinprotocols uses new_change = true, delegate in base class
         // in order to get the ParticipantProxyData into the WriterHistory and broadcast the first DATA(p)
-        PDP::announceParticipantState(new_change, dispose);
 
-        // Add the write params to the sample
-        if (!dispose)
-        {
-            CacheChange_t * pPD;
-            if (mp_PDPWriterHistory->get_min_change(&pPD))
-            {
-                SampleIdentity local;
-                local.writer_guid(mp_PDPWriter->getGuid());
-                local.sequence_number(mp_PDPWriterHistory->next_sequence_number()-1);
-                pPD->write_params.sample_identity(local);
-                // pPD->write_params.related_sample_identity(local);
-            }
-        }
+        WriteParams wp;
+        SampleIdentity local;
+        local.writer_guid(mp_PDPWriter->getGuid());
+        local.sequence_number(mp_PDPWriterHistory->next_sequence_number()-1);
+        wp.sample_identity(local);
+        wp.related_sample_identity(local);
+
+        PDP::announceParticipantState(new_change, dispose, wp);
+
     }
     else
     {
