@@ -49,6 +49,7 @@ void PDPServerListener::onNewCacheChangeAdded(RTPSReader* reader, const CacheCha
 {
     CacheChange_t* change = (CacheChange_t*)(change_in);
     logInfo(RTPS_PDP,"SPDP Message received");
+
     if(change->instanceHandle == c_InstanceHandle_Unknown)
     {
         if(!this->getKey(change))
@@ -58,6 +59,14 @@ void PDPServerListener::onNewCacheChangeAdded(RTPSReader* reader, const CacheCha
             return;
         }
     }
+
+    // update the PDP Writer with this reader info
+    if (!mp_PDP->addRelayedChangeToHistory(*change))
+    {
+        this->mp_PDP->mp_PDPReaderHistory->remove_change(change);
+        return; // already there
+    }
+
     if(change->kind == ALIVE)
     {
         //LOAD INFORMATION IN TEMPORAL RTPSParticipant PROXY DATA
@@ -122,12 +131,6 @@ void PDPServerListener::onNewCacheChangeAdded(RTPSReader* reader, const CacheCha
 
             }
 
-            // update the PDP Writer with this reader info
-            if(!mp_PDP->addParticipantToHistory(*change))
-            {
-                logError(RTPS_PDP, "Unable to update the PDP Writer from PDPServerListener");
-            }
-
             auto listener = this->mp_PDP->getRTPSParticipant()->getListener();
             if (listener != nullptr)
             {
@@ -153,6 +156,7 @@ void PDPServerListener::onNewCacheChangeAdded(RTPSReader* reader, const CacheCha
         if (!mp_PDP->lookupParticipantProxyData(guid, info.info))
         {
             logWarning(RTPS_PDP, "PDPServerListener received DATA(p) NOT_ALIVE_DISPOSED from unknown participant");
+            this->mp_PDP->mp_PDPReaderHistory->remove_change(change);
             return;
         }
 

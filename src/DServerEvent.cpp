@@ -66,7 +66,7 @@ void DServerEvent::event(EventCode code, const char* msg)
             // Wait until we have received all network discovery info currently available
             if (mp_PDP->is_all_servers_PDPdata_updated())
             {
-                restart != !mp_PDP->match_servers_EDP_endpoints();
+                restart |= !mp_PDP->match_servers_EDP_endpoints();
                 // we must keep this TimedEvent alive to cope with servers' shutdown
                 // PDPServer::removeRemoteEndpoints would restart_timer if a server vanishes
             }
@@ -96,6 +96,11 @@ void DServerEvent::event(EventCode code, const char* msg)
                 restart = true;  
             }
         }  
+
+        if (mp_PDP->pendingHistoryCleaning())
+        {
+            restart |= !mp_PDP->trimWriterHistory();
+        }
 
         if (restart)
         {

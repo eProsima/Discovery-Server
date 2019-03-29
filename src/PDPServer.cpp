@@ -385,7 +385,18 @@ void PDPServer::match_all_clients_EDP_endpoints()
     _p2match.clear();
 }
 
-void PDPServer::trimWriterHistory()
+bool PDPServer::trimWriterHistory()
+{
+    EDPServer * pEDP = dynamic_cast<EDPServer*>(mp_EDP);
+    assert(pEDP);
+
+    return trimPDPWriterHistory()
+            || pEDP->trimPUBWriterHistory()
+            || pEDP->trimSUBWriterHistory();
+}
+
+
+bool PDPServer::trimPDPWriterHistory()
 {
     assert(mp_mutex && mp_PDPWriter && mp_PDPWriter->getMutex());
 
@@ -393,7 +404,7 @@ void PDPServer::trimWriterHistory()
     key_list disposal, aux;
 
     if (_demises.empty())
-        return;
+        return true;
 
     std::lock_guard<std::recursive_mutex> guardP(*getMutex());
     
@@ -405,7 +416,7 @@ void PDPServer::trimWriterHistory()
     _demises.swap(aux);
 
     if (_demises.empty())
-        return;
+        return true;
 
     // traverse the WriterHistory searching CacheChanges_t with demised keys  
     std::forward_list<CacheChange_t*> removal;
@@ -415,7 +426,7 @@ void PDPServer::trimWriterHistory()
         [this](const CacheChange_t* chan) { return _demises.find(chan->instanceHandle) != _demises.cend();  });
 
     if (removal.empty())
-        return;
+        return true;
 
     aux.clear();
     key_list & pending = aux;
@@ -431,37 +442,46 @@ void PDPServer::trimWriterHistory()
 
     // update demises
     _demises.swap(pending);
+
+    return _demises.empty(); // finish?
 }
 
-bool PDPServer::addParticipantToHistory(const CacheChange_t & c)
+// CacheChange_t's ParticipantProxyData wouldn't be loaded when this function is called
+bool PDPServer::addRelayedChangeToHistory( CacheChange_t & c)
 {
     assert(mp_PDPWriter && mp_PDPWriter->getMutex() && c.serializedPayload.max_size);
 
-    std::lock_guard<std::recursive_mutex> guardW(*mp_PDPWriter->getMutex());
+    std::lock_guard<std::recursive_mutex> lock(*mp_PDPWriter->getMutex());
     CacheChange_t * pCh = nullptr;
 
+    // validate the sample, if no sample data update it
+    SampleIdentity & sid = c.write_params.sample_identity();
+    if (sid == SampleIdentity::unknown())
+    {
+        sid.writer_guid(c.writerGUID);
+        sid.sequence_number(c.sequenceNumber);
+        logError(RTPS_PDP, "A DATA(p) received from participant " << c.writerGUID << " without a valid SampleIdentity");
+    }
+
     // See if this sample is already in the cache. 
-    const SampleIdentity & sid = c.write_params.sample_identity();
     // TODO: Accelerate this search by using a PublisherHistory as mp_PDPWriterHistory
     auto it = std::find_if(mp_PDPWriterHistory->changesRbegin(), mp_PDPWriterHistory->changesRend(), [&sid] (auto c) {
         return sid == c->write_params.sample_identity();
         });
-    if (it != mp_PDPWriterHistory->changesRend())
+
+    if (it == mp_PDPWriterHistory->changesRend())
     {
-        return true; // already there 
+        // mp_PDPWriterHistory->reserve_Cache(&pCh, DISCOVERY_PARTICIPANT_DATA_MAX_SIZE)
+        if (mp_PDPWriterHistory->reserve_Cache(&pCh, c.serializedPayload.max_size) && pCh && pCh->copy(&c))
+        {
+            // keep the original sample identity
+            pCh->writerGUID = mp_PDPWriter->getGuid();
+            pCh->write_params.sample_identity(sid);
+            // pCh->write_params.related_sample_identity(sid);
+
+            return mp_PDPWriterHistory->add_change(pCh);
+        }
     }
-
-    // mp_PDPWriterHistory->reserve_Cache(&pCh, DISCOVERY_PARTICIPANT_DATA_MAX_SIZE)
-    if (mp_PDPWriterHistory->reserve_Cache(&pCh, c.serializedPayload.max_size) && pCh && pCh->copy(&c) )
-    {
-        // keep the original sample identity
-        pCh->writerGUID = mp_PDPWriter->getGuid();
-        pCh->write_params.sample_identity(sid);
-       // pCh->write_params.related_sample_identity(sid);
-
-        return mp_PDPWriterHistory->add_change(pCh);
-    }
-
     return false;
 }
 
@@ -491,16 +511,6 @@ void PDPServer::removeParticipantForEDPMatch(const ParticipantProxyData * pdata)
     assert(pdata != nullptr);
 
     std::lock_guard<std::recursive_mutex> guardP(*mp_mutex);
-
-    // servers cannot die so shouldn't be removed
-    for( auto svr: mp_builtin->m_DiscoveryServers)
-    {
-        if (svr.guidPrefix == pdata->m_guid.guidPrefix)
-        {
-            // assert(svr.proxy != nullptr); // should be already registered
-            return;
-        }
-    }
 
     // remove the deceased client to the EDP matching list
     _p2match.erase(pdata);
@@ -658,6 +668,15 @@ bool PDPServer::removeRemoteParticipant(GUID_t& partGUID)
     removeParticipantForEDPMatch(&info);
 
     return PDP::removeRemoteParticipant(partGUID);
+}
+
+
+bool PDPServer::pendingHistoryCleaning()
+{
+    EDPServer * pEDP = dynamic_cast<EDPServer*>(mp_EDP);
+    assert(pEDP);
+
+    return !_demises.empty() || pEDP->pendingHistoryCleaning();
 }
     
 } /* namespace rtps */

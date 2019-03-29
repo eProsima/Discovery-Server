@@ -192,13 +192,13 @@ bool EDPServer::createSEDPEndpoints()
 }
 
 template<class ProxyCont> 
-void EDPServer::trimWriterHistory(key_list & _demises, StatefulWriter & writer, WriterHistory & history, ProxyCont ParticipantProxyData::* pC)
+bool EDPServer::trimWriterHistory(key_list & _demises, StatefulWriter & writer, WriterHistory & history, ProxyCont ParticipantProxyData::* pC)
 {
     // trim demises container
     key_list disposal, aux;
 
     if (_demises.empty())
-        return;
+        return true;
 
     std::lock_guard<std::recursive_mutex> guardP(*mp_PDP->getMutex());
 
@@ -217,7 +217,7 @@ void EDPServer::trimWriterHistory(key_list & _demises, StatefulWriter & writer, 
     _demises.swap(aux);
 
     if (_demises.empty())
-        return;
+        return true;
 
     // traverse the WriterHistory searching CacheChanges_t with demised keys  
     std::forward_list<CacheChange_t*> removal;
@@ -227,7 +227,7 @@ void EDPServer::trimWriterHistory(key_list & _demises, StatefulWriter & writer, 
         [_demises](const CacheChange_t* chan) { return _demises.find(chan->instanceHandle) != _demises.cend();  });
 
     if (removal.empty())
-        return;
+        return true;
 
     aux.clear();
     key_list & pending = aux;
@@ -243,6 +243,8 @@ void EDPServer::trimWriterHistory(key_list & _demises, StatefulWriter & writer, 
 
     // update demises
     _demises.swap(pending);
+
+    return _demises.empty(); // is finished?
 
 }
 

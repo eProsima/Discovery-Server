@@ -21,7 +21,7 @@
 #define PDPSERVER_H_
 #ifndef DOXYGEN_SHOULD_SKIP_THIS_PUBLIC
 
-#include <fastrtps\rtps\builtin\discovery\participant\PDP.h>
+#include <fastrtps/rtps/builtin/discovery/participant/PDP.h>
 #include <fastrtps/rtps/messages/RTPSMessageGroup.h>
 
 #include "DServerEvent.h"
@@ -91,15 +91,25 @@ class PDPServer : public PDP
      * Methods to update WriterHistory with reader information
      */
 
-    //! Callback to remove unnecesary WriterHistory info
-    void trimWriterHistory();
+    /**
+     * Some History data is flag for defer removal till every client
+     * acknowledges reception
+     * @return True if trimming must be done
+     */
+    bool pendingHistoryCleaning();
+
+    /**
+     *! Callback to remove unnecesary WriterHistory info from PDP and EDP
+     * @return True if trimming is completed
+     */
+    bool trimWriterHistory();
 
     /**
      * Add participant CacheChange_ts from reader to writer
      * @param metatraffic CacheChange_t
      * @return True if successfully modified WriterHistory
      */
-    bool addParticipantToHistory(const CacheChange_t &);
+    bool addRelayedChangeToHistory( CacheChange_t &);
 
     /**
      * Trigger the participant CacheChange_t removal system
@@ -194,6 +204,12 @@ class PDPServer : public PDP
     std::string GetPersistenceFileName();
 
     private:
+
+     /**
+     *! Callback to remove unnecesary WriterHistory info from PDP alone
+     * @return True if trimming is completed
+     */
+     bool trimPDPWriterHistory();
 
     /**
     * TimedEvent for server synchronization: 
