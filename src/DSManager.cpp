@@ -65,8 +65,6 @@ DSManager::DSManager(const std::string &xml_file_path)
             return;
         }
 
-        // TODO: servers and clients parsing calls
-
         for (auto child = doc.FirstChildElement(s_sDS.c_str());
             child != nullptr; child = child->NextSiblingElement(s_sDS.c_str()))
         {
@@ -167,159 +165,9 @@ void DSManager::loadProfiles(tinyxml2::XMLElement *profiles)
     }
 }
 
-void DSManager::createReader(Participant* participant, const std::string &participant_profile, const std::string &name)
-{
-    //RTPSSubscriber* listener = new RTPSSubscriber(getEndPointName(participant_profile, name));
-    //listener->setParticipant(participant);
-    //if(!listener->hasParticipant())
-    //{
-    //    LOG_ERROR("Error creating RTPS subscriber");
-    //    return;
-    //}
-
-    //// Check type
-    //SubscriberAttributes subscriber_att;
-    //if ( xmlparser::XMLP_ret::XML_OK ==
-    //     xmlparser::XMLProfileManager::fillSubscriberAttributes(name, subscriber_att))
-    //{
-    //    std::string topic_type = subscriber_att.topic.getTopicDataType();
-    //    TopicDataType *type = nullptr;
-    //    if (!Domain::getRegisteredType(participant, topic_type.c_str(), &type))
-    //    {
-    //        // Type not registered yet.
-    //        type = getTopicDataType(topic_type);
-    //        if (type != nullptr)
-    //        {
-    //            Domain::registerType(participant, type);
-    //            std::pair<std::string, std::string> idx = std::make_pair(participant_profile, topic_type);
-    //            data_types[idx] = type;
-    //        }
-    //        else
-    //        {
-    //            LOG_WARN("Cannot determine the TopicDataType of " << name << ".");
-    //        }
-    //    }
-    //}
-    //else
-    //{
-    //    LOG_WARN("Cannot get RTPS subscriber attributes: The subscriber " << name << " creation probably will fail.");
-    //}
-
-    //// Create Subscriber
-    //eprosima::fastrtps::Subscriber *subscriber =
-    //        Domain::createSubscriber(participant, name, (SubscriberListener*)listener);
-
-    //listener->setRTPSSubscriber(subscriber);
-
-    //if(!listener->hasRTPSSubscriber())
-    //{
-    //    LOG_ERROR("Error creating RTPS subscriber");
-    //    return;
-    //}
-
-    ////Associate types
-    //const std::string &typeName = listener->getRTPSSubscriber()->getAttributes().topic.topicDataType;
-    //const std::string &topic_name = listener->getRTPSSubscriber()->getAttributes().topic.topicName;
-    //std::pair<std::string, std::string> idx = std::make_pair(participant_profile, typeName);
-    //listener->input_type = data_types[idx];
-    //listener->input_type->setName(typeName.c_str());
-
-    //addReader(listener);
-    //LOG_INFO("Added RTPS subscriber " << listener->getName() << "[" << topic_name << ":"
-    //    << participant->getAttributes().rtps.builtin.domainId << "]");
-}
-
-void DSManager::createWriter(Participant* participant, const std::string &participant_profile, const std::string &name)
-{
-    //RTPSPublisher* publisher = new RTPSPublisher(getEndPointName(participant_profile, name));
-
-    //// Create RTPSParticipant
-    //publisher->setParticipant(participant);
-    //if(!publisher->hasParticipant())
-    //{
-    //    delete publisher;
-    //    LOG_ERROR("Error creating RTPS publisher");
-    //    return;
-    //}
-
-    //// Check type
-    //PublisherAttributes publisher_att;
-    //if ( xmlparser::XMLP_ret::XML_OK ==
-    //     xmlparser::XMLProfileManager::fillPublisherAttributes(name, publisher_att))
-    //{
-    //    std::string topic_type = publisher_att.topic.getTopicDataType();
-    //    TopicDataType *type = nullptr;
-    //    if (!Domain::getRegisteredType(participant, topic_type.c_str(), &type))
-    //    {
-    //        // Type not registered yet.
-    //        type = getTopicDataType(topic_type);
-    //        if (type != nullptr)
-    //        {
-    //            Domain::registerType(participant, type);
-    //            std::pair<std::string, std::string> idx = std::make_pair(participant_profile, topic_type);
-    //            data_types[idx] = type;
-    //        }
-    //        else
-    //        {
-    //            LOG_WARN("Cannot determine the TopicDataType of " << name << ".");
-    //        }
-    //    }
-    //}
-    //else
-    //{
-    //    LOG_WARN("Cannot get RTPS publisher attributes: The publisher " << name << " creation probably will fail.");
-    //}
-
-    ////Create publisher
-    //publisher->setRTPSPublisher(Domain::createPublisher(publisher->getParticipant(), name,
-    //                            (PublisherListener*)publisher));
-
-    ////Associate types
-    //const std::string &typeName = publisher->getRTPSPublisher()->getAttributes().topic.topicDataType;
-    //const std::string &topic_name = publisher->getRTPSPublisher()->getAttributes().topic.topicName;
-    //std::pair<std::string, std::string> idx = std::make_pair(participant_profile, typeName);
-    //publisher->output_type = data_types[idx];
-    //publisher->output_type->setName(typeName.c_str());
-
-    ////Create publisher
-    ////publisher->setRTPSPublisher(Domain::createWriter(publisher->getParticipant(), name,
-    ////                            (PublisherListener*)publisher));
-    //if(!publisher->hasRTPSPublisher())
-    //{
-    //    delete publisher;
-    //    LOG_ERROR("Error creating RTPS publisher");
-    //    return;
-    //}
-
-    //addWriter(publisher);
-    //LOG_INFO("Added RTPS publisher " << publisher->getName()<< "[" << topic_name << ":"
-    //    << participant->getAttributes().rtps.builtin.domainId << "]");
-}
-
-void DSManager::parseProperties(tinyxml2::XMLElement *parent_element,
-                                std::vector<std::pair<std::string, std::string>> &props)
-{
-    //tinyxml2::XMLElement *props_element = parent_element->FirstChildElement(s_sProperty.c_str());
-    //while (props_element)
-    //{
-    //    try
-    //    {
-    //        std::pair<std::string, std::string> newPair;
-    //        const char *type = _assignNextElement(props_element, s_sName.c_str())->GetText();
-    //        const char *value = _assignNextElement(props_element, s_sValue.c_str())->GetText();
-    //        newPair.first = type;
-    //        newPair.second = value;
-    //        props.emplace_back(newPair);
-    //    }
-    //    catch (...) {}
-    //    props_element = props_element->NextSiblingElement(s_sProperty.c_str());
-    //}
-}
 
 void DSManager::onTerminate()
 {
-
-
     _clients.insert(_servers.begin(), _servers.end());
 
     for (const auto &e : _clients)
@@ -479,7 +327,7 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     }
 
     // now we create the new participant
-    Participant * pServer = Domain::createParticipant(atts);
+    Participant * pServer = Domain::createParticipant(atts,this);
 
     if (!pServer)
     {
@@ -526,7 +374,7 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
     }
 
     // now we create the new participant
-    Participant * pClient = Domain::createParticipant(atts);
+    Participant * pClient = Domain::createParticipant(atts,this);
 
     if (!pClient)
     {
@@ -623,4 +471,44 @@ void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
     // now save the value
     _server_locators[GUID_t(prefix, c_EntityId_RTPSParticipant)] = std::move(pair);
     
+}
+
+void DSManager::onParticipantDiscovery(Participant* participant, rtps::ParticipantDiscoveryInfo&& info)
+{
+    // std::lock_guard<std::recursive_mutex> lock(_mutex);
+
+    LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a participant "
+        << info.info.m_participantName << " is " << info.status << ". Prefix " << participant->getGuid());
+}
+
+void DSManager::onSubscriberDiscovery(Participant* participant, rtps::ReaderDiscoveryInfo&& info)
+{
+
+}
+
+void  DSManager::onPublisherDiscovery(Participant* participant, rtps::WriterDiscoveryInfo&& info)
+{
+
+}
+
+
+std::ostream& operator<<(std::ostream& o, ParticipantDiscoveryInfo::DISCOVERY_STATUS s)
+{
+    typedef ParticipantDiscoveryInfo::DISCOVERY_STATUS DS;
+
+    switch (s)
+    {
+    case DS::DISCOVERED_PARTICIPANT:
+        return o << "DISCOVERED_PARTICIPANT";
+    case DS::CHANGED_QOS_PARTICIPANT:
+        return o << "CHANGED_QOS_PARTICIPANT";
+    case DS::REMOVED_PARTICIPANT:
+        return o << "REMOVED_PARTICIPANT";
+    case DS::DROPPED_PARTICIPANT:
+        return o << "REMOVED_PARTICIPANT";
+    default:    // unknown value, error
+        o.setstate(std::ios::failbit);
+    }
+
+    return o;
 }

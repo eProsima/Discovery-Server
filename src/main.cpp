@@ -13,6 +13,15 @@ using namespace rtps;
 
 int main(int argc, char * argv[])
 {
+    // Initialize loging
+    #ifdef LOG_LEVEL_INFO
+        Log::SetVerbosity(Log::Kind::Info);
+    #elif LOG_LEVEL_WARN
+        Log::SetVerbosity(Log::Kind::Warning);
+    #elif LOG_LEVEL_ERROR
+        Log::SetVerbosity(Log::Kind::Error);
+    #endif
+
     if (!(argc > 1))
     {
         std::cout << "Usage: discovery-server CONFIG_XML" << std::endl;
@@ -33,18 +42,9 @@ int main(int argc, char * argv[])
         std::cout << "Discovery Server error: no active servers" << std::endl;
     }
 
+    Domain::stopAll();
+    Log::Reset();
+
     return 0;
 
-    //Domain::loadXMLProfilesFile("C:\\Users\\MiguelBarro\\OneDrive\\eProsima\\Works\\DiscoveryServer\\profile demos\\Profile_testing\\sample_profile.xml");
-    //auto client = Domain::createParticipant("testing client");
-    //auto server = Domain::createParticipant("testing server");
-
-    //// here would be some RTPS pub sub operations
-
-    //Domain::removeParticipant(client);
-    //Domain::removeParticipant(server);
-
-    //Domain::stopAll();
-    //Log::Reset();
-    //return 0;
 }

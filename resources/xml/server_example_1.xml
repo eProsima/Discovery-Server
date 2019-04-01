@@ -2,8 +2,8 @@
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server">
 
   <servers>
-    <server prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f" profile_name="UDP server" />
-    <server prefix="4D.49.47.55.45.4c.2D.42.41.52.52.4f" profile_name="UDP server">
+    <server name="server1" prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f" profile_name="UDP server" />
+    <server name="server2" prefix="4D.49.47.55.45.4c.2D.42.41.52.52.4f" profile_name="UDP server">
       <ListeningPorts>
         <metatrafficUnicastLocatorList>
           <locator>
@@ -15,7 +15,7 @@
         </metatrafficUnicastLocatorList>
       </ListeningPorts>
     </server>
-    <server prefix="4D.49.47.55.45.4c.23.42.41.52.52.4f" profile_name="UDP server">
+    <server name="server3" prefix="4D.49.47.55.45.4c.23.42.41.52.52.4f" profile_name="UDP server">
       <ListeningPorts>
         <metatrafficUnicastLocatorList>
           <locator>
@@ -27,7 +27,7 @@
         </metatrafficUnicastLocatorList>
       </ListeningPorts>
     </server>
-    <server prefix="4D.49.47.55.45.4c.24.42.41.52.52.4f" profile_name="UDP server">
+    <server name="server4" prefix="4D.49.47.55.45.4c.24.42.41.52.52.4f" profile_name="UDP server">
       <ListeningPorts>
         <metatrafficUnicastLocatorList>
           <locator>
@@ -39,7 +39,7 @@
         </metatrafficUnicastLocatorList>
       </ListeningPorts>
     </server>
-    <server prefix="4D.49.47.55.45.4c.25.42.41.52.52.4f" profile_name="UDP server">
+    <server name="server5" prefix="4D.49.47.55.45.4c.25.42.41.52.52.4f" profile_name="UDP server">
       <ListeningPorts>
         <metatrafficUnicastLocatorList>
           <locator>
@@ -51,7 +51,7 @@
         </metatrafficUnicastLocatorList>
       </ListeningPorts>
     </server>
-    <server prefix="4D.49.47.55.45.4c.26.42.41.52.52.4f" profile_name="UDP server">
+    <server name="server6" prefix="4D.49.47.55.45.4c.26.42.41.52.52.4f" profile_name="UDP server">
       <ListeningPorts>
         <metatrafficUnicastLocatorList>
           <locator>
@@ -63,7 +63,7 @@
         </metatrafficUnicastLocatorList>
       </ListeningPorts>
     </server>
-    <server prefix="4D.49.47.55.45.4c.7e.42.41.52.52.4f" profile_name="UDP server">
+    <server name="master" prefix="4D.49.47.55.45.4c.7e.42.41.52.52.4f" profile_name="UDP server">
       <ListeningPorts>
         <metatrafficUnicastLocatorList>
           <locator>

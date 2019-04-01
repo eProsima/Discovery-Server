@@ -612,7 +612,7 @@ void PDPServer::announceParticipantState(bool new_change, bool dispose /* = fals
         WriteParams wp;
         SampleIdentity local;
         local.writer_guid(mp_PDPWriter->getGuid());
-        local.sequence_number(mp_PDPWriterHistory->next_sequence_number()-1);
+        local.sequence_number(mp_PDPWriterHistory->next_sequence_number());
         wp.sample_identity(local);
         wp.related_sample_identity(local);
 

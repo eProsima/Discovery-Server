@@ -15,12 +15,6 @@
 #ifndef _EPROSIMA_IS_LOG_H_
 #define _EPROSIMA_IS_LOG_H_
 
-#include <iostream>
-
-#ifndef LOG_LEVEL_DEBUG
-#cmakedefine LOG_LEVEL_DEBUG
-#endif
-
 #ifndef LOG_LEVEL_INFO
 #cmakedefine LOG_LEVEL_INFO
 #endif
@@ -33,39 +27,26 @@
 #cmakedefine LOG_LEVEL_ERROR
 #endif
 
-#if defined _DEBUG || defined DEBUG
-#ifndef LOG_LEVEL_DEBUG
-#define LOG_LEVEL_DEBUG
-#endif
-#endif
-
-#ifdef LOG_LEVEL_DEBUG
-	#define LOG_DEBUG(x) std::cout << "DEBUG: " << x << std::endl
-	#define LOG_INFO(x) std::cout << "INFO: " << x << std::endl
-	#define LOG_WARN(x) std::cout << "WARN: " << x << std::endl
-	#define LOG_ERROR(x) std::cout << "ERROR: " << x << std::endl
-#else
-	#define LOG_DEBUG(x)
-	#ifdef LOG_LEVEL_INFO
-		#define LOG_INFO(x) std::cout << "INFO: " << x << std::endl
-		#define LOG_WARN(x) std::cout << "WARN: " << x << std::endl
-		#define LOG_ERROR(x) std::cout << "ERROR: " << x << std::endl
-	#else
-		#define LOG_INFO(x)
-		#ifdef LOG_LEVEL_WARN
-			#define LOG_WARN(x) std::cout << "WARN: " << x << std::endl
-			#define LOG_ERROR(x) std::cout << "ERROR: " << x << std::endl
-		#else
-			#define LOG_WARN(x)
-				#ifdef LOG_LEVEL_ERROR
-				#define LOG_ERROR(x) std::cout << "ERROR: " << x << std::endl
-			#else
-				#define LOG_ERROR(x)
-			#endif
-		#endif
-	#endif
+#ifdef LOG_LEVEL_INFO
+    #define _INTERNALDEBUG
+    #undef LOG_NO_INFO
+    #undef LOG_NO_WARN
+    #undef LOG_NO_ERROR
+#elif LOG_LEVEL_WARN
+    #define LOG_NO_INFO
+    #undef LOG_NO_WARN
+    #undef LOG_NO_ERROR
+#elif LOG_LEVEL_ERROR
+    #define LOG_NO_INFO
+    #define LOG_NO_WARN
+    #undef LOG_NO_ERROR
 #endif
 
-#define LOG(x) std::cout << "LOG: " << x << std::endl
+#include <fastrtps/log/Log.h>
 
-#endif
+#define LOG(x) logInfo(DISCOVERY_SERVER,x)
+#define LOG_INFO(x) logInfo(DISCOVERY_SERVER,x)
+#define LOG_WARN(x) logWarning(DISCOVERY_SERVER,x)
+#define LOG_ERROR(x) logError(DISCOVERY_SERVER,x)
+
+#endif // _EPROSIMA_IS_LOG_H_

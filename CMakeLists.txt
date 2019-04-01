@@ -76,11 +76,6 @@ find_package(fastrtps   REQUIRED)
 # we configure server log level, note the definitions which are pass to the compiler
 # error logs defaults to ON
 
-IF (NOT DEFINED LOG_LEVEL_DEBUG)
-    SET(LOG_LEVEL_DEBUG OFF)
-ENDIF()
-ADD_DEFINITIONS(-DLOG_LEVEL_DEBUG=${LOG_LEVEL_DEBUG})
-
 IF (NOT DEFINED LOG_LEVEL_INFO)
     SET(LOG_LEVEL_INFO OFF)
 ENDIF()
