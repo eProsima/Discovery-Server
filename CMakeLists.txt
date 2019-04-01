@@ -122,7 +122,15 @@ unset(version_unset)
 # Create the target and its dependencies, note that variable PROJECT_NAME is created by the closest project() called in the current directory scope or above.
 # We must populate this variables as project sources grow
 
+# Set fast-RTPS source files
+file(GLOB_RECURSE ALL_FAST_HEADERS 
+	"C:/Users/MiguelBarro/Documents/Fast-RTPS/include/**/*.h"
+	"C:/Users/MiguelBarro/Documents/Fast-RTPS/include/**/*.hpp"
+	)  #TODO: remove when development process is finished
+
 set(${PROJECT_NAME}_header_files
+		#TODO: remove when development process is finished
+		${ALL_FAST_HEADERS}
 		# application sources
         include/version/config.h
         include/log/DSLog.h

@@ -248,17 +248,42 @@ bool EDPServer::trimWriterHistory(key_list & _demises, StatefulWriter & writer, 
 
 }
 
-bool EDPServer::addEndpointFromHistory(StatefulWriter & writer, WriterHistory & history, const CacheChange_t & c)
+bool EDPServer::addEndpointFromHistory(StatefulWriter & writer, WriterHistory & history, CacheChange_t & c)
 {
     std::lock_guard<std::recursive_mutex> guardW(*writer.getMutex());
     CacheChange_t * pCh = nullptr;
 
-    // history.reserve_Cache(&pCh, DISCOVERY_PUBLICATION_DATA_MAX_SIZE )
-    // history.reserve_Cache(&pCh, DISCOVERY_SUBSCRIPTION_DATA_MAX_SIZE )
-    if (history.reserve_Cache(&pCh, c.serializedPayload.max_size) && pCh && pCh->copy(&c))
+    // validate the sample, if no sample data update it
+    WriteParams & wp = c.write_params;
+    SampleIdentity & sid = wp.sample_identity();
+    if (sid == SampleIdentity::unknown())
     {
-        pCh->writerGUID = writer.getGuid();
-        return history.add_change(pCh, pCh->write_params);
+        sid.writer_guid(c.writerGUID);
+        sid.sequence_number(c.sequenceNumber);
+        logError(RTPS_EDP, "A DATA(r|w) received by server " << writer.getGuid()
+            << " from participant " << c.writerGUID << " without a valid SampleIdentity");
+    }
+
+    if (wp.related_sample_identity() == SampleIdentity::unknown())
+    {
+        wp.related_sample_identity(sid);
+    }
+
+    // See if this sample is already in the cache. 
+    // TODO: Accelerate this search by using a PublisherHistory as mp_PDPWriterHistory
+    auto it = std::find_if(history.changesRbegin(), history.changesRend(), [&sid](auto c) {
+        return sid == c->write_params.sample_identity();
+    });
+
+    if( it == history.changesRend())
+    {
+        // history.reserve_Cache(&pCh, DISCOVERY_PUBLICATION_DATA_MAX_SIZE )
+        // history.reserve_Cache(&pCh, DISCOVERY_SUBSCRIPTION_DATA_MAX_SIZE )
+        if (history.reserve_Cache(&pCh, c.serializedPayload.max_size) && pCh && pCh->copy(&c))
+        {
+            pCh->writerGUID = writer.getGuid();
+            return history.add_change(pCh, pCh->write_params);
+        }
     }
 
     return false;
@@ -281,6 +306,163 @@ void EDPServer::removeSubscriberFromHistory(const InstanceHandle_t & key)
     trimSUBWriterHistory();
 }
 
+bool EDPServer::removeLocalReader(RTPSReader* R)
+{
+    logInfo(RTPS_EDP, R->getGuid().entityId);
+
+    auto* writer = &subscriptions_writer_;
+
+    if (writer->first != nullptr)
+    {
+        InstanceHandle_t iH;
+        iH = (R->getGuid());
+        CacheChange_t* change = writer->first->new_change([]() -> uint32_t {return DISCOVERY_SUBSCRIPTION_DATA_MAX_SIZE; },
+            NOT_ALIVE_DISPOSED_UNREGISTERED, iH);
+        if (change != nullptr)
+        {
+            // unlike on EDPSimple we would remove old WriterHistory related entities when all clients-servers have acknownledge reception
+            // We must key-signed the CacheChange_t to avoid duplications:
+            WriteParams wp;
+            SampleIdentity local;
+            local.writer_guid(writer->first->getGuid());
+            local.sequence_number(writer->second->next_sequence_number() - 1);
+            wp.sample_identity(local);
+            wp.related_sample_identity(local);
+
+            writer->second->add_change(change, wp);
+
+            removeSubscriberFromHistory(change->instanceHandle);
+        }
+    }
+    return mp_PDP->removeReaderProxyData(R->getGuid());
+}
+
+bool EDPServer::removeLocalWriter(RTPSWriter* W)
+{
+    logInfo(RTPS_EDP, W->getGuid().entityId);
+
+    auto* writer = &publications_writer_;
+
+    if (writer->first != nullptr)
+    {
+        InstanceHandle_t iH;
+        iH = W->getGuid();
+        CacheChange_t* change = writer->first->new_change([]() -> uint32_t {return DISCOVERY_PUBLICATION_DATA_MAX_SIZE; },
+            NOT_ALIVE_DISPOSED_UNREGISTERED, iH);
+        if (change != nullptr)
+        {
+            // unlike on EDPSimple we would remove old WriterHistory related entities when all clients-servers have acknownledge reception
+            // We must key-signed the CacheChange_t to avoid duplications:
+            WriteParams wp;
+            SampleIdentity local;
+            local.writer_guid(writer->first->getGuid());
+            local.sequence_number(writer->second->next_sequence_number() - 1);
+            wp.sample_identity(local);
+            wp.related_sample_identity(local);
+
+            writer->second->add_change(change, wp);
+
+            removePublisherFromHistory(change->instanceHandle);
+        }
+    }
+    return mp_PDP->removeWriterProxyData(W->getGuid());
+}
+
+bool EDPServer::processLocalWriterProxyData(RTPSWriter* local_writer, WriterProxyData* wdata)
+{
+    logInfo(RTPS_EDP, wdata->guid().entityId);
+    (void)local_writer;
+
+    auto* writer = &publications_writer_;
+
+    if (writer->first != nullptr)
+    {
+        CacheChange_t* change = writer->first->new_change([]() -> uint32_t {return DISCOVERY_PUBLICATION_DATA_MAX_SIZE; },
+            ALIVE, wdata->key());
+        if (change != nullptr)
+        {
+            //wdata->toParameterList();
+
+            CDRMessage_t aux_msg(change->serializedPayload);
+
+#if __BIG_ENDIAN__
+            change->serializedPayload.encapsulation = (uint16_t)PL_CDR_BE;
+            aux_msg.msg_endian = BIGEND;
+#else
+            change->serializedPayload.encapsulation = (uint16_t)PL_CDR_LE;
+            aux_msg.msg_endian = LITTLEEND;
+#endif
+
+            ParameterList_t parameter_list = wdata->toParameterList();
+            ParameterList::writeParameterListToCDRMsg(&aux_msg, &parameter_list, true);
+            change->serializedPayload.length = (uint16_t)aux_msg.length;
+            
+            // unlike on EDPSimple we wouldn't remove endpoint outdate info till all client-servers acknowledge reception
+            // We must key-signed the CacheChange_t to avoid duplications:
+            WriteParams wp;
+            SampleIdentity local;
+            local.writer_guid(writer->first->getGuid());
+            local.sequence_number(writer->second->next_sequence_number() - 1);
+            wp.sample_identity(local);
+            wp.related_sample_identity(local);
+
+            writer->second->add_change(change, wp);
+
+            return true;
+        }
+        return false;
+    }
+    return true;
+}
+
+bool EDPServer::processLocalReaderProxyData(RTPSReader* local_reader, ReaderProxyData* rdata)
+{
+    logInfo(RTPS_EDP, rdata->guid().entityId);
+    (void)local_reader;
+
+    auto* writer = &subscriptions_writer_;
+
+    if (writer->first != nullptr)
+    {
+        // TODO(Ricardo) Write a getCdrSerializedPayload for ReaderProxyData.
+        CacheChange_t* change = writer->first->new_change([]() -> uint32_t {return DISCOVERY_SUBSCRIPTION_DATA_MAX_SIZE; },
+            ALIVE, rdata->key());
+
+        if (change != nullptr)
+        {
+            CDRMessage_t aux_msg(change->serializedPayload);
+
+#if __BIG_ENDIAN__
+            change->serializedPayload.encapsulation = (uint16_t)PL_CDR_BE;
+            aux_msg.msg_endian = BIGEND;
+#else
+            change->serializedPayload.encapsulation = (uint16_t)PL_CDR_LE;
+            aux_msg.msg_endian = LITTLEEND;
+#endif
+
+            ParameterList_t parameter_list = rdata->toParameterList();
+            ParameterList::writeParameterListToCDRMsg(&aux_msg, &parameter_list, true);
+            change->serializedPayload.length = (uint16_t)aux_msg.length;
+
+            // unlike on EDPSimple we wouldn't remove endpoint outdate info till all client-servers acknowledge reception
+            // We must key-signed the CacheChange_t to avoid duplications:
+            WriteParams wp;
+            SampleIdentity local;
+            local.writer_guid(writer->first->getGuid());
+            local.sequence_number(writer->second->next_sequence_number() - 1);
+            wp.sample_identity(local);
+            wp.related_sample_identity(local);
+
+            writer->second->add_change(change, wp);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    return true;
+}
 
 } /* namespace rtps */
 } /* namespace fastrtps */

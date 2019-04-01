@@ -51,6 +51,13 @@ void EDPServerPUBListener::onNewCacheChangeAdded(RTPSReader* reader, const Cache
 
     ReaderHistory* reader_history = sedp_->publications_reader_.second;
 
+    // update the PDP Writer with this reader info
+    if (!sedp_->addPublisherFromHistory(*change))
+    {
+        reader_history->remove_change(change);
+        return; // already there
+    }
+
     if(change->kind == ALIVE)
     {
         //LOAD INFORMATION IN TEMPORAL WRITER PROXY DATA
@@ -75,8 +82,6 @@ void EDPServerPUBListener::onNewCacheChangeAdded(RTPSReader* reader, const Cache
                 reader->getMutex()->unlock();
 
                 sedp_->pairing_writer_proxy_with_any_local_reader(&pdata, &writerProxyData);
-
-                sedp_->addPublisherFromHistory(*change);
 
                 // Take again the reader lock.
                 reader->getMutex()->lock();
@@ -132,6 +137,13 @@ void EDPServerSUBListener::onNewCacheChangeAdded(RTPSReader* reader, const Cache
 
     ReaderHistory* reader_history = sedp_->subscriptions_reader_.second;
 
+    // update the PDP Writer with this reader info
+    if (!sedp_->addSubscriberFromHistory(*change))
+    {
+        reader_history->remove_change(change);
+        return; // already there
+    }
+
     if(change->kind == ALIVE)
     {
         //LOAD INFORMATION IN TEMPORAL WRITER PROXY DATA
@@ -156,8 +168,6 @@ void EDPServerSUBListener::onNewCacheChangeAdded(RTPSReader* reader, const Cache
                 reader->getMutex()->unlock();
 
                 sedp_->pairing_reader_proxy_with_any_local_writer(&pdata, &readerProxyData);
-
-                sedp_->addSubscriberFromHistory(*change);
 
                 // Take again the reader lock.
                 reader->getMutex()->lock();
