@@ -14,7 +14,7 @@
 
 #include <tinyxml2.h>
 
-#include <fastrtps/rtps/RTPSDomain.h>
+#include <fastrtps/Domain.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 
 #include "PDPServer.h"
@@ -140,14 +140,14 @@ DSManager::DSManager(const std::string &xml_file_path)
     LOG_INFO("File " << xml_file_path << " parsed successfully.");
 }
 
-void DSManager::addServer(RTPSParticipant* s)
+void DSManager::addServer(Participant* s)
 {
     assert(_servers[s->getGuid()] == nullptr);
     _servers[s->getGuid()] = s;
     _active = true;
 }
 
-void DSManager::addClient(RTPSParticipant* c)
+void DSManager::addClient(Participant* c)
 {
     assert(_clients[c->getGuid()] == nullptr);
     _clients[c->getGuid()] = c;
@@ -167,7 +167,7 @@ void DSManager::loadProfiles(tinyxml2::XMLElement *profiles)
     }
 }
 
-void DSManager::createReader(RTPSParticipant* participant, const std::string &participant_profile, const std::string &name)
+void DSManager::createReader(Participant* participant, const std::string &participant_profile, const std::string &name)
 {
     //RTPSSubscriber* listener = new RTPSSubscriber(getEndPointName(participant_profile, name));
     //listener->setParticipant(participant);
@@ -229,7 +229,7 @@ void DSManager::createReader(RTPSParticipant* participant, const std::string &pa
     //    << participant->getAttributes().rtps.builtin.domainId << "]");
 }
 
-void DSManager::createWriter(RTPSParticipant* participant, const std::string &participant_profile, const std::string &name)
+void DSManager::createWriter(Participant* participant, const std::string &participant_profile, const std::string &name)
 {
     //RTPSPublisher* publisher = new RTPSPublisher(getEndPointName(participant_profile, name));
 
@@ -324,10 +324,10 @@ void DSManager::onTerminate()
 
     for (const auto &e : _clients)
     {
-        RTPSParticipant *p = e.second;
+        Participant *p = e.second;
         if (p)
         {
-            RTPSDomain::removeRTPSParticipant(p);
+            Domain::removeParticipant(p);
         }
     }
 
@@ -386,6 +386,13 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     {
         LOG_ERROR("DSManager::loadServer couldn't load profile " << profile_name);
         return;
+    }
+
+    // server name is either pass as an attribute (preferred to allow profile reuse) or inside the profile
+    std::string name(server->Attribute(xmlparser::NAME));
+    if (!name.empty())
+    {
+        atts.rtps.setName(name.c_str());
     }
 
     // server GuidPrefix is either pass as an attribute (preferred to allow profile reuse)
@@ -472,7 +479,8 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     }
 
     // now we create the new participant
-    RTPSParticipant * pServer = RTPSDomain::createParticipant(atts.rtps);
+    Participant * pServer = Domain::createParticipant(atts);
+
     if (!pServer)
     {
         LOG_ERROR("DSManager couldn't create the server " << prefix << " with profile " << profile_name);
@@ -518,7 +526,8 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
     }
 
     // now we create the new participant
-    RTPSParticipant * pClient = RTPSDomain::createParticipant(atts.rtps);
+    Participant * pClient = Domain::createParticipant(atts);
+
     if (!pClient)
     {
         LOG_ERROR("DSManager couldn't create a client with profile " << profile_name);

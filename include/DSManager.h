@@ -20,7 +20,7 @@
 #include <iostream>
 #include "log/DSLog.h"
 
-#include <fastrtps/rtps/participant/RTPSParticipant.h>
+#include <fastrtps/participant/Participant.h>
 #include <fastrtps/xmlparser/XMLParser.h>
 
 using namespace eprosima::fastrtps;
@@ -44,7 +44,7 @@ namespace eprosima {
 
 class DSManager : public xmlparser::XMLParser // access to parsing protected functions
 {
-    typedef std::map<GUID_t, RTPSParticipant*> participant_map;
+    typedef std::map<GUID_t, Participant*> participant_map;
     typedef std::map<GUID_t, std::pair<LocatorList_t, LocatorList_t> > serverLocator_map; // multi, unicast locator list
 
     participant_map _servers;
@@ -64,11 +64,11 @@ public:
     DSManager(const std::string &xml_file_path);
     ~DSManager();
     bool isActive();
-    void addServer(RTPSParticipant* b);
-    void addClient(RTPSParticipant* p);
+    void addServer(Participant* b);
+    void addClient(Participant* p);
 
-    void createReader(RTPSParticipant* participant, const std::string &participant_profile, const std::string &name);
-    void createWriter(RTPSParticipant* participant, const std::string &participant_profile, const std::string &name);
+    void createReader(Participant* participant, const std::string &participant_profile, const std::string &name);
+    void createWriter(Participant* participant, const std::string &participant_profile, const std::string &name);
 
     void onTerminate();
 

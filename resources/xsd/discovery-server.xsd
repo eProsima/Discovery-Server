@@ -744,6 +744,8 @@
           </xs:complexType>
         </xs:element>
       </xs:all>
+      <xs:attribute name="name" type="stringType" use="optional" />
+      <!-- name may be specified within the profile -->
       <xs:attribute name="prefix" type="guid" use="optional" />
       <!-- prefix may be specified within the profile -->
       <xs:attribute name="profile_name" type="stringType" use="required" />
