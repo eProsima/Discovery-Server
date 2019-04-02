@@ -28,20 +28,23 @@ int main(int argc, char * argv[])
     }
 
     std::string path_to_config = argv[1];
-
-    DSManager manager(path_to_config);
-
-    if (manager.isActive())
+    
     {
-        std::cout << "\n### Discovery Server is running, press any key to quit ###" << std::endl;
-        fflush(stdout);
-        std::cin.ignore();
-    }
-    else
-    {
-        std::cout << "Discovery Server error: no active servers" << std::endl;
-    }
+        DSManager manager(path_to_config);
 
+        if (manager.isActive())
+        {
+            std::cout << "\n### Discovery Server is running, press any key to quit ###" << std::endl;
+            fflush(stdout);
+            std::cin.ignore();
+        }
+        else
+        {
+            std::cout << "Discovery Server error: no active servers" << std::endl;
+        }
+
+    }
+    
     Domain::stopAll();
     Log::Reset();
 

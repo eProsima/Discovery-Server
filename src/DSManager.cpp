@@ -475,8 +475,6 @@ void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
 
 void DSManager::onParticipantDiscovery(Participant* participant, rtps::ParticipantDiscoveryInfo&& info)
 {
-    // std::lock_guard<std::recursive_mutex> lock(_mutex);
-
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a participant "
         << info.info.m_participantName << " is " << info.status << ". Prefix " << participant->getGuid());
 }

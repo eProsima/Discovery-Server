@@ -55,7 +55,6 @@ class DSManager : public xmlparser::XMLParser,      // access to parsing protect
     serverLocator_map _server_locators;
 
     bool _active;
-    std::recursive_mutex _mutex;
 
     void loadProfiles(tinyxml2::XMLElement *profiles);
     void loadServer(tinyxml2::XMLElement* server);
