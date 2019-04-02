@@ -732,17 +732,7 @@
             </xs:choice>
           </xs:complexType>
         </xs:element>
-        <xs:element name="ServersList" minOccurs="0" maxOccurs="1"  > <!-- not mandatory may be present in the profile -->
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="RServer" minOccurs="1" maxOccurs="unbounded"> 
-                <xs:complexType>
-                  <xs:attribute name="prefix" type="guid" use="required" />
-                </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
+        <xs:element name="ServersList" type="ServersListType" minOccurs="0" maxOccurs="1"  /> <!-- not mandatory may be present in the profile -->
       </xs:all>
       <xs:attribute name="name" type="stringType" use="optional" />
       <!-- name may be specified within the profile -->
@@ -753,9 +743,24 @@
       <!-- backup server? defaults to NO-->
     </xs:complexType>
 
+    <xs:complexType name="ServersListType">
+      <xs:sequence>
+        <xs:element name="RServer" minOccurs="1" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:attribute name="prefix" type="guid" use="required" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+
     <xs:complexType name="clientType">
+      <xs:all>
+         <xs:element name="ServersList" type="ServersListType" minOccurs="0" maxOccurs="1"  />
+      </xs:all>
+      <!-- not mandatory may be present in the profile -->
       <xs:attribute name="name" type="stringType" use="optional" /> <!-- name may be specified within the profile -->
       <xs:attribute name="profile_name" type="stringType" use="required" />
+      <xs:attribute name="server" type="guid" use="optional" />
     </xs:complexType>
 
   <xs:element name="DS">

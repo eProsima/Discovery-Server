@@ -136,6 +136,7 @@ set(${PROJECT_NAME}_header_files
 		include/EDPServer.h
 		include/PDPServerListener.h
 		include/EDPServerListeners.h
+		include/DI.h
     )
 
 set(${PROJECT_NAME}_source_files
@@ -148,6 +149,7 @@ set(${PROJECT_NAME}_source_files
 		src/EDPServer.cpp
 		src/PDPServerListener.cpp
 		src/EDPServerListeners.cpp
+		src/DI.cpp
     )
 
 # Executable and library

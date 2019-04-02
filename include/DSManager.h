@@ -24,6 +24,8 @@
 #include <fastrtps/participant/ParticipantListener.h>
 #include <fastrtps/xmlparser/XMLParser.h>
 
+#include "DI.h"
+
 using namespace eprosima::fastrtps;
 using namespace eprosima::fastrtps::rtps;
 
@@ -49,10 +51,15 @@ class DSManager : public xmlparser::XMLParser,      // access to parsing protect
     typedef std::map<GUID_t, Participant*> participant_map;
     typedef std::map<GUID_t, std::pair<LocatorList_t, LocatorList_t> > serverLocator_map; // multi, unicast locator list
 
+    // Participant maps
     participant_map _servers;
     participant_map _clients;
 
+    // server address info
     serverLocator_map _server_locators;
+
+    // Snapshots
+    DISnapshot _state;
 
     bool _active;
 

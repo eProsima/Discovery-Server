@@ -168,6 +168,7 @@ void DSManager::loadProfiles(tinyxml2::XMLElement *profiles)
 
 void DSManager::onTerminate()
 {
+    // the servers are appended because they should be destroyed at the end
     _clients.insert(_servers.begin(), _servers.end());
 
     for (const auto &e : _clients)
@@ -275,7 +276,7 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
         atts.rtps.builtin.metatrafficUnicastLocatorList = lists.second;
     }
 
-    // TODO: load the server list (if present) and update the atts.rtps.builtin
+    // load the server list (if present) and update the atts.rtps.builtin
     tinyxml2::XMLElement *server_list = server->FirstChildElement(s_sSL.c_str());
 
     if (server_list)
@@ -371,6 +372,71 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
     if( name != nullptr )
     {
         atts.rtps.setName(name);
+    }
+
+    // server may be provided by prefix (takes precedence) or by list
+    std::string server(client->Attribute(s_sServer.c_str()));
+    if (!server.empty() )
+    {
+        RemoteServerList_t::value_type srv;
+        GuidPrefix_t & prefix = srv.guidPrefix;
+        
+        if (!(std::istringstream(server) >> prefix)
+            && (prefix == c_GuidPrefix_Unknown))
+        {
+            LOG_ERROR("server attribute must provide a prefix"); // at least for now
+            return;
+        }
+
+        RemoteServerList_t & list = atts.rtps.builtin.m_DiscoveryServers;
+        list.clear(); // server elements take precedence over profile ones
+
+        // load the locator lists
+        serverLocator_map::mapped_type & lists = _server_locators[srv.GetParticipant()];
+        srv.metatrafficMulticastLocatorList = lists.first;
+        srv.metatrafficUnicastLocatorList = lists.second;
+
+        list.push_back(std::move(srv));
+
+    }
+    else
+    {
+        // load the server list (if present) and update the atts.rtps.builtin
+        tinyxml2::XMLElement *server_list = client->FirstChildElement(s_sSL.c_str());
+
+        if (server_list)
+        {
+            RemoteServerList_t & list = atts.rtps.builtin.m_DiscoveryServers;
+            list.clear(); // server elements take precedence over profile ones
+
+            tinyxml2::XMLElement * rserver = server_list->FirstChildElement(s_sRServer.c_str());
+
+            while (rserver)
+            {
+                RemoteServerList_t::value_type srv;
+                GuidPrefix_t & prefix = srv.guidPrefix;
+
+                // load the prefix
+                const char * cprefix = rserver->Attribute(xmlparser::PREFIX);
+
+                if (cprefix && !(std::istringstream(cprefix) >> prefix)
+                    && (prefix == c_GuidPrefix_Unknown))
+                {
+                    LOG_ERROR("RServers must provide a prefix"); // at least for now
+                    return;
+                }
+
+                // load the locator lists
+                serverLocator_map::mapped_type & lists = _server_locators[srv.GetParticipant()];
+                srv.metatrafficMulticastLocatorList = lists.first;
+                srv.metatrafficUnicastLocatorList = lists.second;
+
+                list.push_back(std::move(srv));
+
+                rserver = rserver->NextSiblingElement(s_sRServer.c_str());
+            }
+        }
+
     }
 
     // now we create the new participant
@@ -476,7 +542,7 @@ void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
 void DSManager::onParticipantDiscovery(Participant* participant, rtps::ParticipantDiscoveryInfo&& info)
 {
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a participant "
-        << info.info.m_participantName << " is " << info.status << ". Prefix " << participant->getGuid());
+        << info.info.m_participantName << " is " << info.status << ". Prefix " << info.info.m_guid);
 }
 
 void DSManager::onSubscriberDiscovery(Participant* participant, rtps::ReaderDiscoveryInfo&& info)
