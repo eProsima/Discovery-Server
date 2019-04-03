@@ -10,6 +10,7 @@
 using namespace eprosima;
 using namespace fastrtps;
 using namespace rtps;
+using namespace discovery_server;
 
 int main(int argc, char * argv[])
 {

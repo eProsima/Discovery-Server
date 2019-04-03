@@ -16,28 +16,28 @@
 #include <algorithm>
 #include "DI.h"
 
-using namespace eprosima::fastrtps;
+using namespace eprosima::discovery_server;
 
 // basic discovery items operations
 
-bool DI::operator==(const rtps::GUID_t & guid) const
+bool DI::operator==(const GUID_t & guid) const
 {
-    return id == guid;
+    return _id == guid;
 }
 
 bool DI::operator==(const DI & d) const
 {
-    return id == d.id;
+    return _id == d._id;
 }
 
-bool DI::operator<(const rtps::GUID_t & guid) const
+bool DI::operator<(const GUID_t & guid) const
 {
-    return id < guid;
+    return _id < guid;
 }
 
 bool DI::operator<(const DI & d) const
 {
-    return id < d.id;
+    return _id < d._id;
 }
 
 // publiser discovery item operations
@@ -66,16 +66,6 @@ bool PtDI::operator==(const PtDI &) const
     return true;
 }
 
-bool PtDI::operator[](const PtDI & p) const
-{
-    // PtDI contains itself 
-    if (DI::operator==(p.id))
-        return true;
-
-    // search the list
-    return _participants.end() != _participants.find(p);
-}
-
 bool PtDI::operator[](const PDI & p) const
 {
     // search the list
@@ -88,67 +78,254 @@ bool PtDI::operator[](const SDI & p) const
     return _subscribers.end() != _subscribers.find(p);
 }
 
+void PtDI::acknowledge(bool alive) const
+{
+    // STL makes iterator const to prevent that any key changing unsorts the container
+    // so we introduce this method to avoid constant ugly const_cast use
+    PtDI & part = const_cast<PtDI &>(*this);
+    part._alive = alive;
+}
+
+PtDI::size_type PtDI::CountEndpoints() const
+{
+    return  _publishers.size() + _subscribers.size();
+}
+
 // DI_database methods
 
-bool DI_database::AddParticipant(const rtps::GUID_t ptid, bool server/* = false*/)
+// livetime of the return object is not guaranteed, do not store
+const PtDI* DI_database::FindParticipant(const GUID_t & ptid)
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    auto it = std::find_if(_database.begin(), _database.end(), 
-        [&ptid](const PtDI & p) { return p == ptid; });
+    database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
-    
+    if (it != _database.end())
+    {
+        return &*it;
+    }
+
+    return nullptr;
+}
+
+bool DI_database::AddParticipant(const GUID_t& ptid, const std::string& name, bool server/* = false*/)
+{
+    std::lock_guard<std::mutex> lock(_mtx);
+
+    database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+
+    if (it == _database.end())
+    {
+        // add participant
+        auto ret = _database.insert(PtDI( ptid, name, server ));
+
+        if (!ret.second)
+        {   // failure
+            return false;
+        }
+        
+        it = ret.first;
+    }
+
+    // already there, assert liveliness
+    it->acknowledge(true);
+
+    assert(it->_server == server); 
 
     return true;
 
 }
 
-bool DI_database::RemoveParticipant(const rtps::GUID_t ptid)
+bool DI_database::RemoveParticipant(const GUID_t & ptid)
 {
-    return false;
+    std::lock_guard<std::mutex> lock(_mtx);
+
+    database::iterator it = std::lower_bound(_database.begin(), _database.end(),ptid);
+
+    if (it == _database.end())
+    {
+        return false; // is no there
+    }
+
+    // If isn't empty, mark as death, otherwise remove
+    if (it->CountEndpoints() > 0)
+    {
+        // participant death acknowledge but not their owned endpoints
+        it->acknowledge(false);
+    }
+    else
+    {
+        // participant is done
+        _database.erase(it);
+    }
+
+    return true;
 }
 
-bool DI_database::AddSubscriber(const rtps::GUID_t ptid, const rtps::GUID_t sid, const std::string typename, const std::string topicname)
+template<class T>
+bool DI_database::AddEndPoint(T&(PtDI::* m)() const,const GUID_t & ptid, const GUID_t & id,
+    const std::string & _typename, const std::string & topicname)
 {
-    return false;
+    std::lock_guard<std::mutex> lock(_mtx);
+
+    database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+
+    if (it == _database.end())
+    {
+        // participant is no there, add a zombie participant
+        auto ret = _database.emplace(ptid);
+        it = ret.first;
+
+        if (!ret.second)
+            return false; // cannot add participant
+
+        // participant death acknowledge but not their owned endpoints
+        it->acknowledge(false);
+    }
+
+    // STL makes iterator const to prevent that any key changing unsorts the container
+    //const PtDI * p = &(*it);
+    //PtDI::subscriber_set& ( PtDI::* gS)() const = &PtDI::getSubscribers;
+    //PtDI::subscriber_set & subs = (p->*gS)();
+
+    T & cont = (*it.*m)();
+    T::iterator sit = std::lower_bound(cont.begin(), cont.end(), id);
+
+    if (sit == cont.end())
+    {
+        // add endpoint
+        auto ret = cont.insert(T::value_type(id, _typename, topicname));
+
+        if (!ret.second)
+        {   // failure
+            return false;
+        }
+
+        sit = ret.first;
+    }
+
+    assert(_typename == sit->_typeName);
+    assert(topicname == sit->_topicName);
+
+    return true;
 }
 
-bool DI_database::RemoveSubscriber(const rtps::GUID_t sid)
+template<class T>
+bool DI_database::RemoveEndPoint(T&(PtDI::* m)() const, const GUID_t & ptid, const GUID_t & id)
 {
-    return false;
+    std::lock_guard<std::mutex> lock(_mtx);
+
+    database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+
+    if (it == _database.end())
+    {
+        // participant is no there, should be a zombie
+        return false;
+    }
+
+    T & cont = (*it.*m)();
+    T::iterator sit = std::lower_bound(cont.begin(), cont.end(), id);
+
+    if (sit == cont.end())
+    {
+        // endpoint is not there
+        return false;
+    }
+
+    cont.erase(sit);
+
+    if (it->CountEndpoints() == 0 && !it->_alive)
+    {
+        // remove participant if zombie
+        _database.erase(it);
+    }
+
+    return true;
+
 }
 
-bool DI_database::AddPublisher(const rtps::GUID_t ptid, const rtps::GUID_t pid, const std::string typename, const std::string topicname)
+bool DI_database::AddSubscriber(const GUID_t & ptid, const GUID_t & sid,
+    const std::string & _typename, const std::string & topicname)
 {
-    return false;
+    return AddEndPoint(&PtDI::getSubscribers,ptid, sid, _typename, topicname);
 }
 
-bool DI_database::RemovePublisher(const rtps::GUID_t ptid)
+bool DI_database::RemoveSubscriber(const GUID_t & ptid, const GUID_t & sid)
 {
-    return false;
+    return RemoveEndPoint(&PtDI::getSubscribers, ptid, sid);
 }
 
-size_t DI_database::CountParticipants() const
+bool DI_database::AddPublisher(const GUID_t & ptid, const GUID_t & pid, const std::string & _typename, const std::string & topicname)
 {
+    return AddEndPoint(&PtDI::getPublishers, ptid, pid, _typename, topicname);
+}
+
+bool DI_database::RemovePublisher(const GUID_t & ptid, const GUID_t & pid)
+{
+    return RemoveEndPoint(&PtDI::getPublishers, ptid, pid);
+}
+
+DI_database::size_type DI_database::CountParticipants() const
+{
+    std::lock_guard<std::mutex> lock(_mtx);
+
     return _database.size();
 }
 
-size_t DI_database::CountSubscribers() const
+DI_database::size_type DI_database::CountSubscribers() const
 {
-    return 0;
+    std::lock_guard<std::mutex> lock(_mtx);
+
+    size_type count = 0;
+
+    for (auto part : _database)
+    {
+        count += part._subscribers.size();
+    }
+
+    return count;
 }
 
-size_t DI_database::CountPublishers() const
+DI_database::size_type DI_database::CountPublishers() const
 {
-    return 0;
+    std::lock_guard<std::mutex> lock(_mtx);
+
+    size_type count = 0;
+
+    for (auto part : _database)
+    {
+        count += part._publishers.size();
+    }
+
+    return count;
 }
 
-size_t DI_database::CountSubscribers(const rtps::GUID_t ptid) const
+DI_database::size_type DI_database::CountSubscribers(const GUID_t & ptid) const
 {
-    return 0;
+    std::lock_guard<std::mutex> lock(_mtx);
+
+    database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+
+    if (it == _database.end())
+    {
+        // participant is no there
+        return 0;
+    }
+
+    return it->_subscribers.size();
 }
 
-size_t DI_database::CountPublishers(const rtps::GUID_t ptid) const
+DI_database::size_type DI_database::CountPublishers(const GUID_t & ptid) const
 {
-    return 0;
+    std::lock_guard<std::mutex> lock(_mtx);
+
+    database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+
+    if (it == _database.end())
+    {
+        // participant is no there
+        return 0;
+    }
+
+    return it->_publishers.size();
 }

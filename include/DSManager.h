@@ -43,60 +43,66 @@ namespace eprosima {
 
         }
     }
-}
 
-class DSManager : public xmlparser::XMLParser,      // access to parsing protected functions
-    public eprosima::fastrtps::ParticipantListener  // receive discovery callback information
-{
-    typedef std::map<GUID_t, Participant*> participant_map;
-    typedef std::map<GUID_t, std::pair<LocatorList_t, LocatorList_t> > serverLocator_map; // multi, unicast locator list
-
-    // Participant maps
-    participant_map _servers;
-    participant_map _clients;
-
-    // server address info
-    serverLocator_map _server_locators;
-
-    // Snapshots
-    DISnapshot _state;
-
-    bool _active;
-
-    void loadProfiles(tinyxml2::XMLElement *profiles);
-    void loadServer(tinyxml2::XMLElement* server);
-    void loadClient(tinyxml2::XMLElement* client);
-    void MapServerInfo(tinyxml2::XMLElement* server);
-
-public:
-    DSManager(const std::string &xml_file_path);
-    ~DSManager();
-    bool isActive();
-
-    // entity creation functions
-    void addServer(Participant* b);
-    void addClient(Participant* p);
-    void addSubscriber(Participant* participant, const std::string &participant_profile, const std::string &name) {}; // TODO: implementation
-    void addPublisher(Participant* participant, const std::string &participant_profile, const std::string &name) {};  // TODO: implementation
-
-    // callback discovery functions
-    void onParticipantDiscovery(Participant* participant, rtps::ParticipantDiscoveryInfo&& info) override;
-    void onSubscriberDiscovery(Participant* participant, rtps::ReaderDiscoveryInfo&& info) override;
-    void onPublisherDiscovery(Participant* participant, rtps::WriterDiscoveryInfo&& info) override;
-
-    void onTerminate();
-
-    std::string getEndPointName(const std::string &partName, const std::string &epName)
+    namespace discovery_server
     {
-        return partName + "." + epName;
+
+        class DSManager : public xmlparser::XMLParser,      // access to parsing protected functions
+            public eprosima::fastrtps::ParticipantListener  // receive discovery callback information
+        {
+            typedef std::map<GUID_t, Participant*> participant_map;
+            typedef std::map<GUID_t, std::pair<LocatorList_t, LocatorList_t> > serverLocator_map; // multi, unicast locator list
+
+            // Participant maps
+            participant_map _servers;
+            participant_map _clients;
+
+            // server address info
+            serverLocator_map _server_locators;
+
+            // Snapshots
+            DI_database _state;
+
+            bool _active;
+
+            void loadProfiles(tinyxml2::XMLElement *profiles);
+            void loadServer(tinyxml2::XMLElement* server);
+            void loadClient(tinyxml2::XMLElement* client);
+            void MapServerInfo(tinyxml2::XMLElement* server);
+
+        public:
+            DSManager(const std::string &xml_file_path);
+            ~DSManager();
+            bool isActive();
+
+            // entity creation functions
+            void addServer(Participant* b);
+            void addClient(Participant* p);
+            void addSubscriber(Participant* participant, const std::string &participant_profile, const std::string &name) {}; // TODO: implementation
+            void addPublisher(Participant* participant, const std::string &participant_profile, const std::string &name) {};  // TODO: implementation
+
+            // callback discovery functions
+            void onParticipantDiscovery(Participant* participant, rtps::ParticipantDiscoveryInfo&& info) override;
+            void onSubscriberDiscovery(Participant* participant, rtps::ReaderDiscoveryInfo&& info) override;
+            void onPublisherDiscovery(Participant* participant, rtps::WriterDiscoveryInfo&& info) override;
+
+            void onTerminate();
+
+            std::string getEndPointName(const std::string &partName, const std::string &epName)
+            {
+                return partName + "." + epName;
+            }
+
+            template<bool persist> static PDP * createPDPServer(BuiltinProtocols *);
+            static void ReleasePDPServer(PDP *);
+        };
+
+
+        std::ostream& operator<<(std::ostream&, ParticipantDiscoveryInfo::DISCOVERY_STATUS);
+        std::ostream& operator<<(std::ostream&, ReaderDiscoveryInfo::DISCOVERY_STATUS);
+        std::ostream& operator<<(std::ostream&, WriterDiscoveryInfo::DISCOVERY_STATUS);
     }
 
-    template<bool persist> static PDP * createPDPServer(BuiltinProtocols *);
-    static void ReleasePDPServer(PDP *);
-};
-
-
-std::ostream& operator<<(std::ostream&, ParticipantDiscoveryInfo::DISCOVERY_STATUS );
-
+}
 
 #endif // _DSMANAGER_H_

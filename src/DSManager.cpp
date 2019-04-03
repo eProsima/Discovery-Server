@@ -23,6 +23,7 @@
 #include <sstream>
 
 using namespace eprosima::fastrtps;
+using namespace eprosima::discovery_server;
 
 // String literals:
 // brand new
@@ -541,22 +542,89 @@ void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
 
 void DSManager::onParticipantDiscovery(Participant* participant, rtps::ParticipantDiscoveryInfo&& info)
 {
+    GUID_t & partid = info.info.m_guid;
+    bool server = _servers.end() != _servers.find(partid);
+
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a participant "
-        << info.info.m_participantName << " is " << info.status << ". Prefix " << info.info.m_guid);
+        << info.info.m_participantName << " is " << info.status << ". Prefix " << partid);
+
+    // add to database
+    switch (info.status)
+    {
+    case ParticipantDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_PARTICIPANT:
+        _state.AddParticipant(partid, info.info.m_participantName, server);
+            break;
+    case ParticipantDiscoveryInfo::DISCOVERY_STATUS::REMOVED_PARTICIPANT:
+        _state.RemoveParticipant(partid);
+            break;
+    }
+
+    // note that I ignore DROPPED_PARTICIPANT because it deals with liveliness
+    // and not with discovery messages
 }
 
 void DSManager::onSubscriberDiscovery(Participant* participant, rtps::ReaderDiscoveryInfo&& info)
 {
+    GUID_t & subsid = info.info.guid();
+    GUID_t partid = iHandle2GUID(info.info.RTPSParticipantKey());
 
+    // is one of ours?
+    participant_map::iterator it;
+    std::string part_name;
+
+    if ((it = _servers.find(partid)) != _servers.end() ||
+        (it = _clients.find(partid)) != _clients.end())
+    {
+        part_name = it->second->getAttributes().rtps.getName();
+    }
+    else if (const PtDI * p = _state.FindParticipant(partid))
+    {
+        part_name = p->_name;
+    }
+    else
+    {   // if remote use prefix instead of name
+        part_name = (std::ostringstream() << partid).str();
+    }
+
+    _state.AddSubscriber(partid, subsid, info.info.typeName(), info.info.topicName());
+
+    LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a subscriber of participant "
+        << part_name << " is " << info.status << " with typename: " << info.info.typeName()
+        << " topic: " << info.info.topicName()  << " GUID: " << subsid);
 }
 
 void  DSManager::onPublisherDiscovery(Participant* participant, rtps::WriterDiscoveryInfo&& info)
 {
+    GUID_t & pubsid = info.info.guid();
+    GUID_t partid = iHandle2GUID(info.info.RTPSParticipantKey());
 
+    // is one of ours?
+    participant_map::iterator it;
+    std::string part_name;
+
+    if ((it = _servers.find(partid)) != _servers.end() ||
+        (it = _clients.find(partid)) != _clients.end())
+    {
+        part_name = it->second->getAttributes().rtps.getName();
+    }
+    else if (const PtDI * p = _state.FindParticipant(partid))
+    {
+        part_name = p->_name;
+    }
+    else
+    {   // if remote use prefix instead of name
+        part_name = (std::ostringstream() << partid).str();
+    }
+
+    _state.AddSubscriber(partid, pubsid, info.info.typeName(), info.info.topicName());
+
+    LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a publisher of participant "
+        << part_name << " is " << info.status << " with typename: " << info.info.typeName()
+        << " topic: " << info.info.topicName() << " GUID: " << pubsid);
 }
 
 
-std::ostream& operator<<(std::ostream& o, ParticipantDiscoveryInfo::DISCOVERY_STATUS s)
+std::ostream& eprosima::discovery_server::operator<<(std::ostream& o, ParticipantDiscoveryInfo::DISCOVERY_STATUS s)
 {
     typedef ParticipantDiscoveryInfo::DISCOVERY_STATUS DS;
 
@@ -570,6 +638,44 @@ std::ostream& operator<<(std::ostream& o, ParticipantDiscoveryInfo::DISCOVERY_ST
         return o << "REMOVED_PARTICIPANT";
     case DS::DROPPED_PARTICIPANT:
         return o << "REMOVED_PARTICIPANT";
+    default:    // unknown value, error
+        o.setstate(std::ios::failbit);
+    }
+
+    return o;
+}
+
+std::ostream& eprosima::discovery_server::operator<<(std::ostream& o, ReaderDiscoveryInfo::DISCOVERY_STATUS s)
+{
+    typedef ReaderDiscoveryInfo::DISCOVERY_STATUS DS;
+
+    switch (s)
+    {
+    case DS::DISCOVERED_READER:
+        return o << "DISCOVERED_READER";
+    case DS::CHANGED_QOS_READER:
+        return o << "CHANGED_QOS_READER";
+    case DS::REMOVED_READER:
+        return o << "REMOVED_READER";
+    default:    // unknown value, error
+        o.setstate(std::ios::failbit);
+    }
+
+    return o;
+}
+
+std::ostream& eprosima::discovery_server::operator<<(std::ostream& o, WriterDiscoveryInfo::DISCOVERY_STATUS s)
+{
+    typedef WriterDiscoveryInfo::DISCOVERY_STATUS DS;
+
+    switch (s)
+    {
+    case DS::DISCOVERED_WRITER:
+        return o << "DISCOVERED_WRITER";
+    case DS::CHANGED_QOS_WRITER:
+        return o << "CHANGED_QOS_WRITER";
+    case DS::REMOVED_WRITER:
+        return o << "REMOVED_WRITER";
     default:    // unknown value, error
         o.setstate(std::ios::failbit);
     }
