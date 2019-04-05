@@ -18,6 +18,8 @@
 
 #include <fastrtps/rtps/common/Guid.h>
 #include <set>
+#include <map>
+#include <vector>
 #include <mutex>
 #include <chrono>
 
@@ -171,6 +173,7 @@ namespace eprosima {
         class DI_database
         {
             typedef std::set<PtDI> database;
+            typedef std::map<GUID_t, database> participant_list;
             typedef database::size_type size_type;
 
             typedef struct 
@@ -182,41 +185,41 @@ namespace eprosima {
             } Snapshot;
 
             // reported discovery info
-            database _database;
+            participant_list _participants; // each participant database info
             mutable std::mutex _mtx; // atomic database operation
 
             // AddSubscriber and AddPublisher common implementation
 
             template<class T>
-                bool AddEndPoint(T&(PtDI::* m)() const,const GUID_t & ptid, const GUID_t & sid,
+                bool AddEndPoint(T&(PtDI::* m)() const, const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & sid,
                     const std::string & _typename, const std::string & topicname);
 
             template<class T>
-                bool RemoveEndPoint(T&(PtDI::* m)() const, const GUID_t & ptid, const GUID_t & sid);
+                bool RemoveEndPoint(T&(PtDI::* m)() const, const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & sid);
 
         public:
 
             //! Returns a pointer to the PtDI or null if not found
-            const PtDI* FindParticipant(const GUID_t & ptid);
+            std::vector<const PtDI*> FindParticipant(const GUID_t & ptid) const;
 
             //! Adds a new participant, returns false if allocation fails
-            bool AddParticipant(const GUID_t & ptid, const std::string& name = std::string(), bool server = false);
+            bool AddParticipant(const GUID_t& spokesman, const GUID_t & ptid, const std::string& name = std::string(), bool server = false);
             //! Removes a participant, returns false if no there
-            bool RemoveParticipant(const GUID_t & ptid);
+            bool RemoveParticipant(const GUID_t& spokesman, const GUID_t & ptid);
 
             //! Adds a new Subscriber, returns false if allocation fails
-            bool AddSubscriber(const GUID_t & ptid, const GUID_t & sid, const std::string& _typename, const std::string & topicname);
-            bool RemoveSubscriber(const GUID_t & ptid, const GUID_t & sid);
+            bool AddSubscriber(const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & sid, const std::string& _typename, const std::string & topicname);
+            bool RemoveSubscriber(const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & sid);
 
             //! Adds a new Publisher, returns false if allocation fails
-            bool AddPublisher(const GUID_t & ptid, const GUID_t & pid, const std::string & _typename, const std::string & topicname);
-            bool RemovePublisher(const GUID_t & ptid, const GUID_t & pid);
+            bool AddPublisher(const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & pid, const std::string & _typename, const std::string & topicname);
+            bool RemovePublisher(const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & pid);
 
-            size_type CountParticipants() const;
-            size_type CountSubscribers() const;
-            size_type CountPublishers() const;
-            size_type CountSubscribers(const GUID_t & ptid) const;
-            size_type CountPublishers(const GUID_t & ptid) const;
+            size_type CountParticipants(const GUID_t& spokesman ) const;
+            size_type CountSubscribers(const GUID_t& spokesman ) const;
+            size_type CountPublishers(const GUID_t& spokesman ) const;
+            size_type CountSubscribers(const GUID_t& spokesman, const GUID_t & ptid) const;
+            size_type CountPublishers(const GUID_t& spokesman, const GUID_t & ptid) const;
 
         };
 

@@ -98,25 +98,33 @@ PtDI::size_type PtDI::CountEndpoints() const
 
 // DI_database methods
 
-// livetime of the return object is not guaranteed, do not store
-const PtDI* DI_database::FindParticipant(const GUID_t & ptid)
+// livetime of the return objects is not guaranteed, do not store
+std::vector<const PtDI*> DI_database::FindParticipant(const GUID_t & ptid) const
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+    std::vector<const PtDI*> v;
 
-    if (it != _database.end() && *it == ptid)
+    // traverse the map of participants searching for one particular specific info
+    for (participant_list::const_iterator pit = _participants.cbegin(); pit != _participants.cend(); ++pit)
     {
-        return &*it;
+        const database & _database = pit->second;
+        auto  it = std::lower_bound(_database.cbegin(), _database.cend(), ptid);
+
+        if (it != _database.end() && *it == ptid)
+        {
+            v.push_back(&*it);
+        }
     }
 
-    return nullptr;
+    return v;
 }
 
-bool DI_database::AddParticipant(const GUID_t& ptid, const std::string& name, bool server/* = false*/)
+bool DI_database::AddParticipant(const GUID_t& spokesman, const GUID_t& ptid, const std::string& name, bool server/* = false*/)
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
+    database & _database = _participants[spokesman];
     database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
     if (it == _database.end() || *it != ptid)
@@ -138,10 +146,11 @@ bool DI_database::AddParticipant(const GUID_t& ptid, const std::string& name, bo
 
 }
 
-bool DI_database::RemoveParticipant(const GUID_t & ptid)
+bool DI_database::RemoveParticipant(const GUID_t& spokesman, const GUID_t & ptid)
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
+    database & _database = _participants[spokesman];
     database::iterator it = std::lower_bound(_database.begin(), _database.end(),ptid);
 
     if (it == _database.end() || *it != ptid)
@@ -165,11 +174,12 @@ bool DI_database::RemoveParticipant(const GUID_t & ptid)
 }
 
 template<class T>
-bool DI_database::AddEndPoint(T&(PtDI::* m)() const,const GUID_t & ptid, const GUID_t & id,
+bool DI_database::AddEndPoint(T&(PtDI::* m)() const, const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & id,
     const std::string & _typename, const std::string & topicname)
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
+    database & _database = _participants[spokesman];
     database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
     if (it == _database.end() || *it != ptid )
@@ -202,10 +212,11 @@ bool DI_database::AddEndPoint(T&(PtDI::* m)() const,const GUID_t & ptid, const G
 }
 
 template<class T>
-bool DI_database::RemoveEndPoint(T&(PtDI::* m)() const, const GUID_t & ptid, const GUID_t & id)
+bool DI_database::RemoveEndPoint(T&(PtDI::* m)() const, const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & id)
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
+    database & _database = _participants[spokesman];
     database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
     if (it == _database.end() || *it != ptid)
@@ -235,88 +246,125 @@ bool DI_database::RemoveEndPoint(T&(PtDI::* m)() const, const GUID_t & ptid, con
 
 }
 
-bool DI_database::AddSubscriber(const GUID_t & ptid, const GUID_t & sid,
+bool DI_database::AddSubscriber(const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & sid,
     const std::string & _typename, const std::string & topicname)
 {
-    return AddEndPoint(&PtDI::getSubscribers,ptid, sid, _typename, topicname);
+    return AddEndPoint(&PtDI::getSubscribers, spokesman,ptid, sid, _typename, topicname);
 }
 
-bool DI_database::RemoveSubscriber(const GUID_t & ptid, const GUID_t & sid)
+bool DI_database::RemoveSubscriber(const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & sid)
 {
-    return RemoveEndPoint(&PtDI::getSubscribers, ptid, sid);
+    return RemoveEndPoint(&PtDI::getSubscribers, spokesman, ptid, sid);
 }
 
-bool DI_database::AddPublisher(const GUID_t & ptid, const GUID_t & pid, const std::string & _typename, const std::string & topicname)
+bool DI_database::AddPublisher(const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & pid, const std::string & _typename, const std::string & topicname)
 {
-    return AddEndPoint(&PtDI::getPublishers, ptid, pid, _typename, topicname);
+    return AddEndPoint(&PtDI::getPublishers, spokesman, ptid, pid, _typename, topicname);
 }
 
-bool DI_database::RemovePublisher(const GUID_t & ptid, const GUID_t & pid)
+bool DI_database::RemovePublisher(const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & pid)
 {
-    return RemoveEndPoint(&PtDI::getPublishers, ptid, pid);
+    return RemoveEndPoint(&PtDI::getPublishers, spokesman, ptid, pid);
 }
 
-DI_database::size_type DI_database::CountParticipants() const
-{
-    std::lock_guard<std::mutex> lock(_mtx);
-
-    return _database.size();
-}
-
-DI_database::size_type DI_database::CountSubscribers() const
+DI_database::size_type DI_database::CountParticipants(const GUID_t& spokesman) const
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    size_type count = 0;
+    auto it = _participants.find(spokesman);
 
-    for (auto part : _database)
+    if ( it != _participants.end())
     {
-        count += part._subscribers.size();
+       return it->second.size();
     }
 
-    return count;
+    return 0;
 }
 
-DI_database::size_type DI_database::CountPublishers() const
+DI_database::size_type DI_database::CountSubscribers(const GUID_t& spokesman) const
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    size_type count = 0;
+    auto it = _participants.find(spokesman);
 
-    for (auto part : _database)
+    if (it != _participants.end())
     {
-        count += part._publishers.size();
+        size_type count = 0;
+
+        for (auto part : it->second)
+        {
+            count += part._subscribers.size();
+        }
+
+        return count;
     }
 
-    return count;
+    return 0;
 }
 
-DI_database::size_type DI_database::CountSubscribers(const GUID_t & ptid) const
+DI_database::size_type DI_database::CountPublishers(const GUID_t& spokesman) const
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+    auto it = _participants.find(spokesman);
 
-    if (it == _database.end() || *it != ptid )
+    if (it != _participants.end())
     {
-        // participant is no there
-        return 0;
+        size_type count = 0;
+
+        for (auto part : it->second)
+        {
+            count += part._publishers.size();
+        }
+
+        return count;
     }
 
-    return it->_subscribers.size();
+    return 0;
 }
 
-DI_database::size_type DI_database::CountPublishers(const GUID_t & ptid) const
+DI_database::size_type DI_database::CountSubscribers(const GUID_t& spokesman,const GUID_t & ptid) const
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+    auto it = _participants.find(spokesman);
 
-    if (it == _database.end() || *it != ptid )
+    if (it != _participants.end())
     {
-        // participant is no there
-        return 0;
+        const database & _database = it->second;
+        database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+
+        if (it == _database.end() || *it != ptid)
+        {
+            // participant is no there
+            return 0;
+        }
+
+        return it->_subscribers.size();
     }
 
-    return it->_publishers.size();
+    return 0;
+}
+
+DI_database::size_type DI_database::CountPublishers(const GUID_t& spokesman,const GUID_t & ptid) const
+{
+    std::lock_guard<std::mutex> lock(_mtx);
+
+    auto it = _participants.find(spokesman);
+
+    if (it != _participants.end())
+    {
+        const database & _database = it->second;
+        database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+
+        if (it == _database.end() || *it != ptid)
+        {
+            // participant is no there
+            return 0;
+        }
+
+        return it->_publishers.size();
+    }
+
+    return 0;
 }

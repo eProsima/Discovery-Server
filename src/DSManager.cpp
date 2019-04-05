@@ -578,10 +578,10 @@ void DSManager::onParticipantDiscovery(Participant* participant, rtps::Participa
     switch (info.status)
     {
     case ParticipantDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_PARTICIPANT:
-        _state.AddParticipant(partid, info.info.m_participantName, server);
+        _state.AddParticipant(participant->getGuid(), partid, info.info.m_participantName, server);
             break;
     case ParticipantDiscoveryInfo::DISCOVERY_STATUS::REMOVED_PARTICIPANT:
-        _state.RemoveParticipant(partid);
+        _state.RemoveParticipant(participant->getGuid(), partid);
             break;
     }
 
@@ -613,19 +613,23 @@ void DSManager::onSubscriberDiscovery(Participant* participant, rtps::ReaderDisc
         }
         else
         {   // stick to non-DSManager info
-            if (const PtDI * p = _state.FindParticipant(partid))
+            for(const PtDI* p : _state.FindParticipant(partid))
             {
-                part_name = p->_name;
-            }
-            else
-            {   // if remote use prefix instead of name
-                part_name = (std::ostringstream() << partid).str();
+                if (!p->_name.empty())
+                {
+                    part_name = p->_name;
+                }
             }
         }
 
     }
 
-    _state.AddSubscriber(partid, subsid, info.info.typeName(), info.info.topicName());
+    if (part_name.empty())
+    {   // if remote use prefix instead of name
+        part_name = (std::ostringstream() << partid).str();
+    }
+
+    _state.AddSubscriber(participant->getGuid(),partid, subsid, info.info.typeName(), info.info.topicName());
 
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a subscriber of participant "
         << part_name << " is " << info.status << " with typename: " << info.info.typeName()
@@ -655,20 +659,23 @@ void  DSManager::onPublisherDiscovery(Participant* participant, rtps::WriterDisc
             }
         }
         else
-        {
-            if (const PtDI * p = _state.FindParticipant(partid))
+        {   // stick to non-DSManager info
+            for (const PtDI* p : _state.FindParticipant(partid))
             {
-                part_name = p->_name;
-            }
-            else
-            {   // if remote use prefix instead of name
-                part_name = (std::ostringstream() << partid).str();
+                if (!p->_name.empty())
+                {
+                    part_name = p->_name;
+                }
             }
         }
-
     }
 
-    _state.AddSubscriber(partid, pubsid, info.info.typeName(), info.info.topicName());
+    if (part_name.empty())
+    {   // if remote use prefix instead of name
+        part_name = (std::ostringstream() << partid).str();
+    }
+
+    _state.AddSubscriber(participant->getGuid(), partid, pubsid, info.info.typeName(), info.info.topicName());
 
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a publisher of participant "
         << part_name << " is " << info.status << " with typename: " << info.info.typeName()
