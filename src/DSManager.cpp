@@ -53,7 +53,7 @@ namespace eprosima{
 }
 
 DSManager::DSManager(const std::string &xml_file_path)
-    : _active(false)
+    : _active(false), _nocallbacks(false)
 {
     //Log::SetVerbosity(Log::Warning);
     tinyxml2::XMLDocument doc;
@@ -141,13 +141,16 @@ DSManager::DSManager(const std::string &xml_file_path)
 
 void DSManager::addServer(Participant* s)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
     assert(_servers[s->getGuid()] == nullptr);
+
     _servers[s->getGuid()] = s;
     _active = true;
 }
 
 void DSManager::addClient(Participant* c)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
     assert(_clients[c->getGuid()] == nullptr);
     _clients[c->getGuid()] = c;
 }
@@ -169,6 +172,11 @@ void DSManager::loadProfiles(tinyxml2::XMLElement *profiles)
 
 void DSManager::onTerminate()
 {
+    {   // make sure all other threads don't modify the state
+        std::lock_guard<std::recursive_mutex> lock(_mtx);
+        _nocallbacks = true;
+    }
+
     // the servers are appended because they should be destroyed at the end
     _clients.insert(_servers.begin(), _servers.end());
 
@@ -221,6 +229,8 @@ template<>
 
 void DSManager::loadServer(tinyxml2::XMLElement* server)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
     // profile name is mandatory
     std::string profile_name(server->Attribute(xmlparser::PROFILE_NAME));
 
@@ -343,6 +353,8 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
 
 void DSManager::loadClient(tinyxml2::XMLElement* client)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
     // clients are created for debugging purposes
     // profile name is mandatory because they must reference servers
     std::string profile_name(client->Attribute(xmlparser::PROFILE_NAME));
@@ -454,6 +466,8 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
 
 void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
     uint8_t ident = 1;
 
     // profile name is mandatory
@@ -542,11 +556,19 @@ void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
 
 void DSManager::onParticipantDiscovery(Participant* participant, rtps::ParticipantDiscoveryInfo&& info)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
     GUID_t & partid = info.info.m_guid;
-    bool server = _servers.end() != _servers.find(partid);
 
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a participant "
         << info.info.m_participantName << " is " << info.status << ". Prefix " << partid);
+
+    if (_nocallbacks)
+    {   // killing the discovery server
+        return;
+    }
+
+    bool server = _servers.end() != _servers.find(partid);
 
     // add to database
     switch (info.status)
@@ -565,6 +587,17 @@ void DSManager::onParticipantDiscovery(Participant* participant, rtps::Participa
 
 void DSManager::onSubscriberDiscovery(Participant* participant, rtps::ReaderDiscoveryInfo&& info)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    if (_nocallbacks)
+    {   // killing the discovery server: log out no discovery server provided info
+        LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a subscriber of participant "
+            << info.info.RTPSParticipantKey() << " is " << info.status << " with typename: " << info.info.typeName()
+            << " topic: " << info.info.topicName() << " GUID: " << info.info.guid());
+
+        return;
+    }
+
     GUID_t & subsid = info.info.guid();
     GUID_t partid = iHandle2GUID(info.info.RTPSParticipantKey());
 
@@ -595,6 +628,17 @@ void DSManager::onSubscriberDiscovery(Participant* participant, rtps::ReaderDisc
 
 void  DSManager::onPublisherDiscovery(Participant* participant, rtps::WriterDiscoveryInfo&& info)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    if (_nocallbacks)
+    {   // killing the discovery server: log out no discovery server provided info
+        LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a publisher of participant "
+            << info.info.RTPSParticipantKey() << " is " << info.status << " with typename: " << info.info.typeName()
+            << " topic: " << info.info.topicName() << " GUID: " << info.info.guid());
+
+        return;
+    }
+
     GUID_t & pubsid = info.info.guid();
     GUID_t partid = iHandle2GUID(info.info.RTPSParticipantKey());
 

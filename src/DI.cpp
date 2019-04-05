@@ -25,6 +25,11 @@ bool DI::operator==(const GUID_t & guid) const
     return _id == guid;
 }
 
+bool DI::operator!=(const GUID_t & guid) const
+{
+    return _id != guid;
+}
+
 bool DI::operator==(const DI & d) const
 {
     return _id == d._id;
@@ -100,7 +105,7 @@ const PtDI* DI_database::FindParticipant(const GUID_t & ptid)
 
     database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
-    if (it != _database.end())
+    if (it != _database.end() && *it == ptid)
     {
         return &*it;
     }
@@ -114,21 +119,17 @@ bool DI_database::AddParticipant(const GUID_t& ptid, const std::string& name, bo
 
     database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
-    if (it == _database.end())
-    {
-        // add participant
-        auto ret = _database.insert(PtDI( ptid, name, server ));
-
-        if (!ret.second)
-        {   // failure
-            return false;
-        }
-        
-        it = ret.first;
+    if (it == _database.end() || *it != ptid)
+    { // add participant
+        it = _database.emplace_hint(it, ptid, name, server);
     }
 
     // already there, assert liveliness
-    it->acknowledge(true);
+    if (!it->_alive)
+    {   // update the zombie
+        it->setName(name);
+        it->acknowledge(true);
+    }
 
     assert(it->_server == server); 
 
@@ -142,7 +143,7 @@ bool DI_database::RemoveParticipant(const GUID_t & ptid)
 
     database::iterator it = std::lower_bound(_database.begin(), _database.end(),ptid);
 
-    if (it == _database.end())
+    if (it == _database.end() || *it != ptid)
     {
         return false; // is no there
     }
@@ -170,14 +171,10 @@ bool DI_database::AddEndPoint(T&(PtDI::* m)() const,const GUID_t & ptid, const G
 
     database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
-    if (it == _database.end())
+    if (it == _database.end() || *it != ptid )
     {
         // participant is no there, add a zombie participant
-        auto ret = _database.emplace(ptid);
-        it = ret.first;
-
-        if (!ret.second)
-            return false; // cannot add participant
+        it = _database.emplace_hint(it,ptid);
 
         // participant death acknowledge but not their owned endpoints
         it->acknowledge(false);
@@ -191,17 +188,10 @@ bool DI_database::AddEndPoint(T&(PtDI::* m)() const,const GUID_t & ptid, const G
     T & cont = (*it.*m)();
     T::iterator sit = std::lower_bound(cont.begin(), cont.end(), id);
 
-    if (sit == cont.end())
+    if (sit == cont.end() || *sit != id )
     {
         // add endpoint
-        auto ret = cont.insert(T::value_type(id, _typename, topicname));
-
-        if (!ret.second)
-        {   // failure
-            return false;
-        }
-
-        sit = ret.first;
+        sit = cont.emplace_hint(sit, id, _typename, topicname);
     }
 
     assert(_typename == sit->_typeName);
@@ -217,7 +207,7 @@ bool DI_database::RemoveEndPoint(T&(PtDI::* m)() const, const GUID_t & ptid, con
 
     database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
-    if (it == _database.end())
+    if (it == _database.end() || *it != ptid)
     {
         // participant is no there, should be a zombie
         return false;
@@ -226,7 +216,7 @@ bool DI_database::RemoveEndPoint(T&(PtDI::* m)() const, const GUID_t & ptid, con
     T & cont = (*it.*m)();
     T::iterator sit = std::lower_bound(cont.begin(), cont.end(), id);
 
-    if (sit == cont.end())
+    if (sit == cont.end() || *sit != id )
     {
         // endpoint is not there
         return false;
@@ -306,7 +296,7 @@ DI_database::size_type DI_database::CountSubscribers(const GUID_t & ptid) const
 
     database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
-    if (it == _database.end())
+    if (it == _database.end() || *it != ptid )
     {
         // participant is no there
         return 0;
@@ -321,7 +311,7 @@ DI_database::size_type DI_database::CountPublishers(const GUID_t & ptid) const
 
     database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
-    if (it == _database.end())
+    if (it == _database.end() || *it != ptid )
     {
         // participant is no there
         return 0;

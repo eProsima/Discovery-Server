@@ -508,6 +508,9 @@ void PDPServer::queueParticipantForEDPMatch(const ParticipantProxyData * pdata)
     // add the new client or server to the EDP matching list
     _p2match.insert(pdata);
     mp_sync->restart_timer();
+
+    logInfo(PDP_SERVER, "participant " << pdata->m_participantName << " prefix: " << pdata->m_guid 
+        << " waiting for EDP match with server " << this->getRTPSParticipant()->getRTPSParticipantAttributes().getName());
 }
 
 

@@ -53,6 +53,9 @@ namespace eprosima {
             typedef std::map<GUID_t, Participant*> participant_map;
             typedef std::map<GUID_t, std::pair<LocatorList_t, LocatorList_t> > serverLocator_map; // multi, unicast locator list
 
+            // synch protection
+            std::recursive_mutex _mtx;
+
             // Participant maps
             participant_map _servers;
             participant_map _clients;
@@ -60,10 +63,11 @@ namespace eprosima {
             // server address info
             serverLocator_map _server_locators;
 
-            // Snapshots
+            // Discovery status
             DI_database _state;
 
             bool _active;
+            bool _nocallbacks; // ongoing participant destruction
 
             void loadProfiles(tinyxml2::XMLElement *profiles);
             void loadServer(tinyxml2::XMLElement* server);
