@@ -129,6 +129,7 @@ bool DI_database::AddParticipant(const GUID_t& ptid, const std::string& name, bo
     {   // update the zombie
         it->setName(name);
         it->acknowledge(true);
+        it->setServer(server);
     }
 
     assert(it->_server == server); 

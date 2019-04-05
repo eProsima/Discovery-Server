@@ -556,21 +556,25 @@ void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
 
 void DSManager::onParticipantDiscovery(Participant* participant, rtps::ParticipantDiscoveryInfo&& info)
 {
-    std::lock_guard<std::recursive_mutex> lock(_mtx);
-
+    bool server = false;
     GUID_t & partid = info.info.m_guid;
 
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a participant "
         << info.info.m_participantName << " is " << info.status << ". Prefix " << partid);
 
-    if (_nocallbacks)
-    {   // killing the discovery server
-        return;
+    {
+        std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+        if (!_nocallbacks)
+        {
+            // DSManager info still valid
+            server = _servers.end() != _servers.find(partid);
+        }
     }
 
-    bool server = _servers.end() != _servers.find(partid);
-
-    // add to database
+    // add to database, it has its own mtx
+    // note that when a participant is destroyed he will wait for all his callbacks to return
+    // _state will be alive during all callbacks
     switch (info.status)
     {
     case ParticipantDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_PARTICIPANT:
@@ -587,36 +591,38 @@ void DSManager::onParticipantDiscovery(Participant* participant, rtps::Participa
 
 void DSManager::onSubscriberDiscovery(Participant* participant, rtps::ReaderDiscoveryInfo&& info)
 {
-    std::lock_guard<std::recursive_mutex> lock(_mtx);
-
-    if (_nocallbacks)
-    {   // killing the discovery server: log out no discovery server provided info
-        LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a subscriber of participant "
-            << info.info.RTPSParticipantKey() << " is " << info.status << " with typename: " << info.info.typeName()
-            << " topic: " << info.info.topicName() << " GUID: " << info.info.guid());
-
-        return;
-    }
-
     GUID_t & subsid = info.info.guid();
     GUID_t partid = iHandle2GUID(info.info.RTPSParticipantKey());
-
-    // is one of ours?
-    participant_map::iterator it;
+    
+    // non reported info
     std::string part_name;
 
-    if ((it = _servers.find(partid)) != _servers.end() ||
-        (it = _clients.find(partid)) != _clients.end())
     {
-        part_name = it->second->getAttributes().rtps.getName();
-    }
-    else if (const PtDI * p = _state.FindParticipant(partid))
-    {
-        part_name = p->_name;
-    }
-    else
-    {   // if remote use prefix instead of name
-        part_name = (std::ostringstream() << partid).str();
+        std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+        participant_map::iterator it;
+
+        if (!_nocallbacks)
+        {
+            // is one of ours?
+            if ((it = _servers.find(partid)) != _servers.end() ||
+                (it = _clients.find(partid)) != _clients.end())
+            {
+                part_name = it->second->getAttributes().rtps.getName();
+            }
+        }
+        else
+        {   // stick to non-DSManager info
+            if (const PtDI * p = _state.FindParticipant(partid))
+            {
+                part_name = p->_name;
+            }
+            else
+            {   // if remote use prefix instead of name
+                part_name = (std::ostringstream() << partid).str();
+            }
+        }
+
     }
 
     _state.AddSubscriber(partid, subsid, info.info.typeName(), info.info.topicName());
@@ -628,36 +634,38 @@ void DSManager::onSubscriberDiscovery(Participant* participant, rtps::ReaderDisc
 
 void  DSManager::onPublisherDiscovery(Participant* participant, rtps::WriterDiscoveryInfo&& info)
 {
-    std::lock_guard<std::recursive_mutex> lock(_mtx);
-
-    if (_nocallbacks)
-    {   // killing the discovery server: log out no discovery server provided info
-        LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a publisher of participant "
-            << info.info.RTPSParticipantKey() << " is " << info.status << " with typename: " << info.info.typeName()
-            << " topic: " << info.info.topicName() << " GUID: " << info.info.guid());
-
-        return;
-    }
-
     GUID_t & pubsid = info.info.guid();
     GUID_t partid = iHandle2GUID(info.info.RTPSParticipantKey());
 
-    // is one of ours?
-    participant_map::iterator it;
+    // non reported info
     std::string part_name;
 
-    if ((it = _servers.find(partid)) != _servers.end() ||
-        (it = _clients.find(partid)) != _clients.end())
     {
-        part_name = it->second->getAttributes().rtps.getName();
-    }
-    else if (const PtDI * p = _state.FindParticipant(partid))
-    {
-        part_name = p->_name;
-    }
-    else
-    {   // if remote use prefix instead of name
-        part_name = (std::ostringstream() << partid).str();
+        std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+        if (!_nocallbacks)
+        {
+            // is one of ours?
+            participant_map::iterator it;
+
+            if ((it = _servers.find(partid)) != _servers.end() ||
+                (it = _clients.find(partid)) != _clients.end())
+            {
+                part_name = it->second->getAttributes().rtps.getName();
+            }
+        }
+        else
+        {
+            if (const PtDI * p = _state.FindParticipant(partid))
+            {
+                part_name = p->_name;
+            }
+            else
+            {   // if remote use prefix instead of name
+                part_name = (std::ostringstream() << partid).str();
+            }
+        }
+
     }
 
     _state.AddSubscriber(partid, pubsid, info.info.typeName(), info.info.topicName());

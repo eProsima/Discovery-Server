@@ -161,6 +161,7 @@ namespace eprosima {
                 { return const_cast<subscriber_set&>(_subscribers); }
 
             void setName(const std::string & name) const { const_cast<std::string&>(_name) = name; }
+            void setServer(bool & s) const { const_cast<bool &>(_server) = s; }
 
             //! Returns the number of endpoints owned
             size_type CountEndpoints() const;
