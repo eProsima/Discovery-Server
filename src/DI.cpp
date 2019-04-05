@@ -14,6 +14,7 @@
 
 #include <cassert>
 #include <algorithm>
+#include <iterator>    
 #include "DI.h"
 
 using namespace eprosima::discovery_server;
@@ -35,6 +36,11 @@ bool DI::operator==(const DI & d) const
     return _id == d._id;
 }
 
+bool DI::operator!=(const DI & d) const
+{
+    return _id != d._id;
+}
+
 bool DI::operator<(const GUID_t & guid) const
 {
     return _id < guid;
@@ -48,27 +54,39 @@ bool DI::operator<(const DI & d) const
 // publiser discovery item operations
 bool PDI::operator==(const PDI & p) const
 {
-    assert(_typeName == p._typeName);
-    assert(_topicName == p._topicName);
-
-    return DI::operator==(p);
+    return DI::operator==(p) 
+        && _typeName == p._typeName 
+        && _topicName == p._topicName;
 }
 
 // subscriber discovery item operations
 bool SDI::operator==(const SDI & p) const
 {
-    assert(_typeName == p._typeName);
-    assert(_topicName == p._topicName);
-
-    return DI::operator==(p);
+    return DI::operator==(p) 
+        && _typeName == p._typeName
+        && _topicName == p._topicName;
 }
 
 // participant discovery item operations
 
-bool PtDI::operator==(const PtDI &) const
+bool PtDI::operator==(const PtDI & p) const
 {
-    // this is an ugly one to implement
-    return true;
+    return DI::operator==(p) 
+        && this->_alive == p._alive
+        // && this->_server == p._server // only in-process participants may be aware of this
+        && this->_name == p._name
+        && this->_publishers == p._publishers
+        && this->_subscribers == p._subscribers;
+}
+
+bool PtDI::operator!=(const PtDI & p) const
+{
+    return DI::operator!=(p)
+        && this->_alive != p._alive
+        // && this->_server != p._server // only in-process participants may be aware of this
+        && this->_name != p._name
+        && this->_publishers != p._publishers
+        && this->_subscribers != p._subscribers;
 }
 
 bool PtDI::operator[](const PDI & p) const
@@ -106,9 +124,9 @@ std::vector<const PtDI*> DI_database::FindParticipant(const GUID_t & ptid) const
     std::vector<const PtDI*> v;
 
     // traverse the map of participants searching for one particular specific info
-    for (participant_list::const_iterator pit = _participants.cbegin(); pit != _participants.cend(); ++pit)
+    for (Snapshot::const_iterator pit = _participants.cbegin(); pit != _participants.cend(); ++pit)
     {
-        const database & _database = pit->second;
+        const PtDB & _database = *pit;
         auto  it = std::lower_bound(_database.cbegin(), _database.cend(), ptid);
 
         if (it != _database.end() && *it == ptid)
@@ -124,8 +142,8 @@ bool DI_database::AddParticipant(const GUID_t& spokesman, const GUID_t& ptid, co
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    database & _database = _participants[spokesman];
-    database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+    PtDB & _database = _participants[spokesman];
+    PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
     if (it == _database.end() || *it != ptid)
     { // add participant
@@ -150,8 +168,8 @@ bool DI_database::RemoveParticipant(const GUID_t& spokesman, const GUID_t & ptid
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    database & _database = _participants[spokesman];
-    database::iterator it = std::lower_bound(_database.begin(), _database.end(),ptid);
+    PtDB & _database = _participants[spokesman];
+    PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(),ptid);
 
     if (it == _database.end() || *it != ptid)
     {
@@ -179,8 +197,8 @@ bool DI_database::AddEndPoint(T&(PtDI::* m)() const, const GUID_t& spokesman, co
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    database & _database = _participants[spokesman];
-    database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+    PtDB & _database = _participants[spokesman];
+    PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
     if (it == _database.end() || *it != ptid )
     {
@@ -216,8 +234,8 @@ bool DI_database::RemoveEndPoint(T&(PtDI::* m)() const, const GUID_t& spokesman,
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    database & _database = _participants[spokesman];
-    database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+    PtDB & _database = _participants[spokesman];
+    PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
     if (it == _database.end() || *it != ptid)
     {
@@ -271,11 +289,11 @@ DI_database::size_type DI_database::CountParticipants(const GUID_t& spokesman) c
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    auto it = _participants.find(spokesman);
+    auto p = _participants[spokesman];
 
-    if ( it != _participants.end())
+    if (p)
     {
-       return it->second.size();
+       return p->size();
     }
 
     return 0;
@@ -285,13 +303,13 @@ DI_database::size_type DI_database::CountSubscribers(const GUID_t& spokesman) co
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    auto it = _participants.find(spokesman);
+    auto p = _participants[spokesman];
 
-    if (it != _participants.end())
+    if (p)
     {
         size_type count = 0;
 
-        for (auto part : it->second)
+        for (auto part : *p)
         {
             count += part._subscribers.size();
         }
@@ -306,13 +324,13 @@ DI_database::size_type DI_database::CountPublishers(const GUID_t& spokesman) con
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    auto it = _participants.find(spokesman);
+    auto p = _participants[spokesman];
 
-    if (it != _participants.end())
+    if (p)
     {
         size_type count = 0;
 
-        for (auto part : it->second)
+        for (auto part : *p)
         {
             count += part._publishers.size();
         }
@@ -327,12 +345,12 @@ DI_database::size_type DI_database::CountSubscribers(const GUID_t& spokesman,con
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    auto it = _participants.find(spokesman);
+    auto p = _participants[spokesman];
 
-    if (it != _participants.end())
+    if (p)
     {
-        const database & _database = it->second;
-        database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+        const PtDB & _database = *p;
+        PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
         if (it == _database.end() || *it != ptid)
         {
@@ -350,12 +368,12 @@ DI_database::size_type DI_database::CountPublishers(const GUID_t& spokesman,cons
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    auto it = _participants.find(spokesman);
+    auto p = _participants[spokesman];
 
-    if (it != _participants.end())
+    if (p)
     {
-        const database & _database = it->second;
-        database::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+        const PtDB & _database = *p;
+        PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
         if (it == _database.end() || *it != ptid)
         {
@@ -367,4 +385,94 @@ DI_database::size_type DI_database::CountPublishers(const GUID_t& spokesman,cons
     }
 
     return 0;
+}
+
+// TODO: test this operator 
+bool eprosima::discovery_server::operator==(const PtDB & l,const PtDB & r)
+{
+    // Note that each participant doesn't keep its own discovery info
+    // The only acceptable difference between participants discovery information is their own
+    // I cannot use direct == on these sets
+
+    PtDB::const_iterator lit = l.begin(), rit = r.begin();
+    bool go = true;
+
+    while(go)
+    {
+        // one of the list reach an end
+        if (lit == l.end())
+        {
+            // finish simultaneously or differ only in
+            // each other discovery data
+            return (rit == r.end()
+                || (rit->_id == l._id && r.end() == ++rit));
+        }
+        
+        if (rit == r.end())
+        {
+            // finish simultaneously or differ only in
+            // each other discovery data
+            return (lit == l.end()
+                || (lit->_id == r._id && l.end() == ++lit));
+        }
+
+        // comparing elements
+        if (lit->_id == rit->_id)
+        {
+            // check members
+            if (*lit != *rit)
+                return false;
+
+            // next iteration
+            ++lit;
+            ++rit;
+        }
+        else
+        {   // check if our own discovery data is interfering
+            go = false;
+
+            if (lit++->_id == r._id)
+            {
+                go = true; // sweep over
+            }
+            
+            if (rit++->_id == l._id)
+            {
+                go = true; // sweep over
+            }
+        }
+
+    };
+
+    // one or several unknown participants within
+    return false;
+}
+
+PtDB & Snapshot::operator[](const GUID_t & id)
+{
+    auto it = std::lower_bound(begin(), end(), id);
+    const PtDB * p = nullptr;
+
+    if (it == end() || *it != id)
+    {  // no there, emplace
+         p = &(*emplace(id).first);
+    }
+    else
+    {
+        p = &*it;
+    }
+
+    return const_cast<PtDB&>(*p);
+}
+
+const PtDB * Snapshot::operator[](const GUID_t & id) const
+{
+    auto it = std::lower_bound(begin(), end(), id);
+
+    if (it == end() || *it != id)
+    {
+        return nullptr; // no there
+    }
+
+    return &*it;
 }

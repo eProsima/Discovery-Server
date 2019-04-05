@@ -49,6 +49,7 @@ namespace eprosima {
             bool operator==(const GUID_t&) const;
             bool operator!=(const GUID_t&) const;
             bool operator==(const DI&) const;
+            bool operator!=(const DI&) const;
 
             //! container ancillary
             bool operator<(const GUID_t&) const;
@@ -135,12 +136,14 @@ namespace eprosima {
             // comparissons:
 
             using DI::operator==;
+            using DI::operator!=;
 
             /**
             * verifies if two PtDI keep the same info
             * despite been rooted on two different participants
             **/
             bool operator==(const PtDI &) const;
+            bool operator!=(const PtDI &) const;
 
             //! verifies if the given publisher was discovered by the participant
             bool operator[](const PDI &) const;
@@ -170,22 +173,48 @@ namespace eprosima {
 
         };
 
+        //! database, all discovery info associated with a participant
+        struct PtDB : public DI, public std::set<PtDI>
+        {
+            typedef std::set<PtDI>::size_type size_type;
+
+            PtDB(const GUID_t& id ) : DI(id) {}
+            PtDB(GUID_t&& id) : DI(id) {}
+
+            PtDB() = delete;
+            PtDB(const PtDB&) = default;
+            PtDB(PtDB&&) = default;
+            PtDB& operator=(const PtDB&) = default;
+            PtDB& operator=(PtDB&&) = default;   
+        };
+
+        bool operator==(const PtDB &, const  PtDB &);
+
+        //! Snapshot, discovery info associated with all participants
+        struct Snapshot : public std::set<PtDB>
+        {
+            // snapshot time
+            std::chrono::high_resolution_clock::time_point _time;
+
+            Snapshot(std::chrono::high_resolution_clock::time_point t) : _time(t) {}
+
+            Snapshot() = delete;
+            Snapshot(const Snapshot&) = default;
+            Snapshot(Snapshot&&) = default;
+            Snapshot& operator=(const Snapshot&) = default;
+            Snapshot& operator=(Snapshot&&) = default;
+
+            PtDB & operator[](const GUID_t &);
+            const PtDB * operator[](const GUID_t &) const;
+        };
+
+        //! DI_database, auxiliary class to populate and manage Snapshots
         class DI_database
         {
-            typedef std::set<PtDI> database;
-            typedef std::map<GUID_t, database> participant_list;
-            typedef database::size_type size_type;
-
-            typedef struct 
-            {
-                // snapshot time
-                std::chrono::high_resolution_clock::time_point _time;
-                database _data;
-
-            } Snapshot;
+            typedef PtDB::size_type size_type;
 
             // reported discovery info
-            participant_list _participants; // each participant database info
+            Snapshot _participants; // each participant database info
             mutable std::mutex _mtx; // atomic database operation
 
             // AddSubscriber and AddPublisher common implementation
@@ -198,6 +227,7 @@ namespace eprosima {
                 bool RemoveEndPoint(T&(PtDI::* m)() const, const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & sid);
 
         public:
+            DI_database() : _participants(std::chrono::high_resolution_clock::now()) {}
 
             //! Returns a pointer to the PtDI or null if not found
             std::vector<const PtDI*> FindParticipant(const GUID_t & ptid) const;
@@ -220,7 +250,7 @@ namespace eprosima {
             size_type CountPublishers(const GUID_t& spokesman ) const;
             size_type CountSubscribers(const GUID_t& spokesman, const GUID_t & ptid) const;
             size_type CountPublishers(const GUID_t& spokesman, const GUID_t & ptid) const;
-
+  
         };
 
     } // fastrtps
