@@ -17,6 +17,8 @@
 #include <fastrtps/Domain.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 
+#include <fastrtps/subscriber/Subscriber.h>
+#include <fastrtps/publisher/Publisher.h>
 #include "PDPServer.h"
 #include "DSManager.h"
 
@@ -48,6 +50,10 @@ namespace eprosima{
             const char* NAME = "name";
             const char* META_UNI_LOC_LIST = "metatrafficUnicastLocatorList";
             const char* META_MULTI_LOC_LIST = "metatrafficMulticastLocatorList";
+            const char* TYPES = "types";
+            const char* PUBLISHER = "publisher";
+            const char* SUBSCRIBER = "subscriber";
+            const char* TOPIC = "topic";
         }
     }
 }
@@ -56,6 +62,18 @@ DSManager::DSManager(const std::string &xml_file_path)
     : _active(false), _nocallbacks(false)
 {
     //Log::SetVerbosity(Log::Warning);
+
+    {   // fill in default topic attributes
+        TopicAttributes & t = _defaultTopic;
+        t.topicKind = NO_KEY;
+        t.topicDataType = "HelloWorld";
+        t.topicName = "HelloWorldTopic";
+        t.historyQos.kind = KEEP_LAST_HISTORY_QOS;
+        t.historyQos.depth = 30;
+        t.resourceLimitsQos.max_samples = 50;
+        t.resourceLimitsQos.allocated_samples = 20;
+    }
+
     tinyxml2::XMLDocument doc;
     if (doc.LoadFile(xml_file_path.c_str()) == tinyxml2::XMLError::XML_SUCCESS)
     {
@@ -112,7 +130,7 @@ DSManager::DSManager(const std::string &xml_file_path)
             }
 
             // Create the clients according with the configuration, clients have only testing purposes
-            tinyxml2::XMLElement *clients = child->FirstChildElement(s_sClients.c_str());
+            tinyxml2::XMLElement* clients = child->FirstChildElement(s_sClients.c_str());
             if (clients)
             {
                 tinyxml2::XMLElement *client = clients->FirstChildElement(s_sClient.c_str());
@@ -120,6 +138,16 @@ DSManager::DSManager(const std::string &xml_file_path)
                 {
                     loadClient(client);
                     client = client->NextSiblingElement(s_sClient.c_str());
+                }
+            }
+
+            // Types parsing
+            tinyxml2::XMLElement* types = child->FirstChildElement(xmlparser::TYPES);
+            if (types)
+            {
+                if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::loadXMLDynamicTypes(*types))
+                {
+                    LOG_INFO("No dynamic type information loaded.");
                 }
             }
 
@@ -155,6 +183,20 @@ void DSManager::addClient(Participant* c)
     _clients[c->getGuid()] = c;
 }
 
+void DSManager::addSubscriber(Subscriber * sub)
+{
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+    assert(_subs[sub->getGuid()] == nullptr);
+    _subs[sub->getGuid()] = sub;
+}
+
+void DSManager::addPublisher(Publisher * pub)
+{
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+    assert(_pubs[pub->getGuid()] == nullptr);
+    _pubs[pub->getGuid()] = pub;
+}
+
 void DSManager::loadProfiles(tinyxml2::XMLElement *profiles)
 {
     xmlparser::XMLP_ret ret = xmlparser::XMLProfileManager::loadXMLProfiles(*profiles);
@@ -174,8 +216,30 @@ void DSManager::onTerminate()
 {
     {   // make sure all other threads don't modify the state
         std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+        if (_nocallbacks)
+        {
+            return; // DSManager already terminated
+        }
+
         _nocallbacks = true;
     }
+
+    // release all subscribers
+    for (const auto&s : _subs)
+    {
+        Domain::removeSubscriber(s.second);
+    }
+
+    _subs.clear();
+
+    // release all publishers
+    for (const auto&p : _pubs)
+    {
+        Domain::removePublisher(p.second);
+    }
+
+    _pubs.clear();
 
     // the servers are appended because they should be destroyed at the end
     _clients.insert(_servers.begin(), _servers.end());
@@ -191,6 +255,14 @@ void DSManager::onTerminate()
 
     _servers.clear();
     _clients.clear();
+
+    //unregister the types
+    for (const auto & t : _types)
+    {
+        xmlparser::XMLProfileManager::DeleteDynamicPubSubType(t.second);
+    }
+
+    _types.clear();
 }
 
 bool DSManager::isActive()
@@ -348,6 +420,21 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     }
     
     addServer(pServer);
+
+    // Once the participant is created we create the associated endpoints 
+    tinyxml2::XMLElement* pub = server->FirstChildElement(xmlparser::PUBLISHER);
+    while (pub)
+    {
+        loadPublisher(pServer,pub);
+        pub = server->NextSiblingElement(xmlparser::PUBLISHER);
+    }
+
+    tinyxml2::XMLElement* sub = server->FirstChildElement(xmlparser::SUBSCRIBER);
+    while (sub)
+    {
+        loadSubscriber(pServer,sub);
+        sub = server->NextSiblingElement(xmlparser::SUBSCRIBER);
+    }
 }
 
 
@@ -462,7 +549,196 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
     }
 
     addClient(pClient);
+
+    // Once the participant is created we create the associated endpoints 
+    tinyxml2::XMLElement* pub = client->FirstChildElement(xmlparser::PUBLISHER);
+    while (pub)
+    {
+        loadPublisher(pClient,pub);
+        pub = client->NextSiblingElement(xmlparser::PUBLISHER);
+    }
+
+    tinyxml2::XMLElement* sub = client->FirstChildElement(xmlparser::SUBSCRIBER);
+    while (sub)
+    {
+        loadSubscriber(pClient,sub);
+        sub = client->NextSiblingElement(xmlparser::SUBSCRIBER);
+    }
+
 }
+
+void DSManager::loadSubscriber(Participant * part, tinyxml2::XMLElement* sub)
+{
+    assert(part != nullptr && sub != nullptr);
+
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    // subscribers are created for debugging purposes
+    // default topic is the static HelloWorld one
+    std::string profile_name(sub->Attribute(xmlparser::PROFILE_NAME));
+
+    SubscriberAttributes subatts;
+
+    if (profile_name.empty())
+    {
+        // get default subscriber attributes
+        xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(subatts);
+    }
+    else
+    {
+        // try load from profile
+        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillSubscriberAttributes(profile_name, subatts))
+        {
+            LOG_ERROR("DSManager::loadSubscriber couldn't load profile " << profile_name);
+            return;
+        }
+    }
+
+    // see if topic is specified
+    std::string topic_name(sub->Attribute(xmlparser::TOPIC));
+
+    if (!topic_name.empty())
+    {
+        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillTopicAttributes(topic_name, subatts.topic))
+        {
+            LOG_ERROR("DSManager::loadSubscriber couldn't load topic profile " << profile_name);
+            return;
+        }
+    }
+
+    // check if we have topic info
+    if (subatts.topic.getTopicName().empty())
+    {
+        // fill in default topic 
+        subatts.topic = _defaultTopic;
+
+        // assure the participant has default type registered
+        TopicDataType* pT = nullptr;
+        if (!Domain::getRegisteredType(part, _defaultType.getName(), &pT))
+        {
+            Domain::registerType(part, &_defaultType);
+        }
+    }
+    else
+    {
+        // assure the participant has the type registered
+        TopicDataType* pT = nullptr;
+        std::string type_name = subatts.topic.getTopicDataType();
+        if (!Domain::getRegisteredType(part, type_name.c_str() , &pT))
+        {
+            // Create dynamic type
+            types::DynamicPubSubType* pDt = xmlparser::XMLProfileManager::CreateDynamicPubSubType(type_name);
+            if (!pDt)
+            {
+                LOG_ERROR("DSManager::loadSubscriber couldn't create type " << type_name);
+                return;
+            }
+
+            // register it
+            _types[type_name] = pDt;
+            Domain::registerDynamicType(part, pDt);
+        }
+
+    }
+
+    // Create the subscriber, listener doesn't report discovery info but matching one
+    Subscriber * pSubs = Domain::createSubscriber(part, subatts, nullptr);
+
+    if (!pSubs)
+    {
+        LOG_ERROR("DSManager couldn't create a subscriber with profile " << profile_name);
+        return;
+    }
+
+    addSubscriber(pSubs);
+}
+
+void DSManager::loadPublisher(Participant * part, tinyxml2::XMLElement* sub)
+{
+    assert(part != nullptr && sub != nullptr);
+
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    // subscribers are created for debugging purposes
+    // default topic is the static HelloWorld one
+    std::string profile_name(sub->Attribute(xmlparser::PROFILE_NAME));
+
+    PublisherAttributes pubatts;
+
+    if (profile_name.empty())
+    {
+        // get default subscriber attributes
+        xmlparser::XMLProfileManager::getDefaultPublisherAttributes(pubatts);
+    }
+    else
+    {
+        // try load from profile
+        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillPublisherAttributes(profile_name, pubatts))
+        {
+            LOG_ERROR("DSManager::loadPublisher couldn't load profile " << profile_name);
+            return;
+        }
+    }
+
+    // see if topic is specified
+    std::string topic_name(sub->Attribute(xmlparser::TOPIC));
+
+    if (!topic_name.empty())
+    {
+        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillTopicAttributes(topic_name, pubatts.topic))
+        {
+            LOG_ERROR("DSManager::loadPublisher couldn't load topic profile " << profile_name);
+            return;
+        }
+    }
+
+    // check if we have topic info
+    if (pubatts.topic.getTopicName().empty())
+    {
+        // fill in default topic 
+        pubatts.topic = _defaultTopic;
+
+        // assure the participant has default type registered
+        TopicDataType* pT = nullptr;
+        if (!Domain::getRegisteredType(part, _defaultType.getName(), &pT))
+        {
+            Domain::registerType(part, &_defaultType);
+        }
+    }
+    else
+    {
+        // assure the participant has the type registered
+        TopicDataType* pT = nullptr;
+        std::string type_name = pubatts.topic.getTopicDataType();
+        if (!Domain::getRegisteredType(part, type_name.c_str(), &pT))
+        {
+            // Create dynamic type
+            types::DynamicPubSubType* pDt = xmlparser::XMLProfileManager::CreateDynamicPubSubType(type_name);
+            if (!pDt)
+            {
+                LOG_ERROR("DSManager::loadPublisher couldn't create type " << type_name);
+                return;
+            }
+
+            // register it
+            _types[type_name] = pDt;
+            Domain::registerDynamicType(part, pDt);
+        }
+
+    }
+
+    // Create the subscriber, listener doesn't report discovery info but matching one
+    Publisher * pPubs = Domain::createPublisher(part, pubatts, nullptr);
+
+    if (!pPubs)
+    {
+        LOG_ERROR("DSManager couldn't create a subscriber with profile " << profile_name);
+        return;
+    }
+
+    addPublisher(pPubs);
+}
+
 
 void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
 {
@@ -675,7 +951,7 @@ void  DSManager::onPublisherDiscovery(Participant* participant, rtps::WriterDisc
         part_name = (std::ostringstream() << partid).str();
     }
 
-    _state.AddSubscriber(participant->getGuid(), partid, pubsid, info.info.typeName(), info.info.topicName());
+    _state.AddPublisher(participant->getGuid(), partid, pubsid, info.info.typeName(), info.info.topicName());
 
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a publisher of participant "
         << part_name << " is " << info.status << " with typename: " << info.info.typeName()

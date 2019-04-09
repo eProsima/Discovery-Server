@@ -123,6 +123,24 @@ file(GLOB_RECURSE ALL_FAST_HEADERS
 	"C:/Users/MiguelBarro/Documents/Fast-RTPS/include/**/*.hpp"
 	)  #TODO: remove when development process is finished
 
+# xml test files
+file(GLOB ${PROJECT_NAME}_xml_tests
+	resources/xml/*.xml)
+
+# xml schema file
+set(${PROJECT_NAME}_schema_files 
+	resources/xsd/discovery-server.xsd
+	)
+
+# testing static types
+file(GLOB ${PROJECT_NAME}_static_types
+	resources/static_types/*.*
+	)
+
+#filter out the idl within the static types
+set( ${PROJECT_NAME}_idl ${${PROJECT_NAME}_static_types} )
+list(FILTER ${PROJECT_NAME}_idl INCLUDE REGEX "\\.idl$" )
+
 set(${PROJECT_NAME}_header_files
 		#TODO: remove when development process is finished
 		${ALL_FAST_HEADERS}
@@ -136,7 +154,7 @@ set(${PROJECT_NAME}_header_files
 		include/EDPServer.h
 		include/PDPServerListener.h
 		include/EDPServerListeners.h
-		include/DI.h
+		include/DI.h	
     )
 
 set(${PROJECT_NAME}_source_files
@@ -153,7 +171,16 @@ set(${PROJECT_NAME}_source_files
     )
 
 # Executable and library
-add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_source_files} ${${PROJECT_NAME}_header_files})
+add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_source_files} ${${PROJECT_NAME}_header_files}
+				${${PROJECT_NAME}_schema_files} ${${PROJECT_NAME}_xml_tests} ${${PROJECT_NAME}_static_types})
+
+# schema, types and auxiliary xmls
+source_group(resources\\xsd FILES ${${PROJECT_NAME}_schema_files} )
+source_group(resources\\xml FILES ${${PROJECT_NAME}_xml_tests} )
+source_group(resources\\static_types FILES ${${PROJECT_NAME}_static_types} )
+
+# avoid visual studio from trying to compile .idl files with midl
+set_source_files_properties(${${PROJECT_NAME}_idl} PROPERTIES HEADER_FILE_ONLY TRUE)
 
 # BUILD_INTERFACE and INSTALL_INTERFACE are not variables but generator expressions (see under type Output-Related Expressions):
 #	$<BUILD_INTERFACE:...>. Content of ... when the property is exported using export(), or when the target is used by another target in the same buildsystem. Expands to the empty string otherwise.

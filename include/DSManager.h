@@ -24,6 +24,8 @@
 #include <fastrtps/participant/ParticipantListener.h>
 #include <fastrtps/xmlparser/XMLParser.h>
 
+#include "..\resources\static_types\HelloWorldPubSubTypes.h"
+
 #include "DI.h"
 
 using namespace eprosima::fastrtps;
@@ -51,6 +53,9 @@ namespace eprosima {
             public eprosima::fastrtps::ParticipantListener  // receive discovery callback information
         {
             typedef std::map<GUID_t, Participant*> participant_map;
+            typedef std::map<GUID_t, Subscriber*> subscriber_map;
+            typedef std::map<GUID_t, Publisher*> publisher_map;
+            typedef std::map<std::string, DynamicPubSubType *> type_map;
             typedef std::map<GUID_t, std::pair<LocatorList_t, LocatorList_t> > serverLocator_map; // multi, unicast locator list
 
             // synch protection
@@ -59,6 +64,10 @@ namespace eprosima {
             // Participant maps
             participant_map _servers;
             participant_map _clients;
+
+            // endpoints maps
+            subscriber_map _subs;
+            publisher_map _pubs;
 
             // server address info
             serverLocator_map _server_locators;
@@ -72,7 +81,14 @@ namespace eprosima {
             void loadProfiles(tinyxml2::XMLElement *profiles);
             void loadServer(tinyxml2::XMLElement* server);
             void loadClient(tinyxml2::XMLElement* client);
+            void loadSubscriber(Participant * part, tinyxml2::XMLElement* subs);
+            void loadPublisher(Participant * part, tinyxml2::XMLElement* pubs);
             void MapServerInfo(tinyxml2::XMLElement* server);
+
+            // Default TopicAttributes
+            TopicAttributes _defaultTopic;
+            HelloWorldPubSubType _defaultType;
+            type_map _types;
 
         public:
             DSManager(const std::string &xml_file_path);
@@ -82,8 +98,8 @@ namespace eprosima {
             // entity creation functions
             void addServer(Participant* b);
             void addClient(Participant* p);
-            void addSubscriber(Participant* participant, const std::string &participant_profile, const std::string &name) {}; // TODO: implementation
-            void addPublisher(Participant* participant, const std::string &participant_profile, const std::string &name) {};  // TODO: implementation
+            void addSubscriber(Subscriber *); 
+            void addPublisher(Publisher *); 
 
             // callback discovery functions
             void onParticipantDiscovery(Participant* participant, rtps::ParticipantDiscoveryInfo&& info) override;
