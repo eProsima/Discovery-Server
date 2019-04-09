@@ -5,21 +5,21 @@
 
   <servers>
     <server name="master" prefix="4D.49.47.55.45.4c.7e.42.41.52.52.4f" profile_name="UDP server">
-      <subscriber topic="topic_1" />
-      <publisher topic="topic_2" />
+      <subscriber topic="topic 1" />
+      <publisher topic="topic 2" />
     </server>
   </servers>
 
   <clients>
     <client name="client1" profile_name="UDP client" >
       <subscriber />
-      <subscriber topic="topic_2"  />
+      <subscriber topic="topic 2"  />
       <subscriber profile_name="Sub 1"/>
       <publisher profile_name="Pub 2"/>
     </client>
     <client name="client2" profile_name="UDP client" >
       <publisher />
-      <publisher topic="topic_1"/>
+      <publisher topic="topic 1"/>
       <publisher profile_name="Pub 1" />
       <subscriber profile_name="Sub 2"/>
     </client>
@@ -97,12 +97,12 @@
       </topic>
     </subscriber>
 
-    <topic>
+    <topic profile_name="topic 1">
       <name>topic_1</name>
       <dataType>sample_type_1</dataType>
     </topic>
 
-    <topic>
+    <topic profile_name="topic 2">
       <name>topic_2</name>
       <dataType>sample_type_2</dataType>
     </topic>
@@ -110,23 +110,26 @@
   </profiles>
 
   <types>
-    
-    <struct name="sample_type_1">
-      <member name="index" type="uint32" />
-      <member name="message" type="string" />
-    </struct>
-    
-    <union name="sample_type_2">
-      <discriminator/>
-      <case>
-        <caseValue>index</caseValue>
-        <member name="message" type="uint32" />
-      </case>
-      <case>
-        <caseValue>message</caseValue>
+    <type>
+      <struct name="sample_type_1">
+        <member name="index" type="uint32" />
         <member name="message" type="string" />
-      </case>
-    </union>
+      </struct>
+    </type>
+
+    <type>
+      <union name="sample_type_2">
+        <discriminator type="byte" />
+        <case>
+          <caseDiscriminator value="0" />
+          <member name="index" type="uint32" />
+        </case>
+        <case>
+          <caseDiscriminator value="1" />
+          <member name="message" type="string" />
+        </case>
+      </union>
+    </type>
   
   </types>
   

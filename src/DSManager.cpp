@@ -101,6 +101,16 @@ DSManager::DSManager(const std::string &xml_file_path)
                 return;
             }
 
+            // Types parsing
+            tinyxml2::XMLElement* types = child->FirstChildElement(xmlparser::TYPES);
+            if (types)
+            {
+                if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::loadXMLDynamicTypes(*types))
+                {
+                    LOG_INFO("No dynamic type information loaded.");
+                }
+            }
+
             // Server processing requires a two pass analysis
             tinyxml2::XMLElement *servers = child->FirstChildElement(s_sServers.c_str());
 
@@ -140,17 +150,6 @@ DSManager::DSManager(const std::string &xml_file_path)
                     client = client->NextSiblingElement(s_sClient.c_str());
                 }
             }
-
-            // Types parsing
-            tinyxml2::XMLElement* types = child->FirstChildElement(xmlparser::TYPES);
-            if (types)
-            {
-                if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::loadXMLDynamicTypes(*types))
-                {
-                    LOG_INFO("No dynamic type information loaded.");
-                }
-            }
-
         }
 
         // at least one server must be created from config file
@@ -636,7 +635,8 @@ void DSManager::loadSubscriber(Participant * part, tinyxml2::XMLElement* sub)
 
             // register it
             _types[type_name] = pDt;
-            Domain::registerDynamicType(part, pDt);
+            // Domain::registerDynamicType(part, pDt);
+            Domain::registerType(part, pDt);
         }
 
     }
@@ -687,7 +687,7 @@ void DSManager::loadPublisher(Participant * part, tinyxml2::XMLElement* sub)
     {
         if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), pubatts.topic))
         {
-            LOG_ERROR("DSManager::loadPublisher couldn't load topic profile " << profile_name);
+            LOG_ERROR("DSManager::loadPublisher couldn't load topic profile ");
             return;
         }
     }
@@ -722,7 +722,8 @@ void DSManager::loadPublisher(Participant * part, tinyxml2::XMLElement* sub)
 
             // register it
             _types[type_name] = pDt;
-            Domain::registerDynamicType(part, pDt);
+            // Domain::registerDynamicType(part, pDt);
+            Domain::registerType(part, pDt);
         }
 
     }

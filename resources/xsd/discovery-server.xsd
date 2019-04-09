@@ -657,8 +657,7 @@
     <xs:complexType name="topicProfileType">
       <xs:complexContent>
         <xs:extension base="topicAttributesType">
-          <!--
-		  <xs:attribute name="profile_name" type="stringType" use="optional"/> -->
+		      <xs:attribute name="profile_name" type="stringType" use="optional"/>
           <!-- topic name should be enough but several participants may have a topic with the same name and different value-type. 
 		  For the sake of completion we must provide a mechanism to workaround this error. To be implemented in parser. -->
         </xs:extension>
@@ -902,7 +901,11 @@
     <xs:complexType name="caseDcl">
         <xs:sequence>
             <xs:choice minOccurs="1" maxOccurs="unbounded">
-                <xs:element name="caseValue" type="string" minOccurs="1" maxOccurs="unbounded"/>
+                <xs:element name="caseDiscriminator" minOccurs="1" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="value" type="string" />
+                  </xs:complexType>
+                </xs:element>
             </xs:choice>
             <xs:element name="member" type="memberDcl" minOccurs="1" maxOccurs="1"/>
         </xs:sequence>
@@ -961,8 +964,14 @@
 
     <!-- Dynamic Types -->
 
-  <xs:complexType name="typesDescriptorType">
+  <xs:complexType name="typeDescriptorType">
       <xs:group ref="moduleElems"/>
+  </xs:complexType>
+
+  <xs:complexType name="typesDescriptorType">
+    <xs:sequence>
+      <xs:element name="type" type="typeDescriptorType" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
   </xs:complexType>
 
 	
@@ -988,7 +997,11 @@
 
     <xs:complexType name="unionDcl">
         <xs:sequence>
-            <xs:element name="discriminator" type="string" minOccurs="1"/>
+          <xs:element name="discriminator" minOccurs="1">
+            <xs:complexType>
+              <xs:attribute name="type" type="string"/>
+            </xs:complexType>
+          </xs:element>
             <xs:sequence maxOccurs="unbounded">
                 <xs:element name="case" type="caseDcl" minOccurs="1"/>
             </xs:sequence>
