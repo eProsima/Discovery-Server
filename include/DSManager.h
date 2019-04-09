@@ -112,9 +112,6 @@ namespace eprosima {
             {
                 return partName + "." + epName;
             }
-
-            template<bool persist> static PDP * createPDPServer(BuiltinProtocols *);
-            static void ReleasePDPServer(PDP *);
         };
 
 

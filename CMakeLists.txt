@@ -132,7 +132,7 @@ file(GLOB_RECURSE ALL_FAST_HEADERS
 	"C:/Users/MiguelBarro/Documents/Fast-RTPS/include/**/*.h"
 	"C:/Users/MiguelBarro/Documents/Fast-RTPS/include/**/*.hpp"
 	)  #TODO: remove when development process is finished
-#endif()
+endif(WIN32)
 
 # xml test files
 file(GLOB ${PROJECT_NAME}_xml_tests
@@ -160,11 +160,6 @@ set(${PROJECT_NAME}_header_files
         include/log/DSLog.h
 		include/DSManager.h
 		# library sources
-		include/PDPServer.h
-		include/DServerEvent.h
-		include/EDPServer.h
-		include/PDPServerListener.h
-		include/EDPServerListeners.h
 		include/DI.h	
     )
 
@@ -173,11 +168,6 @@ set(${PROJECT_NAME}_source_files
         src/main.cpp
 		src/DSManager.cpp
 		#library sources
-		src/PDPServer.cpp
-		src/DServerEvent.cpp
-		src/EDPServer.cpp
-		src/PDPServerListener.cpp
-		src/EDPServerListeners.cpp
 		src/DI.cpp
     )
 

@@ -19,7 +19,7 @@
 
 #include <fastrtps/subscriber/Subscriber.h>
 #include <fastrtps/publisher/Publisher.h>
-#include "PDPServer.h"
+
 #include "DSManager.h"
 
 #include <sstream>
@@ -275,29 +275,6 @@ DSManager::~DSManager()
     onTerminate();
 }
 
-// TODO: keep track of allocated objects in order to prevent memory leaks
-
-template<>
-/*static*/ PDP * DSManager::createPDPServer<true>(BuiltinProtocols * builtin)
-{
-    assert(builtin);
-    return new PDPServer(builtin,DurabilityKind_t::TRANSIENT);
-}
-
-template<>
-/*static*/ PDP * DSManager::createPDPServer<false>(BuiltinProtocols * builtin)
-{
-    assert(builtin);
-    return new PDPServer(builtin, DurabilityKind_t::TRANSIENT_LOCAL);
-}
-
-
-/*static*/ void DSManager::ReleasePDPServer(PDP * p)
-{
-    assert(p);
-    delete p;
-}
-
 void DSManager::loadServer(tinyxml2::XMLElement* server)
 {
     std::lock_guard<std::recursive_mutex> lock(_mtx);
@@ -396,18 +373,7 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
 
     // We define the PDP as external (when moved to fast library it would be SERVER)
     BuiltinAttributes & b = atts.rtps.builtin;
-    b.discoveryProtocol = EXTERNAL;
-    b.m_PDPfactory.ReleasePDPInstance = &DSManager::ReleasePDPServer;
-
-    // Choose the kind of server to create:
-    if (server->BoolAttribute(s_sPersist.c_str()))
-    {
-        b.m_PDPfactory.CreatePDPInstance = &DSManager::createPDPServer<true>;  
-    }
-    else
-    { 
-        b.m_PDPfactory.CreatePDPInstance = &DSManager::createPDPServer<false>;
-    }
+    assert(b.discoveryProtocol == SERVER || b.discoveryProtocol == BACKUP);
 
     // now we create the new participant
     Participant * pServer = Domain::createParticipant(atts,this);

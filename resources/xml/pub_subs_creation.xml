@@ -32,8 +32,7 @@
           4D.49.47.55.45.4c.5f.42.41.52.52.4f
         </prefix>
         <builtin>
-          <!--<discoveryProtocol>SERVER</discoveryProtocol> // SERVER functionality to be disclosed-->
-          <discoveryProtocol>NONE</discoveryProtocol>
+         <discoveryProtocol>SERVER</discoveryProtocol>
           <metatrafficUnicastLocatorList>
             <locator>
               <udpv4>
