@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server">
+  
+  <!-- clients search server1. master searches for server1 also -->
+
+  <servers>
+    <server name="master" prefix="4D.49.47.55.45.4c.7e.42.41.52.52.4f" profile_name="UDP server">
+      <subscriber topic="topic_1" />
+      <publisher topic="topic_2" />
+    </server>
+  </servers>
+
+  <clients>
+    <client name="client1" profile_name="UDP client" >
+      <subscriber />
+      <subscriber topic="topic_2"  />
+      <subscriber profile_name="Sub 1"/>
+      <publisher profile_name="Pub 2"/>
+    </client>
+    <client name="client2" profile_name="UDP client" >
+      <publisher />
+      <publisher topic="topic_1"/>
+      <publisher profile_name="Pub 1" />
+      <subscriber profile_name="Sub 2"/>
+    </client>
+  </clients>
+
+  <profiles>
+    <participant profile_name="UDP server">
+      <rtps>
+        <prefix>
+          4D.49.47.55.45.4c.5f.42.41.52.52.4f
+        </prefix>
+        <builtin>
+          <!--<discoveryProtocol>SERVER</discoveryProtocol> // SERVER functionality to be disclosed-->
+          <discoveryProtocol>NONE</discoveryProtocol>
+          <metatrafficUnicastLocatorList>
+            <locator>
+              <udpv4>
+                <address>127.0.0.1</address>
+                <port>65215</port>
+              </udpv4>
+            </locator>
+          </metatrafficUnicastLocatorList>
+        </builtin>        
+      </rtps>
+    </participant>
+
+    <participant profile_name="UDP client" >
+      <rtps>
+        <builtin>
+          <discoveryProtocol>CLIENT</discoveryProtocol>
+          <clientAnnouncementPeriod>
+            <sec>1</sec>
+          </clientAnnouncementPeriod>
+          <discoveryServersList>
+            <RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
+              <metatrafficUnicastLocatorList>
+                <locator>
+                  <udpv4>
+                    <address>127.0.0.1</address>
+                    <port>65215</port>
+                  </udpv4>
+                </locator>
+              </metatrafficUnicastLocatorList>
+            </RemoteServer>
+          </discoveryServersList>
+        </builtin>
+      </rtps>
+    </participant>
+
+    <publisher profile_name="Pub 1">
+      <topic>
+        <name>topic_1</name>
+        <dataType>sample_type_1</dataType>
+      </topic>
+    </publisher>
+
+    <publisher profile_name="Pub 2">
+      <topic>
+        <name>topic_2</name>
+        <dataType>sample_type_2</dataType>
+      </topic>
+    </publisher>
+
+    <subscriber profile_name="Sub 1">
+      <topic>
+        <name>topic_1</name>
+        <dataType>sample_type_1</dataType> 
+      </topic>
+    </subscriber>
+
+    <subscriber profile_name="Sub 2">
+      <topic>
+        <name>topic_2</name>
+        <dataType>sample_type_2</dataType>
+      </topic>
+    </subscriber>
+
+    <topic>
+      <name>topic_1</name>
+      <dataType>sample_type_1</dataType>
+    </topic>
+
+    <topic>
+      <name>topic_2</name>
+      <dataType>sample_type_2</dataType>
+    </topic>
+ 
+  </profiles>
+
+  <types>
+    
+    <struct name="sample_type_1">
+      <member name="index" type="uint32" />
+      <member name="message" type="string" />
+    </struct>
+    
+    <union name="sample_type_2">
+      <discriminator/>
+      <case>
+        <caseValue>index</caseValue>
+        <member name="message" type="uint32" />
+      </case>
+      <case>
+        <caseValue>message</caseValue>
+        <member name="message" type="string" />
+      </case>
+    </union>
+  
+  </types>
+  
+</DS>

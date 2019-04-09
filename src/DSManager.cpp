@@ -304,9 +304,9 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     std::lock_guard<std::recursive_mutex> lock(_mtx);
 
     // profile name is mandatory
-    std::string profile_name(server->Attribute(xmlparser::PROFILE_NAME));
+    const char * profile_name = server->Attribute(xmlparser::PROFILE_NAME);
 
-    if (profile_name.empty())
+    if (!profile_name)
     {
         LOG_ERROR(xmlparser::PROFILE_NAME << " is a mandatory attribute of server tag");
         return;
@@ -314,17 +314,17 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
 
     // retrieve profile attributes
     ParticipantAttributes atts;
-    if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillParticipantAttributes(profile_name, atts))
+    if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillParticipantAttributes(std::string(profile_name), atts))
     {
         LOG_ERROR("DSManager::loadServer couldn't load profile " << profile_name);
         return;
     }
 
     // server name is either pass as an attribute (preferred to allow profile reuse) or inside the profile
-    std::string name(server->Attribute(xmlparser::NAME));
-    if (!name.empty())
+    const char * name = server->Attribute(xmlparser::NAME);
+    if (!name)
     {
-        atts.rtps.setName(name.c_str());
+        atts.rtps.setName(name);
     }
 
     // server GuidPrefix is either pass as an attribute (preferred to allow profile reuse)
@@ -444,9 +444,9 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
 
     // clients are created for debugging purposes
     // profile name is mandatory because they must reference servers
-    std::string profile_name(client->Attribute(xmlparser::PROFILE_NAME));
+    const char * profile_name = client->Attribute(xmlparser::PROFILE_NAME);
 
-    if (profile_name.empty())
+    if (!profile_name)
     {
         LOG_ERROR(xmlparser::PROFILE_NAME << " is a mandatory attribute of client tag");
         return;
@@ -454,7 +454,7 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
 
     // retrieve profile attributes
     ParticipantAttributes atts;
-    if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillParticipantAttributes(profile_name, atts))
+    if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillParticipantAttributes(std::string(profile_name), atts))
     {
         LOG_ERROR("DSManager::loadClient couldn't load profile " << profile_name);
         return;
@@ -475,8 +475,8 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
     }
 
     // server may be provided by prefix (takes precedence) or by list
-    std::string server(client->Attribute(s_sServer.c_str()));
-    if (!server.empty() )
+    const char * server = client->Attribute(s_sServer.c_str());
+    if (server )
     {
         RemoteServerList_t::value_type srv;
         GuidPrefix_t & prefix = srv.guidPrefix;
@@ -575,11 +575,11 @@ void DSManager::loadSubscriber(Participant * part, tinyxml2::XMLElement* sub)
 
     // subscribers are created for debugging purposes
     // default topic is the static HelloWorld one
-    std::string profile_name(sub->Attribute(xmlparser::PROFILE_NAME));
+    const char * profile_name = sub->Attribute(xmlparser::PROFILE_NAME);
 
     SubscriberAttributes subatts;
 
-    if (profile_name.empty())
+    if (!profile_name)
     {
         // get default subscriber attributes
         xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(subatts);
@@ -587,7 +587,7 @@ void DSManager::loadSubscriber(Participant * part, tinyxml2::XMLElement* sub)
     else
     {
         // try load from profile
-        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillSubscriberAttributes(profile_name, subatts))
+        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillSubscriberAttributes(std::string(profile_name), subatts))
         {
             LOG_ERROR("DSManager::loadSubscriber couldn't load profile " << profile_name);
             return;
@@ -595,11 +595,11 @@ void DSManager::loadSubscriber(Participant * part, tinyxml2::XMLElement* sub)
     }
 
     // see if topic is specified
-    std::string topic_name(sub->Attribute(xmlparser::TOPIC));
+    const char * topic_name = sub->Attribute(xmlparser::TOPIC);
 
-    if (!topic_name.empty())
+    if (topic_name)
     {
-        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillTopicAttributes(topic_name, subatts.topic))
+        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), subatts.topic))
         {
             LOG_ERROR("DSManager::loadSubscriber couldn't load topic profile " << profile_name);
             return;
@@ -661,11 +661,11 @@ void DSManager::loadPublisher(Participant * part, tinyxml2::XMLElement* sub)
 
     // subscribers are created for debugging purposes
     // default topic is the static HelloWorld one
-    std::string profile_name(sub->Attribute(xmlparser::PROFILE_NAME));
+    const char * profile_name = sub->Attribute(xmlparser::PROFILE_NAME);
 
     PublisherAttributes pubatts;
 
-    if (profile_name.empty())
+    if (!profile_name)
     {
         // get default subscriber attributes
         xmlparser::XMLProfileManager::getDefaultPublisherAttributes(pubatts);
@@ -673,7 +673,7 @@ void DSManager::loadPublisher(Participant * part, tinyxml2::XMLElement* sub)
     else
     {
         // try load from profile
-        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillPublisherAttributes(profile_name, pubatts))
+        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillPublisherAttributes(std::string(profile_name), pubatts))
         {
             LOG_ERROR("DSManager::loadPublisher couldn't load profile " << profile_name);
             return;
@@ -681,11 +681,11 @@ void DSManager::loadPublisher(Participant * part, tinyxml2::XMLElement* sub)
     }
 
     // see if topic is specified
-    std::string topic_name(sub->Attribute(xmlparser::TOPIC));
+    const char * topic_name = sub->Attribute(xmlparser::TOPIC);
 
-    if (!topic_name.empty())
+    if (topic_name)
     {
-        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillTopicAttributes(topic_name, pubatts.topic))
+        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), pubatts.topic))
         {
             LOG_ERROR("DSManager::loadPublisher couldn't load topic profile " << profile_name);
             return;
