@@ -21,7 +21,7 @@
 #define EDPSERVERLISTENER_H_
 #ifndef DOXYGEN_SHOULD_SKIP_THIS_PUBLIC
 
-#include <rtps\builtin\discovery\endpoint\EDPSimpleListeners.h>
+#include <rtps/builtin/discovery/endpoint/EDPSimpleListeners.h>
 
 
 namespace eprosima {
@@ -49,7 +49,7 @@ class EDPServerPUBListener : public EDPListener
         virtual ~EDPServerPUBListener() {}
 
         /**
-         * Virtual method, 
+         * Virtual method,
          * @param reader
          * @param change
          */
@@ -59,7 +59,7 @@ class EDPServerPUBListener : public EDPListener
 
 
         /*!
-         * This method is called when all the readers matched with this Writer acknowledge that a cache 
+         * This method is called when all the readers matched with this Writer acknowledge that a cache
          * change has been received.
          * @param writer Pointer to the RTPSWriter.
          * @param change Pointer to the affected CacheChange_t.
@@ -98,7 +98,7 @@ class EDPServerSUBListener : public EDPListener
                 const CacheChange_t* const change) override;
 
         /*!
-         * This method is called when all the readers matched with this Writer acknowledge that a cache 
+         * This method is called when all the readers matched with this Writer acknowledge that a cache
          * change has been received.
          * @param writer Pointer to the RTPSWriter.
          * @param change Pointer to the affected CacheChange_t.

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13.0)
+cmake_minimum_required(VERSION 3.10.0)
 
 ###############################################################################
 # Project and Version information											  #
@@ -14,11 +14,18 @@ if(PROJECT_SOURCE_DIR)
 endif()
 
 # Let's see what's the latest version of the current branch
-execute_process(COMMAND git describe --tags WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} OUTPUT_VARIABLE GIT_TAG_VERSION )
-string(REGEX MATCH "[0-9]+(\\.[0-9]+)*" PROJECT_VERSION ${GIT_TAG_VERSION} )
+execute_process(COMMAND git describe --tags WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+    OUTPUT_VARIABLE GIT_TAG_VERSION )
+
+if (GIT_TAG_VERSION)
+    string(REGEX MATCH "[0-9]+(\\.[0-9]+)*" PROJECT_VERSION ${GIT_TAG_VERSION} )
+else()
+    set(PROJECT_VERSION "0.0.1")
+endif()
 
 if (NOT PROJECT_VERSION)
-	message(FATAL_ERROR "Project must have a version number. If not found in git, please, define PROJECT_VERSION variable.")
+    message(FATAL_ERROR
+        "Project must have a version number. If not found in git, please, define PROJECT_VERSION variable.")
 endif()
 
 project("discovery-server" VERSION ${PROJECT_VERSION} LANGUAGES C CXX)
@@ -55,21 +62,22 @@ if(MSVC OR MSVC_IDE)
     check_msvc_arch()
 endif()
 
-# UNTIL REACHING COLCON AWARENESS WE WILL GIVE SOME LOCAL CLUES TO CMAKE TO FIND PACKAGES ;-) ;-) ;-) ;-) ;-) ;-) ;-) 
-set(CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/cmake/modules ${CMAKE_PREFIX_PATH} )
-# CONFIG FILES CAN BE FOUND IN DIRECTORY MODULES, REMEMBER TO REMOVE THEM WHEN COLCON ENABLED: 
+# UNTIL REACHING COLCON AWARENESS WE WILL GIVE SOME LOCAL CLUES TO CMAKE TO FIND PACKAGES ;-) ;-) ;-) ;-) ;-) ;-) ;-)
+# set(CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/cmake/modules ${CMAKE_PREFIX_PATH} )
+# CONFIG FILES CAN BE FOUND IN DIRECTORY MODULES, REMEMBER TO REMOVE THEM WHEN COLCON ENABLED:
 #	fastcdr-config-version.cmake	fastrtps-config-version.cmake
 #	fastcdr-config.cmake			fastrtps-config.cmake
 #	fastcdr-targets.cmake			fastrtps-targets.cmake
 #
-# ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) 
+# ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-)
 
 
 # colcon will take care of solving any dependency issues
-find_package(Asio REQUIRED )
+#find_package(Asio REQUIRED )
 find_package(fastcdr   REQUIRED  )
-find_package(TinyXML2 QUIET ) # CMake is able to find it unaided into C:\Program Files\tinyxml2\lib\cmake\tinyxml2
+#find_package(TinyXML2 QUIET ) # CMake is able to find it unaided into C:\Program Files\tinyxml2\lib\cmake\tinyxml2
 find_package(fastrtps   REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 # at present we are going to ignore all packaging, examples and test paraphernalia.
 
@@ -114,14 +122,17 @@ foreach( version_var IN LISTS version_unset)
 endforeach()
 unset(version_unset)
 
-# Create the target and its dependencies, note that variable PROJECT_NAME is created by the closest project() called in the current directory scope or above.
+# Create the target and its dependencies, note that variable PROJECT_NAME is created by the closest project()
+# called in the current directory scope or above.
 # We must populate this variables as project sources grow
 
 # Set fast-RTPS source files
+if (WIN32)
 file(GLOB_RECURSE ALL_FAST_HEADERS 
 	"C:/Users/MiguelBarro/Documents/Fast-RTPS/include/**/*.h"
 	"C:/Users/MiguelBarro/Documents/Fast-RTPS/include/**/*.hpp"
 	)  #TODO: remove when development process is finished
+#endif()
 
 # xml test files
 file(GLOB ${PROJECT_NAME}_xml_tests
@@ -182,9 +193,13 @@ source_group(resources\\static_types FILES ${${PROJECT_NAME}_static_types} )
 # avoid visual studio from trying to compile .idl files with midl
 set_source_files_properties(${${PROJECT_NAME}_idl} PROPERTIES HEADER_FILE_ONLY TRUE)
 
-# BUILD_INTERFACE and INSTALL_INTERFACE are not variables but generator expressions (see under type Output-Related Expressions):
-#	$<BUILD_INTERFACE:...>. Content of ... when the property is exported using export(), or when the target is used by another target in the same buildsystem. Expands to the empty string otherwise.
-#	$<INSTALL_INTERFACE:...>. Content of ... when the property is exported using install(EXPORT), and empty otherwise. Relative paths are allowed within the INSTALL_INTERFACE expression and are interpreted relative to the installation prefix.
+# BUILD_INTERFACE and INSTALL_INTERFACE are not variables but generator expressions
+# (see under type Output-Related Expressions):
+#	$<BUILD_INTERFACE:...>. Content of ... when the property is exported using export(),
+# or when the target is used by another target in the same buildsystem. Expands to the empty string otherwise.
+#	$<INSTALL_INTERFACE:...>. Content of ... when the property is exported using install(EXPORT), and empty otherwise.
+# Relative paths are allowed within the INSTALL_INTERFACE expression and are interpreted relative to the installation
+# prefix.
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -199,12 +214,15 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     $<$<AND:$<BOOL:${WIN32}>,$<NOT:$<STREQUAL:"${CMAKE_SYSTEM_NAME}","WindowsStore">>>:_WIN32_WINNT=0x0601>
 	)
 
-target_compile_options(${PROJECT_NAME} PRIVATE	-wd4251) 
+if (WIN32)
+    target_compile_options(${PROJECT_NAME} PRIVATE	-wd4251)
+endif()
 
 # we link dynamically to tinyxml2
 target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr tinyxml2 )
 
-# Properties that change bin names depending on current config. This is convenient because on installation all bins share folder
+# Properties that change bin names depending on current config.
+# This is convenient because on installation all bins share folder
 set_target_properties(${PROJECT_NAME} PROPERTIES RELEASE_POSTFIX -${PROJECT_VERSION})
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX -${PROJECT_VERSION}d)
 
@@ -212,11 +230,11 @@ set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX -${PROJECT_VERSIO
 
 if(WIN32)
 	set(INSTALL_PER_USER true CACHE BOOL "Windows per user installation mode")
-	
+
 	if(INSTALL_PER_USER)
 		set(CMAKE_INSTALL_PREFIX "$ENV{USERPROFILE}/AppData/Local/eProsima/${PROJECT_NAME_LARGE}/" )
 	endif()
-	
+
 endif()
 
 set(BIN_INSTALL_DIR bin/ CACHE PATH "Installation directory for binaries")
@@ -247,18 +265,16 @@ install(DIRECTORY include/
 install(EXPORT ${PROJECT_NAME}_Targets
      DESTINATION ${EXPORT_INSTALL_DIR}
      )
-	 
+
 # Sources
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/
     COMPONENT sources
     DESTINATION ${INCLUDE_SOURCE_DIR}
 	FILES_MATCHING PATTERN "*.cpp"
 	)
-	
+
 # Install licenses
 install(FILES ${PROJECT_SOURCE_DIR}/license/LICENSE
     COMPONENT licenses
     DESTINATION ${LICENSE_INSTALL_DIR}
-    )	
-	
-	
+    )

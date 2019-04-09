@@ -539,6 +539,9 @@ paket-files/
 *.odx.cs
 *.xsd.cs
 
+# Colcon install
+install/
+
 ### VisualStudio Patch ###
 # By default, sensitive information, such as encrypted password
 # should be stored in the .pubxml.user file.
