@@ -15,7 +15,7 @@ endif()
 
 # Let's see what's the latest version of the current branch
 execute_process(COMMAND git describe --tags WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-    OUTPUT_VARIABLE GIT_TAG_VERSION )
+    OUTPUT_VARIABLE GIT_TAG_VERSION OUTPUT_QUIET ERROR_QUIET)
 
 if (GIT_TAG_VERSION)
     string(REGEX MATCH "[0-9]+(\\.[0-9]+)*" PROJECT_VERSION ${GIT_TAG_VERSION} )
@@ -128,7 +128,7 @@ unset(version_unset)
 
 # Set fast-RTPS source files
 if (WIN32)
-file(GLOB_RECURSE ALL_FAST_HEADERS 
+file(GLOB_RECURSE ALL_FAST_HEADERS
 	"C:/Users/MiguelBarro/Documents/Fast-RTPS/include/**/*.h"
 	"C:/Users/MiguelBarro/Documents/Fast-RTPS/include/**/*.hpp"
 	)  #TODO: remove when development process is finished
@@ -139,7 +139,7 @@ file(GLOB ${PROJECT_NAME}_xml_tests
 	resources/xml/*.xml)
 
 # xml schema file
-set(${PROJECT_NAME}_schema_files 
+set(${PROJECT_NAME}_schema_files
 	resources/xsd/discovery-server.xsd
 	)
 
@@ -160,7 +160,7 @@ set(${PROJECT_NAME}_header_files
         include/log/DSLog.h
 		include/DSManager.h
 		# library sources
-		include/DI.h	
+		include/DI.h
     )
 
 set(${PROJECT_NAME}_source_files
