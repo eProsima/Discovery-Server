@@ -298,7 +298,7 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
 
     // server name is either pass as an attribute (preferred to allow profile reuse) or inside the profile
     const char * name = server->Attribute(xmlparser::NAME);
-    if (!name)
+    if (name)
     {
         atts.rtps.setName(name);
     }
@@ -572,7 +572,7 @@ void DSManager::loadSubscriber(Participant * part, tinyxml2::XMLElement* sub)
     }
 
     // check if we have topic info
-    if (subatts.topic.getTopicName().empty())
+    if (subatts.topic.getTopicName() == "UNDEF")
     {
         // fill in default topic 
         subatts.topic = _defaultTopic;
@@ -659,7 +659,7 @@ void DSManager::loadPublisher(Participant * part, tinyxml2::XMLElement* sub)
     }
 
     // check if we have topic info
-    if (pubatts.topic.getTopicName().empty())
+    if (pubatts.topic.getTopicName() == "UNDEF")
     {
         // fill in default topic 
         pubatts.topic = _defaultTopic;
@@ -983,4 +983,25 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& o, WriterDisc
     }
 
     return o;
+}
+
+
+bool DSManager::allKnowEachOther()
+{
+    // Get a copy of current state
+    Snapshot shot = _state.GetState();
+
+    // traverse snapshot comparing each member with each other
+    Snapshot::const_iterator it1, it2;
+    it2 = it1 = shot.cbegin();
+    ++it2;
+
+    while (it2 != shot.cend() && *it1 == *it2)
+    {
+        it1 = it2;
+        ++it2;
+    }
+
+    return it2 == shot.cend();
+
 }

@@ -74,7 +74,7 @@ bool PtDI::operator==(const PtDI & p) const
     return DI::operator==(p) 
         && this->_alive == p._alive
         // && this->_server == p._server // only in-process participants may be aware of this
-        && this->_name == p._name
+        // && this->_name == p._name // only in-process participants may be aware of this
         && this->_publishers == p._publishers
         && this->_subscribers == p._subscribers;
 }
@@ -82,11 +82,11 @@ bool PtDI::operator==(const PtDI & p) const
 bool PtDI::operator!=(const PtDI & p) const
 {
     return DI::operator!=(p)
-        && this->_alive != p._alive
-        // && this->_server != p._server // only in-process participants may be aware of this
-        && this->_name != p._name
-        && this->_publishers != p._publishers
-        && this->_subscribers != p._subscribers;
+        || this->_alive != p._alive
+        // || this->_server != p._server // only in-process participants may be aware of this
+        // || this->_name != p._name // only in-process participants may be aware of this
+        || this->_publishers != p._publishers
+        || this->_subscribers != p._subscribers;
 }
 
 bool PtDI::operator[](const PDI & p) const

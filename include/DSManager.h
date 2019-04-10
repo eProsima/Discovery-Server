@@ -95,6 +95,9 @@ namespace eprosima {
             ~DSManager();
             bool isActive();
 
+            // testing database
+            bool allKnowEachOther();
+
             // entity creation functions
             void addServer(Participant* b);
             void addClient(Participant* p);

@@ -38,6 +38,9 @@ int main(int argc, char * argv[])
             std::cout << "\n### Discovery Server is running, press any key to quit ###" << std::endl;
             fflush(stdout);
             std::cin.ignore();
+
+            // Let's check discovery state
+            std::cout << "Verify all participants share the same info: " << std::boolalpha << manager.allKnowEachOther() << std::endl;
         }
         else
         {

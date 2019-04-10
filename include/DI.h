@@ -250,6 +250,13 @@ namespace eprosima {
             size_type CountPublishers(const GUID_t& spokesman ) const;
             size_type CountSubscribers(const GUID_t& spokesman, const GUID_t & ptid) const;
             size_type CountPublishers(const GUID_t& spokesman, const GUID_t & ptid) const;
+
+            // Get a copy the current SnapShot
+            Snapshot GetState() const
+            {
+                std::lock_guard<std::mutex> lock(_mtx);
+                return _participants;
+            }
   
         };
 

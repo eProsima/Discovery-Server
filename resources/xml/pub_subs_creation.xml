@@ -4,7 +4,7 @@
   <!-- clients search server1. master searches for server1 also -->
 
   <servers>
-    <server name="master" prefix="4D.49.47.55.45.4c.7e.42.41.52.52.4f" profile_name="UDP server">
+    <server name="master" profile_name="UDP server">
       <subscriber topic="topic 1" />
       <publisher topic="topic 2" />
     </server>
