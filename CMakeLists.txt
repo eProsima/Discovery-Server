@@ -15,7 +15,7 @@ endif()
 
 # Let's see what's the latest version of the current branch
 execute_process(COMMAND git describe --tags WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-    OUTPUT_VARIABLE GIT_TAG_VERSION OUTPUT_QUIET ERROR_QUIET)
+      OUTPUT_VARIABLE GIT_TAG_VERSION ERROR_QUIET )
 
 if (GIT_TAG_VERSION)
     string(REGEX MATCH "[0-9]+(\\.[0-9]+)*" PROJECT_VERSION ${GIT_TAG_VERSION} )
