@@ -72,9 +72,9 @@ bool SDI::operator==(const SDI & p) const
 bool PtDI::operator==(const PtDI & p) const
 {
     return DI::operator==(p)
-        && this->_alive == p._alive
+        // && this->_alive == p._alive // own participant may not be aware
         // && this->_server == p._server // only in-process participants may be aware of this
-        // && this->_name == p._name // only in-process participants may be aware of this
+        // && this->_name == p._name // own participant may not be aware
         && this->_publishers == p._publishers
         && this->_subscribers == p._subscribers;
 }
@@ -82,9 +82,9 @@ bool PtDI::operator==(const PtDI & p) const
 bool PtDI::operator!=(const PtDI & p) const
 {
     return DI::operator!=(p)
-        || this->_alive != p._alive
+        // || this->_alive != p._alive // own participant may not be aware
         // || this->_server != p._server // only in-process participants may be aware of this
-        // || this->_name != p._name // only in-process participants may be aware of this
+        // || this->_name != p._name // own participant may not be aware
         || this->_publishers != p._publishers
         || this->_subscribers != p._subscribers;
 }
