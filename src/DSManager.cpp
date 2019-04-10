@@ -304,7 +304,7 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     }
 
     // server GuidPrefix is either pass as an attribute (preferred to allow profile reuse)
-    // or inside the profile. 
+    // or inside the profile.
     GuidPrefix_t & prefix = atts.rtps.prefix;
     const char * cprefix = server->Attribute(xmlparser::PREFIX);
 
@@ -328,7 +328,7 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     // note that a previous call to DSManager::MapServerInfo
     serverLocator_map::mapped_type & lists = _server_locators[guid];
     if (!lists.first.empty() || !lists.second.empty())
-    {   
+    {
         // server elements take precedence over profile ones
         // I copy them because other servers may need this values
         atts.rtps.builtin.metatrafficMulticastLocatorList = lists.first;
@@ -383,10 +383,10 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
         LOG_ERROR("DSManager couldn't create the server " << prefix << " with profile " << profile_name);
         return;
     }
-    
+
     addServer(pServer);
 
-    // Once the participant is created we create the associated endpoints 
+    // Once the participant is created we create the associated endpoints
     tinyxml2::XMLElement* pub = server->FirstChildElement(xmlparser::PUBLISHER);
     while (pub)
     {
@@ -445,7 +445,7 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
     {
         RemoteServerList_t::value_type srv;
         GuidPrefix_t & prefix = srv.guidPrefix;
-        
+
         if (!(std::istringstream(server) >> prefix)
             && (prefix == c_GuidPrefix_Unknown))
         {
@@ -515,7 +515,7 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
 
     addClient(pClient);
 
-    // Once the participant is created we create the associated endpoints 
+    // Once the participant is created we create the associated endpoints
     tinyxml2::XMLElement* pub = client->FirstChildElement(xmlparser::PUBLISHER);
     while (pub)
     {
@@ -574,7 +574,7 @@ void DSManager::loadSubscriber(Participant * part, tinyxml2::XMLElement* sub)
     // check if we have topic info
     if (subatts.topic.getTopicName().empty())
     {
-        // fill in default topic 
+        // fill in default topic
         subatts.topic = _defaultTopic;
 
         // assure the participant has default type registered
@@ -661,7 +661,7 @@ void DSManager::loadPublisher(Participant * part, tinyxml2::XMLElement* sub)
     // check if we have topic info
     if (pubatts.topic.getTopicName().empty())
     {
-        // fill in default topic 
+        // fill in default topic
         pubatts.topic = _defaultTopic;
 
         // assure the participant has default type registered
@@ -755,7 +755,7 @@ void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
 
     // Now we search the locator lists
     serverLocator_map::mapped_type pair;
-    
+
     tinyxml2::XMLElement *LP = server->FirstChildElement(s_sLP.c_str());
     if (LP)
     {
@@ -794,7 +794,7 @@ void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
 
     // now save the value
     _server_locators[GUID_t(prefix, c_EntityId_RTPSParticipant)] = std::move(pair);
-    
+
 }
 
 void DSManager::onParticipantDiscovery(Participant* participant, rtps::ParticipantDiscoveryInfo&& info)
@@ -820,12 +820,24 @@ void DSManager::onParticipantDiscovery(Participant* participant, rtps::Participa
     // _state will be alive during all callbacks
     switch (info.status)
     {
-    case ParticipantDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_PARTICIPANT:
-        _state.AddParticipant(participant->getGuid(), partid, info.info.m_participantName, server);
+        case ParticipantDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_PARTICIPANT:
+        {
+            _state.AddParticipant(participant->getGuid(), partid, info.info.m_participantName, server);
             break;
-    case ParticipantDiscoveryInfo::DISCOVERY_STATUS::REMOVED_PARTICIPANT:
-        _state.RemoveParticipant(participant->getGuid(), partid);
+        }
+        case ParticipantDiscoveryInfo::DISCOVERY_STATUS::REMOVED_PARTICIPANT:
+        {
+            _state.RemoveParticipant(participant->getGuid(), partid);
             break;
+        }
+        case ParticipantDiscoveryInfo::CHANGED_QOS_PARTICIPANT:
+        {
+            break;
+        }
+        case ParticipantDiscoveryInfo::DROPPED_PARTICIPANT:
+        {
+            break;
+        }
     }
 
     // note that I ignore DROPPED_PARTICIPANT because it deals with liveliness
@@ -836,7 +848,7 @@ void DSManager::onSubscriberDiscovery(Participant* participant, rtps::ReaderDisc
 {
     GUID_t & subsid = info.info.guid();
     GUID_t partid = iHandle2GUID(info.info.RTPSParticipantKey());
-    
+
     // non reported info
     std::string part_name;
 
@@ -869,7 +881,7 @@ void DSManager::onSubscriberDiscovery(Participant* participant, rtps::ReaderDisc
 
     if (part_name.empty())
     {   // if remote use prefix instead of name
-        part_name = (std::ostringstream() << partid).str();
+        part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
     }
 
     _state.AddSubscriber(participant->getGuid(),partid, subsid, info.info.typeName(), info.info.topicName());
@@ -915,7 +927,7 @@ void  DSManager::onPublisherDiscovery(Participant* participant, rtps::WriterDisc
 
     if (part_name.empty())
     {   // if remote use prefix instead of name
-        part_name = (std::ostringstream() << partid).str();
+        part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
     }
 
     _state.AddPublisher(participant->getGuid(), partid, pubsid, info.info.typeName(), info.info.topicName());

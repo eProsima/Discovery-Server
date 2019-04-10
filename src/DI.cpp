@@ -14,7 +14,7 @@
 
 #include <cassert>
 #include <algorithm>
-#include <iterator>    
+#include <iterator>
 #include "DI.h"
 
 using namespace eprosima::discovery_server;
@@ -54,15 +54,15 @@ bool DI::operator<(const DI & d) const
 // publiser discovery item operations
 bool PDI::operator==(const PDI & p) const
 {
-    return DI::operator==(p) 
-        && _typeName == p._typeName 
+    return DI::operator==(p)
+        && _typeName == p._typeName
         && _topicName == p._topicName;
 }
 
 // subscriber discovery item operations
 bool SDI::operator==(const SDI & p) const
 {
-    return DI::operator==(p) 
+    return DI::operator==(p)
         && _typeName == p._typeName
         && _topicName == p._topicName;
 }
@@ -71,7 +71,7 @@ bool SDI::operator==(const SDI & p) const
 
 bool PtDI::operator==(const PtDI & p) const
 {
-    return DI::operator==(p) 
+    return DI::operator==(p)
         && this->_alive == p._alive
         // && this->_server == p._server // only in-process participants may be aware of this
         && this->_name == p._name
@@ -158,7 +158,7 @@ bool DI_database::AddParticipant(const GUID_t& spokesman, const GUID_t& ptid, co
         it->setServer(server);
     }
 
-    assert(it->_server == server); 
+    assert(it->_server == server);
 
     return true;
 
@@ -214,8 +214,8 @@ bool DI_database::AddEndPoint(T&(PtDI::* m)() const, const GUID_t& spokesman, co
     //PtDI::subscriber_set& ( PtDI::* gS)() const = &PtDI::getSubscribers;
     //PtDI::subscriber_set & subs = (p->*gS)();
 
-    T & cont = (*it.*m)();
-    T::iterator sit = std::lower_bound(cont.begin(), cont.end(), id);
+    T& cont = (*it.*m)();
+    typename T::iterator sit = std::lower_bound(cont.begin(), cont.end(), id);
 
     if (sit == cont.end() || *sit != id )
     {
@@ -244,7 +244,7 @@ bool DI_database::RemoveEndPoint(T&(PtDI::* m)() const, const GUID_t& spokesman,
     }
 
     T & cont = (*it.*m)();
-    T::iterator sit = std::lower_bound(cont.begin(), cont.end(), id);
+    typename T::iterator sit = std::lower_bound(cont.begin(), cont.end(), id);
 
     if (sit == cont.end() || *sit != id )
     {
@@ -387,7 +387,7 @@ DI_database::size_type DI_database::CountPublishers(const GUID_t& spokesman,cons
     return 0;
 }
 
-// TODO: test this operator 
+// TODO: test this operator
 bool eprosima::discovery_server::operator==(const PtDB & l,const PtDB & r)
 {
     // Note that each participant doesn't keep its own discovery info
@@ -407,7 +407,7 @@ bool eprosima::discovery_server::operator==(const PtDB & l,const PtDB & r)
             return (rit == r.end()
                 || (rit->_id == l._id && r.end() == ++rit));
         }
-        
+
         if (rit == r.end())
         {
             // finish simultaneously or differ only in
@@ -435,7 +435,7 @@ bool eprosima::discovery_server::operator==(const PtDB & l,const PtDB & r)
             {
                 go = true; // sweep over
             }
-            
+
             if (rit++->_id == l._id)
             {
                 go = true; // sweep over
