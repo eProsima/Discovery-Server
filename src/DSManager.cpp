@@ -391,14 +391,14 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     while (pub)
     {
         loadPublisher(pServer,pub);
-        pub = server->NextSiblingElement(xmlparser::PUBLISHER);
+        pub = pub->NextSiblingElement(xmlparser::PUBLISHER);
     }
 
     tinyxml2::XMLElement* sub = server->FirstChildElement(xmlparser::SUBSCRIBER);
     while (sub)
     {
         loadSubscriber(pServer,sub);
-        sub = server->NextSiblingElement(xmlparser::SUBSCRIBER);
+        sub = sub->NextSiblingElement(xmlparser::SUBSCRIBER);
     }
 }
 
@@ -520,14 +520,14 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
     while (pub)
     {
         loadPublisher(pClient,pub);
-        pub = client->NextSiblingElement(xmlparser::PUBLISHER);
+        pub = pub->NextSiblingElement(xmlparser::PUBLISHER);
     }
 
     tinyxml2::XMLElement* sub = client->FirstChildElement(xmlparser::SUBSCRIBER);
     while (sub)
     {
         loadSubscriber(pClient,sub);
-        sub = client->NextSiblingElement(xmlparser::SUBSCRIBER);
+        sub = sub->NextSiblingElement(xmlparser::SUBSCRIBER);
     }
 
 }
