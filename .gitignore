@@ -551,3 +551,5 @@ test/blackbox/BlackboxTCPTests.cpp
 test/blackbox/BlackboxKeyedTests.cpp
 test/blackbox/BlackboxUDPTests.cpp
 test/benchmark/Benchmark.cpp
+
+include/version/config.h

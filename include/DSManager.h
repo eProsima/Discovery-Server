@@ -24,7 +24,7 @@
 #include <fastrtps/participant/ParticipantListener.h>
 #include <fastrtps/xmlparser/XMLParser.h>
 
-#include "..\resources\static_types\HelloWorldPubSubTypes.h"
+#include "../resources/static_types/HelloWorldPubSubTypes.h"
 
 #include "DI.h"
 
@@ -101,8 +101,8 @@ namespace eprosima {
             // entity creation functions
             void addServer(Participant* b);
             void addClient(Participant* p);
-            void addSubscriber(Subscriber *); 
-            void addPublisher(Publisher *); 
+            void addSubscriber(Subscriber *);
+            void addPublisher(Publisher *);
 
             // callback discovery functions
             void onParticipantDiscovery(Participant* participant, rtps::ParticipantDiscoveryInfo&& info) override;
