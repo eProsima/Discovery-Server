@@ -4,26 +4,43 @@
   <!-- clients search server1. master searches for server1 also -->
 
   <servers>
-    <server name="master" profile_name="UDP server">
-      <subscriber topic="topic 1" />
-      <publisher topic="topic 2" />
+    
+    <server name="master" profile_name="UDP server" creation_time="1" >
+      <subscriber topic="topic 1" creation_time="5"  />
+      <publisher topic="topic 2" creation_time="10"  />
     </server>
+    
   </servers>
 
   <clients>
-    <client name="client1" profile_name="UDP client" >
-      <subscriber />
-      <subscriber topic="topic 2"  />
-      <subscriber profile_name="Sub 1"/>
-      <publisher profile_name="Pub 2"/>
+    
+    <client name="client1" profile_name="UDP client" creation_time="20"  >
+      <subscriber creation_time="32"  />
+      <subscriber topic="topic 2" creation_time="34"  />
+      <subscriber profile_name="Sub 1" creation_time="36" />
+      <publisher profile_name="Pub 2" creation_time="38" removal_time="40"/>
     </client>
+    
     <client name="client2" profile_name="UDP client" >
       <publisher />
       <publisher topic="topic 1"/>
-      <publisher profile_name="Pub 1" />
+      <publisher profile_name="Pub 1" removal_time="45"/>
       <subscriber profile_name="Sub 2"/>
     </client>
+    
   </clients>
+
+  <snapshots>
+    <snapshot time="15">
+        First snapshot after the creation of the server
+    </snapshot>
+    <snapshot time="40">
+        First snapshot after the creation of the client1
+    </snapshot>
+    <snapshot time="60">
+      Final snapshot before destruction
+    </snapshot>
+  </snapshots>
 
   <profiles>
     <participant profile_name="UDP server">

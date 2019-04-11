@@ -161,6 +161,7 @@ set(${PROJECT_NAME}_header_files
 		include/DSManager.h
 		# library sources
 		include/DI.h
+		include/LJ.h
     )
 
 set(${PROJECT_NAME}_source_files
@@ -169,6 +170,7 @@ set(${PROJECT_NAME}_source_files
 		src/DSManager.cpp
 		#library sources
 		src/DI.cpp
+		src/LJ.cpp
     )
 
 # Executable and library

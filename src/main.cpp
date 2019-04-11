@@ -2,7 +2,6 @@
 #include "log/DSLog.h"
 #include "version/config.h"
 
-#include <fastrtps/log/Log.h>
 #include <fastrtps/Domain.h>
 
 #include "DSManager.h"
@@ -35,12 +34,12 @@ int main(int argc, char * argv[])
 
         if (manager.isActive())
         {
-            std::cout << "\n### Discovery Server is running, press any key to quit ###" << std::endl;
-            fflush(stdout);
-            std::cin.ignore();
+            manager.runEvents();
 
-            // Let's check discovery state
-            std::cout << "Verify all participants share the same info: " << std::boolalpha << manager.allKnowEachOther() << std::endl;
+            //std::cout << "\n### Discovery Server is running, press any key to quit ###" << std::endl;
+            //fflush(stdout);
+            //std::cin.ignore();
+
         }
         else
         {

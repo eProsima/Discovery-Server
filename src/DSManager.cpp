@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 #include <tinyxml2.h>
 
 #include <fastrtps/Domain.h>
@@ -23,6 +24,7 @@
 #include "DSManager.h"
 
 #include <sstream>
+
 
 using namespace eprosima::fastrtps;
 using namespace eprosima::discovery_server;
@@ -38,6 +40,11 @@ static const std::string s_sPersist("persist");
 static const std::string s_sLP("ListeningPorts");
 static const std::string s_sSL("ServersList");
 static const std::string s_sRServer("RServer");
+static const std::string s_sTime("time");
+static const std::string s_sCreationTime("creation_time");
+static const std::string s_sRemovalTime("removal_time");
+static const std::string s_sSnapshot("snapshot");
+static const std::string s_sSnapshots("snapshots");
 
 // non exported from fast-RTPS (watch out they are updated)
 namespace eprosima{
@@ -58,21 +65,14 @@ namespace eprosima{
     }
 }
 
+/*static members*/
+HelloWorldPubSubType DSManager::_defaultType;
+TopicAttributes DSManager::_defaultTopic("HelloWorldTopic", "HelloWorld");
+
 DSManager::DSManager(const std::string &xml_file_path)
     : _active(false), _nocallbacks(false)
 {
     //Log::SetVerbosity(Log::Warning);
-
-    {   // fill in default topic attributes
-        TopicAttributes & t = _defaultTopic;
-        t.topicKind = NO_KEY;
-        t.topicDataType = "HelloWorld";
-        t.topicName = "HelloWorldTopic";
-        t.historyQos.kind = KEEP_LAST_HISTORY_QOS;
-        t.historyQos.depth = 30;
-        t.resourceLimitsQos.max_samples = 50;
-        t.resourceLimitsQos.allocated_samples = 20;
-    }
 
     tinyxml2::XMLDocument doc;
     if (doc.LoadFile(xml_file_path.c_str()) == tinyxml2::XMLError::XML_SUCCESS)
@@ -150,6 +150,19 @@ DSManager::DSManager(const std::string &xml_file_path)
                     client = client->NextSiblingElement(s_sClient.c_str());
                 }
             }
+
+            // Create snapshot events
+            tinyxml2::XMLElement* snapshots = child->FirstChildElement(s_sSnapshots.c_str());
+            if (snapshots)
+            {
+                tinyxml2::XMLElement *snapshot = snapshots->FirstChildElement(s_sSnapshot.c_str());
+                while (snapshot)
+                {
+                    loadSnapshot(snapshot);
+                    snapshot = snapshot->NextSiblingElement(s_sSnapshot.c_str());
+                }
+            }
+
         }
 
         // at least one server must be created from config file
@@ -164,6 +177,21 @@ DSManager::DSManager(const std::string &xml_file_path)
     }
 
     LOG_INFO("File " << xml_file_path << " parsed successfully.");
+}
+
+void DSManager::runEvents()
+{
+    // Order the event list
+    std::sort(_events.begin(), _events.end(), [](LJD* p1, LJD* p2) -> bool { return *p1 < *p2; });
+
+    // traverse the list
+    for (LJD* p : _events)
+    {
+        // Wait till specified time
+        p->Wait();
+        // execute
+        (*p)(*this);
+    }
 }
 
 void DSManager::addServer(Participant* s)
@@ -182,6 +210,46 @@ void DSManager::addClient(Participant* c)
     _clients[c->getGuid()] = c;
 }
 
+Participant * DSManager::getParticipant(GUID_t & id)
+{
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    // first in clients
+    participant_map::iterator it = _clients.find(id);
+    if (it != _clients.end())
+    {
+        return it->second;
+    }
+    else if ((it = _servers.find(id)) != _servers.end())
+    {
+        return it->second;
+    }
+
+    return nullptr;
+}
+
+Participant * DSManager::removeParticipant(GUID_t & id)
+{
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    Participant * ret = nullptr;
+
+    // first in clients
+    participant_map::iterator it = _clients.find(id);
+    if (it != _clients.end())
+    {
+        ret = it->second;
+        _clients.erase(it);
+    }
+    else if ( ( it = _servers.find(id) ) != _servers.end())
+    {
+        ret = it->second;
+        _servers.erase(it);
+    }
+
+    return ret;
+}
+
 void DSManager::addSubscriber(Subscriber * sub)
 {
     std::lock_guard<std::recursive_mutex> lock(_mtx);
@@ -189,11 +257,104 @@ void DSManager::addSubscriber(Subscriber * sub)
     _subs[sub->getGuid()] = sub;
 }
 
+Subscriber * DSManager::getSubscriber(GUID_t & id)
+{
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    subscriber_map::iterator it = _subs.find(id);
+    if (it != _subs.end())
+    {
+        return it->second;
+    }
+
+    return nullptr;
+}
+
+Subscriber * DSManager::removeSubscriber(GUID_t & id)
+{
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    Subscriber * ret = nullptr;
+
+    subscriber_map::iterator it = _subs.find(id);
+    if (it != _subs.end())
+    {
+        ret = it->second;
+        _subs.erase(it);
+    }
+
+    return ret;
+}
+
 void DSManager::addPublisher(Publisher * pub)
 {
     std::lock_guard<std::recursive_mutex> lock(_mtx);
     assert(_pubs[pub->getGuid()] == nullptr);
     _pubs[pub->getGuid()] = pub;
+}
+
+Publisher * DSManager::getPublisher(GUID_t & id)
+{
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    publisher_map::iterator it = _pubs.find(id);
+    if (it != _pubs.end())
+    {
+        return it->second;
+    }
+
+    return nullptr;
+}
+
+Publisher * DSManager::removePublisher(GUID_t & id)
+{
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    Publisher * ret = nullptr;
+
+    publisher_map::iterator it = _pubs.find(id);
+    if (it != _pubs.end())
+    {
+        ret = it->second;
+        _pubs.erase(it);
+    }
+
+    return ret;
+}
+
+types::DynamicPubSubType * DSManager::getType(std::string & name)
+{
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    type_map::iterator it = _types.find(name);
+    if (it != _types.end())
+    {
+        return it->second;
+    }
+
+    return nullptr;
+}
+
+types::DynamicPubSubType * DSManager::setType(std::string & type_name)
+{
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    // Create dynamic type
+    types::DynamicPubSubType* & pDt = _types[type_name];
+
+    if (!pDt)
+    {
+        pDt = xmlparser::XMLProfileManager::CreateDynamicPubSubType(type_name);
+        if (!pDt)
+        {
+            _types.erase(type_name);
+
+            LOG_ERROR("DSManager::setType couldn't create type " << type_name);
+            return nullptr;
+        }
+    }
+
+    return pDt;
 }
 
 void DSManager::loadProfiles(tinyxml2::XMLElement *profiles)
@@ -262,6 +423,14 @@ void DSManager::onTerminate()
     }
 
     _types.clear();
+
+    // remove all events
+    for (auto ptr : _events)
+    {
+        delete ptr;
+    }
+
+    _events.clear();
 }
 
 bool DSManager::isActive()
@@ -278,6 +447,28 @@ DSManager::~DSManager()
 void DSManager::loadServer(tinyxml2::XMLElement* server)
 {
     std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    // check if we need to create an event
+    std::chrono::steady_clock::time_point creation_time, removal_time;
+    creation_time = removal_time = getTime();
+
+    {
+        const char * creation_time_str = server->Attribute(s_sCreationTime.c_str());
+        if (creation_time_str)
+        {
+            int aux;
+            std::istringstream(creation_time_str) >> aux;
+            creation_time += std::chrono::seconds(aux);
+        }
+
+        const char * removal_time_str = server->Attribute(s_sRemovalTime.c_str());
+        if (removal_time_str)
+        {
+            int aux;
+            std::istringstream(removal_time_str) >> aux;
+            removal_time += std::chrono::seconds(aux);
+        }
+    }
 
     // profile name is mandatory
     const char * profile_name = server->Attribute(xmlparser::PROFILE_NAME);
@@ -375,29 +566,39 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     BuiltinAttributes & b = atts.rtps.builtin;
     assert(b.discoveryProtocol == SERVER || b.discoveryProtocol == BACKUP);
 
-    // now we create the new participant
-    Participant * pServer = Domain::createParticipant(atts,this);
+    // Create the participant or the associated events
+    DPC event(creation_time, std::move(atts), &DSManager::addServer);
 
-    if (!pServer)
+    // at least one server will be present
+    _active = true;
+
+    if (creation_time == getTime())
     {
-        LOG_ERROR("DSManager couldn't create the server " << prefix << " with profile " << profile_name);
-        return;
+        event(*this);
+    }
+    else
+    {   // late joiner
+        _events.push_back(new DPC(std::move(event)));
     }
 
-    addServer(pServer);
+    if (removal_time != getTime())
+    {
+        // early leaver
+        _events.push_back(new DPD(removal_time, guid));
+    }
 
     // Once the participant is created we create the associated endpoints
     tinyxml2::XMLElement* pub = server->FirstChildElement(xmlparser::PUBLISHER);
     while (pub)
     {
-        loadPublisher(pServer,pub);
+        loadPublisher(guid,pub);
         pub = pub->NextSiblingElement(xmlparser::PUBLISHER);
     }
 
     tinyxml2::XMLElement* sub = server->FirstChildElement(xmlparser::SUBSCRIBER);
     while (sub)
     {
-        loadSubscriber(pServer,sub);
+        loadSubscriber(guid,sub);
         sub = sub->NextSiblingElement(xmlparser::SUBSCRIBER);
     }
 }
@@ -406,6 +607,28 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
 void DSManager::loadClient(tinyxml2::XMLElement* client)
 {
     std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    // check if we need to create an event
+    std::chrono::steady_clock::time_point creation_time, removal_time;
+    creation_time = removal_time = getTime();
+
+    {
+        const char * creation_time_str = client->Attribute(s_sCreationTime.c_str());
+        if (creation_time_str)
+        {
+            int aux;
+            std::istringstream(creation_time_str) >> aux;
+            creation_time += std::chrono::seconds(aux);
+        }
+
+        const char * removal_time_str = client->Attribute(s_sRemovalTime.c_str());
+        if (removal_time_str)
+        {
+            int aux;
+            std::istringstream(removal_time_str) >> aux;
+            removal_time += std::chrono::seconds(aux);
+        }
+    }
 
     // clients are created for debugging purposes
     // profile name is mandatory because they must reference servers
@@ -504,55 +727,103 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
 
     }
 
-    // now we create the new participant
-    Participant * pClient = Domain::createParticipant(atts,this);
+    GUID_t guid(atts.rtps.prefix, c_EntityId_RTPSParticipant);
+    DPD * pD = nullptr;
+    DPC * pC = nullptr;
 
-    if (!pClient)
+    if (removal_time != getTime())
     {
-        LOG_ERROR("DSManager couldn't create a client with profile " << profile_name);
-        return;
+        // early leaver
+        pD = new DPD(removal_time, guid);
+        _events.push_back(pD);
     }
 
-    addClient(pClient);
+    // Create the participant or the associated events
+    DPC event(creation_time, std::move(atts), &DSManager::addClient,pD);
+
+    if (creation_time == getTime())
+    {
+        event(*this);
+
+        // get the client guid
+        guid = event._guid;
+    }
+    else
+    {   // late joiner
+        pC = new DPC(std::move(event));
+        _events.push_back(pC);
+    }
 
     // Once the participant is created we create the associated endpoints
     tinyxml2::XMLElement* pub = client->FirstChildElement(xmlparser::PUBLISHER);
     while (pub)
     {
-        loadPublisher(pClient,pub);
+        loadPublisher(guid,pub,pC);
         pub = pub->NextSiblingElement(xmlparser::PUBLISHER);
     }
 
     tinyxml2::XMLElement* sub = client->FirstChildElement(xmlparser::SUBSCRIBER);
     while (sub)
     {
-        loadSubscriber(pClient,sub);
+        loadSubscriber(guid,sub,pC);
         sub = sub->NextSiblingElement(xmlparser::SUBSCRIBER);
     }
 
 }
 
-void DSManager::loadSubscriber(Participant * part, tinyxml2::XMLElement* sub)
+void DSManager::loadSubscriber(GUID_t & part_guid, tinyxml2::XMLElement* sub, DPC* pLJ /*= nullptrt*/)
 {
-    assert(part != nullptr && sub != nullptr);
+    assert(sub != nullptr);
 
     std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    // retrieve participant
+    Participant * part = getParticipant(part_guid);
+
+    // check if we need to create an event
+    std::chrono::steady_clock::time_point creation_time, removal_time;
+    creation_time = removal_time = getTime();
+
+    {
+        const char * creation_time_str = sub->Attribute(s_sCreationTime.c_str());
+        if (creation_time_str)
+        {
+            int aux;
+            std::istringstream(creation_time_str) >> aux;
+            creation_time += std::chrono::seconds(aux);
+        }
+        else if (!part)
+        {
+            // late joiners must spawn late joiners
+            LOG_ERROR("DSManager::loadSubscriber tries to create a subscriber to a late joiner.");
+            return;
+        }
+
+        const char * removal_time_str = sub->Attribute(s_sRemovalTime.c_str());
+        if (removal_time_str)
+        {
+            int aux;
+            std::istringstream(removal_time_str) >> aux;
+            removal_time += std::chrono::seconds(aux);
+        }
+    }
+
 
     // subscribers are created for debugging purposes
     // default topic is the static HelloWorld one
     const char * profile_name = sub->Attribute(xmlparser::PROFILE_NAME);
 
-    SubscriberAttributes subatts;
+    SubscriberAttributes * subatts = new SubscriberAttributes();
 
     if (!profile_name)
     {
         // get default subscriber attributes
-        xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(subatts);
+        xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(*subatts);
     }
     else
     {
         // try load from profile
-        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillSubscriberAttributes(std::string(profile_name), subatts))
+        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillSubscriberAttributes(std::string(profile_name), *subatts))
         {
             LOG_ERROR("DSManager::loadSubscriber couldn't load profile " << profile_name);
             return;
@@ -564,82 +835,88 @@ void DSManager::loadSubscriber(Participant * part, tinyxml2::XMLElement* sub)
 
     if (topic_name)
     {
-        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), subatts.topic))
+        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), subatts->topic))
         {
             LOG_ERROR("DSManager::loadSubscriber couldn't load topic profile " << profile_name);
             return;
         }
     }
 
-    // check if we have topic info
-    if (subatts.topic.getTopicName() == "UNDEF")
-    {
-        // fill in default topic
-        subatts.topic = _defaultTopic;
+    DED<Subscriber> * pDE = nullptr; // subscriber destruction event
 
-        // assure the participant has default type registered
-        TopicDataType* pT = nullptr;
-        if (!Domain::getRegisteredType(part, _defaultType.getName(), &pT))
-        {
-            Domain::registerType(part, &_defaultType);
-        }
+    if (removal_time != getTime())
+    {
+        // Destruction event needs the endpoint guid 
+        // that would be provided in creation
+        pDE = new DED<Subscriber>(removal_time);
+        _events.push_back(pDE);
+    }
+
+    DEC<Subscriber> event(creation_time, subatts, part_guid, pDE, pLJ);
+
+    if (creation_time == getTime())
+    {
+        event(*this);
     }
     else
-    {
-        // assure the participant has the type registered
-        TopicDataType* pT = nullptr;
-        std::string type_name = subatts.topic.getTopicDataType();
-        if (!Domain::getRegisteredType(part, type_name.c_str() , &pT))
-        {
-            // Create dynamic type
-            types::DynamicPubSubType* pDt = xmlparser::XMLProfileManager::CreateDynamicPubSubType(type_name);
-            if (!pDt)
-            {
-                LOG_ERROR("DSManager::loadSubscriber couldn't create type " << type_name);
-                return;
-            }
-
-            // register it
-            _types[type_name] = pDt;
-            // Domain::registerDynamicType(part, pDt);
-            Domain::registerType(part, pDt);
-        }
-
+    {   // late joiner
+        _events.push_back(new DEC<Subscriber>(std::move(event)));
     }
 
-    // Create the subscriber, listener doesn't report discovery info but matching one
-    Subscriber * pSubs = Domain::createSubscriber(part, subatts, nullptr);
-
-    if (!pSubs)
-    {
-        LOG_ERROR("DSManager couldn't create a subscriber with profile " << profile_name);
-        return;
-    }
-
-    addSubscriber(pSubs);
 }
 
-void DSManager::loadPublisher(Participant * part, tinyxml2::XMLElement* sub)
+void DSManager::loadPublisher(GUID_t & part_guid, tinyxml2::XMLElement* sub, DPC* pLJ /*= nullptrt*/)
 {
-    assert(part != nullptr && sub != nullptr);
+    assert( sub != nullptr);
 
     std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    // retrieve participant
+    Participant * part = getParticipant(part_guid);
+
+    // check if we need to create an event
+    std::chrono::steady_clock::time_point creation_time, removal_time;
+    creation_time = removal_time = getTime();
+
+    {
+        const char * creation_time_str = sub->Attribute(s_sCreationTime.c_str());
+        if (creation_time_str)
+        {
+            int aux;
+            std::istringstream(creation_time_str) >> aux;
+            creation_time += std::chrono::seconds(aux);
+        }
+        else if (!part)
+        {
+            // late joiners must spawn late joiners
+            LOG_ERROR("DSManager::loadSubscriber tries to create a subscriber to a late joiner.");
+            return;
+        }
+
+        const char * removal_time_str = sub->Attribute(s_sRemovalTime.c_str());
+        if (removal_time_str)
+        {
+            int aux;
+            std::istringstream(removal_time_str) >> aux;
+            removal_time += std::chrono::seconds(aux);
+        }
+    }
 
     // subscribers are created for debugging purposes
     // default topic is the static HelloWorld one
     const char * profile_name = sub->Attribute(xmlparser::PROFILE_NAME);
 
-    PublisherAttributes pubatts;
+    PublisherAttributes * pubatts = new PublisherAttributes();
 
     if (!profile_name)
     {
         // get default subscriber attributes
-        xmlparser::XMLProfileManager::getDefaultPublisherAttributes(pubatts);
+        xmlparser::XMLProfileManager::getDefaultPublisherAttributes(*pubatts);
     }
     else
     {
         // try load from profile
-        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillPublisherAttributes(std::string(profile_name), pubatts))
+        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillPublisherAttributes(std::string(profile_name), *pubatts))
         {
             LOG_ERROR("DSManager::loadPublisher couldn't load profile " << profile_name);
             return;
@@ -651,59 +928,66 @@ void DSManager::loadPublisher(Participant * part, tinyxml2::XMLElement* sub)
 
     if (topic_name)
     {
-        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), pubatts.topic))
+        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), pubatts->topic))
         {
             LOG_ERROR("DSManager::loadPublisher couldn't load topic profile ");
             return;
         }
     }
 
-    // check if we have topic info
-    if (pubatts.topic.getTopicName() == "UNDEF")
-    {
-        // fill in default topic
-        pubatts.topic = _defaultTopic;
+    DED<Publisher> * pDE = nullptr; // subscriber destruction event
 
-        // assure the participant has default type registered
-        TopicDataType* pT = nullptr;
-        if (!Domain::getRegisteredType(part, _defaultType.getName(), &pT))
-        {
-            Domain::registerType(part, &_defaultType);
-        }
+    if (removal_time != getTime())
+    {
+        // Destruction event needs the endpoint guid 
+        // that would be provided in creation
+        pDE = new DED<Publisher>(removal_time);
+        _events.push_back(pDE);
+    }
+
+    DEC<Publisher> event(creation_time, pubatts, part_guid, pDE, pLJ);
+
+    if (creation_time == getTime())
+    {
+        event(*this);
     }
     else
-    {
-        // assure the participant has the type registered
-        TopicDataType* pT = nullptr;
-        std::string type_name = pubatts.topic.getTopicDataType();
-        if (!Domain::getRegisteredType(part, type_name.c_str(), &pT))
-        {
-            // Create dynamic type
-            types::DynamicPubSubType* pDt = xmlparser::XMLProfileManager::CreateDynamicPubSubType(type_name);
-            if (!pDt)
-            {
-                LOG_ERROR("DSManager::loadPublisher couldn't create type " << type_name);
-                return;
-            }
-
-            // register it
-            _types[type_name] = pDt;
-            // Domain::registerDynamicType(part, pDt);
-            Domain::registerType(part, pDt);
-        }
-
+    {   // late joiner
+       _events.push_back(new DEC<Publisher>(std::move(event)));
     }
+}
 
-    // Create the subscriber, listener doesn't report discovery info but matching one
-    Publisher * pPubs = Domain::createPublisher(part, pubatts, nullptr);
+std::chrono::steady_clock::time_point DSManager::getTime() const
+{
+    return _state.getTime();
+}
 
-    if (!pPubs)
+void DSManager::loadSnapshot(tinyxml2::XMLElement* snapshot)
+{
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    // snapshots are created for debugging purposes
+    // time is mandatory 
+    const char * time_str = snapshot->Attribute(s_sTime.c_str());
+    
+    if (!time_str)
     {
-        LOG_ERROR("DSManager couldn't create a subscriber with profile " << profile_name);
+        LOG_ERROR(s_sTime << " is a mandatory attribute of " << s_sSnapshot << " tag");
         return;
     }
 
-    addPublisher(pPubs);
+    std::chrono::steady_clock::time_point time(getTime());
+    {
+        int aux;
+        std::istringstream(time_str) >> aux;
+        time += std::chrono::seconds(aux);
+    }
+
+    // Get the description from the tag
+    std::string description(snapshot->GetText());
+
+    // Add the event
+    _events.push_back(new DS(time, description));
 }
 
 
@@ -881,7 +1165,7 @@ void DSManager::onSubscriberDiscovery(Participant* participant, rtps::ReaderDisc
 
     if (part_name.empty())
     {   // if remote use prefix instead of name
-        part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
+        part_name = (std::ostringstream() << partid).str();
     }
 
     _state.AddSubscriber(participant->getGuid(),partid, subsid, info.info.typeName(), info.info.topicName());
@@ -927,7 +1211,7 @@ void  DSManager::onPublisherDiscovery(Participant* participant, rtps::WriterDisc
 
     if (part_name.empty())
     {   // if remote use prefix instead of name
-        part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
+        part_name = (std::ostringstream() << partid).str();
     }
 
     _state.AddPublisher(participant->getGuid(), partid, pubsid, info.info.typeName(), info.info.topicName());
@@ -998,11 +1282,29 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& o, WriterDisc
 }
 
 
-bool DSManager::allKnowEachOther()
+bool DSManager::allKnowEachOther() const
 {
     // Get a copy of current state
     Snapshot shot = _state.GetState();
+    return allKnowEachOther(shot);
+}
 
+Snapshot& DSManager::takeSnapshot(const std::chrono::steady_clock::time_point tp, std::string & desc/* = std::string()*/)
+{
+    std::lock_guard<std::recursive_mutex> lock(_mtx);
+
+    _snapshots.push_back(_state.GetState());
+
+   Snapshot & shot = _snapshots.back();
+   shot._time = tp;
+   shot._des = desc;
+
+   return shot;
+}
+
+/*static*/ 
+bool DSManager::allKnowEachOther(Snapshot & shot)
+{
     // traverse snapshot comparing each member with each other
     Snapshot::const_iterator it1, it2;
     it2 = it1 = shot.cbegin();

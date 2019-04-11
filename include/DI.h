@@ -22,6 +22,7 @@
 #include <vector>
 #include <mutex>
 #include <chrono>
+#include <string>
 
 namespace eprosima {
     namespace discovery_server {
@@ -194,9 +195,13 @@ namespace eprosima {
         struct Snapshot : public std::set<PtDB>
         {
             // snapshot time
-            std::chrono::high_resolution_clock::time_point _time;
+            std::chrono::steady_clock::time_point _time;
 
-            Snapshot(std::chrono::high_resolution_clock::time_point t) : _time(t) {}
+            // description
+            std::string _des;
+
+            Snapshot(std::chrono::steady_clock::time_point t) : _time(t) {}
+            Snapshot(std::chrono::steady_clock::time_point t, std::string & des) : _time(t), _des(des) {}
 
             Snapshot() = delete;
             Snapshot(const Snapshot&) = default;
@@ -227,7 +232,10 @@ namespace eprosima {
                 bool RemoveEndPoint(T&(PtDI::* m)() const, const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & sid);
 
         public:
-            DI_database() : _participants(std::chrono::high_resolution_clock::now()) {}
+            DI_database() : _participants(std::chrono::steady_clock::now()) {}
+
+            //! Get Snapshot time
+            std::chrono::steady_clock::time_point getTime() const { return _participants._time;  }
 
             //! Returns a pointer to the PtDI or null if not found
             std::vector<const PtDI*> FindParticipant(const GUID_t & ptid) const;
