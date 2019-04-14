@@ -81,21 +81,20 @@ find_package(OpenSSL REQUIRED)
 
 # at present we are going to ignore all packaging, examples and test paraphernalia.
 
-# we configure server log level, note the definitions which are pass to the compiler
-# error logs defaults to ON
+# we configure server log level
 
 IF (NOT DEFINED LOG_LEVEL_INFO)
-    SET(LOG_LEVEL_INFO OFF)
+    SET(LOG_LEVEL_INFO 0)
 ENDIF()
 ADD_DEFINITIONS(-DLOG_LEVEL_INFO=${LOG_LEVEL_INFO})
 
 IF (NOT DEFINED LOG_LEVEL_WARN)
-    SET(LOG_LEVEL_WARN OFF)
+    SET(LOG_LEVEL_WARN 0)
 ENDIF()
 ADD_DEFINITIONS(-DLOG_LEVEL_WARN=${LOG_LEVEL_WARN})
 
 IF (NOT DEFINED LOG_LEVEL_ERROR)
-    SET(LOG_LEVEL_ERROR ON)
+    SET(LOG_LEVEL_ERROR 1)
 ENDIF()
 ADD_DEFINITIONS(-DLOG_LEVEL_ERROR=${LOG_LEVEL_ERROR})
 

@@ -27,16 +27,16 @@
 #cmakedefine LOG_LEVEL_ERROR
 #endif
 
-#ifdef LOG_LEVEL_INFO
+#if defined LOG_LEVEL_INFO && LOG_LEVEL_INFO  
     #define _INTERNALDEBUG
     #undef LOG_NO_INFO
     #undef LOG_NO_WARN
     #undef LOG_NO_ERROR
-#elif LOG_LEVEL_WARN
+#elif defined LOG_LEVEL_WARN && LOG_LEVEL_WARN 
     #define LOG_NO_INFO
     #undef LOG_NO_WARN
     #undef LOG_NO_ERROR
-#elif LOG_LEVEL_ERROR
+#elif defined LOG_LEVEL_ERROR && LOG_LEVEL_ERROR 
     #define LOG_NO_INFO
     #define LOG_NO_WARN
     #undef LOG_NO_ERROR
