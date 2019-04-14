@@ -23,6 +23,7 @@
 
 #include "DSManager.h"
 
+#include <iostream>
 #include <sstream>
 
 
@@ -45,6 +46,7 @@ static const std::string s_sCreationTime("creation_time");
 static const std::string s_sRemovalTime("removal_time");
 static const std::string s_sSnapshot("snapshot");
 static const std::string s_sSnapshots("snapshots");
+static const std::string s_sUserShutdown("user_shutdown");
 
 // non exported from fast-RTPS (watch out they are updated)
 namespace eprosima{
@@ -70,10 +72,8 @@ HelloWorldPubSubType DSManager::_defaultType;
 TopicAttributes DSManager::_defaultTopic("HelloWorldTopic", "HelloWorld");
 
 DSManager::DSManager(const std::string &xml_file_path)
-    : _active(false), _nocallbacks(false)
+    : _active(false), _nocallbacks(false), _shutdown(false)
 {
-    //Log::SetVerbosity(Log::Warning);
-
     tinyxml2::XMLDocument doc;
     if (doc.LoadFile(xml_file_path.c_str()) == tinyxml2::XMLError::XML_SUCCESS)
     {
@@ -83,6 +83,9 @@ DSManager::DSManager(const std::string &xml_file_path)
             LOG("Invalid config file");
             return;
         }
+
+        // try load the user_shutdown attribute
+        _shutdown = !root->BoolAttribute(s_sUserShutdown.c_str(),!_shutdown);
 
         for (auto child = doc.FirstChildElement(s_sDS.c_str());
             child != nullptr; child = child->NextSiblingElement(s_sDS.c_str()))
@@ -179,7 +182,7 @@ DSManager::DSManager(const std::string &xml_file_path)
     LOG_INFO("File " << xml_file_path << " parsed successfully.");
 }
 
-void DSManager::runEvents()
+void DSManager::runEvents(std::istream& in /*= std::cin*/, std::ostream& out /*= std::cout*/)
 {
     // Order the event list
     std::sort(_events.begin(), _events.end(), [](LJD* p1, LJD* p2) -> bool { return *p1 < *p2; });
@@ -191,6 +194,14 @@ void DSManager::runEvents()
         p->Wait();
         // execute
         (*p)(*this);
+    }
+
+    // Wait for user shutdown
+    if (!_shutdown)
+    {
+        out << "\n### Discovery Server is running, press any key to quit ###" << std::endl;
+        out.flush();
+        in.ignore();
     }
 }
 
@@ -1303,7 +1314,7 @@ Snapshot& DSManager::takeSnapshot(const std::chrono::steady_clock::time_point tp
 }
 
 /*static*/ 
-bool DSManager::allKnowEachOther(Snapshot & shot)
+bool DSManager::allKnowEachOther(const Snapshot & shot)
 {
     // traverse snapshot comparing each member with each other
     Snapshot::const_iterator it1, it2;
@@ -1318,4 +1329,19 @@ bool DSManager::allKnowEachOther(Snapshot & shot)
 
     return it2 == shot.cend();
 
+}
+
+bool DSManager::validateAllSnapshots() const
+{
+    // traverse the list of snapshots validating then
+    bool works = true;
+    
+    for (const Snapshot &sh : _snapshots)
+    {
+        works &= DSManager::allKnowEachOther(sh);
+        std::cout << sh << std::endl;
+        // LOG_INFO(sh)
+    }
+
+    return works;
 }

@@ -89,7 +89,8 @@ namespace eprosima {
             snapshots_list _snapshots;
 
             bool _active;
-            bool _nocallbacks; // ongoing participant destruction
+            bool _nocallbacks;  // ongoing participant destruction
+            bool _shutdown;     // close when event processing is finished?
 
             void loadProfiles(tinyxml2::XMLElement *profiles);
             void loadServer(tinyxml2::XMLElement* server);
@@ -108,12 +109,13 @@ namespace eprosima {
             bool isActive();
 
             // testing database
+            bool validateAllSnapshots() const;
             bool allKnowEachOther() const;
-            static bool allKnowEachOther(Snapshot & shot);
+            static bool allKnowEachOther(const Snapshot& shot);
             Snapshot&  takeSnapshot(const std::chrono::steady_clock::time_point tp, std::string & desc = std::string());
 
             // processing events
-            void runEvents();
+            void runEvents(std::istream& in = std::cin, std::ostream& out = std::cout);
 
             // update entity state functions
             void addServer(Participant* b);

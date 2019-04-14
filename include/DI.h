@@ -17,12 +17,14 @@
 #define _DI_H_
 
 #include <fastrtps/rtps/common/Guid.h>
+#include <ctime>
 #include <set>
 #include <map>
 #include <vector>
 #include <mutex>
 #include <chrono>
 #include <string>
+#include <ostream>
 
 namespace eprosima {
     namespace discovery_server {
@@ -82,6 +84,8 @@ namespace eprosima {
             bool operator==(const PDI&) const;
         };
 
+        std::ostream& operator<<(std::ostream&, const PDI&);
+
         //! subscriber specific info
         struct SDI : public DI
         {
@@ -106,6 +110,8 @@ namespace eprosima {
             //! comparissons
             bool operator==(const SDI&) const;
         };
+
+        std::ostream& operator<<(std::ostream&, const SDI&);
 
         //! participant discovery info
         struct PtDI : public DI
@@ -174,6 +180,8 @@ namespace eprosima {
 
         };
 
+        std::ostream& operator<<(std::ostream&, const PtDI&);
+
         //! database, all discovery info associated with a participant
         struct PtDB : public DI, public std::set<PtDI>
         {
@@ -190,6 +198,7 @@ namespace eprosima {
         };
 
         bool operator==(const PtDB &, const  PtDB &);
+        std::ostream& operator<<(std::ostream&, const PtDB&);
 
         //! Snapshot, discovery info associated with all participants
         struct Snapshot : public std::set<PtDB>
@@ -197,10 +206,15 @@ namespace eprosima {
             // snapshot time
             std::chrono::steady_clock::time_point _time;
 
+            // time conversions auxiliary
+            static std::chrono::system_clock::time_point _sy_ck;
+            static std::chrono::steady_clock::time_point _st_ck;
+            const std::time_t getSystemTime() const;
+
             // description
             std::string _des;
 
-            Snapshot(std::chrono::steady_clock::time_point t) : _time(t) {}
+            explicit Snapshot(std::chrono::steady_clock::time_point t) : _time(t) {}
             Snapshot(std::chrono::steady_clock::time_point t, std::string & des) : _time(t), _des(des) {}
 
             Snapshot() = delete;
@@ -212,6 +226,8 @@ namespace eprosima {
             PtDB & operator[](const GUID_t &);
             const PtDB * operator[](const GUID_t &) const;
         };
+
+        std::ostream& operator<<(std::ostream&, const Snapshot&);
 
         //! DI_database, auxiliary class to populate and manage Snapshots
         class DI_database

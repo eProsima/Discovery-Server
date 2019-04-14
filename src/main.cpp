@@ -14,13 +14,15 @@ using namespace discovery_server;
 int main(int argc, char * argv[])
 {
     // Initialize loging
-    #ifdef LOG_LEVEL_INFO
+    #if LOG_LEVEL_INFO
         Log::SetVerbosity(Log::Kind::Info);
     #elif LOG_LEVEL_WARN
         Log::SetVerbosity(Log::Kind::Warning);
     #elif LOG_LEVEL_ERROR
         Log::SetVerbosity(Log::Kind::Error);
     #endif
+
+    Log::SetCategoryFilter(std::regex("DISCOVERY_SERVER|SERVER_PDP_THREAD"));
 
     if (!(argc > 1))
     {
@@ -34,12 +36,10 @@ int main(int argc, char * argv[])
 
         if (manager.isActive())
         {
-            manager.runEvents();
-
-            //std::cout << "\n### Discovery Server is running, press any key to quit ###" << std::endl;
-            //fflush(stdout);
-            //std::cin.ignore();
-
+            // Follow the config file instructions
+            manager.runEvents(std::cin, std::cout);
+            // Check the snapshots taken
+            manager.validateAllSnapshots();
         }
         else
         {

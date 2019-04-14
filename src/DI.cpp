@@ -59,12 +59,24 @@ bool PDI::operator==(const PDI & p) const
         && _topicName == p._topicName;
 }
 
+std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PDI& di)
+{
+    return os << "Publisher " << di._id << " TypeName: " << di._typeName
+        << " TopicName: " << di._topicName;
+}
+
 // subscriber discovery item operations
 bool SDI::operator==(const SDI & p) const
 {
     return DI::operator==(p)
         && _typeName == p._typeName
         && _topicName == p._topicName;
+}
+
+std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const SDI& di)
+{
+    return os << "Subscriber " << di._id << " TypeName: " << di._typeName
+        << " TopicName: " << di._topicName;
 }
 
 // participant discovery item operations
@@ -87,6 +99,45 @@ bool PtDI::operator!=(const PtDI & p) const
         // || this->_name != p._name // own participant may not be aware
         || this->_publishers != p._publishers
         || this->_subscribers != p._subscribers;
+}
+
+std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtDI& di)
+{
+    os << "Participant ";
+
+    if (!di._name.empty())
+    {
+        os << di._name << ' ';
+    }
+
+    os << di._id;
+    
+    if ( di.CountEndpoints() > 0 )
+    {
+        os << " has:" << std::endl;
+    }
+
+    if (di._publishers.size())
+    {
+        os << '\t' << di._publishers.size() << " publishers:" << std::endl;
+
+        for ( const PDI & pdi : di._publishers )
+        {
+            os << "\t\t" << pdi << std::endl;
+        }
+    }
+
+    if (di._subscribers.size())
+    {
+        os << '\t' << di._subscribers.size() << " subscribers:" << std::endl;
+
+        for (const SDI & sdi : di._subscribers)
+        {
+            os << "\t\t" << sdi << std::endl;
+        }
+    }
+
+    return os;
 }
 
 bool PtDI::operator[](const PDI & p) const
@@ -112,6 +163,29 @@ void PtDI::acknowledge(bool alive) const
 PtDI::size_type PtDI::CountEndpoints() const
 {
     return  _publishers.size() + _subscribers.size();
+}
+
+std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtDB& db)
+{
+    os << " Participant " << db._id << " discovered: " << std::endl;
+
+    for (const PtDI & pt : db)
+    {
+        os << pt << std::endl;
+    }
+
+    return os;
+}
+
+// Time conversion auxiliary
+std::chrono::system_clock::time_point Snapshot::_sy_ck(std::chrono::system_clock::now());
+std::chrono::steady_clock::time_point Snapshot::_st_ck(std::chrono::steady_clock::now());
+
+const std::time_t Snapshot::getSystemTime() const
+{
+    using namespace std::chrono;
+
+    return system_clock::to_time_t(_sy_ck + duration_cast<system_clock::duration>(_time - _st_ck));
 }
 
 // DI_database methods
@@ -475,4 +549,18 @@ const PtDB * Snapshot::operator[](const GUID_t & id) const
     }
 
     return &*it;
+}
+
+std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const Snapshot& shot)
+{
+    time_t time = shot.getSystemTime();
+    os << "Snapshot taken at " << ctime(&time) << " description: " << shot._des << std::endl;
+    os << shot.size() << " participants report the following discovery info:" << std::endl;
+
+    for (const PtDB& db : shot)
+    {
+        os << db << std::endl;
+    }
+
+    return os;
 }
