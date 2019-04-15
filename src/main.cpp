@@ -22,7 +22,8 @@ int main(int argc, char * argv[])
         Log::SetVerbosity(Log::Kind::Error);
     #endif
 
-    Log::SetCategoryFilter(std::regex("DISCOVERY_SERVER|SERVER_PDP_THREAD"));
+    Log::SetCategoryFilter(std::regex("(DISCOVERY_SERVER)|(SERVER_PDP_THREAD)|(CLIENT_PDP_THREAD)"));
+    // Log::SetCategoryFilter(std::regex("(SERVER_PDP_THREAD)|(CLIENT_PDP_THREAD)"));
 
     if (!(argc > 1))
     {
@@ -39,7 +40,8 @@ int main(int argc, char * argv[])
             // Follow the config file instructions
             manager.runEvents(std::cin, std::cout);
             // Check the snapshots taken
-            manager.validateAllSnapshots();
+            if (!manager.validateAllSnapshots())
+                std::cout << "Discovery Server error: several snapshots show info leakage";
         }
         else
         {

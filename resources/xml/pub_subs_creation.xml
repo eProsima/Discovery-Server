@@ -15,13 +15,13 @@
   <clients>
     
     <client name="client1" profile_name="UDP client" creation_time="20"  >
-      <subscriber creation_time="32"  />
-      <subscriber topic="topic 2" creation_time="34"  />
-      <subscriber profile_name="Sub 1" creation_time="36" />
-      <publisher profile_name="Pub 2" creation_time="38" removal_time="40"/>
+      <subscriber creation_time="22"  />
+      <subscriber topic="topic 2" creation_time="24"  />
+      <subscriber profile_name="Sub 1" creation_time="26" />
+      <publisher profile_name="Pub 2" creation_time="28" removal_time="40"/>
     </client>
     
-    <client name="client2" profile_name="UDP client" >
+    <client name="client2" profile_name="UDP client" removal_time="50" >
       <publisher />
       <publisher topic="topic 1"/>
       <publisher profile_name="Pub 1" removal_time="45"/>
@@ -31,15 +31,10 @@
   </clients>
 
   <snapshots>
-    <snapshot time="15">
-        First snapshot after the creation of the server
-    </snapshot>
-    <snapshot time="40">
-        First snapshot after the creation of the client1
-    </snapshot>
-    <snapshot time="60">
-      Final snapshot before destruction
-    </snapshot>
+    <snapshot time="15">First snapshot after the creation of the server</snapshot>
+    <snapshot time="30">Snapshot after the creation of the client1</snapshot>
+    <snapshot time="30">Snapshot after client2 publisher removal</snapshot>  
+    <snapshot time="60">Final snapshot before destruction</snapshot>
   </snapshots>
 
   <profiles>
@@ -66,9 +61,6 @@
       <rtps>
         <builtin>
           <discoveryProtocol>CLIENT</discoveryProtocol>
-          <clientAnnouncementPeriod>
-            <sec>1</sec>
-          </clientAnnouncementPeriod>
           <discoveryServersList>
             <RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
               <metatrafficUnicastLocatorList>

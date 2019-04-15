@@ -57,7 +57,7 @@ void DPD::operator()(DSManager & man) /*override*/
 
 void DPD::SetGuid(const GUID_t& id)
 {
-    if (_id == GUID_t::unknown())
+    if (id != GUID_t::unknown())
     {
         _id = id; // update
     }

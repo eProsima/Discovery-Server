@@ -15,6 +15,8 @@
 #include <cassert>
 #include <algorithm>
 #include <iterator>
+#include <sstream>
+#include <iomanip>
 #include "DI.h"
 
 using namespace eprosima::discovery_server;
@@ -103,7 +105,7 @@ bool PtDI::operator!=(const PtDI & p) const
 
 std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtDI& di)
 {
-    os << "Participant ";
+    os << "\t Participant ";
 
     if (!di._name.empty())
     {
@@ -119,21 +121,21 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtD
 
     if (di._publishers.size())
     {
-        os << '\t' << di._publishers.size() << " publishers:" << std::endl;
+        os << "\t\t" << di._publishers.size() << " publishers:" << std::endl;
 
         for ( const PDI & pdi : di._publishers )
         {
-            os << "\t\t" << pdi << std::endl;
+            os << "\t\t\t" << pdi << std::endl;
         }
     }
 
     if (di._subscribers.size())
     {
-        os << '\t' << di._subscribers.size() << " subscribers:" << std::endl;
+        os << "\t\t" << di._subscribers.size() << " subscribers:" << std::endl;
 
         for (const SDI & sdi : di._subscribers)
         {
-            os << "\t\t" << sdi << std::endl;
+            os << "\t\t\t" << sdi << std::endl;
         }
     }
 
@@ -167,7 +169,7 @@ PtDI::size_type PtDI::CountEndpoints() const
 
 std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtDB& db)
 {
-    os << " Participant " << db._id << " discovered: " << std::endl;
+    os << "Participant " << db._id << " discovered: " << std::endl;
 
     for (const PtDI & pt : db)
     {
@@ -553,8 +555,23 @@ const PtDB * Snapshot::operator[](const GUID_t & id) const
 
 std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const Snapshot& shot)
 {
-    time_t time = shot.getSystemTime();
-    os << "Snapshot taken at " << ctime(&time) << " description: " << shot._des << std::endl;
+    std::string timestamp;
+
+    {
+        std::time_t time = shot.getSystemTime();
+        std::ostringstream stream;
+
+#if defined(_WIN32)
+        struct tm timeinfo;
+        localtime_s(&timeinfo, &time);
+        stream << std::put_time(&timeinfo, "%F %T");
+#else
+        stream << std::put_time(localtime(&time), "%F %T");
+#endif
+        timestamp = stream.str();
+    }
+
+    os << "Snapshot taken at " << timestamp << " description: " << shot._des << std::endl;
     os << shot.size() << " participants report the following discovery info:" << std::endl;
 
     for (const PtDB& db : shot)

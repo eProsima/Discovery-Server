@@ -245,6 +245,19 @@ Participant * DSManager::removeParticipant(GUID_t & id)
 
     Participant * ret = nullptr;
 
+    // remove any related pubs-subs
+    {
+        publisher_map paux;
+        std::remove_copy_if(_pubs.begin(), _pubs.end(), std::inserter(paux, paux.begin()),
+            [&id](publisher_map::value_type it) { return id.guidPrefix == it.first.guidPrefix; });
+        _pubs.swap(paux);
+
+        subscriber_map saux;
+        std::remove_copy_if(_subs.begin(), _subs.end(), std::inserter(saux, saux.begin()),
+            [&id](subscriber_map::value_type it) { return id.guidPrefix == it.first.guidPrefix; });
+        _subs.swap(saux);
+    }
+
     // first in clients
     participant_map::iterator it = _clients.find(id);
     if (it != _clients.end())
@@ -1334,14 +1347,20 @@ bool DSManager::allKnowEachOther(const Snapshot & shot)
 bool DSManager::validateAllSnapshots() const
 {
     // traverse the list of snapshots validating then
-    bool works = true;
+    bool work_it_all = true;
     
     for (const Snapshot &sh : _snapshots)
     {
-        works &= DSManager::allKnowEachOther(sh);
-        std::cout << sh << std::endl;
-        // LOG_INFO(sh)
+        if (DSManager::allKnowEachOther(sh))
+        {
+            LOG_INFO(sh)
+        }
+        else
+        {
+            work_it_all = false;
+            LOG_ERROR(sh);
+        }
     }
 
-    return works;
+    return work_it_all;
 }

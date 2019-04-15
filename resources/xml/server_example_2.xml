@@ -39,9 +39,6 @@
       <rtps>
         <builtin>
           <discoveryProtocol>CLIENT</discoveryProtocol>
-          <clientAnnouncementPeriod>
-            <sec>1</sec>
-          </clientAnnouncementPeriod>
           <discoveryServersList>
             <RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
               <metatrafficUnicastLocatorList>
