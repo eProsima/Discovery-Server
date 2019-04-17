@@ -260,6 +260,8 @@ namespace eprosima {
             bool AddParticipant(const GUID_t& spokesman, const GUID_t & ptid, const std::string& name = std::string(), bool server = false);
             //! Removes a participant, returns false if no there
             bool RemoveParticipant(const GUID_t& spokesman, const GUID_t & ptid);
+            //! Removes a participant PtDB from the Snapshot
+            bool RemoveParticipant(const GUID_t& deceased);
 
             //! Adds a new Subscriber, returns false if allocation fails
             bool AddSubscriber(const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & sid, const std::string& _typename, const std::string & topicname);

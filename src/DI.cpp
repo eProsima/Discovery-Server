@@ -240,6 +240,13 @@ bool DI_database::AddParticipant(const GUID_t& spokesman, const GUID_t& ptid, co
 
 }
 
+bool DI_database::RemoveParticipant(const GUID_t& deceased)
+{
+    std::lock_guard<std::mutex> lock(_mtx);
+
+    return _participants.erase(deceased) != 0;
+}
+
 bool DI_database::RemoveParticipant(const GUID_t& spokesman, const GUID_t & ptid)
 {
     std::lock_guard<std::mutex> lock(_mtx);

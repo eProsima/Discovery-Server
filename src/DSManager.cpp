@@ -238,6 +238,9 @@ Participant * DSManager::removeParticipant(GUID_t & id)
 
     Participant * ret = nullptr;
 
+    // update database
+    _state.RemoveParticipant(id);
+
     // remove any related pubs-subs
     {
         publisher_map paux;
