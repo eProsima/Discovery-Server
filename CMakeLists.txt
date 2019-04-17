@@ -62,6 +62,10 @@ if(MSVC OR MSVC_IDE)
     check_msvc_arch()
 endif()
 
+###############################################################################
+# Load external dependencies
+###############################################################################
+
 # UNTIL REACHING COLCON AWARENESS WE WILL GIVE SOME LOCAL CLUES TO CMAKE TO FIND PACKAGES ;-) ;-) ;-) ;-) ;-) ;-) ;-)
 # set(CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/cmake/modules ${CMAKE_PREFIX_PATH} ) # note that adding this to CMAKE_PREFIX_PATH
 # may not be necessary if the cmake folder shares folder with this CMakeList.txt
@@ -82,7 +86,9 @@ find_package(OpenSSL REQUIRED)
 
 # at present we are going to ignore all packaging, examples and test paraphernalia.
 
-# we configure server log level
+###############################################################################
+# Logging
+###############################################################################
 
 IF (NOT DEFINED LOG_LEVEL_INFO)
     SET(LOG_LEVEL_INFO 0)
@@ -99,9 +105,11 @@ IF (NOT DEFINED LOG_LEVEL_ERROR)
 ENDIF()
 ADD_DEFINITIONS(-DLOG_LEVEL_ERROR=${LOG_LEVEL_ERROR})
 
-# Generate the version and log header files
-
 configure_file(${PROJECT_SOURCE_DIR}/src/DSLog.h.in ${PROJECT_SOURCE_DIR}/include/log/DSLog.h @ONLY)
+
+###############################################################################
+# Versioning
+###############################################################################
 
 # Generate a config.h with version global variables from a template and copy to the current build dir.
 # project() doesn't create 0 valued version variables. We must workaround it.
@@ -113,7 +121,6 @@ foreach( version_var PROJECT_VERSION_MAJOR PROJECT_VERSION_MINOR PROJECT_VERSION
 	endif()
 endforeach()
 
-
 configure_file(${PROJECT_SOURCE_DIR}/src/config.h.in ${PROJECT_SOURCE_DIR}/include/version/config.h @ONLY)
 
 # we leave the project() generated variables as they were before
@@ -121,6 +128,10 @@ foreach( version_var IN LISTS version_unset)
 	unset( ${version_var} )
 endforeach()
 unset(version_unset)
+
+###############################################################################
+# Compilation
+###############################################################################
 
 # Create the target and its dependencies, note that variable PROJECT_NAME is created by the closest project()
 # called in the current directory scope or above.
@@ -230,7 +241,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr tinyxml2)
 set_target_properties(${PROJECT_NAME} PROPERTIES RELEASE_POSTFIX -${PROJECT_VERSION})
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX -${PROJECT_VERSION}d)
 
-# old fashion installation
+###############################################################################
+# Installation 
+###############################################################################
 
 if(WIN32)
 	set(INSTALL_PER_USER true CACHE BOOL "Windows per user installation mode")
@@ -283,7 +296,11 @@ install(FILES ${PROJECT_SOURCE_DIR}/license/LICENSE
     DESTINATION ${LICENSE_INSTALL_DIR}
     )
 	
-# Adding testing capabilities
+
+###############################################################################
+# Testing 
+###############################################################################
+
 enable_testing()
 
 # testing enviromental variables
@@ -376,3 +393,11 @@ if(WIN32)
 
 endif()
 
+###############################################################################
+# Examples
+###############################################################################
+option(COMPILE_EXAMPLES "Build example" OFF)
+
+if(COMPILE_EXAMPLES)
+    add_subdirectory(examples/HelloWorldExampleDS)
+endif()
