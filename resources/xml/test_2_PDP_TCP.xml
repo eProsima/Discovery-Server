@@ -4,7 +4,7 @@
   <!-- This test merely assess the clients can locate a TCP server -->
   
   <servers>
-    <server name="server" prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f" profile_name="TCP server" />
+    <server name="server" profile_name="TCP server" />
   </servers>
 
   <clients>

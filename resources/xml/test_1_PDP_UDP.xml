@@ -4,7 +4,7 @@
   <!-- This test merely assess the clients can locate a UDP server -->
   
   <servers>
-    <server name="server" prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f" profile_name="UDP server" />
+    <server name="server" profile_name="UDP server" />
   </servers>
 
   <clients>

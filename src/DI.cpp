@@ -488,7 +488,7 @@ bool eprosima::discovery_server::operator==(const PtDB & l,const PtDB & r)
             // finish simultaneously or differ only in
             // each other discovery data
             return (rit == r.end()
-                || (rit->_id == l._id && r.end() == ++rit));
+                || (rit->_id == r._id && r.end() == ++rit));
         }
 
         if (rit == r.end())
@@ -496,7 +496,7 @@ bool eprosima::discovery_server::operator==(const PtDB & l,const PtDB & r)
             // finish simultaneously or differ only in
             // each other discovery data
             return (lit == l.end()
-                || (lit->_id == r._id && l.end() == ++lit));
+                || (lit->_id == l._id && l.end() == ++lit));
         }
 
         // comparing elements
