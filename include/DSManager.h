@@ -88,7 +88,6 @@ namespace eprosima {
             // Snapshops container
             snapshots_list _snapshots;
 
-            bool _active;
             bool _nocallbacks;  // ongoing participant destruction
             bool _shutdown;     // close when event processing is finished?
 
@@ -106,7 +105,6 @@ namespace eprosima {
         public:
             DSManager(const std::string &xml_file_path);
             ~DSManager();
-            bool isActive();
 
             // testing database
             bool validateAllSnapshots() const;

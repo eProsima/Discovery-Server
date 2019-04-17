@@ -31,28 +31,25 @@ int main(int argc, char * argv[])
     }
 
     std::string path_to_config = argv[1];
+    int return_code = 0;
     
     {
         DSManager manager(path_to_config);
 
-        if (manager.isActive())
-        {
-            // Follow the config file instructions
-            manager.runEvents(std::cin, std::cout);
-            // Check the snapshots taken
-            if (!manager.validateAllSnapshots())
-                std::cout << "Discovery Server error: several snapshots show info leakage";
-        }
-        else
-        {
-            std::cout << "Discovery Server error: no active servers" << std::endl;
-        }
+        // Follow the config file instructions
+        manager.runEvents(std::cin, std::cout);
 
+        // Check the snapshots taken
+        if (!manager.validateAllSnapshots())
+        {
+            std::cout << "Discovery Server error: several snapshots show info leakage";
+            return_code = -1; // report CTest the test fail
+        }
     }
     
     Domain::stopAll();
     Log::Reset();
 
-    return 0;
+    return return_code;
 
 }

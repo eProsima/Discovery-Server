@@ -72,7 +72,7 @@ HelloWorldPubSubType DSManager::_defaultType;
 TopicAttributes DSManager::_defaultTopic("HelloWorldTopic", "HelloWorld");
 
 DSManager::DSManager(const std::string &xml_file_path)
-    : _active(false), _nocallbacks(false), _shutdown(false)
+    : _nocallbacks(false), _shutdown(false)
 {
     tinyxml2::XMLDocument doc;
     if (doc.LoadFile(xml_file_path.c_str()) == tinyxml2::XMLError::XML_SUCCESS)
@@ -167,12 +167,6 @@ DSManager::DSManager(const std::string &xml_file_path)
             }
 
         }
-
-        // at least one server must be created from config file
-        if (_servers.size() > 0)
-        {
-            _active = true;
-        }
     }
     else
     {
@@ -211,7 +205,6 @@ void DSManager::addServer(Participant* s)
     assert(_servers[s->getGuid()] == nullptr);
 
     _servers[s->getGuid()] = s;
-    _active = true;
 }
 
 void DSManager::addClient(Participant* c)
@@ -457,12 +450,6 @@ void DSManager::onTerminate()
     _events.clear();
 }
 
-bool DSManager::isActive()
-{
-    return _active;
-}
-
-
 DSManager::~DSManager()
 {
     onTerminate();
@@ -592,9 +579,6 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
 
     // Create the participant or the associated events
     DPC event(creation_time, std::move(atts), &DSManager::addServer);
-
-    // at least one server will be present
-    _active = true;
 
     if (creation_time == getTime())
     {

@@ -63,7 +63,8 @@ if(MSVC OR MSVC_IDE)
 endif()
 
 # UNTIL REACHING COLCON AWARENESS WE WILL GIVE SOME LOCAL CLUES TO CMAKE TO FIND PACKAGES ;-) ;-) ;-) ;-) ;-) ;-) ;-)
-# set(CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/cmake/modules ${CMAKE_PREFIX_PATH} )
+# set(CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/cmake/modules ${CMAKE_PREFIX_PATH} ) # note that adding this to CMAKE_PREFIX_PATH
+# may not be necessary if the cmake folder shares folder with this CMakeList.txt
 # CONFIG FILES CAN BE FOUND IN DIRECTORY MODULES, REMEMBER TO REMOVE THEM WHEN COLCON ENABLED:
 #	fastcdr-config-version.cmake	fastrtps-config-version.cmake
 #	fastcdr-config.cmake			fastrtps-config.cmake
@@ -126,11 +127,17 @@ unset(version_unset)
 # We must populate this variables as project sources grow
 
 # Set fast-RTPS source files
+
+# add fast headers to enable class view on visual studio IDE
 if (WIN32)
-file(GLOB_RECURSE ALL_FAST_HEADERS
-	"C:/Users/MiguelBarro/Documents/Fast-RTPS/include/**/*.h"
-	"C:/Users/MiguelBarro/Documents/Fast-RTPS/include/**/*.hpp"
-	)  #TODO: remove when development process is finished
+	get_target_property(FAST_INCLUDE_DIR fastrtps INTERFACE_INCLUDE_DIRECTORIES)
+	list(GET FAST_INCLUDE_DIR 0 FAST_INCLUDE_DIR)
+	#get_filename_component(FAST_INCLUDE_DIR "${FAST_INCLUDE_DIR}" DIRECTORY )
+
+	file(GLOB_RECURSE ALL_FAST_HEADERS
+		"${FAST_INCLUDE_DIR}/**/*.h"
+		"${FAST_INCLUDE_DIR}/**/*.hpp"
+		)  
 endif(WIN32)
 
 # xml test files
@@ -181,6 +188,12 @@ source_group(resources\\xsd FILES ${${PROJECT_NAME}_schema_files} )
 source_group(resources\\xml FILES ${${PROJECT_NAME}_xml_tests} )
 source_group(resources\\static_types FILES ${${PROJECT_NAME}_static_types} )
 
+# path to xml test TEST_XML_FILES_DIR
+list(GET ${PROJECT_NAME}_xml_tests 0 TEST_XML_FILES_DIR)
+get_filename_component(TEST_XML_FILES_DIR "${TEST_XML_FILES_DIR}" DIRECTORY )
+file(TO_NATIVE_PATH "${TEST_XML_FILES_DIR}/" TEST_XML_FILES_DIR)
+
+
 # avoid visual studio from trying to compile .idl files with midl
 set_source_files_properties(${${PROJECT_NAME}_idl} PROPERTIES HEADER_FILE_ONLY TRUE)
 
@@ -210,7 +223,7 @@ if (WIN32)
 endif()
 
 # we link dynamically to tinyxml2
-target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr tinyxml2 )
+target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr tinyxml2)
 
 # Properties that change bin names depending on current config.
 # This is convenient because on installation all bins share folder
@@ -269,3 +282,77 @@ install(FILES ${PROJECT_SOURCE_DIR}/license/LICENSE
     COMPONENT licenses
     DESTINATION ${LICENSE_INSTALL_DIR}
     )
+	
+# Adding testing capabilities
+enable_testing()
+
+# testing enviromental variables
+# add_test(NAME envtest COMMAND powershell "[environment]::GetEnvironmentVariable('PATH') > output.txt")
+
+unset(TEST_LIST)
+
+# add the several test, we begin for the basic discovery UDP scenario
+list(APPEND TEST_LIST test_1_PDP_UDP)
+add_test(NAME test_1_PDP_UDP COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}test_1_PDP_UDP.xml)
+set_tests_properties(test_1_PDP_UDP PROPERTIES REQUIRED_FILES ${TEST_XML_FILES_DIR}test_1_PDP_UDP.xml)
+
+# basic discovery TCP scenario
+list(APPEND TEST_LIST test_2_PDP_TCP)
+add_test(NAME test_2_PDP_TCP COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}test_2_PDP_TCP.xml)
+set_tests_properties(test_2_PDP_TCP PROPERTIES REQUIRED_FILES ${TEST_XML_FILES_DIR}test_2_PDP_TCP.xml)
+
+
+# add_test(NAME PubSubTest COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}pub_subs_creation.xml )
+
+# REQUIRED_FILES # associate an xml file for each test
+# RUN_SERIAL
+
+# increase the timeout to five minutes
+set_tests_properties(${TEST_LIST} PROPERTIES TIMEOUT 300)
+
+# Windows requires an special treatment of environmental variables
+if(WIN32)
+
+	# set the environment variables to detect fast binaries
+	string(REGEX MATCHALL  "[A-Z]:[^;:]+;" PATH_VARIABLE "$ENV{PATH}" )
+	foreach (itvar ${PATH_VARIABLE})
+			string(REPLACE ";" "" itvar ${itvar})
+			set(WINDOWS_PATH_VARIABLE "${WINDOWS_PATH_VARIABLE}\\;${itvar}" )
+	endforeach( itvar ) 
+
+	# Generate a dll path property for each target-configuration
+	get_target_property(DEPENDENCIES ${PROJECT_NAME} INTERFACE_LINK_LIBRARIES)
+	unset(TEST_ENVIRONMENT_DEPENDENCIES)
+
+	foreach( _target ${DEPENDENCIES})
+		#message(STATUS "DEPENDENT TARGET ${_target}")
+		
+		if(TARGET ${_target} )
+			foreach( _config DEBUG RELEASE )
+				
+				#retrieve binary path
+				get_target_property(IMPORTED_LOCATION ${_target} IMPORTED_LOCATION_${_config} )
+				get_filename_component(DIR_PATH "${IMPORTED_LOCATION}" DIRECTORY )
+				file(TO_NATIVE_PATH ${DIR_PATH} DIR_NATIVE_PATH)
+				set_target_properties(${_target} PROPERTIES NATIVE_LOCATION_DIR_${_config} ${DIR_NATIVE_PATH} )
+				
+				#message(STATUS "Created target: ${_target} property: NATIVE_LOCATION_DIR_${_config} = ${DIR_NATIVE_PATH}")
+				
+			endforeach()
+			
+			if(TEST_ENVIRONMENT_DEPENDENCIES)
+				set(TEST_ENVIRONMENT_DEPENDENCIES "${TEST_ENVIRONMENT_DEPENDENCIES}\\;$<TARGET_PROPERTY:${_target},NATIVE_LOCATION_DIR_$<UPPER_CASE:$<CONFIG>>>")
+			else()
+				set(TEST_ENVIRONMENT_DEPENDENCIES "$<TARGET_PROPERTY:${_target},NATIVE_LOCATION_DIR_$<UPPER_CASE:$<CONFIG>>>")
+			endif()
+			
+		endif()
+	endforeach()
+
+	#message(STATUS ${TEST_ENVIRONMENT_DEPENDENCIES})
+
+	#set_tests_properties(PubSubTest envtest PROPERTIES ENVIRONMENT "PATH=${WINDOWS_PATH_VARIABLE}\\;$<TARGET_FILE_DIR:fastrtps>\\;$<TARGET_FILE_DIR:fastcdr>" )
+	set_tests_properties(${TEST_LIST} PROPERTIES ENVIRONMENT "PATH=${WINDOWS_PATH_VARIABLE}\\;${TEST_ENVIRONMENT_DEPENDENCIES}" )
+
+endif()
+
