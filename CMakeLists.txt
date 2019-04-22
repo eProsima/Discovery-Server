@@ -66,17 +66,6 @@ endif()
 # Load external dependencies
 ###############################################################################
 
-# UNTIL REACHING COLCON AWARENESS WE WILL GIVE SOME LOCAL CLUES TO CMAKE TO FIND PACKAGES ;-) ;-) ;-) ;-) ;-) ;-) ;-)
-# set(CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/cmake/modules ${CMAKE_PREFIX_PATH} ) # note that adding this to CMAKE_PREFIX_PATH
-# may not be necessary if the cmake folder shares folder with this CMakeList.txt
-# CONFIG FILES CAN BE FOUND IN DIRECTORY MODULES, REMEMBER TO REMOVE THEM WHEN COLCON ENABLED:
-#	fastcdr-config-version.cmake	fastrtps-config-version.cmake
-#	fastcdr-config.cmake			fastrtps-config.cmake
-#	fastcdr-targets.cmake			fastrtps-targets.cmake
-#
-# ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-) ;-)
-
-
 # colcon will take care of solving any dependency issues
 #find_package(Asio REQUIRED )
 find_package(fastcdr   REQUIRED  )
@@ -229,9 +218,9 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     $<$<AND:$<BOOL:${WIN32}>,$<NOT:$<STREQUAL:"${CMAKE_SYSTEM_NAME}","WindowsStore">>>:_WIN32_WINNT=0x0601>
 	)
 
-if (WIN32)
-    target_compile_options(${PROJECT_NAME} PRIVATE	-wd4251)
-endif()
+#if (WIN32)
+#    target_compile_options(${PROJECT_NAME} PRIVATE	-wd4251)
+#endif()
 
 # we link dynamically to tinyxml2
 target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr tinyxml2)
@@ -246,7 +235,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX -${PROJECT_VERSIO
 ###############################################################################
 
 if(WIN32)
-	set(INSTALL_PER_USER true CACHE BOOL "Windows per user installation mode")
+	set(INSTALL_PER_USER 0 CACHE BOOL "Windows per user installation mode")
 
 	if(INSTALL_PER_USER)
 		set(CMAKE_INSTALL_PREFIX "$ENV{USERPROFILE}/AppData/Local/eProsima/${PROJECT_NAME_LARGE}/" )
@@ -365,15 +354,25 @@ if(WIN32)
 		#message(STATUS "DEPENDENT TARGET ${_target}")
 		
 		if(TARGET ${_target} )
-			foreach( _config DEBUG RELEASE )
+		
+			#message(STATUS "Configurations available in ${_target} are ${CMAKE_CONFIGURATION_TYPES}\n")
+		
+			foreach( _config ${CMAKE_CONFIGURATION_TYPES} )
+			
+				#message(STATUS "Current config in ${_target} is ${_config}\n")
 				
 				#retrieve binary path
 				get_target_property(IMPORTED_LOCATION ${_target} IMPORTED_LOCATION_${_config} )
-				get_filename_component(DIR_PATH "${IMPORTED_LOCATION}" DIRECTORY )
-				file(TO_NATIVE_PATH ${DIR_PATH} DIR_NATIVE_PATH)
-				set_target_properties(${_target} PROPERTIES NATIVE_LOCATION_DIR_${_config} ${DIR_NATIVE_PATH} )
 				
-				#message(STATUS "Created target: ${_target} property: NATIVE_LOCATION_DIR_${_config} = ${DIR_NATIVE_PATH}")
+				if(IMPORTED_LOCATION) #ignore if this configuration doesn't exist
+
+					get_filename_component(DIR_PATH "${IMPORTED_LOCATION}" DIRECTORY )
+					file(TO_NATIVE_PATH ${DIR_PATH} DIR_NATIVE_PATH)
+					set_target_properties(${_target} PROPERTIES NATIVE_LOCATION_DIR_${_config} ${DIR_NATIVE_PATH} )
+					
+					message(STATUS "Created target: ${_target} property: NATIVE_LOCATION_DIR_${_config} = ${DIR_NATIVE_PATH}")
+					
+				endif(IMPORTED_LOCATION)
 				
 			endforeach()
 			

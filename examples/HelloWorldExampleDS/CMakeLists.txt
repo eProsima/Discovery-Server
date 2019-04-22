@@ -48,6 +48,14 @@ file(GLOB HELLOWORLD_EXAMPLE_HEADERS "*.h")
 
 add_executable(HelloWorldExampleDS ${HELLOWORLD_EXAMPLE_SOURCES_CXX} ${HELLOWORLD_EXAMPLE_SOURCES_CPP}
 	${HELLOWORLD_EXAMPLE_HEADERS} ${ALL_FAST_HEADERS})
+	
 target_link_libraries(HelloWorldExampleDS fastrtps fastcdr)
+
+# Properties that change bin names depending on current config.
+# This is convenient because on installation all bins share folder
+set_target_properties(HelloWorldExampleDS PROPERTIES DEBUG_POSTFIX -d)
+
 install(TARGETS HelloWorldExampleDS
     RUNTIME DESTINATION examples/C++/HelloWorldExampleDS/${BIN_INSTALL_DIR})
+	
+
