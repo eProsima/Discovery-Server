@@ -37,14 +37,10 @@ bool HelloWorldServer::init()
     Locator_t server_address(LOCATOR_KIND_UDPv4, 65215);
     IPLocator::setIPv4(server_address, 127, 0, 0, 1);
 
-    RemoteServerAttributes ratt;
-    ratt.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
-    ratt.metatrafficUnicastLocatorList.push_back(server_address);
-
     ParticipantAttributes PParam;
     PParam.rtps.builtin.discoveryProtocol = PDPType_t::SERVER;
-    PParam.rtps.prefix = ratt.guidPrefix;
-    PParam.rtps.builtin.metatrafficUnicastLocatorList = ratt.metatrafficUnicastLocatorList;
+    PParam.rtps.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
+    PParam.rtps.builtin.metatrafficUnicastLocatorList.push_back(server_address);
     PParam.rtps.builtin.domainId = 0;
     PParam.rtps.builtin.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_sub");
