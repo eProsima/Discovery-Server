@@ -38,7 +38,7 @@ namespace eprosima {
 
             //! enpoint identifier
             GUID_t _id;
-        
+
             DI(const GUID_t& id) : _id(id) {}
             DI(GUID_t&& id) : _id(std::move(id)) {}
             DI(const DI&) = default;
@@ -121,7 +121,7 @@ namespace eprosima {
 
             // identity
             bool _server; // false -> client
-            bool _alive; // false if death already reported but owned endpoints yet to be 
+            bool _alive; // false if death already reported but owned endpoints yet to be
             std::string _name;
 
             // local user entities
@@ -165,11 +165,11 @@ namespace eprosima {
             // that makes all its iterators constant
 
             //! get publishers
-            publisher_set& getPublishers() const 
+            publisher_set& getPublishers() const
                 { return const_cast<publisher_set &>(_publishers); }
 
             //! get subscribers
-            subscriber_set& getSubscribers() const 
+            subscriber_set& getSubscribers() const
                 { return const_cast<subscriber_set&>(_subscribers); }
 
             void setName(const std::string & name) const { const_cast<std::string&>(_name) = name; }
@@ -194,7 +194,7 @@ namespace eprosima {
             PtDB(const PtDB&) = default;
             PtDB(PtDB&&) = default;
             PtDB& operator=(const PtDB&) = default;
-            PtDB& operator=(PtDB&&) = default;   
+            PtDB& operator=(PtDB&&) = default;
         };
 
         bool operator==(const PtDB &, const  PtDB &);
@@ -209,7 +209,7 @@ namespace eprosima {
             // time conversions auxiliary
             static std::chrono::system_clock::time_point _sy_ck;
             static std::chrono::steady_clock::time_point _st_ck;
-            const std::time_t getSystemTime() const;
+            std::time_t getSystemTime() const;
 
             // description
             std::string _des;
@@ -283,7 +283,7 @@ namespace eprosima {
                 std::lock_guard<std::mutex> lock(_mtx);
                 return _participants;
             }
-  
+
         };
 
     } // fastrtps

@@ -22,6 +22,7 @@
 #include <fastrtps/publisher/Publisher.h>
 
 #include "DSManager.h"
+#include "LJ.h"
 
 #include <iostream>
 #include <sstream>
@@ -846,18 +847,19 @@ void DSManager::loadSubscriber(GUID_t & part_guid, tinyxml2::XMLElement* sub, DP
 
     if (topic_name)
     {
-        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), subatts->topic))
+        if (xmlparser::XMLP_ret::XML_OK
+                != xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), subatts->topic))
         {
             LOG_ERROR("DSManager::loadSubscriber couldn't load topic profile " << profile_name);
             return;
         }
     }
 
-    DED<Subscriber> * pDE = nullptr; // subscriber destruction event
+    DED<Subscriber>* pDE = nullptr; // subscriber destruction event
 
     if (removal_time != getTime())
     {
-        // Destruction event needs the endpoint guid 
+        // Destruction event needs the endpoint guid
         // that would be provided in creation
         pDE = new DED<Subscriber>(removal_time);
         _events.push_back(pDE);
@@ -927,7 +929,8 @@ void DSManager::loadPublisher(GUID_t & part_guid, tinyxml2::XMLElement* sub, DPC
     else
     {
         // try load from profile
-        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillPublisherAttributes(std::string(profile_name), *pubatts))
+        if (xmlparser::XMLP_ret::XML_OK
+                != xmlparser::XMLProfileManager::fillPublisherAttributes(std::string(profile_name), *pubatts))
         {
             LOG_ERROR("DSManager::loadPublisher couldn't load profile " << profile_name);
             return;
@@ -950,7 +953,7 @@ void DSManager::loadPublisher(GUID_t & part_guid, tinyxml2::XMLElement* sub, DPC
 
     if (removal_time != getTime())
     {
-        // Destruction event needs the endpoint guid 
+        // Destruction event needs the endpoint guid
         // that would be provided in creation
         pDE = new DED<Publisher>(removal_time);
         _events.push_back(pDE);
@@ -978,9 +981,9 @@ void DSManager::loadSnapshot(tinyxml2::XMLElement* snapshot)
     std::lock_guard<std::recursive_mutex> lock(_mtx);
 
     // snapshots are created for debugging purposes
-    // time is mandatory 
+    // time is mandatory
     const char * time_str = snapshot->Attribute(s_sTime.c_str());
-    
+
     if (!time_str)
     {
         LOG_ERROR(s_sTime << " is a mandatory attribute of " << s_sSnapshot << " tag");
@@ -1176,7 +1179,7 @@ void DSManager::onSubscriberDiscovery(Participant* participant, rtps::ReaderDisc
 
     if (part_name.empty())
     {   // if remote use prefix instead of name
-        part_name = (std::ostringstream() << partid).str();
+        part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
     }
 
     _state.AddSubscriber(participant->getGuid(),partid, subsid, info.info.typeName(), info.info.topicName());
@@ -1222,7 +1225,7 @@ void  DSManager::onPublisherDiscovery(Participant* participant, rtps::WriterDisc
 
     if (part_name.empty())
     {   // if remote use prefix instead of name
-        part_name = (std::ostringstream() << partid).str();
+        part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
     }
 
     _state.AddPublisher(participant->getGuid(), partid, pubsid, info.info.typeName(), info.info.topicName());
@@ -1300,20 +1303,22 @@ bool DSManager::allKnowEachOther() const
     return allKnowEachOther(shot);
 }
 
-Snapshot& DSManager::takeSnapshot(const std::chrono::steady_clock::time_point tp, std::string & desc/* = std::string()*/)
+Snapshot& DSManager::takeSnapshot(
+        const std::chrono::steady_clock::time_point tp,
+        const std::string& desc/* = std::string()*/)
 {
     std::lock_guard<std::recursive_mutex> lock(_mtx);
 
     _snapshots.push_back(_state.GetState());
 
-   Snapshot & shot = _snapshots.back();
+   Snapshot& shot = _snapshots.back();
    shot._time = tp;
    shot._des = desc;
 
    return shot;
 }
 
-/*static*/ 
+/*static*/
 bool DSManager::allKnowEachOther(const Snapshot & shot)
 {
     // traverse snapshot comparing each member with each other
@@ -1335,7 +1340,7 @@ bool DSManager::validateAllSnapshots() const
 {
     // traverse the list of snapshots validating then
     bool work_it_all = true;
-    
+
     for (const Snapshot &sh : _snapshots)
     {
         if (DSManager::allKnowEachOther(sh))

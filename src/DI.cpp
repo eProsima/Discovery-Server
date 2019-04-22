@@ -113,7 +113,7 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtD
     }
 
     os << di._id;
-    
+
     if ( di.CountEndpoints() > 0 )
     {
         os << " has:" << std::endl;
@@ -183,7 +183,7 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtD
 std::chrono::system_clock::time_point Snapshot::_sy_ck(std::chrono::system_clock::now());
 std::chrono::steady_clock::time_point Snapshot::_st_ck(std::chrono::steady_clock::now());
 
-const std::time_t Snapshot::getSystemTime() const
+std::time_t Snapshot::getSystemTime() const
 {
     using namespace std::chrono;
 
