@@ -43,7 +43,7 @@ bool HelloWorldServer::init()
     PParam.rtps.builtin.metatrafficUnicastLocatorList.push_back(server_address);
     PParam.rtps.builtin.domainId = 0;
     PParam.rtps.builtin.leaseDuration = c_TimeInfinite;
-    PParam.rtps.setName("Participant_sub");
+    PParam.rtps.setName("Participant_server");
     mp_participant = Domain::createParticipant(PParam);
     if(mp_participant==nullptr)
         return false;

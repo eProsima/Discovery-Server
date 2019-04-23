@@ -10,20 +10,20 @@
   
   <servers>
     <server name="server" profile_name="UDP server">
-	  <subscriber topic="topic 1" />
+	    <subscriber topic="topic 1" />
       <publisher topic="topic 2" />
 	</server>
   </servers>
 
   <clients>
     <client name="client1" profile_name="UDP client">
-	  <subscriber /> <!-- defaults to helloworld type -->
-	  <subscriber topic="topic 2" />
-	  <subscriber profile_name="Sub 1" />
-	  <publisher profile_name="Pub 2" />	
+	    <subscriber /> <!-- defaults to helloworld type -->
+	    <subscriber topic="topic 2" />
+	    <subscriber profile_name="Sub 1" />
+	    <publisher profile_name="Pub 2" />	
 	</client>
     <client name="client2" profile_name="UDP client">
-	  <publisher />  <!-- defaults to helloworld type -->
+	    <publisher />  <!-- defaults to helloworld type -->
       <publisher topic="topic 1" />
       <publisher profile_name="Pub 1" />
       <subscriber profile_name="Sub 2" />

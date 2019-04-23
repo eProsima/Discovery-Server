@@ -5,20 +5,20 @@
   
   <servers>
     <server name="server" profile_name="UDP server" creation_time="1" >
-	  <subscriber topic="topic 1" creation_time="3" />
+      <subscriber topic="topic 1" creation_time="3" />
       <publisher topic="topic 2" creation_time="5" />
 	</server>
   </servers>
 
   <clients>
     <client name="client1" profile_name="UDP client" removal="16">
-	  <subscriber creation_time="7" removal_time="14" /> <!-- defaults to helloworld type -->
-	  <subscriber topic="topic 2" creation_time="7" removal_time="14" />
-	  <subscriber profile_name="Sub 1" creation_time="7" removal_time="14" />
-	  <publisher profile_name="Pub 2" creation_time="12" />	
+      <subscriber creation_time="7" removal_time="14" /> <!-- defaults to helloworld type -->
+      <subscriber topic="topic 2" creation_time="7" removal_time="14" />
+      <subscriber profile_name="Sub 1" creation_time="7" removal_time="14" />
+      <publisher profile_name="Pub 2" creation_time="12" />	
 	</client>
-    <client name="client2" profile_name="UDP client" creation_time="9">
-	  <publisher creation_time="10" />  <!-- defaults to helloworld type -->
+  <client name="client2" profile_name="UDP client" creation_time="9">
+      <publisher creation_time="10" />  <!-- defaults to helloworld type -->
       <publisher topic="topic 1" creation_time="10" />
       <publisher profile_name="Pub 1" creation_time="10" />
       <subscriber profile_name="Sub 2" creation_time="10" />

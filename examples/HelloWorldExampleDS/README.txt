@@ -1,6 +1,49 @@
-To launch this test open two different consoles:
+If this test has been build using colcon then remember to properly setup the environmental variables before running the binary by using:
 
-In the first one launch: HelloWorldExample publisher (or HelloWorldExample.exe publisher on windows).
-In the second one: HelloWorldExample subscriber.
+Linux:
+		$ . ../../../../../local_setup.bash
+		
+Windows:
+
+		>..\..\..\..\..\local_setup.bat
+		
+otherwise modify the console PATH or terminal LIB_PATH_DIR environmental variables to allow the example binary to locate fast shared libraries.
+
+Run the example creating three independent processes:
+
+Linux:
+
+	Terminal 1:
+	
+		$ ./HelloWorldExampleDS publisher
+		
+	Terminal 2:
+	
+		$ ./HelloWorldExampleDS subscriber	
+
+	Terminal 3:
+	
+		$ ./HelloWorldExampleDS server	
+
+Windows:
+	
+	Console 1:
+	
+		> HelloWorldExampleDS publisher
+	
+	Console 2:
+	
+		> HelloWorldExampleDS subscriber
+	
+	Console 3:
+	
+		> HelloWorldExampleDS server
+		
+Information exchange between publisher and subscriber should take place whenever the server begins running.
+
+
+
+
+
 
 
