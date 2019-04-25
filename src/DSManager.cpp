@@ -579,6 +579,7 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
 
     // We define the PDP as external (when moved to fast library it would be SERVER)
     BuiltinAttributes & b = atts.rtps.builtin;
+    (void)b;
     assert(b.discoveryProtocol == SERVER || b.discoveryProtocol == BACKUP);
 
     // Create the participant or the associated events
