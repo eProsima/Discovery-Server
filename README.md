@@ -28,7 +28,7 @@ In order to cope with the above issues the fast-RTPS discovery mechanism was ext
 
 ### **Installation**
 
-The well known cross-platform tool [colcon](https://colcon.readthedocs.io/en/released/) was chosen to simplify installation of the several mutually dependent [CMake](https://cmake.org/cmake/help/latest/) projects. In order to use colcon [python](https://www.python.org/) and [CMake](https://cmake.org/cmake/help/latest/) must be first installed as detailed in the corresponding hyperlinks.
+The well known cross-platform tool [colcon](https://colcon.readthedocs.io/en/released/) was chosen to simplify installation of the several mutually dependent [CMake](https://cmake.org/cmake/help/latest/) projects. In order to use colcon, [python](https://www.python.org/) and [CMake](https://cmake.org/cmake/help/latest/) must be first installed as detailed in the corresponding hyperlinks.
 
 Given that the actual sources for the extended fast-RTPS library and discovery-server application are non disclosable they should be downloaded from [eProsima Google Drive](https://drive.google.com/drive/folders/1G0yU-6MvDWu_jQgG0IwmCtWaLq6Tb6i0?usp=sharing) instead of the usual GitHub's repos.
 
@@ -155,7 +155,7 @@ Several fast-RTPS configuration structures have been updated in order to deal wi
 
 #### RTPSParticipantAttributes
 
-+ a new `GuidPrefix_t guidPrefix` member has been added to specify the server's identity.  This member has only significance if `discoveryProtocol` is **SERVER** or **BACKUP**. There is a `ReadguidPrefix` method to easily fill in this member from a string formatted like `"4D.49.47.55.45.4c.5f.42.41.52.52.4f"` (ote that each octec must be a valid hexadecimal figure).
++ a new `GuidPrefix_t guidPrefix` member has been added to specify the server's identity.  This member has only significance if `discoveryProtocol` is **SERVER** or **BACKUP**. There is a `ReadguidPrefix` method to easily fill in this member from a string formatted like `"4D.49.47.55.45.4c.5f.42.41.52.52.4f"` (note that each octec must be a valid hexadecimal figure).
 
 In order to receive client metatraffic, `metatrafficUnicastLocatorList` or `metatrafficMulticastLocatorList` must be populated with the addresses that were given to the clients.
 
