@@ -30,9 +30,16 @@ In order to cope with the above issues the fast-RTPS discovery mechanism was ext
 
 The well known cross-platform tool [colcon](https://colcon.readthedocs.io/en/released/) was chosen to simplify installation of the several mutually dependent [CMake](https://cmake.org/cmake/help/latest/) projects. In order to use colcon, [python](https://www.python.org/) and [CMake](https://cmake.org/cmake/help/latest/) must be first installed as detailed in the corresponding hyperlinks.
 
-Given that the actual sources for the extended fast-RTPS library and discovery-server application are non disclosable they should be downloaded from [eProsima Google Drive](https://drive.google.com/drive/folders/1G0yU-6MvDWu_jQgG0IwmCtWaLq6Tb6i0?usp=sharing) instead of the usual GitHub's repos.
+The following repositories should be downloaded from github into a directory that henceforth would be called **SOURCES**:
 
-In what follows we suppose that, once downloaded, the directory tree is placed in a directory called **SOURCES**. We also assume that the user wants to keep the build, log and installation files in a separate directory called **[BUILD]**. If this is not the case, flag `--base-paths [SOURCES]` can be ignored in what follows.
++ eProsima/Fast-CDR:	https://github.com/eProsima/Fast-CDR.git			branch: master
+	
++ eProsima/Fast-RTPS:	https://github.com/eProsima/Fast-RTPS.git			branch: feature/discovery-server
+	
++ eProsima/beta:		https://github.com/eProsima/Discovery-Server.git	branch: feature/beta
+
+
+We also assume that the user wants to keep the build, log and installation files in a separate directory called **[BUILD]**. If this is not the case, flag `--base-paths [SOURCES]` can be ignored in what follows.
 
 #### **Linux**
 
