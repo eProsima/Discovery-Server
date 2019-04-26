@@ -291,6 +291,7 @@ install(FILES ${PROJECT_SOURCE_DIR}/license/LICENSE
 ###############################################################################
 
 enable_testing()
+include(CTest)  # shut up colcon's whining  about .tcl files
 
 # testing enviromental variables
 # add_test(NAME envtest COMMAND powershell "[environment]::GetEnvironmentVariable('PATH') > output.txt")
