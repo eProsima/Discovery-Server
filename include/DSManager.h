@@ -101,6 +101,9 @@ class DSManager : public xmlparser::XMLParser,      // access to parsing protect
     void loadSnapshot(tinyxml2::XMLElement* snapshot);
     void MapServerInfo(tinyxml2::XMLElement* server);
 
+    void loadSnapshots(const std::string& file);
+    void saveSnapshots(const std::string& file) const;
+
     // type handling
     type_map _types;
 

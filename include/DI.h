@@ -26,6 +26,11 @@
 #include <string>
 #include <ostream>
 
+namespace tinyxml2
+{
+class XMLNode;
+}
+
 namespace eprosima {
     namespace discovery_server {
 
@@ -225,6 +230,9 @@ namespace eprosima {
 
             PtDB & operator[](const GUID_t &);
             const PtDB * operator[](const GUID_t &) const;
+
+            void to_xml(tinyxml2::XMLNode* pRoot) const;
+            void from_xml(tinyxml2::XMLNode* pRoot);
         };
 
         std::ostream& operator<<(std::ostream&, const Snapshot&);

@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns="http://www.eprosima.com/XMLSchemas/discovery-server"       
-           targetNamespace="http://www.eprosima.com/XMLSchemas/discovery-server"
-           elementFormDefault="qualified">
+    xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" targetNamespace="http://www.eprosima.com/XMLSchemas/discovery-server" elementFormDefault="qualified">
 
     <xs:simpleType name="stringType">
         <xs:restriction base="xs:string"/>
     </xs:simpleType>
 
-	  <xs:simpleType name="idType">
+    <xs:simpleType name="idType">
         <xs:restriction base="xs:unsignedShort"/>
     </xs:simpleType>
 
@@ -41,7 +39,8 @@
     </xs:simpleType>
 
     <xs:simpleType name="boolType">
-        <xs:restriction base="xs:boolean"/> <!-- {true, false} -->
+        <xs:restriction base="xs:boolean"/>
+        <!-- {true, false} -->
     </xs:simpleType>
 
     <xs:simpleType name="historyMemoryPolicyType">
@@ -119,7 +118,8 @@
     </xs:complexType>
 
     <xs:simpleType name="octetVectorType">
-        <xs:restriction base="xs:string"/><!-- std::vector<octet> -->
+        <xs:restriction base="xs:string"/>
+        <!-- std::vector<octet> -->
     </xs:simpleType>
 
     <xs:complexType name="propertyType">
@@ -133,7 +133,8 @@
     <xs:complexType name="binaryPropertyType">
         <xs:all>
             <xs:element name="name" type="stringType"/>
-            <xs:element name="value" type="stringType"/><!-- std::vector<uint8_t> -->
+            <xs:element name="value" type="stringType"/>
+            <!-- std::vector<uint8_t> -->
             <xs:element name="propagate" type="boolType"/>
         </xs:all>
     </xs:complexType>
@@ -262,8 +263,8 @@
             <xs:element name="PUBREADER_SUBWRITER" type="boolType"/>
         </xs:all>
     </xs:complexType>
-	
-	<xs:simpleType name="PDPType">
+
+    <xs:simpleType name="PDPType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="NONE"/>
             <xs:enumeration value="SIMPLE"/>
@@ -272,42 +273,42 @@
             <xs:enumeration value="BACKUP"/>
         </xs:restriction>
     </xs:simpleType>
-	
-   <xs:simpleType name="EDPType">
+
+    <xs:simpleType name="EDPType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="SIMPLE"/>
             <xs:enumeration value="STATIC"/>
         </xs:restriction>
     </xs:simpleType>
-	
-	<xs:simpleType name="guid">
-		<xs:restriction base="xs:string">
-		  <xs:pattern value="([0-9a-fA-F]{1,2}\.){11}[0-9a-fA-F]{1,2}" />
-      <xs:whiteSpace value='collapse'/>
-		</xs:restriction>
-	</xs:simpleType>
-	
-	<xs:complexType name="RemoteServerAttributes">
-		<xs:choice>
-			<xs:sequence>
-				<xs:element name="metatrafficUnicastLocatorList" type="locatorListType" minOccurs="1" />
-				<xs:element name="metatrafficMulticastLocatorList" type="locatorListType" minOccurs="0" />
-			</xs:sequence>
-			<xs:sequence>
-				<xs:element name="metatrafficMulticastLocatorList" type="locatorListType" minOccurs="1" />
-				<xs:element name="metatrafficUnicastLocatorList" type="locatorListType" minOccurs="0" />
-			</xs:sequence>			
-		</xs:choice>
-		<xs:attribute name="prefix" type="guid" use="required"/>
-	</xs:complexType>
-	
-	<xs:complexType name="DiscoveryServerList">
+
+    <xs:simpleType name="guid">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="([0-9a-fA-F]{1,2}\.){11}[0-9a-fA-F]{1,2}" />
+            <xs:whiteSpace value='collapse'/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="RemoteServerAttributes">
+        <xs:choice>
+            <xs:sequence>
+                <xs:element name="metatrafficUnicastLocatorList" type="locatorListType" minOccurs="1" />
+                <xs:element name="metatrafficMulticastLocatorList" type="locatorListType" minOccurs="0" />
+            </xs:sequence>
+            <xs:sequence>
+                <xs:element name="metatrafficMulticastLocatorList" type="locatorListType" minOccurs="1" />
+                <xs:element name="metatrafficUnicastLocatorList" type="locatorListType" minOccurs="0" />
+            </xs:sequence>
+        </xs:choice>
+        <xs:attribute name="prefix" type="guid" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="DiscoveryServerList">
         <xs:sequence>
             <xs:element name="RemoteServer" type="RemoteServerAttributes" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
-	
-	<xs:complexType name="builtinAttributesType">
+
+    <xs:complexType name="builtinAttributesType">
         <xs:all minOccurs="0">
             <xs:element name="discoveryProtocol" type="PDPType" minOccurs="0"/>
             <xs:element name="use_WriterLivelinessProtocol" type="boolType" minOccurs="0"/>
@@ -319,15 +320,15 @@
             <xs:element name="metatrafficUnicastLocatorList" type="locatorListType" minOccurs="0"/>
             <xs:element name="metatrafficMulticastLocatorList" type="locatorListType" minOccurs="0"/>
             <xs:element name="initialPeersList" type="locatorListType" minOccurs="0"/>
-			      <xs:element name="clientAnnouncementPeriod" type="durationType" minOccurs="0"/>
-			      <xs:element name="discoveryServersList" type="DiscoveryServerList" minOccurs="0"/>
+            <xs:element name="clientAnnouncementPeriod" type="durationType" minOccurs="0"/>
+            <xs:element name="discoveryServersList" type="DiscoveryServerList" minOccurs="0"/>
             <xs:element name="staticEndpointXMLFilename" type="stringType" minOccurs="0"/>
             <xs:element name="readerHistoryMemoryPolicy" type="historyMemoryPolicyType" minOccurs="0"/>
             <xs:element name="writerHistoryMemoryPolicy" type="historyMemoryPolicyType" minOccurs="0"/>
         </xs:all>
     </xs:complexType>
-	
-	<xs:complexType name="throughputControllerType">
+
+    <xs:complexType name="throughputControllerType">
         <xs:all minOccurs="0">
             <xs:element name="bytesPerPeriod" type="uint32Type" minOccurs="0"/>
             <xs:element name="periodMillisecs" type="uint32Type" minOccurs="0"/>
@@ -373,8 +374,8 @@
             <xs:element name="resourceLimitsQos" type="resourceLimitsQosPolicyType" minOccurs="0"/>
         </xs:all>
     </xs:complexType>
-	
-   <xs:simpleType name="durabilityQosKindType">
+
+    <xs:simpleType name="durabilityQosKindType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="VOLATILE"/>
             <xs:enumeration value="TRANSIENT_LOCAL"/>
@@ -472,7 +473,7 @@
             <xs:element name="kind" type="ownershipQosKindType"/>
         </xs:all>
     </xs:complexType>
-	
+
     <xs:complexType name="ownershipStrengthQosPolicyType">
         <xs:all>
             <xs:element name="value" type="uint32Type"/>
@@ -573,7 +574,7 @@
             <xs:element name="publishMode" type="publishModeQosPolicyType" minOccurs="0"/>
         </xs:all>
     </xs:complexType>
-	
+
     <xs:complexType name="readerQosPoliciesType">
         <xs:all minOccurs="0">
             <xs:element name="durability" type="durabilityQosPolicyType" minOccurs="0"/>
@@ -655,25 +656,25 @@
     </xs:complexType>
 
     <xs:complexType name="topicProfileType">
-      <xs:complexContent>
-        <xs:extension base="topicAttributesType">
-		      <xs:attribute name="profile_name" type="stringType" use="optional"/>
-          <!-- topic name should be enough but several participants may have a topic with the same name and different value-type. 
-		  For the sake of completion we must provide a mechanism to workaround this error. To be implemented in parser. -->
-        </xs:extension>
-      </xs:complexContent>
+        <xs:complexContent>
+            <xs:extension base="topicAttributesType">
+                <xs:attribute name="profile_name" type="stringType" use="optional"/>
+                <!-- topic name should be enough but several participants may have a topic with the same name and different value-type.
+          For the sake of completion we must provide a mechanism to workaround this error. To be implemented in parser. -->
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="StringSequenceType">
-      <xs:sequence>
-        <xs:element name="id" type="stringType"/>
-      </xs:sequence>
+        <xs:sequence>
+            <xs:element name="id" type="stringType"/>
+        </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="TransportDescriptorListType">
-      <xs:sequence>
-        <xs:element name="transport_descriptor" type="rtpsTransportDescriptorType" minOccurs="1" maxOccurs="unbounded"/>
-      </xs:sequence>
+        <xs:sequence>
+            <xs:element name="transport_descriptor" type="rtpsTransportDescriptorType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="rtpsTransportDescriptorType">
@@ -695,8 +696,8 @@
             <xs:element name="logical_port_increment" type="uint16Type" minOccurs="0" maxOccurs="1"/>
             <xs:element name="metadata_logical_port" type="uint16Type" minOccurs="0" maxOccurs="1"/>
             <xs:element name="listening_ports" type="portListType" minOccurs="0" maxOccurs="1"/>
-			      <xs:element name="calculate_crc" type="boolType" minOccurs="0" maxOccurs="1"/>
-			      <xs:element name="check_crc" type="boolType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="calculate_crc" type="boolType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="check_crc" type="boolType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="enable_tcp_nodelay" type="boolType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="tls" type="tlsConfigType" minOccurs="0" maxOccurs="1"/>
         </xs:all>
@@ -726,145 +727,147 @@
     </xs:complexType>
 
     <xs:complexType name="publisherType">
-      <!-- profile_name and topic are both opetional because it defaults to HelloWorld topic -->
-      <xs:attribute name="profile_name" type="stringType" use="optional" />
-      <xs:attribute name="topic" type="stringType" use="optional" />
-      <xs:attribute name="creation_time" type="uint32Type" use="optional" />
-      <!-- creation time in seconds from startup-->
-      <xs:attribute name="removal_time" type="uint32Type" use="optional" />
-      <!-- removal time in seconds from startup-->
+        <!-- profile_name and topic are both opetional because it defaults to HelloWorld topic -->
+        <xs:attribute name="profile_name" type="stringType" use="optional" />
+        <xs:attribute name="topic" type="stringType" use="optional" />
+        <xs:attribute name="creation_time" type="uint32Type" use="optional" />
+        <!-- creation time in seconds from startup-->
+        <xs:attribute name="removal_time" type="uint32Type" use="optional" />
+        <!-- removal time in seconds from startup-->
     </xs:complexType>
 
     <xs:complexType name="subscriberType">
-      <!-- profile_name and topic are both opetional because it defaults to HelloWorld topic -->
-      <xs:attribute name="profile_name" type="stringType" use="optional" />
-      <xs:attribute name="topic" type="stringType" use="optional" />
-      <xs:attribute name="creation_time" type="uint32Type" use="optional" />
-      <!-- creation time in seconds from startup-->
-      <xs:attribute name="removal_time" type="uint32Type" use="optional" />
-      <!-- removal time in seconds from startup-->
+        <!-- profile_name and topic are both opetional because it defaults to HelloWorld topic -->
+        <xs:attribute name="profile_name" type="stringType" use="optional" />
+        <xs:attribute name="topic" type="stringType" use="optional" />
+        <xs:attribute name="creation_time" type="uint32Type" use="optional" />
+        <!-- creation time in seconds from startup-->
+        <xs:attribute name="removal_time" type="uint32Type" use="optional" />
+        <!-- removal time in seconds from startup-->
     </xs:complexType>
 
     <xs:complexType name="serverType">
-      <xs:sequence>
-        <xs:element name="ListeningPorts" minOccurs="0" maxOccurs="1"  > <!-- not mandatory may be present in the profile -->
-          <xs:complexType>
-            <xs:choice>
-              <xs:sequence>
-                <xs:element name="metatrafficUnicastLocatorList" type="locatorListType" minOccurs="1" />
-                <xs:element name="metatrafficMulticastLocatorList" type="locatorListType" minOccurs="0" />
-              </xs:sequence>
-              <xs:sequence>
-                <xs:element name="metatrafficMulticastLocatorList" type="locatorListType" minOccurs="1" />
-                <xs:element name="metatrafficUnicastLocatorList" type="locatorListType" minOccurs="0" />
-              </xs:sequence>
+        <xs:sequence>
+            <xs:element name="ListeningPorts" minOccurs="0" maxOccurs="1">                <!-- not mandatory may be present in the profile -->
+                <xs:complexType>
+                    <xs:choice>
+                        <xs:sequence>
+                            <xs:element name="metatrafficUnicastLocatorList" type="locatorListType" minOccurs="1" />
+                            <xs:element name="metatrafficMulticastLocatorList" type="locatorListType" minOccurs="0" />
+                        </xs:sequence>
+                        <xs:sequence>
+                            <xs:element name="metatrafficMulticastLocatorList" type="locatorListType" minOccurs="1" />
+                            <xs:element name="metatrafficUnicastLocatorList" type="locatorListType" minOccurs="0" />
+                        </xs:sequence>
+                    </xs:choice>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="ServersList" type="ServersListType" minOccurs="0" maxOccurs="1" />
+            <!-- not mandatory may be present in the profile -->
+            <xs:choice minOccurs="0">
+                <!-- publisher and subscriber must be contiguous but in any order -->
+                <xs:sequence>
+                    <xs:element name="subscriber" type="subscriberType" minOccurs="1" maxOccurs="unbounded" />
+                    <xs:element name="publisher" type="publisherType" minOccurs="0" maxOccurs="unbounded" />
+                </xs:sequence>
+                <xs:sequence>
+                    <xs:element name="publisher" type="publisherType" minOccurs="1" maxOccurs="unbounded" />
+                    <xs:element name="subscriber" type="subscriberType" minOccurs="0" maxOccurs="unbounded" />
+                </xs:sequence>
             </xs:choice>
-          </xs:complexType>
-        </xs:element>
-        <xs:element name="ServersList" type="ServersListType" minOccurs="0" maxOccurs="1"  /> <!-- not mandatory may be present in the profile -->
-        <xs:choice minOccurs="0">
-          <!-- publisher and subscriber must be contiguous but in any order -->
-          <xs:sequence>
-            <xs:element name="subscriber" type="subscriberType" minOccurs="1" maxOccurs="unbounded" />
-            <xs:element name="publisher" type="publisherType" minOccurs="0" maxOccurs="unbounded" />
-          </xs:sequence>
-          <xs:sequence>
-            <xs:element name="publisher" type="publisherType" minOccurs="1" maxOccurs="unbounded" />
-            <xs:element name="subscriber" type="subscriberType" minOccurs="0" maxOccurs="unbounded" />
-          </xs:sequence>
-        </xs:choice>
-      </xs:sequence>
-      <xs:attribute name="name" type="stringType" use="optional" />
-      <!-- name may be specified within the profile -->
-      <xs:attribute name="prefix" type="guid" use="optional" />
-      <!-- prefix may be specified within the profile -->
-      <xs:attribute name="profile_name" type="stringType" use="required" />
-      <xs:attribute name="persist" type="boolean" use="optional" />
-      <!-- backup server? defaults to NO-->
-      <xs:attribute name="creation_time" type="uint32Type" use="optional" />
-      <!-- creation time in seconds from startup-->
-      <xs:attribute name="removal_time" type="uint32Type" use="optional" />
-      <!-- removal time in seconds from startup-->     
+        </xs:sequence>
+        <xs:attribute name="name" type="stringType" use="optional" />
+        <!-- name may be specified within the profile -->
+        <xs:attribute name="prefix" type="guid" use="optional" />
+        <!-- prefix may be specified within the profile -->
+        <xs:attribute name="profile_name" type="stringType" use="required" />
+        <xs:attribute name="persist" type="boolean" use="optional" />
+        <!-- backup server? defaults to NO-->
+        <xs:attribute name="creation_time" type="uint32Type" use="optional" />
+        <!-- creation time in seconds from startup-->
+        <xs:attribute name="removal_time" type="uint32Type" use="optional" />
+        <!-- removal time in seconds from startup-->
     </xs:complexType>
 
     <xs:complexType name="ServersListType">
-      <xs:sequence>
-        <xs:element name="RServer" minOccurs="1" maxOccurs="unbounded">
-          <xs:complexType>
-            <xs:attribute name="prefix" type="guid" use="required" />
-          </xs:complexType>
-        </xs:element>
-      </xs:sequence>
+        <xs:sequence>
+            <xs:element name="RServer" minOccurs="1" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:attribute name="prefix" type="guid" use="required" />
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="clientType">
-      <xs:sequence >
-        <xs:element name="ServersList" type="ServersListType" minOccurs="0" maxOccurs="1"  />
-        <xs:choice minOccurs="0">
-          <!-- publisher and subscriber must be contiguous but in any order -->
-          <xs:sequence>
-            <xs:element name="subscriber" type="subscriberType" minOccurs="1" maxOccurs="unbounded" />
-            <xs:element name="publisher" type="publisherType" minOccurs="0" maxOccurs="unbounded" />
-          </xs:sequence>
-          <xs:sequence>
-            <xs:element name="publisher" type="publisherType" minOccurs="1" maxOccurs="unbounded" />
-            <xs:element name="subscriber" type="subscriberType" minOccurs="0" maxOccurs="unbounded" />
-          </xs:sequence>
-        </xs:choice>
-      </xs:sequence>
-      <!-- not mandatory may be present in the profile -->
-      <xs:attribute name="name" type="stringType" use="optional" /> <!-- name may be specified within the profile -->
-      <xs:attribute name="profile_name" type="stringType" use="required" />
-      <xs:attribute name="server" type="guid" use="optional" />
-      <xs:attribute name="creation_time" type="uint32Type" use="optional" />
-      <!-- creation time in seconds from startup-->
-      <xs:attribute name="removal_time" type="uint32Type" use="optional" />
-      <!-- removal time in seconds from startup-->
+        <xs:sequence >
+            <xs:element name="ServersList" type="ServersListType" minOccurs="0" maxOccurs="1" />
+            <xs:choice minOccurs="0">
+                <!-- publisher and subscriber must be contiguous but in any order -->
+                <xs:sequence>
+                    <xs:element name="subscriber" type="subscriberType" minOccurs="1" maxOccurs="unbounded" />
+                    <xs:element name="publisher" type="publisherType" minOccurs="0" maxOccurs="unbounded" />
+                </xs:sequence>
+                <xs:sequence>
+                    <xs:element name="publisher" type="publisherType" minOccurs="1" maxOccurs="unbounded" />
+                    <xs:element name="subscriber" type="subscriberType" minOccurs="0" maxOccurs="unbounded" />
+                </xs:sequence>
+            </xs:choice>
+        </xs:sequence>
+        <!-- not mandatory may be present in the profile -->
+        <xs:attribute name="name" type="stringType" use="optional" />
+        <!-- name may be specified within the profile -->
+        <xs:attribute name="profile_name" type="stringType" use="required" />
+        <xs:attribute name="server" type="guid" use="optional" />
+        <xs:attribute name="creation_time" type="uint32Type" use="optional" />
+        <!-- creation time in seconds from startup-->
+        <xs:attribute name="removal_time" type="uint32Type" use="optional" />
+        <!-- removal time in seconds from startup-->
     </xs:complexType>
 
     <xs:simpleType name="descriptionType">
-      <xs:restriction base="xs:string">
-        <xs:whiteSpace value='collapse'/>
-      </xs:restriction>
+        <xs:restriction base="xs:string">
+            <xs:whiteSpace value='collapse'/>
+        </xs:restriction>
     </xs:simpleType>
 
     <xs:complexType name="SnapShotType">
-      <xs:simpleContent>
-        <xs:extension base="descriptionType">
-          <xs:attribute name="time" type="uint32Type" use="required" />
-        </xs:extension>
-      </xs:simpleContent>
+        <xs:simpleContent>
+            <xs:extension base="descriptionType">
+                <xs:attribute name="time" type="uint32Type" use="required" />
+            </xs:extension>
+        </xs:simpleContent>
     </xs:complexType>
-  
-  <xs:element name="DS">
-      <xs:complexType>
-        <xs:all>
-          <xs:element name="profiles" type="profileDescriptorType" minOccurs="1" />
-          <xs:element name="servers" minOccurs="1">
-              <xs:complexType>
-                <xs:sequence>
-                  <xs:element name="server" type="serverType" minOccurs="1" maxOccurs="unbounded"/>
-                </xs:sequence>
-              </xs:complexType>           
-          </xs:element>
-          <xs:element name="clients"  minOccurs="0">
-              <xs:complexType>
-                <xs:sequence>
-                  <xs:element name="client" type="clientType" minOccurs="1" maxOccurs="unbounded"/>
-                </xs:sequence>
-              </xs:complexType>
-          </xs:element>
-          <xs:element name="types" type="typesDescriptorType" minOccurs="0" />
-          <xs:element name="snapshots"  minOccurs="0">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="snapshot" type="SnapShotType" minOccurs="1" maxOccurs="unbounded"/>
-              </xs:sequence>
-            </xs:complexType>
-          </xs:element>
-        </xs:all>
-        <xs:attribute name="user_shutdown" type="xs:boolean" default="true" use="optional" />
-      </xs:complexType>
+
+    <xs:element name="DS">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="profiles" type="profileDescriptorType" minOccurs="1" />
+                <xs:element name="servers" minOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="server" type="serverType" minOccurs="1" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="clients" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="client" type="clientType" minOccurs="1" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="types" type="typesDescriptorType" minOccurs="0" />
+                <xs:element name="snapshots" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="snapshot" type="SnapShotType" minOccurs="1" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:all>
+            <xs:attribute name="user_shutdown" type="xs:boolean" default="true" use="optional" />
+        </xs:complexType>
     </xs:element>
 
     <!-- DDS XML TYPES (FULL) -->
@@ -940,9 +943,9 @@
         <xs:sequence>
             <xs:choice minOccurs="1" maxOccurs="unbounded">
                 <xs:element name="caseDiscriminator" minOccurs="1" maxOccurs="unbounded">
-                  <xs:complexType>
-                    <xs:attribute name="value" type="string" />
-                  </xs:complexType>
+                    <xs:complexType>
+                        <xs:attribute name="value" type="string" />
+                    </xs:complexType>
                 </xs:element>
             </xs:choice>
             <xs:element name="member" type="memberDcl" minOccurs="1" maxOccurs="1"/>
@@ -970,7 +973,7 @@
         </xs:restriction>
     </xs:simpleType>
 
-	<xs:complexType name="consumerDataType">
+    <xs:complexType name="consumerDataType">
         <xs:all>
             <xs:element name="class" type="string"/>
             <xs:element name="property" type="propertyVectorType"/>
@@ -1002,18 +1005,18 @@
 
     <!-- Dynamic Types -->
 
-  <xs:complexType name="typeDescriptorType">
-      <xs:group ref="moduleElems"/>
-  </xs:complexType>
+    <xs:complexType name="typeDescriptorType">
+        <xs:group ref="moduleElems"/>
+    </xs:complexType>
 
-  <xs:complexType name="typesDescriptorType">
-    <xs:sequence>
-      <xs:element name="type" type="typeDescriptorType" minOccurs="1" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
+    <xs:complexType name="typesDescriptorType">
+        <xs:sequence>
+            <xs:element name="type" type="typeDescriptorType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
 
-	
-	<xs:group name="moduleElems">
+
+    <xs:group name="moduleElems">
         <xs:sequence>
             <xs:choice maxOccurs="unbounded">
                 <xs:element name="struct" type="structDcl" minOccurs="0"/>
@@ -1035,11 +1038,11 @@
 
     <xs:complexType name="unionDcl">
         <xs:sequence>
-          <xs:element name="discriminator" minOccurs="1">
-            <xs:complexType>
-              <xs:attribute name="type" type="string"/>
-            </xs:complexType>
-          </xs:element>
+            <xs:element name="discriminator" minOccurs="1">
+                <xs:complexType>
+                    <xs:attribute name="type" type="string"/>
+                </xs:complexType>
+            </xs:element>
             <xs:sequence maxOccurs="unbounded">
                 <xs:element name="case" type="caseDcl" minOccurs="1"/>
             </xs:sequence>
@@ -1082,4 +1085,3 @@
     </xs:complexType>
 
 </xs:schema>
-

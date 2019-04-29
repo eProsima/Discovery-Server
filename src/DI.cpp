@@ -17,7 +17,13 @@
 #include <iterator>
 #include <sstream>
 #include <iomanip>
+#include <tinyxml2.h>
 #include "DI.h"
+
+#ifndef XMLCheckResult
+	#define XMLCheckResult(a_eResult) if (a_eResult != XML_SUCCESS) { printf("Error: %i\n", a_eResult); \
+    return a_eResult; }
+#endif
 
 using namespace eprosima::discovery_server;
 
@@ -558,6 +564,251 @@ const PtDB * Snapshot::operator[](const GUID_t & id) const
     }
 
     return &*it;
+}
+
+void Snapshot::to_xml(tinyxml2::XMLNode* pRoot) const
+{
+    using namespace tinyxml2;
+
+    XMLDocument xmlDoc;
+    XMLElement* pMyRoot = xmlDoc.NewElement("DS_Snapshot");
+    pRoot->InsertEndChild(pMyRoot);
+
+    XMLElement* pTimestamp = xmlDoc.NewElement("timestamp");
+    pTimestamp->SetText(this->_time.time_since_epoch().count());
+    pRoot->InsertEndChild(pTimestamp);
+
+    XMLElement* pDescription = xmlDoc.NewElement("description");
+    pDescription->SetText(this->_des.c_str());
+    pRoot->InsertEndChild(pDescription);
+
+    for (const PtDB& ptdb : *this)
+    {
+        XMLElement* pPtdb = xmlDoc.NewElement("ptdb");
+        {
+            std::stringstream sstream;
+            sstream << ptdb._id.guidPrefix;
+            pPtdb->SetAttribute("guid_prefix", sstream.str().c_str());
+        }
+        {
+            std::stringstream sstream;
+            sstream << ptdb._id.entityId;
+            pPtdb->SetAttribute("guid_entity", sstream.str().c_str());
+        }
+
+        for (const PtDI& ptdi : ptdb)
+        {
+            /*
+            // identity
+            bool _server; // false -> client
+            bool _alive; // false if death already reported but owned endpoints yet to be
+            std::string _name;
+
+            // local user entities
+            publisher_set _publishers;
+            subscriber_set _subscribers;
+            */
+            XMLElement* pPtdi = xmlDoc.NewElement("ptdi");
+            {
+                std::stringstream sstream;
+                sstream << ptdi._id.guidPrefix;
+                pPtdi->SetAttribute("guid_prefix",sstream.str().c_str());
+            }
+            {
+                std::stringstream sstream;
+                sstream << ptdi._id.entityId;
+                pPtdi->SetAttribute("guid_entity",sstream.str().c_str());
+            }
+
+            pPtdi->SetAttribute("server", ptdi._server);
+            pPtdi->SetAttribute("alive", ptdi._alive);
+            pPtdi->SetAttribute("name", ptdi._name.c_str());
+
+            for (const SDI& sub : ptdi._subscribers)
+            {
+                XMLElement* pSub = xmlDoc.NewElement("subscriber");
+                pSub->SetAttribute("type", sub._typeName.c_str());
+                pSub->SetAttribute("topic", sub._topicName.c_str());
+                {
+                    std::stringstream sstream;
+                    sstream << sub._id.guidPrefix;
+                    pSub->SetAttribute("guid_prefix",sstream.str().c_str());
+                }
+                {
+                    std::stringstream sstream;
+                    sstream << sub._id.entityId;
+                    pSub->SetAttribute("guid_entity",sstream.str().c_str());
+                }
+                pPtdi->InsertEndChild(pSub);
+            }
+
+            for (const PDI& pub : ptdi._publishers)
+            {
+                XMLElement* pPub = xmlDoc.NewElement("publisher");
+                pPub->SetAttribute("type", pub._typeName.c_str());
+                pPub->SetAttribute("topic", pub._topicName.c_str());
+                {
+                    std::stringstream sstream;
+                    sstream << pub._id.guidPrefix;
+                    pPub->SetAttribute("guid_prefix",sstream.str().c_str());
+                }
+                {
+                    std::stringstream sstream;
+                    sstream << pub._id.entityId;
+                    pPub->SetAttribute("guid_entity",sstream.str().c_str());
+                }
+                pPtdi->InsertEndChild(pPub);
+            }
+
+            pPtdb->InsertEndChild(pPtdi);
+        }
+
+        pRoot->InsertEndChild(pPtdb);
+    }
+}
+
+void Snapshot::from_xml(tinyxml2::XMLNode* pRoot)
+{
+    using namespace tinyxml2;
+    using eprosima::fastrtps::rtps::GuidPrefix_t;
+    using eprosima::fastrtps::rtps::EntityId_t;
+
+    if (pRoot != nullptr)
+    {
+        XMLElement* pTimestamp = pRoot->FirstChildElement("timestamp");
+        if (pTimestamp != nullptr)
+        {
+            int64_t time;
+            pTimestamp->QueryInt64Text(&time);
+            using Ns = std::chrono::nanoseconds;
+
+            this->_time = std::chrono::steady_clock::time_point(Ns(time));
+        }
+
+        XMLElement* pDescription = pRoot->FirstChildElement("description");
+        if (pDescription != nullptr)
+        {
+            _des = pDescription->GetText();
+        }
+
+        for (XMLElement* pPtdb = pRoot->FirstChildElement("ptdb");
+                pPtdb != nullptr;
+                pPtdb = pPtdb->NextSiblingElement("ptdb"))
+        {
+            GUID_t ptdb_guid;
+            {
+                GuidPrefix_t guidPrefix;
+                {
+                    std::string guid = pPtdb->Attribute("guid_prefix");
+                    std::stringstream sstream;
+                    sstream << guid;
+                    sstream >> guidPrefix;
+                }
+                EntityId_t entityId;
+                {
+                    std::string guid = pPtdb->Attribute("guid_entity");
+                    std::stringstream sstream;
+                    sstream << guid;
+                    sstream >> entityId;
+                }
+                ptdb_guid.guidPrefix = guidPrefix;
+                ptdb_guid.entityId = entityId;
+            }
+            PtDB ptdb(std::move(ptdb_guid));
+
+            for (XMLElement* pPtdi = pPtdb->FirstChildElement("ptdi");
+                    pPtdi != nullptr;
+                    pPtdi = pPtdi->NextSiblingElement("ptdi"))
+            {
+                GUID_t ptdi_guid;
+                {
+                    GuidPrefix_t guidPrefix;
+                    {
+                        std::string guid = pPtdb->Attribute("guid_prefix");
+                        std::stringstream sstream;
+                        sstream << guid;
+                        sstream >> guidPrefix;
+                    }
+                    EntityId_t entityId;
+                    {
+                        std::string guid = pPtdb->Attribute("guid_entity");
+                        std::stringstream sstream;
+                        sstream << guid;
+                        sstream >> entityId;
+                    }
+                    ptdi_guid.guidPrefix = guidPrefix;
+                    ptdi_guid.entityId = entityId;
+                }
+                PtDI ptdi(std::move(ptdi_guid));
+
+                pPtdi->QueryBoolAttribute("server", &ptdi._server);
+                pPtdi->QueryBoolAttribute("alive", &ptdi._alive);
+                ptdi._name = pPtdi->Attribute("name");
+
+                for (XMLElement* pSub = pPtdi->FirstChildElement("subscriber");
+                        pSub != nullptr;
+                        pSub = pSub->NextSiblingElement("subscriber"))
+                {
+                    GUID_t sub_guid;
+                    {
+                        GuidPrefix_t guidPrefix;
+                        {
+                            std::string guid = pPtdb->Attribute("guid_prefix");
+                            std::stringstream sstream;
+                            sstream << guid;
+                            sstream >> guidPrefix;
+                        }
+                        EntityId_t entityId;
+                        {
+                            std::string guid = pPtdb->Attribute("guid_entity");
+                            std::stringstream sstream;
+                            sstream << guid;
+                            sstream >> entityId;
+                        }
+                        sub_guid.guidPrefix = guidPrefix;
+                        sub_guid.entityId = entityId;
+                    }
+                    SDI sub(std::move(sub_guid), pSub->Attribute("type"), pSub->Attribute("topic"));
+                    ptdi._subscribers.emplace(sub);
+                }
+
+                for (XMLElement* pPub = pPtdi->FirstChildElement("publisher");
+                        pPub != nullptr;
+                        pPub = pPub->NextSiblingElement("publisher"))
+                {
+                    GUID_t pub_guid;
+                    {
+                        GuidPrefix_t guidPrefix;
+                        {
+                            std::string guid = pPtdb->Attribute("guid_prefix");
+                            std::stringstream sstream;
+                            sstream << guid;
+                            sstream >> guidPrefix;
+                        }
+                        EntityId_t entityId;
+                        {
+                            std::string guid = pPtdb->Attribute("guid_entity");
+                            std::stringstream sstream;
+                            sstream << guid;
+                            sstream >> entityId;
+                        }
+                        pub_guid.guidPrefix = guidPrefix;
+                        pub_guid.entityId = entityId;
+                    }
+                    PDI pub(std::move(pub_guid), pPub->Attribute("type"), pPub->Attribute("topic"));
+                    ptdi._publishers.emplace(pub);
+                }
+
+                ptdb.emplace(ptdi);
+            }
+
+            this->emplace(ptdb);
+        }
+    }/*
+    else
+    {
+        LOG_ERROR("Error loading XML file " << file);
+    }*/
 }
 
 std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const Snapshot& shot)
