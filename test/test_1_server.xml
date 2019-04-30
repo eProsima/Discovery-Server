@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
+  <servers>
+    <server name="server" profile_name="UDP server" />
+  </servers>
+
+  <snapshots file="snapshots_1_server.xml">
+    <snapshot time="3">Check server.</snapshot>
+  </snapshots>
+
+  <profiles>
+    <participant profile_name="UDP server">
+      <rtps>
+        <prefix>
+          4c.75.69.73.20.20.47.61.73.63.6f.00
+        </prefix>
+        <builtin>
+          <discoveryProtocol>SERVER</discoveryProtocol>
+          <metatrafficUnicastLocatorList>
+            <locator>
+              <udpv4>
+                <address>127.0.0.1</address>
+                <port>65215</port>
+              </udpv4>
+            </locator>
+          </metatrafficUnicastLocatorList>
+        </builtin>
+      </rtps>
+    </participant>
+  </profiles>
+
+</DS>

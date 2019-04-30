@@ -151,10 +151,10 @@ DSManager::DSManager(const std::string &xml_file_path)
                     server = server->NextSiblingElement(s_sServer.c_str());
                 }
             }
-            else
+            else if (!_shutdown)
             {
                 LOG_ERROR("No servers found!");
-                return;
+                return; // For testing purposes, don't return.
             }
 
             // Create the clients according with the configuration, clients have only testing purposes
@@ -173,7 +173,11 @@ DSManager::DSManager(const std::string &xml_file_path)
             tinyxml2::XMLElement* snapshots = child->FirstChildElement(s_sSnapshots.c_str());
             if (snapshots)
             {
-                sh_file_ = snapshots->Attribute(s_sFile.c_str());
+                const char* file = snapshots->Attribute(s_sFile.c_str());
+                if (file != nullptr)
+                {
+                    sh_file_ = file;
+                }
                 tinyxml2::XMLElement *snapshot = snapshots->FirstChildElement(s_sSnapshot.c_str());
                 while (snapshot)
                 {
@@ -1355,7 +1359,11 @@ bool DSManager::allKnowEachOther(const Snapshot & shot)
     // traverse snapshot comparing each member with each other
     Snapshot::const_iterator it1, it2;
     it2 = it1 = shot.cbegin();
-    ++it2;
+
+    if (it2 != shot.cend())
+    {
+        ++it2;
+    }
 
     while (it2 != shot.cend() && *it1 == *it2)
     {
