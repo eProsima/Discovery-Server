@@ -107,6 +107,9 @@ class DSManager : public xmlparser::XMLParser,      // access to parsing protect
     // type handling
     type_map _types;
 
+    // File where to save snapshots
+    std::string sh_file_;
+
 public:
     DSManager(const std::string &xml_file_path);
     ~DSManager();

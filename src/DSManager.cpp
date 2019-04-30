@@ -47,6 +47,7 @@ static const std::string s_sCreationTime("creation_time");
 static const std::string s_sRemovalTime("removal_time");
 static const std::string s_sSnapshot("snapshot");
 static const std::string s_sSnapshots("snapshots");
+static const std::string s_sSnapshotsFile("snapshotsFile");
 static const std::string s_sUserShutdown("user_shutdown");
 
 // non exported from fast-RTPS (watch out they are updated)
@@ -165,6 +166,14 @@ DSManager::DSManager(const std::string &xml_file_path)
                     loadSnapshot(snapshot);
                     snapshot = snapshot->NextSiblingElement(s_sSnapshot.c_str());
                 }
+            }
+
+            // Snapshot file
+            tinyxml2::XMLElement* snapshotsFile = child->FirstChildElement(s_sSnapshotsFile.c_str());
+            if (snapshotsFile)
+            {
+                sh_file_ = snapshotsFile->GetText();
+                std::cout << "Loaded snapshots file " << sh_file_ << std::endl;
             }
 
         }
@@ -456,6 +465,11 @@ void DSManager::onTerminate()
 
 DSManager::~DSManager()
 {
+    // TODO Barro, think where you want to save the snapshots
+    if (!sh_file_.empty())
+    {
+        saveSnapshots(sh_file_);
+    }
     onTerminate();
 }
 
@@ -1356,4 +1370,38 @@ bool DSManager::validateAllSnapshots() const
     }
 
     return work_it_all;
+}
+
+void DSManager::loadSnapshots(const std::string& file)
+{
+    using namespace tinyxml2;
+    XMLDocument xmlDoc;
+    xmlDoc.LoadFile(file.c_str());
+    XMLNode * pRoot = xmlDoc.FirstChild();
+    for (XMLElement* pSh = pRoot->FirstChildElement("DS_Snapshot");
+            pSh != nullptr;
+            pSh = pSh->NextSiblingElement("DS_Snapshot"))
+    {
+        Snapshot sh(std::chrono::steady_clock::now());
+        sh.from_xml(pSh);
+        _snapshots.emplace_back(sh);
+    }
+}
+
+void DSManager::saveSnapshots(const std::string& file) const
+{
+    using namespace tinyxml2;
+    XMLDocument xmlDoc;
+    XMLNode* pRoot = xmlDoc.NewElement("DS_Snapshots");
+    for (const Snapshot& sh : _snapshots)
+    {
+        std::cout << "Saving snapshot " << sh._des << std::endl;
+
+        XMLElement* pShRoot = xmlDoc.NewElement("DS_Snapshot");
+        sh.to_xml(pShRoot, xmlDoc);
+        pRoot->InsertEndChild(pShRoot);
+    }
+    xmlDoc.InsertEndChild(pRoot);
+    XMLError error = xmlDoc.SaveFile(file.c_str());
+    std::cout << error << std::endl;
 }

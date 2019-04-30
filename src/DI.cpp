@@ -566,13 +566,9 @@ const PtDB * Snapshot::operator[](const GUID_t & id) const
     return &*it;
 }
 
-void Snapshot::to_xml(tinyxml2::XMLNode* pRoot) const
+void Snapshot::to_xml(tinyxml2::XMLNode* pRoot, tinyxml2::XMLDocument& xmlDoc) const
 {
     using namespace tinyxml2;
-
-    XMLDocument xmlDoc;
-    XMLElement* pMyRoot = xmlDoc.NewElement("DS_Snapshot");
-    pRoot->InsertEndChild(pMyRoot);
 
     XMLElement* pTimestamp = xmlDoc.NewElement("timestamp");
     pTimestamp->SetText(this->_time.time_since_epoch().count());
@@ -598,16 +594,6 @@ void Snapshot::to_xml(tinyxml2::XMLNode* pRoot) const
 
         for (const PtDI& ptdi : ptdb)
         {
-            /*
-            // identity
-            bool _server; // false -> client
-            bool _alive; // false if death already reported but owned endpoints yet to be
-            std::string _name;
-
-            // local user entities
-            publisher_set _publishers;
-            subscriber_set _subscribers;
-            */
             XMLElement* pPtdi = xmlDoc.NewElement("ptdi");
             {
                 std::stringstream sstream;

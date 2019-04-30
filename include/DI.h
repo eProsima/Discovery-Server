@@ -29,6 +29,7 @@
 namespace tinyxml2
 {
 class XMLNode;
+class XMLDocument;
 }
 
 namespace eprosima {
@@ -231,7 +232,7 @@ namespace eprosima {
             PtDB & operator[](const GUID_t &);
             const PtDB * operator[](const GUID_t &) const;
 
-            void to_xml(tinyxml2::XMLNode* pRoot) const;
+            void to_xml(tinyxml2::XMLNode* pRoot, tinyxml2::XMLDocument& xmlDoc) const;
             void from_xml(tinyxml2::XMLNode* pRoot);
         };
 

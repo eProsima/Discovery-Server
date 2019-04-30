@@ -865,6 +865,7 @@
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="snapshotsFile" type="stringType" minOccurs="0" maxOccurs="1" />
             </xs:all>
             <xs:attribute name="user_shutdown" type="xs:boolean" default="true" use="optional" />
         </xs:complexType>
