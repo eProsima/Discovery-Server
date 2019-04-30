@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
+  <clients>
+    <client name="client2" profile_name="UDP client">
+      <publisher/>  <!-- defaults to helloworld type -->
+      <publisher topic="topic 1"/>
+      <publisher profile_name="Pub 1"/>
+      <subscriber profile_name="Sub 2"/>
+	</client>
+  </clients>
+
+  <snapshots file="snapshots_3_client2.xml">
+	  <snapshot time="3">Check client2 detects client1 and server and their entities</snapshot>
+  </snapshots>
+
+  <profiles>
+
+    <participant profile_name="UDP client" >
+      <rtps>
+        <builtin>
+          <discoveryProtocol>CLIENT</discoveryProtocol>
+          <discoveryServersList>
+            <RemoteServer prefix="47.61.73.63.6f.54.65.73.74.69.6e.67">
+              <metatrafficUnicastLocatorList>
+                <locator>
+                  <udpv4>
+                    <address>127.0.0.1</address>
+                    <port>65215</port>
+                  </udpv4>
+                </locator>
+              </metatrafficUnicastLocatorList>
+            </RemoteServer>
+          </discoveryServersList>
+        </builtin>
+      </rtps>
+    </participant>
+
+    <publisher profile_name="Pub 1">
+      <topic>
+        <name>topic_1</name>
+        <dataType>sample_type_1</dataType>
+      </topic>
+    </publisher>
+
+    <subscriber profile_name="Sub 2">
+      <topic>
+        <name>topic_2</name>
+        <dataType>sample_type_2</dataType>
+      </topic>
+    </subscriber>
+
+    <topic profile_name="topic 1">
+      <name>topic_1</name>
+      <dataType>sample_type_1</dataType>
+    </topic>
+
+    <topic profile_name="topic 2">
+      <name>topic_2</name>
+      <dataType>sample_type_2</dataType>
+    </topic>
+
+  </profiles>
+
+  <types>
+    <type>
+      <struct name="sample_type_1">
+        <member name="index" type="uint32" />
+        <member name="message" type="string" />
+      </struct>
+    </type>
+
+    <type>
+      <union name="sample_type_2">
+        <discriminator type="byte" />
+        <case>
+          <caseDiscriminator value="0" />
+          <member name="index" type="uint32" />
+        </case>
+        <case>
+          <caseDiscriminator value="1" />
+          <member name="message" type="string" />
+        </case>
+      </union>
+    </type>
+
+  </types>
+
+</DS>

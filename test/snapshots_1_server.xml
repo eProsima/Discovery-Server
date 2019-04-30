@@ -1,8 +1,0 @@
-<DS_Snapshots>
-    <DS_Snapshot timestamp="21563830228211">
-        <description>Check server.</description>
-        <ptdb guid_prefix="4c.75.69.73.20.20.47.61.73.63.6f.0" guid_entity="0.0.1.c1">
-            <ptdi guid_prefix="1.f.1.37.9d.27.0.0.1.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client2"/>
-        </ptdb>
-    </DS_Snapshot>
-</DS_Snapshots>
