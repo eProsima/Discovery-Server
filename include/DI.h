@@ -228,6 +228,7 @@ namespace eprosima {
             Snapshot(Snapshot&&) = default;
             Snapshot& operator=(const Snapshot&) = default;
             Snapshot& operator=(Snapshot&&) = default;
+            Snapshot& operator+=(const Snapshot&);
 
             PtDB & operator[](const GUID_t &);
             const PtDB * operator[](const GUID_t &) const;

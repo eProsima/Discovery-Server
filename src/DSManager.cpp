@@ -191,6 +191,17 @@ DSManager::DSManager(const std::string &xml_file_path)
     LOG_INFO("File " << xml_file_path << " parsed successfully.");
 }
 
+DSManager::DSManager(const std::set<std::string>& xml_snapshot_files)
+    : _nocallbacks(true)
+    , _shutdown(true)
+{
+    for (const std::string& file : xml_snapshot_files)
+    {
+        loadSnapshots(file);
+        LOG("Loaded snapshot file " << file);
+    }
+}
+
 void DSManager::runEvents(std::istream& in /*= std::cin*/, std::ostream& out /*= std::cout*/)
 {
     // Order the event list
@@ -1354,7 +1365,7 @@ bool DSManager::allKnowEachOther(const Snapshot & shot)
 
     if (it2 != shot.cend())
     {
-        std::cout << "Falló al comprobar:" << std::endl << *it1 << *it2 << std::endl;
+        LOG_ERROR("Failed checking:" << std::endl << *it1 << *it2);
     }
 
     return it2 == shot.cend();
@@ -1388,13 +1399,33 @@ void DSManager::loadSnapshots(const std::string& file)
     XMLDocument xmlDoc;
     xmlDoc.LoadFile(file.c_str());
     XMLNode * pRoot = xmlDoc.FirstChild();
+
+    snapshots_list::iterator it;
+    bool inserter = _snapshots.empty();
+    if (!inserter)
+    {
+        it = _snapshots.begin();
+    }
+
     for (XMLElement* pSh = pRoot->FirstChildElement(s_sDS_Snapshot.c_str());
             pSh != nullptr;
             pSh = pSh->NextSiblingElement(s_sDS_Snapshot.c_str()))
     {
         Snapshot sh(std::chrono::steady_clock::now());
         sh.from_xml(pSh);
-        _snapshots.emplace_back(sh);
+        if (inserter)
+        {
+            _snapshots.emplace_back(sh);
+        }
+        else
+        {
+            if (it == _snapshots.end())
+            {
+                LOG_ERROR("Number of snapshots doesn't match: " << file);
+                break;
+            }
+            *it++ += sh;
+        }
     }
 }
 

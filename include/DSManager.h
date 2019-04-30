@@ -111,7 +111,8 @@ class DSManager : public xmlparser::XMLParser,      // access to parsing protect
     std::string sh_file_;
 
 public:
-    DSManager(const std::string &xml_file_path);
+    DSManager(const std::string& xml_file_path);
+    DSManager(const std::set<std::string>& xml_snapshot_files);
     ~DSManager();
 
     // testing database

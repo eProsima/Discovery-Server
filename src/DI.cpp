@@ -816,6 +816,12 @@ void Snapshot::from_xml(tinyxml2::XMLElement* pRoot)
     }*/
 }
 
+Snapshot& Snapshot::operator+=(const Snapshot& sh)
+{
+    this->insert(sh.begin(), sh.end());
+    return *this;
+}
+
 std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const Snapshot& shot)
 {
     std::string timestamp;

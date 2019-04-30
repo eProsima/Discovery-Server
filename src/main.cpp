@@ -27,22 +27,41 @@ int main(int argc, char * argv[])
 
     if (!(argc > 1))
     {
-        std::cout << "Usage: discovery-server CONFIG_XML" << std::endl;
+        std::cout << "Usage: discovery-server [CONFIG_XML|SNAPSHOT_XML+]" << std::endl;
     }
 
-    std::string path_to_config = argv[1];
     int return_code = 0;
-
+    if (argc == 2)
     {
-        DSManager manager(path_to_config);
+        std::string path_to_config = argv[1];
 
-        // Follow the config file instructions
-        manager.runEvents(std::cin, std::cout);
+        {
+            DSManager manager(path_to_config);
+
+            // Follow the config file instructions
+            manager.runEvents(std::cin, std::cout);
+
+            // Check the snapshots taken
+            if (!manager.validateAllSnapshots())
+            {
+                LOG_ERROR("Discovery Server error: several snapshots show info leakage");
+                return_code = -1; // report CTest the test fail
+            }
+        }
+    }
+    else
+    {
+        std::set<std::string> files;
+        for (int i = 1; i < argc; ++i)
+        {
+            files.emplace(argv[i]);
+        }
+        DSManager manager(files);
 
         // Check the snapshots taken
         if (!manager.validateAllSnapshots())
         {
-            std::cout << "Discovery Server error: several snapshots show info leakage" << std::endl;
+            LOG_ERROR("Discovery Server error: several snapshots show info leakage");
             return_code = -1; // report CTest the test fail
         }
     }
