@@ -20,6 +20,20 @@
 #include <tinyxml2.h>
 #include "DI.h"
 
+static const std::string s_sTimestamp("timestamp");
+static const std::string s_sDescription("description");
+static const std::string s_sPtDB("ptdb");
+static const std::string s_sPtDI("ptdi");
+static const std::string s_sPublisher("publisher");
+static const std::string s_sSubscriber("subscriber");
+static const std::string s_sGUID_prefix("guid_prefix");
+static const std::string s_sGUID_entity("guid_entity");
+static const std::string s_sServer("server");
+static const std::string s_sAlive("alive");
+static const std::string s_sName("name");
+static const std::string s_sTopic("topic");
+static const std::string s_sType("type");
+
 #ifndef XMLCheckResult
 	#define XMLCheckResult(a_eResult) if (a_eResult != XML_SUCCESS) { printf("Error: %i\n", a_eResult); \
     return a_eResult; }
@@ -566,82 +580,83 @@ const PtDB * Snapshot::operator[](const GUID_t & id) const
     return &*it;
 }
 
-void Snapshot::to_xml(tinyxml2::XMLNode* pRoot, tinyxml2::XMLDocument& xmlDoc) const
+void Snapshot::to_xml(tinyxml2::XMLElement* pRoot, tinyxml2::XMLDocument& xmlDoc) const
 {
     using namespace tinyxml2;
 
-    XMLElement* pTimestamp = xmlDoc.NewElement("timestamp");
-    pTimestamp->SetText(this->_time.time_since_epoch().count());
-    pRoot->InsertEndChild(pTimestamp);
+    //XMLElement* pTimestamp = xmlDoc.NewElement(s_sTimestamp.c_str());
+    //pTimestamp->SetText(this->_time.time_since_epoch().count());
+    //pRoot->InsertEndChild(pTimestamp);
+    pRoot->SetAttribute(s_sTimestamp.c_str(), this->_time.time_since_epoch().count());
 
-    XMLElement* pDescription = xmlDoc.NewElement("description");
+    XMLElement* pDescription = xmlDoc.NewElement(s_sDescription.c_str());
     pDescription->SetText(this->_des.c_str());
     pRoot->InsertEndChild(pDescription);
 
     for (const PtDB& ptdb : *this)
     {
-        XMLElement* pPtdb = xmlDoc.NewElement("ptdb");
+        XMLElement* pPtdb = xmlDoc.NewElement(s_sPtDB.c_str());
         {
             std::stringstream sstream;
             sstream << ptdb._id.guidPrefix;
-            pPtdb->SetAttribute("guid_prefix", sstream.str().c_str());
+            pPtdb->SetAttribute(s_sGUID_prefix.c_str(), sstream.str().c_str());
         }
         {
             std::stringstream sstream;
             sstream << ptdb._id.entityId;
-            pPtdb->SetAttribute("guid_entity", sstream.str().c_str());
+            pPtdb->SetAttribute(s_sGUID_entity.c_str(), sstream.str().c_str());
         }
 
         for (const PtDI& ptdi : ptdb)
         {
-            XMLElement* pPtdi = xmlDoc.NewElement("ptdi");
+            XMLElement* pPtdi = xmlDoc.NewElement(s_sPtDI.c_str());
             {
                 std::stringstream sstream;
                 sstream << ptdi._id.guidPrefix;
-                pPtdi->SetAttribute("guid_prefix",sstream.str().c_str());
+                pPtdi->SetAttribute(s_sGUID_prefix.c_str(),sstream.str().c_str());
             }
             {
                 std::stringstream sstream;
                 sstream << ptdi._id.entityId;
-                pPtdi->SetAttribute("guid_entity",sstream.str().c_str());
+                pPtdi->SetAttribute(s_sGUID_entity.c_str(),sstream.str().c_str());
             }
 
-            pPtdi->SetAttribute("server", ptdi._server);
-            pPtdi->SetAttribute("alive", ptdi._alive);
-            pPtdi->SetAttribute("name", ptdi._name.c_str());
+            pPtdi->SetAttribute(s_sServer.c_str(), ptdi._server);
+            pPtdi->SetAttribute(s_sAlive.c_str(), ptdi._alive);
+            pPtdi->SetAttribute(s_sName.c_str(), ptdi._name.c_str());
 
             for (const SDI& sub : ptdi._subscribers)
             {
-                XMLElement* pSub = xmlDoc.NewElement("subscriber");
-                pSub->SetAttribute("type", sub._typeName.c_str());
-                pSub->SetAttribute("topic", sub._topicName.c_str());
+                XMLElement* pSub = xmlDoc.NewElement(s_sSubscriber.c_str());
+                pSub->SetAttribute(s_sType.c_str(), sub._typeName.c_str());
+                pSub->SetAttribute(s_sTopic.c_str(), sub._topicName.c_str());
                 {
                     std::stringstream sstream;
                     sstream << sub._id.guidPrefix;
-                    pSub->SetAttribute("guid_prefix",sstream.str().c_str());
+                    pSub->SetAttribute(s_sGUID_prefix.c_str(),sstream.str().c_str());
                 }
                 {
                     std::stringstream sstream;
                     sstream << sub._id.entityId;
-                    pSub->SetAttribute("guid_entity",sstream.str().c_str());
+                    pSub->SetAttribute(s_sGUID_entity.c_str(),sstream.str().c_str());
                 }
                 pPtdi->InsertEndChild(pSub);
             }
 
             for (const PDI& pub : ptdi._publishers)
             {
-                XMLElement* pPub = xmlDoc.NewElement("publisher");
-                pPub->SetAttribute("type", pub._typeName.c_str());
-                pPub->SetAttribute("topic", pub._topicName.c_str());
+                XMLElement* pPub = xmlDoc.NewElement(s_sPublisher.c_str());
+                pPub->SetAttribute(s_sType.c_str(), pub._typeName.c_str());
+                pPub->SetAttribute(s_sTopic.c_str(), pub._topicName.c_str());
                 {
                     std::stringstream sstream;
                     sstream << pub._id.guidPrefix;
-                    pPub->SetAttribute("guid_prefix",sstream.str().c_str());
+                    pPub->SetAttribute(s_sGUID_prefix.c_str(),sstream.str().c_str());
                 }
                 {
                     std::stringstream sstream;
                     sstream << pub._id.entityId;
-                    pPub->SetAttribute("guid_entity",sstream.str().c_str());
+                    pPub->SetAttribute(s_sGUID_entity.c_str(),sstream.str().c_str());
                 }
                 pPtdi->InsertEndChild(pPub);
             }
@@ -653,7 +668,7 @@ void Snapshot::to_xml(tinyxml2::XMLNode* pRoot, tinyxml2::XMLDocument& xmlDoc) c
     }
 }
 
-void Snapshot::from_xml(tinyxml2::XMLNode* pRoot)
+void Snapshot::from_xml(tinyxml2::XMLElement* pRoot)
 {
     using namespace tinyxml2;
     using eprosima::fastrtps::rtps::GuidPrefix_t;
@@ -661,38 +676,40 @@ void Snapshot::from_xml(tinyxml2::XMLNode* pRoot)
 
     if (pRoot != nullptr)
     {
-        XMLElement* pTimestamp = pRoot->FirstChildElement("timestamp");
-        if (pTimestamp != nullptr)
+        std::string timestamp = pRoot->Attribute(s_sTimestamp.c_str());
+        if (!timestamp.empty())
         {
-            int64_t time;
-            pTimestamp->QueryInt64Text(&time);
+            uint64_t time = std::stoull(timestamp);
+            //pTimestamp->QueryInt64Text(&time);
             using Ns = std::chrono::nanoseconds;
 
             this->_time = std::chrono::steady_clock::time_point(Ns(time));
+            //std::cout << "Timestamp: " << timestamp << std::endl;
         }
 
-        XMLElement* pDescription = pRoot->FirstChildElement("description");
+        XMLElement* pDescription = pRoot->FirstChildElement(s_sDescription.c_str());
         if (pDescription != nullptr)
         {
             _des = pDescription->GetText();
+            //std::cout << "Description: " << _des << std::endl;
         }
 
-        for (XMLElement* pPtdb = pRoot->FirstChildElement("ptdb");
+        for (XMLElement* pPtdb = pRoot->FirstChildElement(s_sPtDB.c_str());
                 pPtdb != nullptr;
-                pPtdb = pPtdb->NextSiblingElement("ptdb"))
+                pPtdb = pPtdb->NextSiblingElement(s_sPtDB.c_str()))
         {
             GUID_t ptdb_guid;
             {
                 GuidPrefix_t guidPrefix;
                 {
-                    std::string guid = pPtdb->Attribute("guid_prefix");
+                    std::string guid = pPtdb->Attribute(s_sGUID_prefix.c_str());
                     std::stringstream sstream;
                     sstream << guid;
                     sstream >> guidPrefix;
                 }
                 EntityId_t entityId;
                 {
-                    std::string guid = pPtdb->Attribute("guid_entity");
+                    std::string guid = pPtdb->Attribute(s_sGUID_entity.c_str());
                     std::stringstream sstream;
                     sstream << guid;
                     sstream >> entityId;
@@ -700,24 +717,24 @@ void Snapshot::from_xml(tinyxml2::XMLNode* pRoot)
                 ptdb_guid.guidPrefix = guidPrefix;
                 ptdb_guid.entityId = entityId;
             }
-            PtDB ptdb(std::move(ptdb_guid));
+            PtDB ptdb(ptdb_guid);
 
-            for (XMLElement* pPtdi = pPtdb->FirstChildElement("ptdi");
+            for (XMLElement* pPtdi = pPtdb->FirstChildElement(s_sPtDI.c_str());
                     pPtdi != nullptr;
-                    pPtdi = pPtdi->NextSiblingElement("ptdi"))
+                    pPtdi = pPtdi->NextSiblingElement(s_sPtDI.c_str()))
             {
                 GUID_t ptdi_guid;
                 {
                     GuidPrefix_t guidPrefix;
                     {
-                        std::string guid = pPtdb->Attribute("guid_prefix");
+                        std::string guid = pPtdi->Attribute(s_sGUID_prefix.c_str());
                         std::stringstream sstream;
                         sstream << guid;
                         sstream >> guidPrefix;
                     }
                     EntityId_t entityId;
                     {
-                        std::string guid = pPtdb->Attribute("guid_entity");
+                        std::string guid = pPtdi->Attribute(s_sGUID_entity.c_str());
                         std::stringstream sstream;
                         sstream << guid;
                         sstream >> entityId;
@@ -725,28 +742,29 @@ void Snapshot::from_xml(tinyxml2::XMLNode* pRoot)
                     ptdi_guid.guidPrefix = guidPrefix;
                     ptdi_guid.entityId = entityId;
                 }
-                PtDI ptdi(std::move(ptdi_guid));
+                PtDI ptdi(ptdi_guid);
 
-                pPtdi->QueryBoolAttribute("server", &ptdi._server);
-                pPtdi->QueryBoolAttribute("alive", &ptdi._alive);
-                ptdi._name = pPtdi->Attribute("name");
+                pPtdi->QueryBoolAttribute(s_sServer.c_str(), &ptdi._server);
+                pPtdi->QueryBoolAttribute(s_sAlive.c_str(), &ptdi._alive);
+                ptdi._name = pPtdi->Attribute(s_sName.c_str());
+                //std::cout << "PTDI: " << ptdi._id << std::endl;
 
-                for (XMLElement* pSub = pPtdi->FirstChildElement("subscriber");
+                for (XMLElement* pSub = pPtdi->FirstChildElement(s_sSubscriber.c_str());
                         pSub != nullptr;
-                        pSub = pSub->NextSiblingElement("subscriber"))
+                        pSub = pSub->NextSiblingElement(s_sSubscriber.c_str()))
                 {
                     GUID_t sub_guid;
                     {
                         GuidPrefix_t guidPrefix;
                         {
-                            std::string guid = pPtdb->Attribute("guid_prefix");
+                            std::string guid = pSub->Attribute(s_sGUID_prefix.c_str());
                             std::stringstream sstream;
                             sstream << guid;
                             sstream >> guidPrefix;
                         }
                         EntityId_t entityId;
                         {
-                            std::string guid = pPtdb->Attribute("guid_entity");
+                            std::string guid = pSub->Attribute(s_sGUID_entity.c_str());
                             std::stringstream sstream;
                             sstream << guid;
                             sstream >> entityId;
@@ -754,26 +772,26 @@ void Snapshot::from_xml(tinyxml2::XMLNode* pRoot)
                         sub_guid.guidPrefix = guidPrefix;
                         sub_guid.entityId = entityId;
                     }
-                    SDI sub(std::move(sub_guid), pSub->Attribute("type"), pSub->Attribute("topic"));
-                    ptdi._subscribers.emplace(sub);
+                    SDI sub(sub_guid, pSub->Attribute(s_sType.c_str()), pSub->Attribute(s_sTopic.c_str()));
+                    ptdi._subscribers.insert(std::move(sub));
                 }
 
-                for (XMLElement* pPub = pPtdi->FirstChildElement("publisher");
+                for (XMLElement* pPub = pPtdi->FirstChildElement(s_sPublisher.c_str());
                         pPub != nullptr;
-                        pPub = pPub->NextSiblingElement("publisher"))
+                        pPub = pPub->NextSiblingElement(s_sPublisher.c_str()))
                 {
                     GUID_t pub_guid;
                     {
                         GuidPrefix_t guidPrefix;
                         {
-                            std::string guid = pPtdb->Attribute("guid_prefix");
+                            std::string guid = pPub->Attribute(s_sGUID_prefix.c_str());
                             std::stringstream sstream;
                             sstream << guid;
                             sstream >> guidPrefix;
                         }
                         EntityId_t entityId;
                         {
-                            std::string guid = pPtdb->Attribute("guid_entity");
+                            std::string guid = pPub->Attribute(s_sGUID_entity.c_str());
                             std::stringstream sstream;
                             sstream << guid;
                             sstream >> entityId;
@@ -781,14 +799,15 @@ void Snapshot::from_xml(tinyxml2::XMLNode* pRoot)
                         pub_guid.guidPrefix = guidPrefix;
                         pub_guid.entityId = entityId;
                     }
-                    PDI pub(std::move(pub_guid), pPub->Attribute("type"), pPub->Attribute("topic"));
-                    ptdi._publishers.emplace(pub);
+                    PDI pub(pub_guid, pPub->Attribute(s_sType.c_str()), pPub->Attribute(s_sTopic.c_str()));
+                    ptdi._publishers.insert(std::move(pub));
                 }
 
-                ptdb.emplace(ptdi);
+                ptdb.insert(std::move(ptdi));
             }
 
-            this->emplace(ptdb);
+            this->insert(std::move(ptdb));
+
         }
     }/*
     else

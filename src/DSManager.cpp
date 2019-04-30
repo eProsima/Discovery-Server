@@ -47,7 +47,9 @@ static const std::string s_sCreationTime("creation_time");
 static const std::string s_sRemovalTime("removal_time");
 static const std::string s_sSnapshot("snapshot");
 static const std::string s_sSnapshots("snapshots");
-static const std::string s_sSnapshotsFile("snapshotsFile");
+static const std::string s_sFile("file");
+static const std::string s_sDS_Snapshots("DS_Snapshots");
+static const std::string s_sDS_Snapshot("DS_Snapshot");
 static const std::string s_sUserShutdown("user_shutdown");
 
 // non exported from fast-RTPS (watch out they are updated)
@@ -82,8 +84,19 @@ DSManager::DSManager(const std::string &xml_file_path)
         tinyxml2::XMLElement *root = doc.FirstChildElement(s_sDS.c_str());
         if (!root)
         {
-            LOG("Invalid config file");
-            return;
+            root = doc.FirstChildElement(s_sDS_Snapshots.c_str());
+            if (!root)
+            {
+                LOG("Invalid config or snapshot file");
+                return;
+            }
+            else
+            {
+                loadSnapshots(xml_file_path);
+                _shutdown = true;
+                LOG("Loaded snapshot file");
+                return;
+            }
         }
 
         // try load the user_shutdown attribute
@@ -160,6 +173,7 @@ DSManager::DSManager(const std::string &xml_file_path)
             tinyxml2::XMLElement* snapshots = child->FirstChildElement(s_sSnapshots.c_str());
             if (snapshots)
             {
+                sh_file_ = snapshots->Attribute(s_sFile.c_str());
                 tinyxml2::XMLElement *snapshot = snapshots->FirstChildElement(s_sSnapshot.c_str());
                 while (snapshot)
                 {
@@ -167,15 +181,6 @@ DSManager::DSManager(const std::string &xml_file_path)
                     snapshot = snapshot->NextSiblingElement(s_sSnapshot.c_str());
                 }
             }
-
-            // Snapshot file
-            tinyxml2::XMLElement* snapshotsFile = child->FirstChildElement(s_sSnapshotsFile.c_str());
-            if (snapshotsFile)
-            {
-                sh_file_ = snapshotsFile->GetText();
-                std::cout << "Loaded snapshots file " << sh_file_ << std::endl;
-            }
-
         }
     }
     else
@@ -1347,6 +1352,11 @@ bool DSManager::allKnowEachOther(const Snapshot & shot)
         ++it2;
     }
 
+    if (it2 != shot.cend())
+    {
+        std::cout << "Falló al comprobar:" << std::endl << *it1 << *it2 << std::endl;
+    }
+
     return it2 == shot.cend();
 
 }
@@ -1356,7 +1366,7 @@ bool DSManager::validateAllSnapshots() const
     // traverse the list of snapshots validating then
     bool work_it_all = true;
 
-    for (const Snapshot &sh : _snapshots)
+    for (const Snapshot& sh : _snapshots)
     {
         if (DSManager::allKnowEachOther(sh))
         {
@@ -1378,9 +1388,9 @@ void DSManager::loadSnapshots(const std::string& file)
     XMLDocument xmlDoc;
     xmlDoc.LoadFile(file.c_str());
     XMLNode * pRoot = xmlDoc.FirstChild();
-    for (XMLElement* pSh = pRoot->FirstChildElement("DS_Snapshot");
+    for (XMLElement* pSh = pRoot->FirstChildElement(s_sDS_Snapshot.c_str());
             pSh != nullptr;
-            pSh = pSh->NextSiblingElement("DS_Snapshot"))
+            pSh = pSh->NextSiblingElement(s_sDS_Snapshot.c_str()))
     {
         Snapshot sh(std::chrono::steady_clock::now());
         sh.from_xml(pSh);
@@ -1392,16 +1402,23 @@ void DSManager::saveSnapshots(const std::string& file) const
 {
     using namespace tinyxml2;
     XMLDocument xmlDoc;
-    XMLNode* pRoot = xmlDoc.NewElement("DS_Snapshots");
+    XMLNode* pRoot = xmlDoc.NewElement(s_sDS_Snapshots.c_str());
     for (const Snapshot& sh : _snapshots)
     {
-        std::cout << "Saving snapshot " << sh._des << std::endl;
+        LOG("Saving snapshot " << sh._des);
 
-        XMLElement* pShRoot = xmlDoc.NewElement("DS_Snapshot");
+        XMLElement* pShRoot = xmlDoc.NewElement(s_sDS_Snapshot.c_str());
         sh.to_xml(pShRoot, xmlDoc);
         pRoot->InsertEndChild(pShRoot);
     }
     xmlDoc.InsertEndChild(pRoot);
     XMLError error = xmlDoc.SaveFile(file.c_str());
-    std::cout << error << std::endl;
+    if (error)
+    {
+        LOG("Error while saving snapshot file " << file << ": " << error);
+    }
+    else
+    {
+        LOG("Snapshot file saved " << file << ".");
+    }
 }

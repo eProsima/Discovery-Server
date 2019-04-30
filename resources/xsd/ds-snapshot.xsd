@@ -59,10 +59,10 @@
 
     <xs:complexType name="DS_Snapshot_Type">
         <xs:sequence>
-            <xs:element name="timestamp" type="uint64Type" minOccurs="1" maxOccurs="1"/>
             <xs:element name="description" type="stringType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="ptdb" type="ptdb_type" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
+        <xs:attribute name="timestamp" type="uint64Type" use="required"/>
     </xs:complexType>
 
     <xs:element name="DS_Snapshots">

@@ -32,7 +32,7 @@ int main(int argc, char * argv[])
 
     std::string path_to_config = argv[1];
     int return_code = 0;
-    
+
     {
         DSManager manager(path_to_config);
 
@@ -42,11 +42,11 @@ int main(int argc, char * argv[])
         // Check the snapshots taken
         if (!manager.validateAllSnapshots())
         {
-            std::cout << "Discovery Server error: several snapshots show info leakage";
+            std::cout << "Discovery Server error: several snapshots show info leakage" << std::endl;
             return_code = -1; // report CTest the test fail
         }
     }
-    
+
     Domain::stopAll();
     Log::Reset();
 

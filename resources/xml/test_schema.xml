@@ -14,11 +14,9 @@
     <client name="client4" profile_name="UDP client"/>
   </clients>
 
-  <snapshots>
+  <snapshots file="my_snapshots.xml">
     <snapshot time="3">Check all clients met the server and know each other</snapshot>
   </snapshots>
-
-  <snapshotsFile>my_snapshots.xml</snapshotsFile>
 
   <profiles>
 
