@@ -1346,9 +1346,32 @@ Snapshot& DSManager::takeSnapshot(
 
     _snapshots.push_back(_state.GetState());
 
-   Snapshot& shot = _snapshots.back();
-   shot._time = tp;
-   shot._des = desc;
+    Snapshot& shot = _snapshots.back();
+    shot._time = tp;
+    shot._des = desc;
+
+   // Add any client or server isolated information 
+   // those have not make any callbacks if no subscriber or publisher
+   
+   participant_map temp(_servers);
+   temp.insert(_clients.begin(),_clients.end());
+
+   std::function<bool (const participant_map::value_type &, const Snapshot::value_type &)> pred(
+       [](const participant_map::value_type & p1, const Snapshot::value_type & p2) 
+        { 
+            return p1.first == p2._id;
+        }
+   );
+
+   std::pair<participant_map::const_iterator,Snapshot::const_iterator> res =
+       std::mismatch(temp.cbegin(), temp.cend(), shot.cbegin(), pred);
+
+   while (res.first != temp.end())
+   {
+       // res.first participant hasn't any discovery info in this Snapshot
+       res.second = shot.emplace_hint(res.second, PtDB(res.first->first));
+       res = std::mismatch(res.first, temp.cend(), res.second, pred);
+   }
 
    return shot;
 }

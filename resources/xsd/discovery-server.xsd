@@ -863,8 +863,8 @@
                         <xs:sequence>
                             <xs:element name="snapshot" type="SnapShotType" minOccurs="1" maxOccurs="unbounded"/>
                         </xs:sequence>
+                        <xs:attribute name="file" type="stringType" use="optional" />
                     </xs:complexType>
-                    <xs:attribute name="file" type="stringType" use="optional" />
                 </xs:element>
             </xs:all>
             <xs:attribute name="user_shutdown" type="xs:boolean" default="true" use="optional" />
