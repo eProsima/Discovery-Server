@@ -868,6 +868,7 @@
                 </xs:element>
             </xs:all>
             <xs:attribute name="user_shutdown" type="xs:boolean" default="true" use="optional" />
+            <xs:attribute name="prefix_validation" type="xs:boolean" default="true" use="optional" />
         </xs:complexType>
     </xs:element>
 

@@ -329,6 +329,11 @@ list(APPEND TEST_LIST test_6_EDP_UDP)
 add_test(NAME test_6_EDP_UDP COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}test_6_EDP_UDP.xml)
 set_tests_properties(test_6_EDP_UDP PROPERTIES REQUIRED_FILES ${TEST_XML_FILES_DIR}test_6_EDP_UDP.xml)
 
+# Testing server demise detection by clients
+list(APPEND TEST_LIST test_7_PDP_UDP)
+add_test(NAME test_7_PDP_UDP COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}test_7_PDP_UDP.xml)
+set_tests_properties(test_7_PDP_UDP PROPERTIES REQUIRED_FILES ${TEST_XML_FILES_DIR}test_7_PDP_UDP.xml)
+
 # add_test(NAME PubSubTest COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}pub_subs_creation.xml )
 
 # REQUIRED_FILES # associate an xml file for each test

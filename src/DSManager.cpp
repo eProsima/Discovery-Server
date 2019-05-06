@@ -51,6 +51,7 @@ static const std::string s_sFile("file");
 static const std::string s_sDS_Snapshots("DS_Snapshots");
 static const std::string s_sDS_Snapshot("DS_Snapshot");
 static const std::string s_sUserShutdown("user_shutdown");
+static const std::string s_sPrefixValidation("prefix_validation");
 
 // non exported from fast-RTPS (watch out they are updated)
 namespace eprosima{
@@ -76,7 +77,7 @@ HelloWorldPubSubType DSManager::_defaultType;
 TopicAttributes DSManager::_defaultTopic("HelloWorldTopic", "HelloWorld");
 
 DSManager::DSManager(const std::string &xml_file_path)
-    : _nocallbacks(false), _shutdown(false)
+    : _nocallbacks(false), _shutdown(false), _prefixvalidation(true)
 {
     tinyxml2::XMLDocument doc;
     if (doc.LoadFile(xml_file_path.c_str()) == tinyxml2::XMLError::XML_SUCCESS)
@@ -101,6 +102,9 @@ DSManager::DSManager(const std::string &xml_file_path)
 
         // try load the user_shutdown attribute
         _shutdown = !root->BoolAttribute(s_sUserShutdown.c_str(),!_shutdown);
+
+        // try load the _prefixvalidation attribute
+        _prefixvalidation = root->BoolAttribute(s_sPrefixValidation.c_str(), _prefixvalidation);
 
         for (auto child = doc.FirstChildElement(s_sDS.c_str());
             child != nullptr; child = child->NextSiblingElement(s_sDS.c_str()))
@@ -198,6 +202,7 @@ DSManager::DSManager(const std::string &xml_file_path)
 DSManager::DSManager(const std::set<std::string>& xml_snapshot_files)
     : _nocallbacks(true)
     , _shutdown(true)
+    , _prefixvalidation(true)
 {
     for (const std::string& file : xml_snapshot_files)
     {
@@ -558,7 +563,7 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     GUID_t guid(prefix, c_EntityId_RTPSParticipant);
 
     // Check if the guidPrefix is already in use (there is a mistake on config file)
-    if (_servers.find(guid) != _servers.end())
+    if (_prefixvalidation && _servers.find(guid) != _servers.end())
     {
         LOG_ERROR("DSManager detected two servers sharing the same prefix " << prefix);
         return;
