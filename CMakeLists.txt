@@ -69,11 +69,14 @@ endif()
 # colcon will take care of solving any dependency issues
 #find_package(Asio REQUIRED )
 find_package(fastcdr   REQUIRED  )
-#find_package(TinyXML2 QUIET ) # CMake is able to find it unaided into C:\Program Files\tinyxml2\lib\cmake\tinyxml2
+#find_package(TinyXML2 QUIET ) # CMake is able to find it unaided 
 find_package(fastrtps   REQUIRED)
 find_package(OpenSSL REQUIRED)
 
-# at present we are going to ignore all packaging, examples and test paraphernalia.
+#some tests require python
+find_package(PythonInterp 3 REQUIRED)
+
+# at present we are going to ignore all packaging paraphernalia.
 
 ###############################################################################
 # Logging
@@ -142,7 +145,11 @@ endif(WIN32)
 
 # xml test files
 file(GLOB ${PROJECT_NAME}_xml_tests
-	resources/xml/*.xml)
+	test/xml/*.xml.in)
+
+# python test files
+file(GLOB ${PROJECT_NAME}_python_tests
+	test/python/*.py)
 
 # xml schema file
 set(${PROJECT_NAME}_schema_files
@@ -181,11 +188,13 @@ set(${PROJECT_NAME}_source_files
 
 # Executable and library
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_source_files} ${${PROJECT_NAME}_header_files}
-				${${PROJECT_NAME}_schema_files} ${${PROJECT_NAME}_xml_tests} ${${PROJECT_NAME}_static_types})
+				${${PROJECT_NAME}_schema_files} ${${PROJECT_NAME}_xml_tests}
+				${${PROJECT_NAME}_python_tests} ${${PROJECT_NAME}_static_types})
 
 # schema, types and auxiliary xmls
 source_group(resources\\xsd FILES ${${PROJECT_NAME}_schema_files} )
 source_group(resources\\xml FILES ${${PROJECT_NAME}_xml_tests} )
+source_group(resources\\python FILES ${${PROJECT_NAME}_python_tests} )
 source_group(resources\\static_types FILES ${${PROJECT_NAME}_static_types} )
 
 # path to xml test TEST_XML_FILES_DIR
@@ -193,6 +202,10 @@ list(GET ${PROJECT_NAME}_xml_tests 0 TEST_XML_FILES_DIR)
 get_filename_component(TEST_XML_FILES_DIR "${TEST_XML_FILES_DIR}" DIRECTORY )
 file(TO_NATIVE_PATH "${TEST_XML_FILES_DIR}/" TEST_XML_FILES_DIR)
 
+# path to python test TEST_PYTHON_FILES_DIR
+list(GET ${PROJECT_NAME}_python_tests 0 TEST_PYTHON_FILES_DIR)
+get_filename_component(TEST_PYTHON_FILES_DIR "${TEST_PYTHON_FILES_DIR}" DIRECTORY )
+file(TO_NATIVE_PATH "${TEST_PYTHON_FILES_DIR}/" TEST_PYTHON_FILES_DIR)
 
 # avoid visual studio from trying to compile .idl files with midl
 set_source_files_properties(${${PROJECT_NAME}_idl} PROPERTIES HEADER_FILE_ONLY TRUE)
@@ -229,6 +242,162 @@ target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr tinyxml2)
 # This is convenient because on installation all bins share folder
 set_target_properties(${PROJECT_NAME} PROPERTIES RELEASE_POSTFIX -${PROJECT_VERSION})
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX -${PROJECT_VERSION}d)
+	
+
+###############################################################################
+# Testing 
+###############################################################################
+
+enable_testing()
+include(CTest)  # shut up colcon's whining about .tcl files
+
+# testing enviromental variables
+# add_test(NAME envtest COMMAND powershell "[environment]::GetEnvironmentVariable('PATH') > output.txt")
+
+# transform the xml.in files into actual xml with random port numbers
+# xml files are created into the current binary dir but installed into the test dir
+
+include(${PROJECT_SOURCE_DIR}/cmake/common/random_ports.cmake)
+
+unset(${PROJECT_NAME}_transform_xml_tests)
+
+foreach(TEST_XML ${${PROJECT_NAME}_xml_tests})
+
+	random_port(1024 65531 RANDOM_PORT)
+	math(EXPR RANDOM_PORT_2 ${RANDOM_PORT}+1)
+	math(EXPR RANDOM_PORT_3 ${RANDOM_PORT}+2)
+	math(EXPR RANDOM_PORT_4 ${RANDOM_PORT}+3)
+	math(EXPR RANDOM_PORT_5 ${RANDOM_PORT}+4)
+	
+	get_filename_component(OUTPUT_NAME ${TEST_XML} NAME_WE)
+	configure_file(${TEST_XML} ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_NAME}.xml)
+	list(APPEND ${PROJECT_NAME}_transform_xml_tests ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_NAME}.xml)
+
+endforeach()
+
+unset(TEST_LIST)
+
+# add the several test, we begin for the basic discovery UDP scenario
+list(APPEND TEST_LIST test_1_PDP_UDP)
+add_test(NAME test_1_PDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_1_PDP_UDP.xml)
+set_tests_properties(test_1_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_1_PDP_UDP.xml)
+
+#! TCP transport wasn't operational in my original fastRTPS commit. Enable the test after rebasing ontop
+## basic discovery TCP scenario
+list(APPEND TEST_LIST test_2_PDP_TCP)
+add_test(NAME test_2_PDP_TCP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_2_PDP_TCP.xml)
+set_tests_properties(test_2_PDP_TCP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_2_PDP_TCP.xml DISABLED true)
+
+# Testing late joiner detection and removal
+list(APPEND TEST_LIST test_3_PDP_UDP)
+add_test(NAME test_3_PDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_3_PDP_UDP.xml)
+set_tests_properties(test_3_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_3_PDP_UDP.xml)
+
+# Testing server inter communication 
+list(APPEND TEST_LIST test_4_PDP_UDP)
+add_test(NAME test_4_PDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_4_PDP_UDP.xml)
+set_tests_properties(test_4_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_4_PDP_UDP.xml)
+
+# Testing EDP discovery operation 
+list(APPEND TEST_LIST test_5_EDP_UDP)
+add_test(NAME test_5_EDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_5_EDP_UDP.xml)
+set_tests_properties(test_5_EDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_5_EDP_UDP.xml)
+
+# Testing EDP discovery operation with late joiner detection and removal
+list(APPEND TEST_LIST test_6_EDP_UDP)
+add_test(NAME test_6_EDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_6_EDP_UDP.xml)
+set_tests_properties(test_6_EDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_6_EDP_UDP.xml)
+
+# Testing server demise detection by clients
+list(APPEND TEST_LIST test_7_PDP_UDP)
+add_test(NAME test_7_PDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_7_PDP_UDP.xml)
+set_tests_properties(test_7_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_7_PDP_UDP.xml)
+
+# Testing new lease duration server-client strategy
+list(APPEND TEST_LIST test_8_lease_duration)
+add_test(NAME test_8_lease_duration
+ COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_8_lease_duration.py
+ $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_server.xml ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_client.xml)
+set_tests_properties(test_8_lease_duration PROPERTIES 
+	REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_client.xml 
+	REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_server.xml )
+
+
+# add_test(NAME PubSubTest COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}pub_subs_creation.xml )
+
+# REQUIRED_FILES # associate an xml file for each test
+# RUN_SERIAL
+
+# increase the timeout to five minutes
+set_tests_properties(${TEST_LIST} PROPERTIES TIMEOUT 300)
+
+# Windows requires an special treatment of environmental variables
+if(WIN32)
+
+	# set the environment variables to detect fast binaries
+	string(REGEX MATCHALL  "[A-Z]:[^;:]+;" PATH_VARIABLE "$ENV{PATH}" )
+	foreach (itvar ${PATH_VARIABLE})
+			string(REPLACE ";" "" itvar ${itvar})
+			set(WINDOWS_PATH_VARIABLE "${WINDOWS_PATH_VARIABLE}\\;${itvar}" )
+	endforeach( itvar ) 
+
+	# Generate a dll path property for each target-configuration
+	get_target_property(DEPENDENCIES ${PROJECT_NAME} INTERFACE_LINK_LIBRARIES)
+	unset(TEST_ENVIRONMENT_DEPENDENCIES)
+	
+	foreach( _target ${DEPENDENCIES})
+		#message(STATUS "DEPENDENT TARGET ${_target}")
+		
+		if(TARGET ${_target} )
+		
+			#message(STATUS "Configurations available in ${_target} are ${CMAKE_CONFIGURATION_TYPES}\n")
+		
+			foreach( _config ${CMAKE_CONFIGURATION_TYPES} )
+			
+				string(TOUPPER  ${_config} _config) # CMake is fiercely case-sensitive
+				#message(STATUS "Current config in ${_target} is ${_config}\n")
+				
+				#retrieve binary path
+				get_target_property(IMPORTED_LOCATION ${_target} IMPORTED_LOCATION_${_config} )
+				
+				#message(STATUS "IMPORTED_LOCATION_${_config} = ${IMPORTED_LOCATION}")
+				
+				if(IMPORTED_LOCATION) #ignore if this configuration doesn't exist
+
+					get_filename_component(DIR_PATH "${IMPORTED_LOCATION}" DIRECTORY )
+					file(TO_NATIVE_PATH ${DIR_PATH} DIR_NATIVE_PATH)
+					set_target_properties(${_target} PROPERTIES NATIVE_LOCATION_DIR_${_config} ${DIR_NATIVE_PATH} )
+					
+					#message(STATUS "Created target: ${_target} property: NATIVE_LOCATION_DIR_${_config} = ${DIR_NATIVE_PATH}")
+					
+				endif(IMPORTED_LOCATION)
+				
+			endforeach()
+			
+			if(TEST_ENVIRONMENT_DEPENDENCIES)
+				set(TEST_ENVIRONMENT_DEPENDENCIES "${TEST_ENVIRONMENT_DEPENDENCIES}\\;$<TARGET_PROPERTY:${_target},NATIVE_LOCATION_DIR_$<UPPER_CASE:$<CONFIG>>>")
+			else()
+				set(TEST_ENVIRONMENT_DEPENDENCIES "$<TARGET_PROPERTY:${_target},NATIVE_LOCATION_DIR_$<UPPER_CASE:$<CONFIG>>>")
+			endif()
+			
+		endif()
+	endforeach()
+
+	#message(STATUS ${TEST_ENVIRONMENT_DEPENDENCIES})
+
+	#set_tests_properties(PubSubTest envtest PROPERTIES ENVIRONMENT "PATH=${WINDOWS_PATH_VARIABLE}\\;$<TARGET_FILE_DIR:fastrtps>\\;$<TARGET_FILE_DIR:fastcdr>" )
+	set_tests_properties(${TEST_LIST} PROPERTIES ENVIRONMENT "PATH=${WINDOWS_PATH_VARIABLE}\\;${TEST_ENVIRONMENT_DEPENDENCIES}" )
+
+endif()
+
+###############################################################################
+# Examples
+###############################################################################
+option(COMPILE_EXAMPLES "Build example" OFF)
+
+if(COMPILE_EXAMPLES)
+    add_subdirectory(examples/HelloWorldExampleDS)
+endif()
 
 ###############################################################################
 # Installation 
@@ -247,6 +416,7 @@ set(BIN_INSTALL_DIR bin/ CACHE PATH "Installation directory for binaries")
 set(INCLUDE_INSTALL_DIR include/ CACHE PATH "Installation directory for C++ headers")
 set(INCLUDE_SOURCE_DIR src/ CACHE PATH "Installation directory for C++ sources")
 set(EXAMPLES_INSTALL_DIR examples/ CACHE PATH "Installation directory for examples")
+set(TESTS_INSTALL_DIR test/ CACHE PATH "Installation directory for tests")
 set(LIB_INSTALL_DIR lib/ CACHE PATH "Installation directory for libraries")
 set(LICENSE_INSTALL_DIR license/ CACHE PATH "Installation directory for licenses")
 set(EXPORT_INSTALL_DIR export/ CACHE PATH "Installation directory for cmake exports")
@@ -278,6 +448,13 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/
     DESTINATION ${INCLUDE_SOURCE_DIR}
 	FILES_MATCHING PATTERN "*.cpp"
 	)
+	
+# Install test
+install(FILES ${${PROJECT_NAME}_transform_xml_tests}
+	${${PROJECT_NAME}_python_tests}
+    COMPONENT tests
+    DESTINATION ${TESTS_INSTALL_DIR}
+    )
 
 # Install licenses
 install(FILES ${PROJECT_SOURCE_DIR}/license/LICENSE
@@ -285,124 +462,3 @@ install(FILES ${PROJECT_SOURCE_DIR}/license/LICENSE
     DESTINATION ${LICENSE_INSTALL_DIR}
     )
 	
-
-###############################################################################
-# Testing 
-###############################################################################
-
-enable_testing()
-include(CTest)  # shut up colcon's whining about .tcl files
-
-# testing enviromental variables
-# add_test(NAME envtest COMMAND powershell "[environment]::GetEnvironmentVariable('PATH') > output.txt")
-
-unset(TEST_LIST)
-
-# add the several test, we begin for the basic discovery UDP scenario
-list(APPEND TEST_LIST test_1_PDP_UDP)
-add_test(NAME test_1_PDP_UDP COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}test_1_PDP_UDP.xml)
-set_tests_properties(test_1_PDP_UDP PROPERTIES REQUIRED_FILES ${TEST_XML_FILES_DIR}test_1_PDP_UDP.xml)
-
-#! TCP transport wasn't operational in my original fastRTPS commit. Enable the test after rebasing ontop
-## basic discovery TCP scenario
-list(APPEND TEST_LIST test_2_PDP_TCP)
-add_test(NAME test_2_PDP_TCP COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}test_2_PDP_TCP.xml)
-set_tests_properties(test_2_PDP_TCP PROPERTIES REQUIRED_FILES ${TEST_XML_FILES_DIR}test_2_PDP_TCP.xml DISABLED true)
-
-# Testing late joiner detection and removal
-list(APPEND TEST_LIST test_3_PDP_UDP)
-add_test(NAME test_3_PDP_UDP COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}test_3_PDP_UDP.xml)
-set_tests_properties(test_3_PDP_UDP PROPERTIES REQUIRED_FILES ${TEST_XML_FILES_DIR}test_3_PDP_UDP.xml)
-
-# Testing server inter communication 
-list(APPEND TEST_LIST test_4_PDP_UDP)
-add_test(NAME test_4_PDP_UDP COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}test_4_PDP_UDP.xml)
-set_tests_properties(test_4_PDP_UDP PROPERTIES REQUIRED_FILES ${TEST_XML_FILES_DIR}test_4_PDP_UDP.xml)
-
-# Testing EDP discovery operation 
-list(APPEND TEST_LIST test_5_EDP_UDP)
-add_test(NAME test_5_EDP_UDP COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}test_5_EDP_UDP.xml)
-set_tests_properties(test_5_EDP_UDP PROPERTIES REQUIRED_FILES ${TEST_XML_FILES_DIR}test_5_EDP_UDP.xml)
-
-# Testing EDP discovery operation with late joiner detection and removal
-list(APPEND TEST_LIST test_6_EDP_UDP)
-add_test(NAME test_6_EDP_UDP COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}test_6_EDP_UDP.xml)
-set_tests_properties(test_6_EDP_UDP PROPERTIES REQUIRED_FILES ${TEST_XML_FILES_DIR}test_6_EDP_UDP.xml)
-
-# Testing server demise detection by clients
-list(APPEND TEST_LIST test_7_PDP_UDP)
-add_test(NAME test_7_PDP_UDP COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}test_7_PDP_UDP.xml)
-set_tests_properties(test_7_PDP_UDP PROPERTIES REQUIRED_FILES ${TEST_XML_FILES_DIR}test_7_PDP_UDP.xml)
-
-# add_test(NAME PubSubTest COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}pub_subs_creation.xml )
-
-# REQUIRED_FILES # associate an xml file for each test
-# RUN_SERIAL
-
-# increase the timeout to five minutes
-set_tests_properties(${TEST_LIST} PROPERTIES TIMEOUT 300)
-
-# Windows requires an special treatment of environmental variables
-if(WIN32)
-
-	# set the environment variables to detect fast binaries
-	string(REGEX MATCHALL  "[A-Z]:[^;:]+;" PATH_VARIABLE "$ENV{PATH}" )
-	foreach (itvar ${PATH_VARIABLE})
-			string(REPLACE ";" "" itvar ${itvar})
-			set(WINDOWS_PATH_VARIABLE "${WINDOWS_PATH_VARIABLE}\\;${itvar}" )
-	endforeach( itvar ) 
-
-	# Generate a dll path property for each target-configuration
-	get_target_property(DEPENDENCIES ${PROJECT_NAME} INTERFACE_LINK_LIBRARIES)
-	unset(TEST_ENVIRONMENT_DEPENDENCIES)
-
-	foreach( _target ${DEPENDENCIES})
-		#message(STATUS "DEPENDENT TARGET ${_target}")
-		
-		if(TARGET ${_target} )
-		
-			#message(STATUS "Configurations available in ${_target} are ${CMAKE_CONFIGURATION_TYPES}\n")
-		
-			foreach( _config ${CMAKE_CONFIGURATION_TYPES} )
-			
-				#message(STATUS "Current config in ${_target} is ${_config}\n")
-				
-				#retrieve binary path
-				get_target_property(IMPORTED_LOCATION ${_target} IMPORTED_LOCATION_${_config} )
-				
-				if(IMPORTED_LOCATION) #ignore if this configuration doesn't exist
-
-					get_filename_component(DIR_PATH "${IMPORTED_LOCATION}" DIRECTORY )
-					file(TO_NATIVE_PATH ${DIR_PATH} DIR_NATIVE_PATH)
-					set_target_properties(${_target} PROPERTIES NATIVE_LOCATION_DIR_${_config} ${DIR_NATIVE_PATH} )
-					
-					message(STATUS "Created target: ${_target} property: NATIVE_LOCATION_DIR_${_config} = ${DIR_NATIVE_PATH}")
-					
-				endif(IMPORTED_LOCATION)
-				
-			endforeach()
-			
-			if(TEST_ENVIRONMENT_DEPENDENCIES)
-				set(TEST_ENVIRONMENT_DEPENDENCIES "${TEST_ENVIRONMENT_DEPENDENCIES}\\;$<TARGET_PROPERTY:${_target},NATIVE_LOCATION_DIR_$<UPPER_CASE:$<CONFIG>>>")
-			else()
-				set(TEST_ENVIRONMENT_DEPENDENCIES "$<TARGET_PROPERTY:${_target},NATIVE_LOCATION_DIR_$<UPPER_CASE:$<CONFIG>>>")
-			endif()
-			
-		endif()
-	endforeach()
-
-	#message(STATUS ${TEST_ENVIRONMENT_DEPENDENCIES})
-
-	#set_tests_properties(PubSubTest envtest PROPERTIES ENVIRONMENT "PATH=${WINDOWS_PATH_VARIABLE}\\;$<TARGET_FILE_DIR:fastrtps>\\;$<TARGET_FILE_DIR:fastcdr>" )
-	set_tests_properties(${TEST_LIST} PROPERTIES ENVIRONMENT "PATH=${WINDOWS_PATH_VARIABLE}\\;${TEST_ENVIRONMENT_DEPENDENCIES}" )
-
-endif()
-
-###############################################################################
-# Examples
-###############################################################################
-option(COMPILE_EXAMPLES "Build example" OFF)
-
-if(COMPILE_EXAMPLES)
-    add_subdirectory(examples/HelloWorldExampleDS)
-endif()
