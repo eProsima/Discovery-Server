@@ -261,13 +261,32 @@ include(${PROJECT_SOURCE_DIR}/cmake/common/random_ports.cmake)
 
 unset(${PROJECT_NAME}_transform_xml_tests)
 
+# files belonging to the same test must consecutive alphabetically
+list(SORT ${PROJECT_NAME}_xml_tests)
+
+unset(LAST_TEST_NUMBER )
+
 foreach(TEST_XML ${${PROJECT_NAME}_xml_tests})
 
-	random_port(1024 65531 RANDOM_PORT)
-	math(EXPR RANDOM_PORT_2 ${RANDOM_PORT}+1)
-	math(EXPR RANDOM_PORT_3 ${RANDOM_PORT}+2)
-	math(EXPR RANDOM_PORT_4 ${RANDOM_PORT}+3)
-	math(EXPR RANDOM_PORT_5 ${RANDOM_PORT}+4)
+	# all test files must match the pattern test_\d+_
+	if(NOT TEST_XML MATCHES "test_([0-9]+)_")
+		message(FATAL_ERROR " all test files must match the pattern test_\\d+_" )
+	endif()
+
+	string(REGEX MATCH "test_([0-9]+)_" NEW_TEST_NUMBER "${TEST_XML}" )
+	# NEW_TEST_NUMBER is not the capture group by the whole expresion
+	set(NEW_TEST_NUMBER ${CMAKE_MATCH_1})
+
+	# update only if are files from different tests
+	if(NOT NEW_TEST_NUMBER EQUAL LAST_TEST_NUMBER)
+		random_port(1024 65531 RANDOM_PORT)
+		math(EXPR RANDOM_PORT_2 ${RANDOM_PORT}+1)
+		math(EXPR RANDOM_PORT_3 ${RANDOM_PORT}+2)
+		math(EXPR RANDOM_PORT_4 ${RANDOM_PORT}+3)
+		math(EXPR RANDOM_PORT_5 ${RANDOM_PORT}+4)
+	endif()
+
+	set(LAST_TEST_NUMBER ${NEW_TEST_NUMBER})
 	
 	get_filename_component(OUTPUT_NAME ${TEST_XML} NAME_WE)
 	configure_file(${TEST_XML} ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_NAME}.xml)
@@ -322,14 +341,23 @@ set_tests_properties(test_8_lease_duration PROPERTIES
 	REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_client.xml 
 	REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_server.xml )
 
+#! WLP callbacks wasn't operational in my original fastRTPS commit. WLP testing will be disabled till rebasing.
+list(APPEND TEST_LIST test_9_WLP)
+add_test(NAME test_9_WLP
+ COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_9_WLP.py
+ $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_BINARY_DIR}/test_9_WLP_server.xml ${CMAKE_CURRENT_BINARY_DIR}/test_9_WLP_client.xml)
+set_tests_properties(test_9_WLP PROPERTIES 
+	REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_client.xml 
+	REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_server.xml  DISABLED true )
+
 
 # add_test(NAME PubSubTest COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}pub_subs_creation.xml )
 
 # REQUIRED_FILES # associate an xml file for each test
 # RUN_SERIAL
 
-# increase the timeout to five minutes
-set_tests_properties(${TEST_LIST} PROPERTIES TIMEOUT 300)
+# specify a suitable timeout 
+set_tests_properties(${TEST_LIST} PROPERTIES TIMEOUT 20)
 
 # Windows requires an special treatment of environmental variables
 if(WIN32)

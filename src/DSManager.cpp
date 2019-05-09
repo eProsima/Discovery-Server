@@ -527,9 +527,20 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     // profile name is mandatory
     const char * profile_name = server->Attribute(xmlparser::PROFILE_NAME);
 
-    if (!profile_name)
+    if (!profile_name || *profile_name == '\0')
     {
-        LOG_ERROR(xmlparser::PROFILE_NAME << " is a mandatory attribute of server tag");
+        std::stringstream msg;
+        msg << xmlparser::PROFILE_NAME << " is a mandatory attribute of server tag";
+
+        if (profile_name)
+        {    // may be empty on purpose (for creating dummie clients)
+            LOG_INFO(msg.str());
+        }
+        else
+        {   
+            LOG_ERROR(msg.str());
+        }
+        
         return;
     }
 
@@ -1055,8 +1066,8 @@ void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
     std::string profile_name(server->Attribute(xmlparser::PROFILE_NAME));
 
     if (profile_name.empty())
-    {
-        LOG_ERROR(xmlparser::PROFILE_NAME << " is a mandatory attribute of server tag");
+    {   // its doesn't log as error because may be empty on purpose
+        LOG_INFO(xmlparser::PROFILE_NAME << " is a mandatory attribute of server tag");
         return;
     }
 
