@@ -15,20 +15,9 @@
 #ifndef _EPROSIMA_IS_LOG_H_
 #define _EPROSIMA_IS_LOG_H_
 
-#ifndef LOG_LEVEL_INFO
-#cmakedefine LOG_LEVEL_INFO
-#endif
-
-#ifndef LOG_LEVEL_WARN
-#cmakedefine LOG_LEVEL_WARN
-#endif
-
-#ifndef LOG_LEVEL_ERROR
-#cmakedefine LOG_LEVEL_ERROR
-#endif
-
 #if defined LOG_LEVEL_INFO && LOG_LEVEL_INFO  
-    #define _INTERNALDEBUG
+    #define __INTERNALDEBUG
+    #define __DEBUG 
     #undef LOG_NO_INFO
     #undef LOG_NO_WARN
     #undef LOG_NO_ERROR
