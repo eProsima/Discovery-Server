@@ -37,6 +37,8 @@ using eprosima::fastrtps::PublisherAttributes;
 using eprosima::fastrtps::SubscriberAttributes;
 using eprosima::fastrtps::ParticipantAttributes;
 
+class DPD;
+
 class LJD // Late Joiner Data basic class
 {
     // When the late joiner should be added
@@ -44,7 +46,12 @@ class LJD // Late Joiner Data basic class
 
 public:
 
-    LJD(const std::chrono::steady_clock::time_point& tp) : _time(tp) {}
+    LJD(
+        const std::chrono::steady_clock::time_point& tp)
+        : _time(tp)
+    {
+    }
+
     virtual ~LJD() {};
 
     LJD() = delete;
@@ -56,12 +63,12 @@ public:
     // Which operation should I do
     virtual void operator()(DSManager& ) = 0;
 
-    bool operator<(const LJD & event) const { return _time < event._time; }
+    bool operator<(const LJD & event) const
+        { return _time < event._time; }
 
-    void Wait() const { std::this_thread::sleep_until(_time); }
+    void Wait() const
+        { std::this_thread::sleep_until(_time); }
 };
-
-class DPD;
 
 class DPC : public LJD // Delayed Participant Creation
 {
@@ -103,8 +110,8 @@ class DPD : public LJD // Delayed Participant Destruction
 public:
 
     DPD(
-            const std::chrono::steady_clock::time_point tp,
-            GUID_t & id)
+        const std::chrono::steady_clock::time_point tp,
+        GUID_t & id)
         : LJD(tp)
         , _id(id) {}
 
@@ -167,8 +174,20 @@ class DEC : public LJD // Delayed Enpoint Creation
     DPC * _part; // associated participant event
 
 public:
-    DEC(const std::chrono::steady_clock::time_point tp, Attributes * atts, GUID_t & pid, DED<PS> * p = nullptr, DPC * part = nullptr) :
-        LJD(tp), _atts(atts), _pid(pid), _pD(p), _part(part) {}
+    DEC(
+        const std::chrono::steady_clock::time_point tp,
+        Attributes * atts,
+        GUID_t & pid,
+        DED<PS> * p = nullptr,
+        DPC * part = nullptr)
+        : LJD(tp)
+        , _atts(atts)
+        , _pid(pid)
+        , _pD(p)
+        , _part(part)
+    {
+    }
+
     DEC(DEC&&);
     ~DEC() override;
     DEC& operator=(DEC&& d);
@@ -189,8 +208,8 @@ class DED : public LJD // Delayed Endpoint Destruction
 public:
 
     DED(
-            const std::chrono::steady_clock::time_point& tp,
-            GUID_t id = GUID_t::unknown())
+        const std::chrono::steady_clock::time_point& tp,
+        GUID_t id = GUID_t::unknown())
         : LJD(tp)
         , _id(id) {}
 
@@ -212,7 +231,14 @@ class DS : public LJD // Delayed Snapshot
     std::string _desc;
 
 public:
-    DS(const std::chrono::steady_clock::time_point tp, const std::string& desc):  LJD(tp), _desc(desc) {}
+    DS(
+        const std::chrono::steady_clock::time_point tp,
+        const std::string& desc)
+        : LJD(tp)
+        , _desc(desc)
+    {
+    }
+
     ~DS() override {}
 
     DS() = delete;
@@ -333,7 +359,8 @@ DEC<PS>& DEC<PS>::operator=(DEC<PS>&& d)
 }
 
 template<class PS>
-DEC<PS>::DEC(DEC<PS>&& d) : LJD(std::move(d))
+DEC<PS>::DEC(DEC<PS>&& d)
+    : LJD(std::move(d))
 {
     _pid = std::move(d._pid);
     _pD = d._pD;

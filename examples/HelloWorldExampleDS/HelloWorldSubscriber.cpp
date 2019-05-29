@@ -50,8 +50,11 @@ bool HelloWorldSubscriber::init()
     PParam.rtps.builtin.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_sub");
     mp_participant = Domain::createParticipant(PParam);
-    if(mp_participant==nullptr)
+
+    if (mp_participant == nullptr)
+    {
         return false;
+    }
 
     //REGISTER THE TYPE
 
@@ -69,9 +72,10 @@ bool HelloWorldSubscriber::init()
     Rparam.qos.m_durability.kind = TRANSIENT_LOCAL_DURABILITY_QOS;
     mp_subscriber = Domain::createSubscriber(mp_participant,Rparam,(SubscriberListener*)&m_listener);
 
-    if(mp_subscriber == nullptr)
+    if (mp_subscriber == nullptr)
+    {
         return false;
-
+    }
 
     return true;
 }
@@ -108,7 +112,6 @@ void HelloWorldSubscriber::SubListener::onNewDataMessage(Subscriber* sub)
     }
 
 }
-
 
 void HelloWorldSubscriber::run()
 {

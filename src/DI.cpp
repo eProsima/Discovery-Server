@@ -43,38 +43,38 @@ using namespace eprosima::discovery_server;
 
 // basic discovery items operations
 
-bool DI::operator==(const GUID_t & guid) const
+bool DI::operator==(const GUID_t& guid) const
 {
     return _id == guid;
 }
 
-bool DI::operator!=(const GUID_t & guid) const
+bool DI::operator!=(const GUID_t& guid) const
 {
     return _id != guid;
 }
 
-bool DI::operator==(const DI & d) const
+bool DI::operator==(const DI& d) const
 {
     return _id == d._id;
 }
 
-bool DI::operator!=(const DI & d) const
+bool DI::operator!=(const DI& d) const
 {
     return _id != d._id;
 }
 
-bool DI::operator<(const GUID_t & guid) const
+bool DI::operator<(const GUID_t& guid) const
 {
     return _id < guid;
 }
 
-bool DI::operator<(const DI & d) const
+bool DI::operator<(const DI& d) const
 {
     return _id < d._id;
 }
 
 // publiser discovery item operations
-bool PDI::operator==(const PDI & p) const
+bool PDI::operator==(const PDI& p) const
 {
     return DI::operator==(p)
         && _typeName == p._typeName
@@ -88,7 +88,7 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PDI
 }
 
 // subscriber discovery item operations
-bool SDI::operator==(const SDI & p) const
+bool SDI::operator==(const SDI& p) const
 {
     return DI::operator==(p)
         && _typeName == p._typeName
@@ -103,7 +103,7 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const SDI
 
 // participant discovery item operations
 
-bool PtDI::operator==(const PtDI & p) const
+bool PtDI::operator==(const PtDI& p) const
 {
     return DI::operator==(p)
         // && this->_alive == p._alive // own participant may not be aware
@@ -113,7 +113,7 @@ bool PtDI::operator==(const PtDI & p) const
         && this->_subscribers == p._subscribers;
 }
 
-bool PtDI::operator!=(const PtDI & p) const
+bool PtDI::operator!=(const PtDI& p) const
 {
     return DI::operator!=(p)
         // || this->_alive != p._alive // own participant may not be aware
@@ -162,13 +162,13 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtD
     return os;
 }
 
-bool PtDI::operator[](const PDI & p) const
+bool PtDI::operator[](const PDI& p) const
 {
     // search the list
     return _publishers.end() != _publishers.find(p);
 }
 
-bool PtDI::operator[](const SDI & p) const
+bool PtDI::operator[](const SDI& p) const
 {
     // search the list
     return _subscribers.end() != _subscribers.find(p);
@@ -178,7 +178,7 @@ void PtDI::acknowledge(bool alive) const
 {
     // STL makes iterator const to prevent that any key changing unsorts the container
     // so we introduce this method to avoid constant ugly const_cast use
-    PtDI & part = const_cast<PtDI &>(*this);
+    PtDI & part = const_cast<PtDI&>(*this);
     part._alive = alive;
 }
 
@@ -213,7 +213,7 @@ std::time_t Snapshot::getSystemTime() const
 // DI_database methods
 
 // livetime of the return objects is not guaranteed, do not store
-std::vector<const PtDI*> DI_database::FindParticipant(const GUID_t & ptid) const
+std::vector<const PtDI*> DI_database::FindParticipant(const GUID_t& ptid) const
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
@@ -234,7 +234,11 @@ std::vector<const PtDI*> DI_database::FindParticipant(const GUID_t & ptid) const
     return v;
 }
 
-bool DI_database::AddParticipant(const GUID_t& spokesman, const GUID_t& ptid, const std::string& name, bool server/* = false*/)
+bool DI_database::AddParticipant(
+    const GUID_t& spokesman,
+    const GUID_t& ptid,
+    const std::string& name,
+    bool server/* = false*/)
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
@@ -267,7 +271,9 @@ bool DI_database::RemoveParticipant(const GUID_t& deceased)
     return _participants.erase(deceased) != 0;
 }
 
-bool DI_database::RemoveParticipant(const GUID_t& spokesman, const GUID_t & ptid)
+bool DI_database::RemoveParticipant(
+    const GUID_t& spokesman,
+    const GUID_t& ptid)
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
@@ -295,8 +301,13 @@ bool DI_database::RemoveParticipant(const GUID_t& spokesman, const GUID_t & ptid
 }
 
 template<class T>
-bool DI_database::AddEndPoint(T&(PtDI::* m)() const, const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & id,
-    const std::string & _typename, const std::string & topicname)
+bool DI_database::AddEndPoint(
+    T&(PtDI::* m)() const,
+    const GUID_t& spokesman,
+    const GUID_t& ptid,
+    const GUID_t& id,
+    const std::string& _typename,
+    const std::string& topicname)
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
@@ -333,7 +344,11 @@ bool DI_database::AddEndPoint(T&(PtDI::* m)() const, const GUID_t& spokesman, co
 }
 
 template<class T>
-bool DI_database::RemoveEndPoint(T&(PtDI::* m)() const, const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & id)
+bool DI_database::RemoveEndPoint(
+    T&(PtDI::* m)() const,
+    const GUID_t& spokesman,
+    const GUID_t& ptid,
+    const GUID_t& id)
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
@@ -367,23 +382,38 @@ bool DI_database::RemoveEndPoint(T&(PtDI::* m)() const, const GUID_t& spokesman,
 
 }
 
-bool DI_database::AddSubscriber(const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & sid,
-    const std::string & _typename, const std::string & topicname)
+bool DI_database::AddSubscriber(
+    const GUID_t& spokesman,
+    const GUID_t& ptid,
+    const GUID_t& sid,
+    const std::string& _typename,
+    const std::string& topicname)
 {
     return AddEndPoint(&PtDI::getSubscribers, spokesman,ptid, sid, _typename, topicname);
 }
 
-bool DI_database::RemoveSubscriber(const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & sid)
+bool DI_database::RemoveSubscriber(
+    const GUID_t& spokesman,
+    const GUID_t& ptid,
+    const GUID_t& sid)
 {
     return RemoveEndPoint(&PtDI::getSubscribers, spokesman, ptid, sid);
 }
 
-bool DI_database::AddPublisher(const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & pid, const std::string & _typename, const std::string & topicname)
+bool DI_database::AddPublisher(
+    const GUID_t& spokesman,
+    const GUID_t& ptid,
+    const GUID_t& pid,
+    const std::string& _typename,
+    const std::string& topicname)
 {
     return AddEndPoint(&PtDI::getPublishers, spokesman, ptid, pid, _typename, topicname);
 }
 
-bool DI_database::RemovePublisher(const GUID_t& spokesman, const GUID_t & ptid, const GUID_t & pid)
+bool DI_database::RemovePublisher(
+    const GUID_t& spokesman,
+    const GUID_t& ptid,
+    const GUID_t& pid)
 {
     return RemoveEndPoint(&PtDI::getPublishers, spokesman, ptid, pid);
 }
@@ -392,9 +422,9 @@ DI_database::size_type DI_database::CountParticipants(const GUID_t& spokesman) c
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    auto p = _participants[spokesman];
+    const PtDB* p = _participants[spokesman];
 
-    if (p)
+    if (p != nullptr)
     {
        return p->size();
     }
@@ -406,13 +436,13 @@ DI_database::size_type DI_database::CountSubscribers(const GUID_t& spokesman) co
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    auto p = _participants[spokesman];
+    const PtDB* p = _participants[spokesman];
 
-    if (p)
+    if (p != nullptr)
     {
         size_type count = 0;
 
-        for (auto part : *p)
+        for (const PtDI& part : *p)
         {
             count += part._subscribers.size();
         }
@@ -427,13 +457,13 @@ DI_database::size_type DI_database::CountPublishers(const GUID_t& spokesman) con
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    auto p = _participants[spokesman];
+    const PtDB* p = _participants[spokesman];
 
-    if (p)
+    if (p != nullptr)
     {
         size_type count = 0;
 
-        for (auto part : *p)
+        for (const PtDI& part : *p)
         {
             count += part._publishers.size();
         }
@@ -444,13 +474,15 @@ DI_database::size_type DI_database::CountPublishers(const GUID_t& spokesman) con
     return 0;
 }
 
-DI_database::size_type DI_database::CountSubscribers(const GUID_t& spokesman,const GUID_t & ptid) const
+DI_database::size_type DI_database::CountSubscribers(
+    const GUID_t& spokesman,
+    const GUID_t& ptid) const
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    auto p = _participants[spokesman];
+    const PtDB* p = _participants[spokesman];
 
-    if (p)
+    if (p != nullptr)
     {
         const PtDB & _database = *p;
         PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
@@ -467,13 +499,15 @@ DI_database::size_type DI_database::CountSubscribers(const GUID_t& spokesman,con
     return 0;
 }
 
-DI_database::size_type DI_database::CountPublishers(const GUID_t& spokesman,const GUID_t & ptid) const
+DI_database::size_type DI_database::CountPublishers(
+    const GUID_t& spokesman,
+    const GUID_t& ptid) const
 {
     std::lock_guard<std::mutex> lock(_mtx);
 
-    auto p = _participants[spokesman];
+    const PtDB* p = _participants[spokesman];
 
-    if (p)
+    if (p != nullptr)
     {
         const PtDB & _database = *p;
         PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
@@ -490,8 +524,7 @@ DI_database::size_type DI_database::CountPublishers(const GUID_t& spokesman,cons
     return 0;
 }
 
-// TODO: test this operator
-bool eprosima::discovery_server::operator==(const PtDB & l,const PtDB & r)
+bool eprosima::discovery_server::operator==(const PtDB& l,const PtDB& r)
 {
     // Note that each participant doesn't keep its own discovery info
     // The only acceptable difference between participants discovery information is their own
@@ -551,7 +584,7 @@ bool eprosima::discovery_server::operator==(const PtDB & l,const PtDB & r)
     return false;
 }
 
-PtDB & Snapshot::operator[](const GUID_t & id)
+PtDB& Snapshot::operator[](const GUID_t& id)
 {
     auto it = std::lower_bound(begin(), end(), id);
     const PtDB * p = nullptr;
@@ -568,7 +601,7 @@ PtDB & Snapshot::operator[](const GUID_t & id)
     return const_cast<PtDB&>(*p);
 }
 
-const PtDB * Snapshot::operator[](const GUID_t & id) const
+const PtDB* Snapshot::operator[](const GUID_t& id) const
 {
     auto it = std::lower_bound(begin(), end(), id);
 
@@ -580,7 +613,9 @@ const PtDB * Snapshot::operator[](const GUID_t & id) const
     return &*it;
 }
 
-void Snapshot::to_xml(tinyxml2::XMLElement* pRoot, tinyxml2::XMLDocument& xmlDoc) const
+void Snapshot::to_xml(
+    tinyxml2::XMLElement* pRoot,
+    tinyxml2::XMLDocument& xmlDoc) const
 {
     using namespace tinyxml2;
 

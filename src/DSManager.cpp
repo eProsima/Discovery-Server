@@ -55,34 +55,37 @@ static const std::string s_sPrefixValidation("prefix_validation");
 
 // non exported from fast-RTPS (watch out they are updated)
 namespace eprosima {
-    namespace fastrtps {
-        namespace xmlparser
-        {
-            const char* PROFILES = "profiles";
-            const char* PROFILE_NAME = "profile_name";
-            const char* PREFIX = "prefix";
-            const char* NAME = "name";
-            const char* META_UNI_LOC_LIST = "metatrafficUnicastLocatorList";
-            const char* META_MULTI_LOC_LIST = "metatrafficMulticastLocatorList";
-            const char* TYPES = "types";
-            const char* PUBLISHER = "publisher";
-            const char* SUBSCRIBER = "subscriber";
-            const char* TOPIC = "topic";
-        }
-    }
+namespace fastrtps {
+namespace xmlparser
+{
+    const char* PROFILES = "profiles";
+    const char* PROFILE_NAME = "profile_name";
+    const char* PREFIX = "prefix";
+    const char* NAME = "name";
+    const char* META_UNI_LOC_LIST = "metatrafficUnicastLocatorList";
+    const char* META_MULTI_LOC_LIST = "metatrafficMulticastLocatorList";
+    const char* TYPES = "types";
+    const char* PUBLISHER = "publisher";
+    const char* SUBSCRIBER = "subscriber";
+    const char* TOPIC = "topic";
+}
+}
 }
 
 /*static members*/
 HelloWorldPubSubType DSManager::_defaultType;
 TopicAttributes DSManager::_defaultTopic("HelloWorldTopic", "HelloWorld");
 
-DSManager::DSManager(const std::string &xml_file_path)
-    : _nocallbacks(false), _shutdown(false), _prefixvalidation(true)
+DSManager::DSManager(
+    const std::string& xml_file_path)
+    : _nocallbacks(false)
+    , _shutdown(false)
+    , _prefixvalidation(true)
 {
     tinyxml2::XMLDocument doc;
     if (doc.LoadFile(xml_file_path.c_str()) == tinyxml2::XMLError::XML_SUCCESS)
     {
-        tinyxml2::XMLElement *root = doc.FirstChildElement(s_sDS.c_str());
+        tinyxml2::XMLElement* root = doc.FirstChildElement(s_sDS.c_str());
         if (!root)
         {
             root = doc.FirstChildElement(s_sDS_Snapshots.c_str());
@@ -112,7 +115,7 @@ DSManager::DSManager(const std::string &xml_file_path)
             // first make XMLProfileManager::loadProfiles parse the config file. Afterwards loaded info is accessible
             // through XMLProfileManager::fillParticipantAttributes and related
 
-            tinyxml2::XMLElement *profiles = child->FirstChildElement(xmlparser::PROFILES);
+            tinyxml2::XMLElement* profiles = child->FirstChildElement(xmlparser::PROFILES);
             if (profiles)
             {
                 loadProfiles(profiles);
@@ -134,12 +137,12 @@ DSManager::DSManager(const std::string &xml_file_path)
             }
 
             // Server processing requires a two pass analysis
-            tinyxml2::XMLElement *servers = child->FirstChildElement(s_sServers.c_str());
+            tinyxml2::XMLElement* servers = child->FirstChildElement(s_sServers.c_str());
 
             if (servers)
             {
                 // 1. First map each server with his locators
-                tinyxml2::XMLElement *server = servers->FirstChildElement(s_sServer.c_str());
+                tinyxml2::XMLElement* server = servers->FirstChildElement(s_sServer.c_str());
                 while (server)
                 {
                     MapServerInfo(server);
@@ -165,7 +168,7 @@ DSManager::DSManager(const std::string &xml_file_path)
             tinyxml2::XMLElement* clients = child->FirstChildElement(s_sClients.c_str());
             if (clients)
             {
-                tinyxml2::XMLElement *client = clients->FirstChildElement(s_sClient.c_str());
+                tinyxml2::XMLElement* client = clients->FirstChildElement(s_sClient.c_str());
                 while (client)
                 {
                     loadClient(client);
@@ -182,7 +185,7 @@ DSManager::DSManager(const std::string &xml_file_path)
                 {
                     sh_file_ = file;
                 }
-                tinyxml2::XMLElement *snapshot = snapshots->FirstChildElement(s_sSnapshot.c_str());
+                tinyxml2::XMLElement* snapshot = snapshots->FirstChildElement(s_sSnapshot.c_str());
                 while (snapshot)
                 {
                     loadSnapshot(snapshot);
@@ -211,7 +214,9 @@ DSManager::DSManager(const std::set<std::string>& xml_snapshot_files)
     }
 }
 
-void DSManager::runEvents(std::istream& in /*= std::cin*/, std::ostream& out /*= std::cout*/)
+void DSManager::runEvents(
+    std::istream& in /*= std::cin*/,
+    std::ostream& out /*= std::cout*/)
 {
     // Order the event list
     std::sort(_events.begin(), _events.end(), [](LJD* p1, LJD* p2) -> bool { return *p1 < *p2; });
@@ -249,7 +254,7 @@ void DSManager::addClient(Participant* c)
     _clients[c->getGuid()] = c;
 }
 
-Participant * DSManager::getParticipant(GUID_t & id)
+Participant* DSManager::getParticipant(GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(_mtx);
 
@@ -267,7 +272,7 @@ Participant * DSManager::getParticipant(GUID_t & id)
     return nullptr;
 }
 
-Participant * DSManager::removeParticipant(GUID_t & id)
+Participant* DSManager::removeParticipant(GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(_mtx);
 
@@ -280,12 +285,18 @@ Participant * DSManager::removeParticipant(GUID_t & id)
     {
         publisher_map paux;
         std::remove_copy_if(_pubs.begin(), _pubs.end(), std::inserter(paux, paux.begin()),
-            [&id](publisher_map::value_type it) { return id.guidPrefix == it.first.guidPrefix; });
+            [&id](publisher_map::value_type it)
+            { 
+                return id.guidPrefix == it.first.guidPrefix;
+            });
         _pubs.swap(paux);
 
         subscriber_map saux;
         std::remove_copy_if(_subs.begin(), _subs.end(), std::inserter(saux, saux.begin()),
-            [&id](subscriber_map::value_type it) { return id.guidPrefix == it.first.guidPrefix; });
+            [&id](subscriber_map::value_type it)
+            { 
+                return id.guidPrefix == it.first.guidPrefix;
+            });
         _subs.swap(saux);
     }
 
@@ -305,14 +316,14 @@ Participant * DSManager::removeParticipant(GUID_t & id)
     return ret;
 }
 
-void DSManager::addSubscriber(Subscriber * sub)
+void DSManager::addSubscriber(Subscriber* sub)
 {
     std::lock_guard<std::recursive_mutex> lock(_mtx);
     assert(_subs[sub->getGuid()] == nullptr);
     _subs[sub->getGuid()] = sub;
 }
 
-Subscriber * DSManager::getSubscriber(GUID_t & id)
+Subscriber* DSManager::getSubscriber(GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(_mtx);
 
@@ -325,7 +336,7 @@ Subscriber * DSManager::getSubscriber(GUID_t & id)
     return nullptr;
 }
 
-Subscriber * DSManager::removeSubscriber(GUID_t & id)
+Subscriber* DSManager::removeSubscriber(GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(_mtx);
 
@@ -341,14 +352,14 @@ Subscriber * DSManager::removeSubscriber(GUID_t & id)
     return ret;
 }
 
-void DSManager::addPublisher(Publisher * pub)
+void DSManager::addPublisher(Publisher* pub)
 {
     std::lock_guard<std::recursive_mutex> lock(_mtx);
     assert(_pubs[pub->getGuid()] == nullptr);
     _pubs[pub->getGuid()] = pub;
 }
 
-Publisher * DSManager::getPublisher(GUID_t & id)
+Publisher* DSManager::getPublisher(GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(_mtx);
 
@@ -361,7 +372,7 @@ Publisher * DSManager::getPublisher(GUID_t & id)
     return nullptr;
 }
 
-Publisher * DSManager::removePublisher(GUID_t & id)
+Publisher* DSManager::removePublisher(GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(_mtx);
 
@@ -377,7 +388,7 @@ Publisher * DSManager::removePublisher(GUID_t & id)
     return ret;
 }
 
-types::DynamicPubSubType * DSManager::getType(std::string & name)
+types::DynamicPubSubType* DSManager::getType(std::string& name)
 {
     std::lock_guard<std::recursive_mutex> lock(_mtx);
 
@@ -390,7 +401,7 @@ types::DynamicPubSubType * DSManager::getType(std::string & name)
     return nullptr;
 }
 
-types::DynamicPubSubType * DSManager::setType(std::string & type_name)
+types::DynamicPubSubType* DSManager::setType(std::string& type_name)
 {
     std::lock_guard<std::recursive_mutex> lock(_mtx);
 
@@ -412,7 +423,7 @@ types::DynamicPubSubType * DSManager::setType(std::string & type_name)
     return pDt;
 }
 
-void DSManager::loadProfiles(tinyxml2::XMLElement *profiles)
+void DSManager::loadProfiles(tinyxml2::XMLElement* profiles)
 {
     xmlparser::XMLP_ret ret = xmlparser::XMLProfileManager::loadXMLProfiles(*profiles);
 
@@ -459,7 +470,7 @@ void DSManager::onTerminate()
     // the servers are appended because they should be destroyed at the end
     _clients.insert(_servers.begin(), _servers.end());
 
-    for (const auto &e : _clients)
+    for (const auto&e : _clients)
     {
         Participant *p = e.second;
         if (p)
@@ -472,7 +483,7 @@ void DSManager::onTerminate()
     _clients.clear();
 
     //unregister the types
-    for (const auto & t : _types)
+    for (const auto& t : _types)
     {
         xmlparser::XMLProfileManager::DeleteDynamicPubSubType(t.second);
     }
@@ -507,7 +518,7 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     creation_time = removal_time = getTime();
 
     {
-        const char * creation_time_str = server->Attribute(s_sCreationTime.c_str());
+        const char* creation_time_str = server->Attribute(s_sCreationTime.c_str());
         if (creation_time_str)
         {
             int aux;
@@ -515,7 +526,7 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
             creation_time += std::chrono::seconds(aux);
         }
 
-        const char * removal_time_str = server->Attribute(s_sRemovalTime.c_str());
+        const char* removal_time_str = server->Attribute(s_sRemovalTime.c_str());
         if (removal_time_str)
         {
             int aux;
@@ -525,7 +536,7 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     }
 
     // profile name is mandatory
-    const char * profile_name = server->Attribute(xmlparser::PROFILE_NAME);
+    const char* profile_name = server->Attribute(xmlparser::PROFILE_NAME);
 
     if (!profile_name || *profile_name == '\0')
     {
@@ -546,14 +557,15 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
 
     // retrieve profile attributes
     ParticipantAttributes atts;
-    if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillParticipantAttributes(std::string(profile_name), atts))
+    if (xmlparser::XMLP_ret::XML_OK != 
+        xmlparser::XMLProfileManager::fillParticipantAttributes(std::string(profile_name), atts))
     {
         LOG_ERROR("DSManager::loadServer couldn't load profile " << profile_name);
         return;
     }
 
     // server name is either pass as an attribute (preferred to allow profile reuse) or inside the profile
-    const char * name = server->Attribute(xmlparser::NAME);
+    const char* name = server->Attribute(xmlparser::NAME);
     if (name)
     {
         atts.rtps.setName(name);
@@ -561,11 +573,12 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
 
     // server GuidPrefix is either pass as an attribute (preferred to allow profile reuse)
     // or inside the profile.
-    GuidPrefix_t & prefix = atts.rtps.prefix;
-    const char * cprefix = server->Attribute(xmlparser::PREFIX);
+    GuidPrefix_t& prefix = atts.rtps.prefix;
+    const char* cprefix = server->Attribute(xmlparser::PREFIX);
 
-    if (cprefix && !(std::istringstream(cprefix) >> prefix)
-        && (prefix == c_GuidPrefix_Unknown))
+    if (cprefix &&
+        !(std::istringstream(cprefix) >> prefix) &&
+        (prefix == c_GuidPrefix_Unknown))
     {
         LOG_ERROR("Servers cannot have a framework provided prefix"); // at least for now
         return;
@@ -574,7 +587,8 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     GUID_t guid(prefix, c_EntityId_RTPSParticipant);
 
     // Check if the guidPrefix is already in use (there is a mistake on config file)
-    if (_prefixvalidation && _servers.find(guid) != _servers.end())
+    if (_prefixvalidation &&
+        _servers.find(guid) != _servers.end())
     {
         LOG_ERROR("DSManager detected two servers sharing the same prefix " << prefix);
         return;
@@ -583,7 +597,8 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     // replace the atts.rtps.builtin lists with the ones from _server_locators (if present)
     // note that a previous call to DSManager::MapServerInfo
     serverLocator_map::mapped_type & lists = _server_locators[guid];
-    if (!lists.first.empty() || !lists.second.empty())
+    if (!lists.first.empty() ||
+        !lists.second.empty())
     {
         // server elements take precedence over profile ones
         // I copy them because other servers may need this values
@@ -592,11 +607,11 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     }
 
     // load the server list (if present) and update the atts.rtps.builtin
-    tinyxml2::XMLElement *server_list = server->FirstChildElement(s_sSL.c_str());
+    tinyxml2::XMLElement* server_list = server->FirstChildElement(s_sSL.c_str());
 
     if (server_list)
     {
-        RemoteServerList_t & list = atts.rtps.builtin.m_DiscoveryServers;
+        RemoteServerList_t& list = atts.rtps.builtin.m_DiscoveryServers;
         list.clear(); // server elements take precedence over profile ones
 
         tinyxml2::XMLElement * rserver = server_list->FirstChildElement(s_sRServer.c_str());
@@ -604,12 +619,13 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
         while (rserver)
         {
             RemoteServerList_t::value_type srv;
-            GuidPrefix_t & prefix = srv.guidPrefix;
+            GuidPrefix_t& prefix = srv.guidPrefix;
 
             // load the prefix
-            const char * cprefix = rserver->Attribute(xmlparser::PREFIX);
+            const char* cprefix = rserver->Attribute(xmlparser::PREFIX);
 
-            if (cprefix && !(std::istringstream(cprefix) >> prefix)
+            if (cprefix &&
+                !(std::istringstream(cprefix) >> prefix)
                 && (prefix == c_GuidPrefix_Unknown))
             {
                 LOG_ERROR("RServers must provide a prefix"); // at least for now
@@ -628,7 +644,7 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     }
 
     // We define the PDP as external (when moved to fast library it would be SERVER)
-    BuiltinAttributes & b = atts.rtps.builtin;
+    BuiltinAttributes& b = atts.rtps.builtin;
     (void)b;
     assert(b.discoveryProtocol == SERVER || b.discoveryProtocol == BACKUP);
 
@@ -676,7 +692,7 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
     creation_time = removal_time = getTime();
 
     {
-        const char * creation_time_str = client->Attribute(s_sCreationTime.c_str());
+        const char* creation_time_str = client->Attribute(s_sCreationTime.c_str());
         if (creation_time_str)
         {
             int aux;
@@ -684,7 +700,7 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
             creation_time += std::chrono::seconds(aux);
         }
 
-        const char * removal_time_str = client->Attribute(s_sRemovalTime.c_str());
+        const char* removal_time_str = client->Attribute(s_sRemovalTime.c_str());
         if (removal_time_str)
         {
             int aux;
@@ -695,7 +711,7 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
 
     // clients are created for debugging purposes
     // profile name is mandatory because they must reference servers
-    const char * profile_name = client->Attribute(xmlparser::PROFILE_NAME);
+    const char* profile_name = client->Attribute(xmlparser::PROFILE_NAME);
 
     if (!profile_name)
     {
@@ -705,7 +721,8 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
 
     // retrieve profile attributes
     ParticipantAttributes atts;
-    if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillParticipantAttributes(std::string(profile_name), atts))
+    if (xmlparser::XMLP_ret::XML_OK != 
+        xmlparser::XMLProfileManager::fillParticipantAttributes(std::string(profile_name), atts))
     {
         LOG_ERROR("DSManager::loadClient couldn't load profile " << profile_name);
         return;
@@ -719,21 +736,21 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
     }
 
     // pick the client's name (isn't mandatory to provide it). Takes precedence over profile provided.
-    const char * name = client->Attribute(xmlparser::NAME);
+    const char* name = client->Attribute(xmlparser::NAME);
     if (name != nullptr)
     {
         atts.rtps.setName(name);
     }
 
     // server may be provided by prefix (takes precedence) or by list
-    const char * server = client->Attribute(s_sServer.c_str());
+    const char* server = client->Attribute(s_sServer.c_str());
     if (server)
     {
         RemoteServerList_t::value_type srv;
         GuidPrefix_t & prefix = srv.guidPrefix;
 
-        if (!(std::istringstream(server) >> prefix)
-            && (prefix == c_GuidPrefix_Unknown))
+        if (!(std::istringstream(server) >> prefix) && 
+            (prefix == c_GuidPrefix_Unknown))
         {
             LOG_ERROR("server attribute must provide a prefix"); // at least for now
             return;
@@ -791,8 +808,8 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
     }
 
     GUID_t guid(atts.rtps.prefix, c_EntityId_RTPSParticipant);
-    DPD * pD = nullptr;
-    DPC * pC = nullptr;
+    DPD* pD = nullptr;
+    DPC* pC = nullptr;
 
     if (removal_time != getTime())
     {
@@ -834,21 +851,23 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
 
 }
 
-void DSManager::loadSubscriber(GUID_t & part_guid, tinyxml2::XMLElement* sub, DPC* pLJ /*= nullptrt*/)
+void DSManager::loadSubscriber(
+    GUID_t& part_guid, tinyxml2::XMLElement* sub,
+    DPC* pLJ /*= nullptrt*/)
 {
     assert(sub != nullptr);
 
     std::lock_guard<std::recursive_mutex> lock(_mtx);
 
     // retrieve participant
-    Participant * part = getParticipant(part_guid);
+    Participant* part = getParticipant(part_guid);
 
     // check if we need to create an event
     std::chrono::steady_clock::time_point creation_time, removal_time;
     creation_time = removal_time = getTime();
 
     {
-        const char * creation_time_str = sub->Attribute(s_sCreationTime.c_str());
+        const char* creation_time_str = sub->Attribute(s_sCreationTime.c_str());
         if (creation_time_str)
         {
             int aux;
@@ -862,7 +881,7 @@ void DSManager::loadSubscriber(GUID_t & part_guid, tinyxml2::XMLElement* sub, DP
             return;
         }
 
-        const char * removal_time_str = sub->Attribute(s_sRemovalTime.c_str());
+        const char* removal_time_str = sub->Attribute(s_sRemovalTime.c_str());
         if (removal_time_str)
         {
             int aux;
@@ -874,7 +893,7 @@ void DSManager::loadSubscriber(GUID_t & part_guid, tinyxml2::XMLElement* sub, DP
 
     // subscribers are created for debugging purposes
     // default topic is the static HelloWorld one
-    const char * profile_name = sub->Attribute(xmlparser::PROFILE_NAME);
+    const char* profile_name = sub->Attribute(xmlparser::PROFILE_NAME);
 
     SubscriberAttributes * subatts = new SubscriberAttributes();
 
@@ -886,7 +905,8 @@ void DSManager::loadSubscriber(GUID_t & part_guid, tinyxml2::XMLElement* sub, DP
     else
     {
         // try load from profile
-        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillSubscriberAttributes(std::string(profile_name), *subatts))
+        if (xmlparser::XMLP_ret::XML_OK !=
+            xmlparser::XMLProfileManager::fillSubscriberAttributes(std::string(profile_name), *subatts))
         {
             LOG_ERROR("DSManager::loadSubscriber couldn't load profile " << profile_name);
             return;
@@ -894,12 +914,12 @@ void DSManager::loadSubscriber(GUID_t & part_guid, tinyxml2::XMLElement* sub, DP
     }
 
     // see if topic is specified
-    const char * topic_name = sub->Attribute(xmlparser::TOPIC);
+    const char* topic_name = sub->Attribute(xmlparser::TOPIC);
 
     if (topic_name)
     {
-        if (xmlparser::XMLP_ret::XML_OK
-            != xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), subatts->topic))
+        if (xmlparser::XMLP_ret::XML_OK != 
+            xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), subatts->topic))
         {
             LOG_ERROR("DSManager::loadSubscriber couldn't load topic profile " << profile_name);
             return;
@@ -929,7 +949,9 @@ void DSManager::loadSubscriber(GUID_t & part_guid, tinyxml2::XMLElement* sub, DP
 
 }
 
-void DSManager::loadPublisher(GUID_t & part_guid, tinyxml2::XMLElement* sub, DPC* pLJ /*= nullptrt*/)
+void DSManager::loadPublisher(
+    GUID_t& part_guid, tinyxml2::XMLElement* sub,
+    DPC* pLJ /*= nullptrt*/)
 {
     assert(sub != nullptr);
 
@@ -970,7 +992,7 @@ void DSManager::loadPublisher(GUID_t & part_guid, tinyxml2::XMLElement* sub, DPC
     // default topic is the static HelloWorld one
     const char * profile_name = sub->Attribute(xmlparser::PROFILE_NAME);
 
-    PublisherAttributes * pubatts = new PublisherAttributes();
+    PublisherAttributes* pubatts = new PublisherAttributes();
 
     if (!profile_name)
     {
@@ -980,8 +1002,8 @@ void DSManager::loadPublisher(GUID_t & part_guid, tinyxml2::XMLElement* sub, DPC
     else
     {
         // try load from profile
-        if (xmlparser::XMLP_ret::XML_OK
-            != xmlparser::XMLProfileManager::fillPublisherAttributes(std::string(profile_name), *pubatts))
+        if (xmlparser::XMLP_ret::XML_OK != 
+            xmlparser::XMLProfileManager::fillPublisherAttributes(std::string(profile_name), *pubatts))
         {
             LOG_ERROR("DSManager::loadPublisher couldn't load profile " << profile_name);
             return;
@@ -989,18 +1011,19 @@ void DSManager::loadPublisher(GUID_t & part_guid, tinyxml2::XMLElement* sub, DPC
     }
 
     // see if topic is specified
-    const char * topic_name = sub->Attribute(xmlparser::TOPIC);
+    const char* topic_name = sub->Attribute(xmlparser::TOPIC);
 
     if (topic_name)
     {
-        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), pubatts->topic))
+        if (xmlparser::XMLP_ret::XML_OK != 
+            xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), pubatts->topic))
         {
             LOG_ERROR("DSManager::loadPublisher couldn't load topic profile ");
             return;
         }
     }
 
-    DED<Publisher> * pDE = nullptr; // subscriber destruction event
+    DED<Publisher>* pDE = nullptr; // subscriber destruction event
 
     if (removal_time != getTime())
     {
@@ -1076,7 +1099,7 @@ void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
     GuidPrefix_t prefix;
     std::shared_ptr<ParticipantAttributes> atts;
 
-    const char * cprefix = server->Attribute(xmlparser::PREFIX);
+    const char* cprefix = server->Attribute(xmlparser::PREFIX);
 
     if (cprefix)
     {
@@ -1087,7 +1110,8 @@ void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
         // I must load the prefix from the profile
         // retrieve profile attributes
         atts = std::make_shared<ParticipantAttributes>();
-        if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillParticipantAttributes(profile_name, *atts))
+        if (xmlparser::XMLP_ret::XML_OK !=
+            xmlparser::XMLProfileManager::fillParticipantAttributes(profile_name, *atts))
         {
             LOG_ERROR("DSManager::loadServer couldn't load profile " << profile_name);
             return;
@@ -1105,18 +1129,20 @@ void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
     // Now we search the locator lists
     serverLocator_map::mapped_type pair;
 
-    tinyxml2::XMLElement *LP = server->FirstChildElement(s_sLP.c_str());
+    tinyxml2::XMLElement* LP = server->FirstChildElement(s_sLP.c_str());
     if (LP)
     {
         tinyxml2::XMLElement * list = LP->FirstChildElement(xmlparser::META_MULTI_LOC_LIST);
 
-        if (list && (xmlparser::XMLP_ret::XML_OK != getXMLLocatorList(list, pair.first, ident)))
+        if (list && 
+            (xmlparser::XMLP_ret::XML_OK != getXMLLocatorList(list, pair.first, ident)))
         {
             LOG_ERROR("Server " << prefix << " has an ill formed " << xmlparser::META_MULTI_LOC_LIST);
         }
 
         list = LP->FirstChildElement(xmlparser::META_UNI_LOC_LIST);
-        if (list && (xmlparser::XMLP_ret::XML_OK != getXMLLocatorList(list, pair.second, ident)))
+        if (list && 
+            (xmlparser::XMLP_ret::XML_OK != getXMLLocatorList(list, pair.second, ident)))
         {
             LOG_ERROR("Server " << prefix << " has an ill formed " << xmlparser::META_UNI_LOC_LIST);
         }
@@ -1130,7 +1156,8 @@ void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
         if (!atts)
         {
             atts = std::make_shared<ParticipantAttributes>();
-            if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::fillParticipantAttributes(profile_name, *atts))
+            if (xmlparser::XMLP_ret::XML_OK != 
+                xmlparser::XMLProfileManager::fillParticipantAttributes(profile_name, *atts))
             {
                 LOG_ERROR("DSManager::loadServer couldn't load profile " << profile_name);
                 return;
@@ -1146,10 +1173,12 @@ void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
 
 }
 
-void DSManager::onParticipantDiscovery(Participant* participant, rtps::ParticipantDiscoveryInfo&& info)
+void DSManager::onParticipantDiscovery(
+    Participant* participant,
+    rtps::ParticipantDiscoveryInfo&& info)
 {
     bool server = false;
-    GUID_t & partid = info.info.m_guid;
+    GUID_t& partid = info.info.m_guid;
 
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a participant "
         << info.info.m_participantName << " is " << info.status << ". Prefix " << partid);
@@ -1190,7 +1219,9 @@ void DSManager::onParticipantDiscovery(Participant* participant, rtps::Participa
     // and not with discovery messages
 }
 
-void DSManager::onSubscriberDiscovery(Participant* participant, rtps::ReaderDiscoveryInfo&& info)
+void DSManager::onSubscriberDiscovery(
+    Participant* participant,
+    rtps::ReaderDiscoveryInfo&& info)
 {
     GUID_t & subsid = info.info.guid();
     GUID_t partid = iHandle2GUID(info.info.RTPSParticipantKey());
@@ -1237,9 +1268,11 @@ void DSManager::onSubscriberDiscovery(Participant* participant, rtps::ReaderDisc
         << " topic: " << info.info.topicName() << " GUID: " << subsid);
 }
 
-void  DSManager::onPublisherDiscovery(Participant* participant, rtps::WriterDiscoveryInfo&& info)
+void  DSManager::onPublisherDiscovery(
+    Participant* participant,
+    rtps::WriterDiscoveryInfo&& info)
 {
-    GUID_t & pubsid = info.info.guid();
+    GUID_t& pubsid = info.info.guid();
     GUID_t partid = iHandle2GUID(info.info.RTPSParticipantKey());
 
     // non reported info

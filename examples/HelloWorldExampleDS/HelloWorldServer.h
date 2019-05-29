@@ -25,14 +25,14 @@
 class HelloWorldServer {
 public:
     HelloWorldServer();
-	virtual ~HelloWorldServer();
-	//!Initialize the subscriber
-	bool init();
-	//!RUN the subscriber
-	void run();
+    virtual ~HelloWorldServer();
+    //!Initialize the subscriber
+    bool init();
+    //!RUN the subscriber
+    void run();
 
 private:
-	eprosima::fastrtps::Participant* mp_participant;
+    eprosima::fastrtps::Participant* mp_participant;
 };
 
 #endif /* HELLOWORLDSERVER_H_ */

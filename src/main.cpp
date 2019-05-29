@@ -41,11 +41,15 @@ int main(int argc, char * argv[])
             // Follow the config file instructions
             manager.runEvents(std::cin, std::cout);
 
-            // Check the snapshots taken
-            if (!manager.validateAllSnapshots())
+            // maybe it's not a standalone test and validation should be procrastinated
+            if (manager.shouldValidate())
             {
-                LOG_ERROR("Discovery Server error: several snapshots show info leakage");
-                return_code = -1; // report CTest the test fail
+                // Check the snapshots taken
+                if (!manager.validateAllSnapshots())
+                {
+                    LOG_ERROR("Discovery Server error: several snapshots show info leakage");
+                    return_code = -1; // report CTest the test fail
+                }
             }
         }
     }
@@ -58,7 +62,7 @@ int main(int argc, char * argv[])
         }
         DSManager manager(files);
 
-        // Check the snapshots taken
+        // Check the snapshots read
         if (!manager.validateAllSnapshots())
         {
             LOG_ERROR("Discovery Server error: several snapshots show info leakage");

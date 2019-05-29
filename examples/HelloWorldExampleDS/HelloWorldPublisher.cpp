@@ -58,10 +58,12 @@ bool HelloWorldPublisher::init()
     PParam.rtps.setName("Participant_pub");
     mp_participant = Domain::createParticipant(PParam);
 
-    if(mp_participant==nullptr)
+    if (mp_participant == nullptr)
+    {
         return false;
-    //REGISTER THE TYPE
+    }
 
+    //REGISTER THE TYPE
     Domain::registerType(mp_participant,&m_type);
 
     //CREATE THE PUBLISHER
@@ -77,8 +79,11 @@ bool HelloWorldPublisher::init()
     Wparam.times.heartbeatPeriod.fraction = 200*1000*1000;
     Wparam.qos.m_reliability.kind = RELIABLE_RELIABILITY_QOS;
     mp_publisher = Domain::createPublisher(mp_participant,Wparam,(PublisherListener*)&m_listener);
-    if(mp_publisher == nullptr)
+
+    if (mp_publisher == nullptr)
+    {
         return false;
+    }
 
     return true;
 

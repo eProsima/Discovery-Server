@@ -97,8 +97,17 @@ class DSManager : public xmlparser::XMLParser,      // access to parsing protect
     void loadProfiles(tinyxml2::XMLElement *profiles);
     void loadServer(tinyxml2::XMLElement* server);
     void loadClient(tinyxml2::XMLElement* client);
-    void loadSubscriber(GUID_t & part_guid, tinyxml2::XMLElement* subs, DPC* pLJ = nullptr);
-    void loadPublisher(GUID_t & part_guid, tinyxml2::XMLElement* pubs, DPC* pLJ = nullptr);
+
+    void loadSubscriber(
+        GUID_t & part_guid,
+        tinyxml2::XMLElement* subs,
+        DPC* pLJ = nullptr);
+
+    void loadPublisher(
+        GUID_t & part_guid,
+        tinyxml2::XMLElement* pubs,
+        DPC* pLJ = nullptr);
+
     void loadSnapshot(tinyxml2::XMLElement* snapshot);
     void MapServerInfo(tinyxml2::XMLElement* server);
 
@@ -117,13 +126,18 @@ public:
     ~DSManager();
 
     // testing database
+    bool shouldValidate() const { return sh_file_.empty(); }
     bool validateAllSnapshots() const;
     bool allKnowEachOther() const;
     static bool allKnowEachOther(const Snapshot& shot);
-    Snapshot&  takeSnapshot(const std::chrono::steady_clock::time_point tp, const std::string& desc = std::string());
+    Snapshot&  takeSnapshot(
+        const std::chrono::steady_clock::time_point tp,
+        const std::string& desc = std::string());
 
     // processing events
-    void runEvents(std::istream& in = std::cin, std::ostream& out = std::cout);
+    void runEvents(
+        std::istream& in = std::cin,
+        std::ostream& out = std::cout);
 
     // update entity state functions
     void addServer(Participant* b);
@@ -143,13 +157,23 @@ public:
     types::DynamicPubSubType * setType(std::string & name);
 
     // callback discovery functions
-    void onParticipantDiscovery(Participant* participant, rtps::ParticipantDiscoveryInfo&& info) override;
-    void onSubscriberDiscovery(Participant* participant, rtps::ReaderDiscoveryInfo&& info) override;
-    void onPublisherDiscovery(Participant* participant, rtps::WriterDiscoveryInfo&& info) override;
+    void onParticipantDiscovery(
+        Participant* participant,
+        rtps::ParticipantDiscoveryInfo&& info) override;
+
+    void onSubscriberDiscovery(
+        Participant* participant,
+        rtps::ReaderDiscoveryInfo&& info) override;
+
+    void onPublisherDiscovery(
+        Participant* participant,
+        rtps::WriterDiscoveryInfo&& info) override;
 
     void onTerminate();
 
-    std::string getEndPointName(const std::string &partName, const std::string &epName)
+    std::string getEndPointName(
+        const std::string &partName,
+        const std::string &epName)
     {
         return partName + "." + epName;
     }

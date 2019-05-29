@@ -68,8 +68,8 @@ endif()
 
 # colcon will take care of solving any dependency issues
 #find_package(Asio REQUIRED )
-find_package(fastcdr   REQUIRED  )
-#find_package(TinyXML2 QUIET ) # CMake is able to find it unaided 
+find_package(fastcdr REQUIRED )
+find_package(TinyXML2 QUIET )
 find_package(fastrtps   REQUIRED)
 find_package(OpenSSL REQUIRED)
 
@@ -108,17 +108,17 @@ configure_file(${PROJECT_SOURCE_DIR}/src/DSLog.h.in ${PROJECT_SOURCE_DIR}/includ
 # project() doesn't create 0 valued version variables. We must workaround it.
 
 foreach( version_var PROJECT_VERSION_MAJOR PROJECT_VERSION_MINOR PROJECT_VERSION_PATCH PROJECT_VERSION_TWEAK)
-	if( NOT ${version_var} )
-		set( ${version_var} "0 ")
-		list(APPEND version_unset ${version_var})
-	endif()
+    if( NOT ${version_var} )
+        set( ${version_var} "0 ")
+        list(APPEND version_unset ${version_var})
+    endif()
 endforeach()
 
 configure_file(${PROJECT_SOURCE_DIR}/src/config.h.in ${PROJECT_SOURCE_DIR}/include/version/config.h @ONLY)
 
 # we leave the project() generated variables as they were before
 foreach( version_var IN LISTS version_unset)
-	unset( ${version_var} )
+    unset( ${version_var} )
 endforeach()
 unset(version_unset)
 
@@ -134,63 +134,64 @@ unset(version_unset)
 
 # add fast headers to enable class view on visual studio IDE
 if (WIN32)
-	get_target_property(FAST_INCLUDE_DIR fastrtps INTERFACE_INCLUDE_DIRECTORIES)
-	list(GET FAST_INCLUDE_DIR 0 FAST_INCLUDE_DIR)
-	#get_filename_component(FAST_INCLUDE_DIR "${FAST_INCLUDE_DIR}" DIRECTORY )
+    get_target_property(FAST_INCLUDE_DIR fastrtps INTERFACE_INCLUDE_DIRECTORIES)
+    list(GET FAST_INCLUDE_DIR 0 FAST_INCLUDE_DIR)
+    #get_filename_component(FAST_INCLUDE_DIR "${FAST_INCLUDE_DIR}" DIRECTORY )
 
-	file(GLOB_RECURSE ALL_FAST_HEADERS
-		"${FAST_INCLUDE_DIR}/**/*.h"
-		"${FAST_INCLUDE_DIR}/**/*.hpp"
-		)  
+    file(GLOB_RECURSE ALL_FAST_HEADERS
+        "${FAST_INCLUDE_DIR}/**/*.h"
+        "${FAST_INCLUDE_DIR}/**/*.hpp"
+        )
 endif(WIN32)
 
 # xml test files
 file(GLOB ${PROJECT_NAME}_xml_tests
-	test/xml/*.xml.in)
+    test/xml/*.xml.in)
 
 # python test files
 file(GLOB ${PROJECT_NAME}_python_tests
-	test/python/*.py)
+    test/python/*.py)
 
 # xml schema file
 set(${PROJECT_NAME}_schema_files
-	resources/xsd/discovery-server.xsd
-	)
+    resources/xsd/discovery-server.xsd
+    resources/xsd/ds-snapshot.xsd
+    )
 
 # testing static types
 file(GLOB ${PROJECT_NAME}_static_types
-	resources/static_types/*.*
-	)
+    resources/static_types/*.*
+    )
 
 #filter out the idl within the static types
 set( ${PROJECT_NAME}_idl ${${PROJECT_NAME}_static_types} )
 list(FILTER ${PROJECT_NAME}_idl INCLUDE REGEX "\\.idl$" )
 
 set(${PROJECT_NAME}_header_files
-		#TODO: remove when development process is finished
-		${ALL_FAST_HEADERS}
-		# application sources
+        #TODO: remove when development process is finished
+        ${ALL_FAST_HEADERS}
+        # application sources
         include/version/config.h
         include/log/DSLog.h
-		include/DSManager.h
-		# library sources
-		include/DI.h
-		include/LJ.h
+        include/DSManager.h
+        # library sources
+        include/DI.h
+        include/LJ.h
     )
 
 set(${PROJECT_NAME}_source_files
-		#application sources
+        #application sources
         src/main.cpp
-		src/DSManager.cpp
-		#library sources
-		src/DI.cpp
-		src/LJ.cpp
+        src/DSManager.cpp
+        #library sources
+        src/DI.cpp
+        src/LJ.cpp
     )
 
 # Executable and library
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_source_files} ${${PROJECT_NAME}_header_files}
-				${${PROJECT_NAME}_schema_files} ${${PROJECT_NAME}_xml_tests}
-				${${PROJECT_NAME}_python_tests} ${${PROJECT_NAME}_static_types})
+                ${${PROJECT_NAME}_schema_files} ${${PROJECT_NAME}_xml_tests}
+                ${${PROJECT_NAME}_python_tests} ${${PROJECT_NAME}_static_types})
 
 # schema, types and auxiliary xmls
 source_group(resources\\xsd FILES ${${PROJECT_NAME}_schema_files} )
@@ -223,14 +224,14 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     PRIVATE $<BUILD_INTERFACE:${TINYXML2_INCLUDE_DIR}>
-	${ASIO_INCLUDE_DIR}
+    ${ASIO_INCLUDE_DIR}
     )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-	ASIO_STANDALONE
+    ASIO_STANDALONE
     $<$<AND:$<BOOL:${WIN32}>,$<STREQUAL:"${CMAKE_SYSTEM_NAME}","WindowsStore">>:_WIN32_WINNT=0x0603>
     $<$<AND:$<BOOL:${WIN32}>,$<NOT:$<STREQUAL:"${CMAKE_SYSTEM_NAME}","WindowsStore">>>:_WIN32_WINNT=0x0601>
-	)
+    )
 
 #if (WIN32)
 #    target_compile_options(${PROJECT_NAME} PRIVATE	-wd4251)
@@ -269,29 +270,29 @@ unset(LAST_TEST_NUMBER )
 
 foreach(TEST_XML ${${PROJECT_NAME}_xml_tests})
 
-	# all test files must match the pattern test_\d+_
-	if(NOT TEST_XML MATCHES "test_([0-9]+)_")
-		message(FATAL_ERROR " all test files must match the pattern test_\\d+_" )
-	endif()
+    # all test files must match the pattern test_\d+_
+    if(NOT TEST_XML MATCHES "test_([0-9]+)_")
+       message(FATAL_ERROR " all test files must match the pattern test_\\d+_" )
+    endif()
 
-	string(REGEX MATCH "test_([0-9]+)_" NEW_TEST_NUMBER "${TEST_XML}" )
-	# NEW_TEST_NUMBER is not the capture group by the whole expresion
-	set(NEW_TEST_NUMBER ${CMAKE_MATCH_1})
+    string(REGEX MATCH "test_([0-9]+)_" NEW_TEST_NUMBER "${TEST_XML}" )
+    # NEW_TEST_NUMBER is not the capture group by the whole expresion
+    set(NEW_TEST_NUMBER ${CMAKE_MATCH_1})
 
-	# update only if are files from different tests
-	if(NOT NEW_TEST_NUMBER EQUAL LAST_TEST_NUMBER)
-		random_port(1024 65531 RANDOM_PORT)
-		math(EXPR RANDOM_PORT_2 ${RANDOM_PORT}+1)
-		math(EXPR RANDOM_PORT_3 ${RANDOM_PORT}+2)
-		math(EXPR RANDOM_PORT_4 ${RANDOM_PORT}+3)
-		math(EXPR RANDOM_PORT_5 ${RANDOM_PORT}+4)
-	endif()
+    # update only if are files from different tests
+    if(NOT NEW_TEST_NUMBER EQUAL LAST_TEST_NUMBER)
+        random_port(1024 65531 RANDOM_PORT)
+        math(EXPR RANDOM_PORT_2 ${RANDOM_PORT}+1)
+        math(EXPR RANDOM_PORT_3 ${RANDOM_PORT}+2)
+        math(EXPR RANDOM_PORT_4 ${RANDOM_PORT}+3)
+        math(EXPR RANDOM_PORT_5 ${RANDOM_PORT}+4)
+    endif()
 
-	set(LAST_TEST_NUMBER ${NEW_TEST_NUMBER})
+    set(LAST_TEST_NUMBER ${NEW_TEST_NUMBER})
 	
-	get_filename_component(OUTPUT_NAME ${TEST_XML} NAME_WE)
-	configure_file(${TEST_XML} ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_NAME}.xml)
-	list(APPEND ${PROJECT_NAME}_transform_xml_tests ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_NAME}.xml)
+    get_filename_component(OUTPUT_NAME ${TEST_XML} NAME_WE)
+    configure_file(${TEST_XML} ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_NAME}.xml)
+    list(APPEND ${PROJECT_NAME}_transform_xml_tests ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_NAME}.xml)
 
 endforeach()
 
@@ -339,8 +340,8 @@ add_test(NAME test_8_lease_duration
  COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_8_lease_duration.py
  $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_server.xml ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_client.xml)
 set_tests_properties(test_8_lease_duration PROPERTIES 
-	REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_client.xml 
-	REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_server.xml )
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_client.xml 
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_server.xml )
 
 #! WLP callbacks wasn't operational in my original fastRTPS commit. WLP testing will be disabled till rebasing.
 list(APPEND TEST_LIST test_9_WLP)
@@ -348,8 +349,8 @@ add_test(NAME test_9_WLP
  COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_9_WLP.py
  $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_BINARY_DIR}/test_9_WLP_server.xml ${CMAKE_CURRENT_BINARY_DIR}/test_9_WLP_client.xml)
 set_tests_properties(test_9_WLP PROPERTIES 
-	REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_client.xml 
-	REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_server.xml  DISABLED true )
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_client.xml 
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_server.xml  DISABLED true )
 
 
 # add_test(NAME PubSubTest COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}pub_subs_creation.xml )
@@ -363,59 +364,59 @@ set_tests_properties(${TEST_LIST} PROPERTIES TIMEOUT 20)
 # Windows requires an special treatment of environmental variables
 if(WIN32)
 
-	# set the environment variables to detect fast binaries
-	string(REGEX MATCHALL  "[A-Z]:[^;:]+;" PATH_VARIABLE "$ENV{PATH}" )
-	foreach (itvar ${PATH_VARIABLE})
-			string(REPLACE ";" "" itvar ${itvar})
-			set(WINDOWS_PATH_VARIABLE "${WINDOWS_PATH_VARIABLE}\\;${itvar}" )
-	endforeach( itvar ) 
+    # set the environment variables to detect fast binaries
+    string(REGEX MATCHALL  "[A-Z]:[^;:]+;" PATH_VARIABLE "$ENV{PATH}" )
+    foreach (itvar ${PATH_VARIABLE})
+            string(REPLACE ";" "" itvar ${itvar})
+            set(WINDOWS_PATH_VARIABLE "${WINDOWS_PATH_VARIABLE}\\;${itvar}" )
+    endforeach( itvar ) 
 
-	# Generate a dll path property for each target-configuration
-	get_target_property(DEPENDENCIES ${PROJECT_NAME} INTERFACE_LINK_LIBRARIES)
-	unset(TEST_ENVIRONMENT_DEPENDENCIES)
-	
-	foreach( _target ${DEPENDENCIES})
-		#message(STATUS "DEPENDENT TARGET ${_target}")
-		
-		if(TARGET ${_target} )
-		
-			#message(STATUS "Configurations available in ${_target} are ${CMAKE_CONFIGURATION_TYPES}\n")
-		
-			foreach( _config ${CMAKE_CONFIGURATION_TYPES} )
-			
-				string(TOUPPER  ${_config} _config) # CMake is fiercely case-sensitive
-				#message(STATUS "Current config in ${_target} is ${_config}\n")
-				
-				#retrieve binary path
-				get_target_property(IMPORTED_LOCATION ${_target} IMPORTED_LOCATION_${_config} )
-				
-				#message(STATUS "IMPORTED_LOCATION_${_config} = ${IMPORTED_LOCATION}")
-				
-				if(IMPORTED_LOCATION) #ignore if this configuration doesn't exist
+    # Generate a dll path property for each target-configuration
+    get_target_property(DEPENDENCIES ${PROJECT_NAME} INTERFACE_LINK_LIBRARIES)
+    unset(TEST_ENVIRONMENT_DEPENDENCIES)
 
-					get_filename_component(DIR_PATH "${IMPORTED_LOCATION}" DIRECTORY )
-					file(TO_NATIVE_PATH ${DIR_PATH} DIR_NATIVE_PATH)
-					set_target_properties(${_target} PROPERTIES NATIVE_LOCATION_DIR_${_config} ${DIR_NATIVE_PATH} )
-					
-					#message(STATUS "Created target: ${_target} property: NATIVE_LOCATION_DIR_${_config} = ${DIR_NATIVE_PATH}")
-					
-				endif(IMPORTED_LOCATION)
-				
-			endforeach()
-			
-			if(TEST_ENVIRONMENT_DEPENDENCIES)
-				set(TEST_ENVIRONMENT_DEPENDENCIES "${TEST_ENVIRONMENT_DEPENDENCIES}\\;$<TARGET_PROPERTY:${_target},NATIVE_LOCATION_DIR_$<UPPER_CASE:$<CONFIG>>>")
-			else()
-				set(TEST_ENVIRONMENT_DEPENDENCIES "$<TARGET_PROPERTY:${_target},NATIVE_LOCATION_DIR_$<UPPER_CASE:$<CONFIG>>>")
-			endif()
-			
-		endif()
-	endforeach()
+    foreach( _target ${DEPENDENCIES})
+        #message(STATUS "DEPENDENT TARGET ${_target}")
 
-	#message(STATUS ${TEST_ENVIRONMENT_DEPENDENCIES})
+        if(TARGET ${_target} )
 
-	#set_tests_properties(PubSubTest envtest PROPERTIES ENVIRONMENT "PATH=${WINDOWS_PATH_VARIABLE}\\;$<TARGET_FILE_DIR:fastrtps>\\;$<TARGET_FILE_DIR:fastcdr>" )
-	set_tests_properties(${TEST_LIST} PROPERTIES ENVIRONMENT "PATH=${WINDOWS_PATH_VARIABLE}\\;${TEST_ENVIRONMENT_DEPENDENCIES}" )
+        #message(STATUS "Configurations available in ${_target} are ${CMAKE_CONFIGURATION_TYPES}\n")
+
+        foreach( _config ${CMAKE_CONFIGURATION_TYPES} )
+
+            string(TOUPPER  ${_config} _config) # CMake is fiercely case-sensitive
+            #message(STATUS "Current config in ${_target} is ${_config}\n")
+
+            #retrieve binary path
+            get_target_property(IMPORTED_LOCATION ${_target} IMPORTED_LOCATION_${_config} )
+
+            #message(STATUS "IMPORTED_LOCATION_${_config} = ${IMPORTED_LOCATION}")
+
+            if(IMPORTED_LOCATION) #ignore if this configuration doesn't exist
+
+                get_filename_component(DIR_PATH "${IMPORTED_LOCATION}" DIRECTORY )
+                file(TO_NATIVE_PATH ${DIR_PATH} DIR_NATIVE_PATH)
+                set_target_properties(${_target} PROPERTIES NATIVE_LOCATION_DIR_${_config} ${DIR_NATIVE_PATH} )
+
+                #message(STATUS "Created target: ${_target} property: NATIVE_LOCATION_DIR_${_config} = ${DIR_NATIVE_PATH}")
+
+            endif(IMPORTED_LOCATION)
+
+        endforeach()
+
+        if(TEST_ENVIRONMENT_DEPENDENCIES)
+            set(TEST_ENVIRONMENT_DEPENDENCIES "${TEST_ENVIRONMENT_DEPENDENCIES}\\;$<TARGET_PROPERTY:${_target},NATIVE_LOCATION_DIR_$<UPPER_CASE:$<CONFIG>>>")
+        else()
+            set(TEST_ENVIRONMENT_DEPENDENCIES "$<TARGET_PROPERTY:${_target},NATIVE_LOCATION_DIR_$<UPPER_CASE:$<CONFIG>>>")
+        endif()
+
+        endif()
+    endforeach()
+
+    #message(STATUS ${TEST_ENVIRONMENT_DEPENDENCIES})
+
+    #set_tests_properties(PubSubTest envtest PROPERTIES ENVIRONMENT "PATH=${WINDOWS_PATH_VARIABLE}\\;$<TARGET_FILE_DIR:fastrtps>\\;$<TARGET_FILE_DIR:fastcdr>" )
+    set_tests_properties(${TEST_LIST} PROPERTIES ENVIRONMENT "PATH=${WINDOWS_PATH_VARIABLE}\\;${TEST_ENVIRONMENT_DEPENDENCIES}" )
 
 endif()
 
@@ -433,11 +434,11 @@ endif()
 ###############################################################################
 
 if(WIN32)
-	set(INSTALL_PER_USER 0 CACHE BOOL "Windows per user installation mode")
+    set(INSTALL_PER_USER 0 CACHE BOOL "Windows per user installation mode")
 
-	if(INSTALL_PER_USER)
-		set(CMAKE_INSTALL_PREFIX "$ENV{USERPROFILE}/AppData/Local/eProsima/${PROJECT_NAME_LARGE}/" )
-	endif()
+    if(INSTALL_PER_USER)
+        set(CMAKE_INSTALL_PREFIX "$ENV{USERPROFILE}/AppData/Local/eProsima/${PROJECT_NAME_LARGE}/" )
+    endif()
 
 endif()
 
@@ -475,12 +476,12 @@ install(EXPORT ${PROJECT_NAME}_Targets
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/
     COMPONENT sources
     DESTINATION ${INCLUDE_SOURCE_DIR}
-	FILES_MATCHING PATTERN "*.cpp"
-	)
-	
+    FILES_MATCHING PATTERN "*.cpp"
+    )
+
 # Install test
 install(FILES ${${PROJECT_NAME}_transform_xml_tests}
-	${${PROJECT_NAME}_python_tests}
+    ${${PROJECT_NAME}_python_tests}
     COMPONENT tests
     DESTINATION ${TESTS_INSTALL_DIR}
     )
@@ -490,4 +491,3 @@ install(FILES ${PROJECT_SOURCE_DIR}/license/LICENSE
     COMPONENT licenses
     DESTINATION ${LICENSE_INSTALL_DIR}
     )
-	

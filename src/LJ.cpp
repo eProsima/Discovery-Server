@@ -20,7 +20,7 @@ using namespace eprosima::fastrtps;
 using namespace eprosima::discovery_server;
 
 // delayed creation of a new participant
-void DPC::operator()(DSManager & man ) /*override*/
+void DPC::operator()(DSManager& man ) /*override*/
 {
     Participant * p = Domain::createParticipant(_atts, &man);
     if (p)
@@ -42,7 +42,7 @@ void DPC::operator()(DSManager & man ) /*override*/
 }
 
 // delayed destruction of a new participant
-void DPD::operator()(DSManager & man) /*override*/
+void DPD::operator()(DSManager& man) /*override*/
 {
     Participant * p = man.removeParticipant(_id);
     if (p)
