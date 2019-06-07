@@ -1200,7 +1200,7 @@ void DSManager::onParticipantDiscovery(
     {
     case ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT:
     {
-        _state.AddParticipant(participant->getGuid(), partid, info.info.m_participantName, server);
+        _state.AddParticipant(participant->getGuid(), partid, info.info.m_participantName.to_string(), server);
         break;
     }
     case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
@@ -1261,7 +1261,7 @@ void DSManager::onSubscriberDiscovery(
         part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
     }
 
-    _state.AddSubscriber(participant->getGuid(), partid, subsid, info.info.typeName(), info.info.topicName());
+    _state.AddSubscriber(participant->getGuid(), partid, subsid, info.info.typeName().to_string(), info.info.topicName().to_string());
 
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a subscriber of participant "
         << part_name << " is " << info.status << " with typename: " << info.info.typeName()
@@ -1309,7 +1309,7 @@ void  DSManager::onPublisherDiscovery(
         part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
     }
 
-    _state.AddPublisher(participant->getGuid(), partid, pubsid, info.info.typeName(), info.info.topicName());
+    _state.AddPublisher(participant->getGuid(), partid, pubsid, info.info.typeName().to_string(), info.info.topicName().to_string());
 
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a publisher of participant "
         << part_name << " is " << info.status << " with typename: " << info.info.typeName()

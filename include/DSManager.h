@@ -61,7 +61,7 @@ class DSManager : public xmlparser::XMLParser,      // access to parsing protect
     typedef std::map<GUID_t, Participant*> participant_map;
     typedef std::map<GUID_t, Subscriber*> subscriber_map;
     typedef std::map<GUID_t, Publisher*> publisher_map;
-    typedef std::map<std::string, DynamicPubSubType *> type_map;
+    typedef std::map<std::string, types::DynamicPubSubType *> type_map;
     typedef std::map<GUID_t, std::pair<LocatorList_t, LocatorList_t> > serverLocator_map; // multi, unicast locator list
     typedef std::vector<LJD*> event_list;
     typedef std::vector<Snapshot> snapshots_list;
