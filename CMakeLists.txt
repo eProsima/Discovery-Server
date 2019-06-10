@@ -307,7 +307,7 @@ set_tests_properties(test_1_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BI
 ## basic discovery TCP scenario
 list(APPEND TEST_LIST test_2_PDP_TCP)
 add_test(NAME test_2_PDP_TCP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_2_PDP_TCP.xml)
-set_tests_properties(test_2_PDP_TCP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_2_PDP_TCP.xml DISABLED true)
+set_tests_properties(test_2_PDP_TCP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_2_PDP_TCP.xml)
 
 # Testing late joiner detection and removal
 list(APPEND TEST_LIST test_3_PDP_UDP)

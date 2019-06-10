@@ -8,10 +8,7 @@
   </servers>
 
   <clients>
-    <client name="client1" profile_name="TCP client"/>
-    <client name="client2" profile_name="TCP client"/>
-    <client name="client3" profile_name="TCP client"/>
-    <client name="client4" profile_name="TCP client"/>
+    <client name="client" profile_name="TCP client"/>
   </clients>
 
   <snapshots>
@@ -55,8 +52,9 @@
               <metatrafficUnicastLocatorList>
                 <locator>
                   <tcpv4>
-                    <address>192.168.1.48</address>
-                    <port>${RANDOM_PORT}</port>
+                    <address>127.0.0.1</address>
+                    <physical_port>${RANDOM_PORT}</physical_port>
+                    <port>${RANDOM_PORT_2}</port>
                   </tcpv4>
                 </locator>
               </metatrafficUnicastLocatorList>
@@ -82,8 +80,9 @@
           <metatrafficUnicastLocatorList>
             <locator>
               <tcpv4>
-                <address>192.168.1.48</address>
-                <port>${RANDOM_PORT}</port>
+                <address>127.0.0.1</address>
+                <physical_port>${RANDOM_PORT}</physical_port>
+                <port>${RANDOM_PORT_2}</port>
               </tcpv4>
             </locator>
           </metatrafficUnicastLocatorList>

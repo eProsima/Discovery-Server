@@ -1410,13 +1410,13 @@ Snapshot& DSManager::takeSnapshot(
     );
 
     std::pair<participant_map::const_iterator, Snapshot::const_iterator> res =
-        std::mismatch(temp.cbegin(), temp.cend(), shot.cbegin(), pred);
+        std::mismatch(temp.cbegin(), temp.cend(), shot.cbegin(), shot.cend(), pred);
 
     while (res.first != temp.end())
     {
         // res.first participant hasn't any discovery info in this Snapshot
         res.second = shot.emplace_hint(res.second, PtDB(res.first->first));
-        res = std::mismatch(res.first, temp.cend(), res.second, pred);
+        res = std::mismatch(res.first, temp.cend(), res.second, shot.cend(), pred);
     }
 
     return shot;

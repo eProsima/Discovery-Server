@@ -705,7 +705,7 @@
 
     <xs:complexType name="stringListType">
         <xs:sequence>
-            <xs:element name="id" type="stringType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="transport_id" type="stringType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
