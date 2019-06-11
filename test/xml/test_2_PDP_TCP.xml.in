@@ -8,11 +8,14 @@
   </servers>
 
   <clients>
-    <client name="client" profile_name="TCP client"/>
+    <client name="client1" profile_name="TCP client"/>
+    <client name="client2" profile_name="TCP client"/>
+    <client name="client3" profile_name="TCP client"/>
+    <client name="client4" profile_name="TCP client"/>
   </clients>
 
   <snapshots>
-    <snapshot time="300">Check all clients met the server and know each other</snapshot>
+    <snapshot time="3">Check all clients met the server and know each other</snapshot>
   </snapshots>
   
   <profiles>
@@ -81,7 +84,6 @@
             <locator>
               <tcpv4>
                 <address>127.0.0.1</address>
-                <physical_port>${RANDOM_PORT}</physical_port>
                 <port>${RANDOM_PORT_2}</port>
               </tcpv4>
             </locator>
