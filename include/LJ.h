@@ -285,7 +285,7 @@ void DEC<PS>::operator()(DSManager & man) /*override*/
     {
         // assure the participant has the type registered
         TopicDataType* pT = nullptr;
-        std::string type_name = _atts->topic.topicDataType;
+        std::string type_name = _atts->topic.topicDataType.to_string();
         if (!Domain::getRegisteredType(part, type_name.c_str(), &pT))
         {
             eprosima::fastrtps::types::DynamicPubSubType* pDt = man.setType(type_name);
