@@ -27,7 +27,7 @@ public:
     HelloWorldServer();
     virtual ~HelloWorldServer();
     //!Initialize the subscriber
-    bool init();
+    bool init(bool tcp);
     //!RUN the subscriber
     void run();
 

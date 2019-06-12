@@ -22,6 +22,7 @@
 #include <fastrtps/attributes/ParticipantAttributes.h>
 #include <fastrtps/attributes/SubscriberAttributes.h>
 #include <fastrtps/subscriber/Subscriber.h>
+#include <fastrtps/transport/TCPv4TransportDescriptor.h>
 #include <fastrtps/Domain.h>
 #include <fastrtps/utils/eClock.h>
 #include <fastrtps/utils/IPLocator.h>
@@ -34,21 +35,43 @@ mp_subscriber(nullptr)
 {
 }
 
-bool HelloWorldSubscriber::init()
+bool HelloWorldSubscriber::init(bool tcp)
 {
-    Locator_t server_address(LOCATOR_KIND_UDPv4, 65215);
-    IPLocator::setIPv4(server_address, 127, 0, 0, 1);
 
     RemoteServerAttributes ratt;
     ratt.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
-    ratt.metatrafficUnicastLocatorList.push_back(server_address);
-
+ 
     ParticipantAttributes PParam;
     PParam.rtps.builtin.discoveryProtocol = PDPType_t::CLIENT;
-    PParam.rtps.builtin.m_DiscoveryServers.push_back(ratt);
     PParam.rtps.builtin.domainId = 0;
     PParam.rtps.builtin.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_sub");
+   
+    if (tcp)
+    {
+        Locator_t server_address;
+        server_address.kind = LOCATOR_KIND_TCPv4;
+        IPLocator::setLogicalPort(server_address, 65215);
+        IPLocator::setPhysicalPort(server_address, 9843);
+        IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+
+        ratt.metatrafficUnicastLocatorList.push_back(server_address);
+        PParam.rtps.builtin.m_DiscoveryServers.push_back(ratt);
+
+        PParam.rtps.useBuiltinTransports = false;
+        std::shared_ptr<TCPv4TransportDescriptor> descriptor = std::make_shared<TCPv4TransportDescriptor>();
+        descriptor->wait_for_tcp_negotiation = false;
+        PParam.rtps.userTransports.push_back(descriptor);
+    }
+    else
+    {
+        Locator_t server_address(LOCATOR_KIND_UDPv4, 65215);
+        IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+
+        ratt.metatrafficUnicastLocatorList.push_back(server_address);
+        PParam.rtps.builtin.m_DiscoveryServers.push_back(ratt);
+    }
+    
     mp_participant = Domain::createParticipant(PParam);
 
     if (mp_participant == nullptr)
