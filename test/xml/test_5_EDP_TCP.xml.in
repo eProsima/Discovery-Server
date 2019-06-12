@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+  
+  <!-- This test verifies that:
+	- the clients can locate each others and server's publisher and subscribers.
+	- create dynamic types using fast-RTPS xml schema.
+	- create Publishers and Subscriber profiles
+	- specify topics using attributes to constrain the number of profiles needed
+	-->
+  
+  <servers>
+    <server name="server" profile_name="TCP server">
+	    <subscriber topic="topic 1" />
+      <publisher topic="topic 2" />
+	</server>
+  </servers>
+
+  <clients>
+    <client name="client1" profile_name="TCP client">
+	    <subscriber /> <!-- defaults to helloworld type -->
+	    <subscriber topic="topic 2" />
+	    <subscriber profile_name="Sub 1" />
+	    <publisher profile_name="Pub 2" />	
+	</client>
+    <client name="client2" profile_name="TCP client">
+	    <publisher />  <!-- defaults to helloworld type -->
+      <publisher topic="topic 1" />
+      <publisher profile_name="Pub 1" />
+      <subscriber profile_name="Sub 2" />
+	</client>
+  </clients>
+
+  <snapshots>
+    <snapshot time="3">Check all publishers and subscribers are properly discovered by everybody</snapshot>
+  </snapshots>
+  
+  <profiles>
+  
+    <transport_descriptors>
+      
+      <transport_descriptor>
+        <transport_id>TCPv4_SERVER</transport_id>
+        <type>TCPv4</type>
+        <listening_ports>
+          <port>${RANDOM_PORT}</port>
+        </listening_ports>
+        <calculate_crc>false</calculate_crc>
+        <check_crc>false</check_crc>
+      </transport_descriptor>
+
+      <transport_descriptor>
+        <transport_id>TCPv4_CLIENT</transport_id>
+        <type>TCPv4</type>
+        <calculate_crc>false</calculate_crc>
+        <check_crc>false</check_crc>
+    </transport_descriptor>
+      
+    </transport_descriptors>
+    
+    <participant profile_name="TCP client" >
+      <rtps>
+		<userTransports>
+          <transport_id>TCPv4_CLIENT</transport_id>
+        </userTransports>
+        <useBuiltinTransports>false</useBuiltinTransports>
+	  
+        <builtin>
+          <discoveryProtocol>CLIENT</discoveryProtocol>
+          <discoveryServersList>
+            <RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
+              <metatrafficUnicastLocatorList>
+                <locator>
+                  <tcpv4>
+                    <address>127.0.0.1</address>
+                    <physical_port>${RANDOM_PORT}</physical_port>
+                    <port>${RANDOM_PORT_2}</port>
+                  </tcpv4>
+                </locator>
+              </metatrafficUnicastLocatorList>
+            </RemoteServer>
+          </discoveryServersList>
+        </builtin>
+      </rtps>
+    </participant>
+    
+    <participant profile_name="TCP server">
+      <rtps>
+		<userTransports>
+          <transport_id>TCPv4_SERVER</transport_id>
+        </userTransports>
+        <useBuiltinTransports>false</useBuiltinTransports>
+	  
+        <prefix>
+          4D.49.47.55.45.4c.5f.42.41.52.52.4f
+        </prefix>
+        <builtin>
+          <discoveryProtocol>SERVER</discoveryProtocol>
+          <metatrafficUnicastLocatorList>
+            <locator>
+              <tcpv4>
+                <address>127.0.0.1</address>
+                <port>${RANDOM_PORT_2}</port>
+              </tcpv4>
+            </locator>
+          </metatrafficUnicastLocatorList>
+        </builtin>        
+      </rtps>
+    </participant>
+    
+    <publisher profile_name="Pub 1">
+      <topic>
+        <name>topic_1</name>
+        <dataType>sample_type_1</dataType>
+      </topic>
+    </publisher>
+
+    <publisher profile_name="Pub 2">
+      <topic>
+        <name>topic_2</name>
+        <dataType>sample_type_2</dataType>
+      </topic>
+    </publisher>
+
+    <subscriber profile_name="Sub 1">
+      <topic>
+        <name>topic_1</name>
+        <dataType>sample_type_1</dataType> 
+      </topic>
+    </subscriber>
+
+    <subscriber profile_name="Sub 2">
+      <topic>
+        <name>topic_2</name>
+        <dataType>sample_type_2</dataType>
+      </topic>
+    </subscriber>
+
+    <topic profile_name="topic 1">
+      <name>topic_1</name>
+      <dataType>sample_type_1</dataType>
+    </topic>
+
+    <topic profile_name="topic 2">
+      <name>topic_2</name>
+      <dataType>sample_type_2</dataType>
+    </topic>
+ 
+  </profiles>
+
+  <types>
+    <type>
+      <struct name="sample_type_1">
+        <member name="index" type="uint32" />
+        <member name="message" type="string" />
+      </struct>
+    </type>
+
+    <type>
+      <union name="sample_type_2">
+        <discriminator type="byte" />
+        <case>
+          <caseDiscriminator value="0" />
+          <member name="index" type="uint32" />
+        </case>
+        <case>
+          <caseDiscriminator value="1" />
+          <member name="message" type="string" />
+        </case>
+      </union>
+    </type>
+  
+  </types>
+  
+</DS>

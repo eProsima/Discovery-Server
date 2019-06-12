@@ -11,7 +11,7 @@
     <client name="client1" profile_name="UDP client"/>
     <client name="client2" profile_name="UDP client"/>
     <client name="client3" profile_name="UDP client"/>
-    <client name="client4" server="4D.49.47.55.45.4c.5f.42.41.52.52.4f" profile_name="UDP client"/>
+    <client name="client4" profile_name="UDP client"/>
   </clients>
 
   <snapshots>
