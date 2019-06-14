@@ -69,9 +69,9 @@ endif()
 # colcon will take care of solving any dependency issues
 #find_package(Asio REQUIRED )
 find_package(fastcdr REQUIRED )
-find_package(TinyXML2 QUIET )
-find_package(fastrtps   REQUIRED)
-find_package(OpenSSL REQUIRED)
+find_package(tinyxml2 REQUIRED )
+find_package(fastrtps REQUIRED)
+find_package(OpenSSL QUIET) # according to cmake docs on FindOpenSS is hinted define OPENSSL_ROOT_DIR
 
 #some tests require python
 find_package(PythonInterp 3 REQUIRED)
@@ -221,10 +221,11 @@ set_source_files_properties(${${PROJECT_NAME}_idl} PROPERTIES HEADER_FILE_ONLY T
 # prefix.
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
-    PRIVATE $<BUILD_INTERFACE:${TINYXML2_INCLUDE_DIR}>
+    ${TINYXML2_INCLUDE_DIR}
     ${ASIO_INCLUDE_DIR}
+	${OPENSSL_INCLUDE_DIR}
     )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
@@ -238,7 +239,11 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 #endif()
 
 # we link dynamically to tinyxml2
-target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr tinyxml2)
+target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr 
+	$<TARGET_NAME_IF_EXISTS:tinyxml2> $<TARGET_NAME_IF_EXISTS:tinyxml2::tinyxml2> 
+	OpenSSL::SSL 
+	)
+# note that future versions of tinyxml2 will define the target as tinyxml2::tinyxml2 
 
 # Properties that change bin names depending on current config.
 # This is convenient because on installation all bins share folder
@@ -324,6 +329,11 @@ list(APPEND TEST_LIST test_5_EDP_UDP)
 add_test(NAME test_5_EDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_5_EDP_UDP.xml)
 set_tests_properties(test_5_EDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_5_EDP_UDP.xml)
 
+# Testing EDP discovery operation over TCP transport
+list(APPEND TEST_LIST test_5_EDP_TCP)
+add_test(NAME test_5_EDP_TCP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_5_EDP_TCP.xml)
+set_tests_properties(test_5_EDP_TCP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_5_EDP_TCP.xml)
+
 # Testing EDP discovery operation with late joiner detection and removal
 list(APPEND TEST_LIST test_6_EDP_UDP)
 add_test(NAME test_6_EDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_6_EDP_UDP.xml)
@@ -359,7 +369,7 @@ set_tests_properties(test_9_WLP PROPERTIES
 # RUN_SERIAL
 
 # specify a suitable timeout 
-set_tests_properties(${TEST_LIST} PROPERTIES TIMEOUT 20)
+set_tests_properties(${TEST_LIST} PROPERTIES TIMEOUT 25)
 
 # Windows requires an special treatment of environmental variables
 if(WIN32)
