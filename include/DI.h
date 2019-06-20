@@ -265,6 +265,8 @@ struct Snapshot : public std::set<PtDB>
 {
     // snapshot time
     std::chrono::steady_clock::time_point _time;
+    // report test framework that if nobody is discovered it should fail
+    bool _someone; 
 
     // time conversions auxiliary
     static std::chrono::system_clock::time_point _sy_ck;
@@ -275,16 +277,20 @@ struct Snapshot : public std::set<PtDB>
     std::string _des;
 
     explicit Snapshot(
-        std::chrono::steady_clock::time_point t)
-        : _time(t)
+        std::chrono::steady_clock::time_point t,
+        bool someone = true)
+        : _time(t),
+        _someone(someone)
     {
     }
 
     Snapshot(
         std::chrono::steady_clock::time_point t,
-        std::string & des)
+        std::string & des,
+        bool someone = true)
         : _time(t),
-        _des(des) 
+        _des(des),
+        _someone(someone)
     {
     }
 

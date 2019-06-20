@@ -78,5 +78,5 @@ const LJD_traits<Subscriber>::removeEndpoint LJD_traits<Subscriber>::_re = &Doma
 
 void DS::operator()(DSManager & man) /*override*/
 {
-    man.takeSnapshot(std::chrono::steady_clock::now(), _desc);
+    man.takeSnapshot(std::chrono::steady_clock::now(), _desc, _someone);
 }

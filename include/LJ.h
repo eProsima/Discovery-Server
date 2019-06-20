@@ -229,13 +229,16 @@ public:
 class DS : public LJD // Delayed Snapshot
 {
     std::string _desc;
+    bool _someone;
 
 public:
     DS(
         const std::chrono::steady_clock::time_point tp,
-        const std::string& desc)
+        const std::string& desc,
+        bool someone = true)
         : LJD(tp)
         , _desc(desc)
+        , _someone(true)
     {
     }
 

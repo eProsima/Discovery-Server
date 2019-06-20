@@ -24,6 +24,7 @@
 
 #include "DSManager.h"
 #include "LJ.h"
+#include "IDs.h"
 
 #include <iostream>
 #include <sstream>
@@ -32,27 +33,6 @@
 using namespace eprosima::fastrtps;
 using namespace eprosima::discovery_server;
 
-// String literals:
-// brand new
-static const std::string s_sDS("DS");
-static const std::string s_sServers("servers");
-static const std::string s_sServer("server");
-static const std::string s_sClients("clients");
-static const std::string s_sClient("client");
-static const std::string s_sPersist("persist");
-static const std::string s_sLP("ListeningPorts");
-static const std::string s_sSL("ServersList");
-static const std::string s_sRServer("RServer");
-static const std::string s_sTime("time");
-static const std::string s_sCreationTime("creation_time");
-static const std::string s_sRemovalTime("removal_time");
-static const std::string s_sSnapshot("snapshot");
-static const std::string s_sSnapshots("snapshots");
-static const std::string s_sFile("file");
-static const std::string s_sDS_Snapshots("DS_Snapshots");
-static const std::string s_sDS_Snapshot("DS_Snapshot");
-static const std::string s_sUserShutdown("user_shutdown");
-static const std::string s_sPrefixValidation("prefix_validation");
 
 // non exported from fast-RTPS (watch out they are updated)
 namespace eprosima {
@@ -1072,11 +1052,14 @@ void DSManager::loadSnapshot(tinyxml2::XMLElement* snapshot)
         time += std::chrono::seconds(aux);
     }
 
+    // fail if nobody is found?
+    bool someone = snapshot->BoolAttribute(s_sSomeone.c_str(), true);
+
     // Get the description from the tag
     std::string description(snapshot->GetText());
 
     // Add the event
-    _events.push_back(new DS(time, description));
+    _events.push_back(new DS(time, description,someone));
 }
 
 
@@ -1387,7 +1370,8 @@ bool DSManager::allKnowEachOther() const
 
 Snapshot& DSManager::takeSnapshot(
     const std::chrono::steady_clock::time_point tp,
-    const std::string& desc/* = std::string()*/)
+    const std::string& desc/* = std::string()*/,
+    bool someone)
 {
     std::lock_guard<std::recursive_mutex> lock(_mtx);
 
@@ -1396,6 +1380,7 @@ Snapshot& DSManager::takeSnapshot(
     Snapshot& shot = _snapshots.back();
     shot._time = tp;
     shot._des = desc;
+    shot._someone = someone;
 
     // Add any client or server isolated information 
     // those have not make any callbacks if no subscriber or publisher
@@ -1426,6 +1411,12 @@ Snapshot& DSManager::takeSnapshot(
 /*static*/
 bool DSManager::allKnowEachOther(const Snapshot & shot)
 {
+    // nobody discovered is bad?
+    if (shot._someone && shot.empty())
+    {
+        return false; // nobody out there
+    }
+
     // traverse snapshot comparing each member with each other
     Snapshot::const_iterator it1, it2;
     it2 = it1 = shot.cbegin();

@@ -835,6 +835,7 @@
         <xs:simpleContent>
             <xs:extension base="descriptionType">
                 <xs:attribute name="time" type="uint32Type" use="required" />
+                <xs:attribute name="someone" type="xs:boolean" use="optional" default="true" />
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>

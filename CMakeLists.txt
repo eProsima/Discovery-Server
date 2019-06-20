@@ -177,6 +177,7 @@ set(${PROJECT_NAME}_header_files
         # library sources
         include/DI.h
         include/LJ.h
+        include/IDs.h
     )
 
 set(${PROJECT_NAME}_source_files

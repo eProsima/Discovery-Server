@@ -132,7 +132,8 @@ public:
     static bool allKnowEachOther(const Snapshot& shot);
     Snapshot&  takeSnapshot(
         const std::chrono::steady_clock::time_point tp,
-        const std::string& desc = std::string());
+        const std::string& desc = std::string(),
+        bool someone = true);
 
     // processing events
     void runEvents(

@@ -20,20 +20,7 @@
 #include <iomanip>
 #include <tinyxml2.h>
 #include "DI.h"
-
-static const std::string s_sTimestamp("timestamp");
-static const std::string s_sDescription("description");
-static const std::string s_sPtDB("ptdb");
-static const std::string s_sPtDI("ptdi");
-static const std::string s_sPublisher("publisher");
-static const std::string s_sSubscriber("subscriber");
-static const std::string s_sGUID_prefix("guid_prefix");
-static const std::string s_sGUID_entity("guid_entity");
-static const std::string s_sServer("server");
-static const std::string s_sAlive("alive");
-static const std::string s_sName("name");
-static const std::string s_sTopic("topic");
-static const std::string s_sType("type");
+#include "IDs.h"
 
 #ifndef XMLCheckResult
 	#define XMLCheckResult(a_eResult) if (a_eResult != XML_SUCCESS) { printf("Error: %i\n", a_eResult); \
@@ -624,6 +611,7 @@ void Snapshot::to_xml(
     //pTimestamp->SetText(this->_time.time_since_epoch().count());
     //pRoot->InsertEndChild(pTimestamp);
     pRoot->SetAttribute(s_sTimestamp.c_str(), this->_time.time_since_epoch().count());
+    pRoot->SetAttribute(s_sSomeone.c_str(), _someone);
 
     XMLElement* pDescription = xmlDoc.NewElement(s_sDescription.c_str());
     pDescription->SetText(this->_des.c_str());
@@ -719,9 +707,11 @@ void Snapshot::from_xml(tinyxml2::XMLElement* pRoot)
             //pTimestamp->QueryInt64Text(&time);
             using Ns = std::chrono::nanoseconds;
 
-            this->_time = std::chrono::steady_clock::time_point(Ns(time));
+            _time = std::chrono::steady_clock::time_point(Ns(time));
             //std::cout << "Timestamp: " << timestamp << std::endl;
         }
+
+        _someone = pRoot->BoolAttribute(s_sSomeone.c_str(), true);
 
         XMLElement* pDescription = pRoot->FirstChildElement(s_sDescription.c_str());
         if (pDescription != nullptr)
