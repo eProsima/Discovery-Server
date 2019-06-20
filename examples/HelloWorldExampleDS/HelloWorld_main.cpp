@@ -130,7 +130,7 @@ int main(int argc, char** argv)
 
     std::cout << "Starting "<< std::endl;
     int type = 1;
-    int count = 10;
+    int count = 20;
     long sleep = 100;
     bool use_tpc = false;
 

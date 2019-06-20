@@ -26,6 +26,9 @@
 #include <fastrtps/Domain.h>
 #include <fastrtps/utils/eClock.h>
 #include <fastrtps/utils/IPLocator.h>
+#include <fastrtps/utils/System.h>
+
+#include <random>
 
 using namespace eprosima::fastrtps;
 using namespace eprosima::fastrtps::rtps;
@@ -61,6 +64,12 @@ bool HelloWorldSubscriber::init(bool tcp)
         PParam.rtps.useBuiltinTransports = false;
         std::shared_ptr<TCPv4TransportDescriptor> descriptor = std::make_shared<TCPv4TransportDescriptor>();
         descriptor->wait_for_tcp_negotiation = false;
+
+        // Generate a listening port for the client
+        std::default_random_engine gen(System::GetPID());
+        std::uniform_int_distribution<int> rdn(49152, 65535);
+        descriptor->add_listener_port(rdn(gen)); // IANA ephemeral port number
+
         PParam.rtps.userTransports.push_back(descriptor);
     }
     else

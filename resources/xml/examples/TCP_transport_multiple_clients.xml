@@ -26,7 +26,7 @@
         <transport_id>TCPv4_SERVER</transport_id>
         <type>TCPv4</type>
         <listening_ports>
-          <port>${RANDOM_PORT}</port>
+          <port>13750</port>
         </listening_ports>
         <calculate_crc>false</calculate_crc>
         <check_crc>false</check_crc>
@@ -36,7 +36,7 @@
         <transport_id>TCPv4_CLIENT_1</transport_id>
         <type>TCPv4</type>
           <listening_ports>
-              <port>${RANDOM_PORT_2}</port>
+              <port>13751</port>
           </listening_ports>
         <calculate_crc>false</calculate_crc>
         <check_crc>false</check_crc>
@@ -46,7 +46,7 @@
             <transport_id>TCPv4_CLIENT_2</transport_id>
             <type>TCPv4</type>
             <listening_ports>
-                <port>${RANDOM_PORT_3}</port>
+                <port>13752</port>
             </listening_ports>
             <calculate_crc>false</calculate_crc>
             <check_crc>false</check_crc>
@@ -56,7 +56,7 @@
             <transport_id>TCPv4_CLIENT_3</transport_id>
             <type>TCPv4</type>
             <listening_ports>
-                <port>${RANDOM_PORT_4}</port>
+                <port>13753</port>
             </listening_ports>
             <calculate_crc>false</calculate_crc>
             <check_crc>false</check_crc>
@@ -66,7 +66,7 @@
             <transport_id>TCPv4_CLIENT_4</transport_id>
             <type>TCPv4</type>
             <listening_ports>
-                <port>${RANDOM_PORT_5}</port>
+                <port>13754</port>
             </listening_ports>
             <calculate_crc>false</calculate_crc>
             <check_crc>false</check_crc>
@@ -114,7 +114,7 @@
                 <locator>
                   <tcpv4>
                     <address>127.0.0.1</address>
-                    <physical_port>${RANDOM_PORT}</physical_port>
+                    <physical_port>13750</physical_port>
                     <port>6339</port>
                   </tcpv4>
                 </locator>
@@ -140,7 +140,7 @@
                             <locator>
                                 <tcpv4>
                                     <address>127.0.0.1</address>
-                                    <physical_port>${RANDOM_PORT}</physical_port>
+                                    <physical_port>13750</physical_port>
                                     <port>6339</port>
                                 </tcpv4>
                             </locator>
@@ -166,7 +166,7 @@
                               <locator>
                                   <tcpv4>
                                       <address>127.0.0.1</address>
-                                      <physical_port>${RANDOM_PORT}</physical_port>
+                                      <physical_port>13750</physical_port>
                                       <port>6339</port>
                                   </tcpv4>
                               </locator>
@@ -192,7 +192,7 @@
                               <locator>
                                   <tcpv4>
                                       <address>127.0.0.1</address>
-                                      <physical_port>${RANDOM_PORT}</physical_port>
+                                      <physical_port>13750</physical_port>
                                       <port>6339</port>
                                   </tcpv4>
                               </locator>

@@ -16,13 +16,13 @@
   </servers>
 
   <clients>
-    <client name="client1" profile_name="TCP client">
+    <client name="client1" profile_name="TCP client1">
 	    <subscriber /> <!-- defaults to helloworld type -->
 	    <subscriber topic="topic 2" />
 	    <subscriber profile_name="Sub 1" />
 	    <publisher profile_name="Pub 2" />	
 	</client>
-    <client name="client2" profile_name="TCP client">
+    <client name="client2" profile_name="TCP client2">
 	    <publisher />  <!-- defaults to helloworld type -->
       <publisher topic="topic 1" />
       <publisher profile_name="Pub 1" />
@@ -48,40 +48,27 @@
         <check_crc>false</check_crc>
       </transport_descriptor>
 
-      <transport_descriptor>
-        <transport_id>TCPv4_CLIENT</transport_id>
-        <type>TCPv4</type>
-        <calculate_crc>false</calculate_crc>
-        <check_crc>false</check_crc>
-    </transport_descriptor>
+        <transport_descriptor>
+            <transport_id>TCPv4_CLIENT_1</transport_id>
+            <type>TCPv4</type>
+            <listening_ports>
+                <port>${RANDOM_PORT_2}</port>
+            </listening_ports>
+            <calculate_crc>false</calculate_crc>
+            <check_crc>false</check_crc>
+        </transport_descriptor>
+
+        <transport_descriptor>
+            <transport_id>TCPv4_CLIENT_2</transport_id>
+            <type>TCPv4</type>
+            <listening_ports>
+                <port>${RANDOM_PORT_3}</port>
+            </listening_ports>
+            <calculate_crc>false</calculate_crc>
+            <check_crc>false</check_crc>
+        </transport_descriptor>
       
     </transport_descriptors>
-    
-    <participant profile_name="TCP client" >
-      <rtps>
-		<userTransports>
-          <transport_id>TCPv4_CLIENT</transport_id>
-        </userTransports>
-        <useBuiltinTransports>false</useBuiltinTransports>
-	  
-        <builtin>
-          <discoveryProtocol>CLIENT</discoveryProtocol>
-          <discoveryServersList>
-            <RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
-              <metatrafficUnicastLocatorList>
-                <locator>
-                  <tcpv4>
-                    <address>127.0.0.1</address>
-                    <physical_port>${RANDOM_PORT}</physical_port>
-                    <port>${RANDOM_PORT_2}</port>
-                  </tcpv4>
-                </locator>
-              </metatrafficUnicastLocatorList>
-            </RemoteServer>
-          </discoveryServersList>
-        </builtin>
-      </rtps>
-    </participant>
     
     <participant profile_name="TCP server">
       <rtps>
@@ -99,13 +86,65 @@
             <locator>
               <tcpv4>
                 <address>127.0.0.1</address>
-                <port>${RANDOM_PORT_2}</port>
+                <port>6339</port>
               </tcpv4>
             </locator>
           </metatrafficUnicastLocatorList>
         </builtin>        
       </rtps>
     </participant>
+
+      <participant profile_name="TCP client1" >
+          <rtps>
+              <userTransports>
+                  <transport_id>TCPv4_CLIENT_1</transport_id>
+              </userTransports>
+              <useBuiltinTransports>false</useBuiltinTransports>
+
+              <builtin>
+                  <discoveryProtocol>CLIENT</discoveryProtocol>
+                  <discoveryServersList>
+                      <RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
+                          <metatrafficUnicastLocatorList>
+                              <locator>
+                                  <tcpv4>
+                                      <address>127.0.0.1</address>
+                                      <physical_port>${RANDOM_PORT}</physical_port>
+                                      <port>6339</port>
+                                  </tcpv4>
+                              </locator>
+                          </metatrafficUnicastLocatorList>
+                      </RemoteServer>
+                  </discoveryServersList>
+              </builtin>
+          </rtps>
+      </participant>
+
+      <participant profile_name="TCP client2" >
+          <rtps>
+              <userTransports>
+                  <transport_id>TCPv4_CLIENT_2</transport_id>
+              </userTransports>
+              <useBuiltinTransports>false</useBuiltinTransports>
+
+              <builtin>
+                  <discoveryProtocol>CLIENT</discoveryProtocol>
+                  <discoveryServersList>
+                      <RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
+                          <metatrafficUnicastLocatorList>
+                              <locator>
+                                  <tcpv4>
+                                      <address>127.0.0.1</address>
+                                      <physical_port>${RANDOM_PORT}</physical_port>
+                                      <port>6339</port>
+                                  </tcpv4>
+                              </locator>
+                          </metatrafficUnicastLocatorList>
+                      </RemoteServer>
+                  </discoveryServersList>
+              </builtin>
+          </rtps>
+      </participant>
     
     <publisher profile_name="Pub 1">
       <topic>
