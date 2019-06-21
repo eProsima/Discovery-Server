@@ -22,6 +22,10 @@
 #include <fastrtps/subscriber/Subscriber.h>
 #include <fastrtps/publisher/Publisher.h>
 
+#include <fastrtps/transport/TCPv4TransportDescriptor.h>
+#include <fastrtps/transport/TCPv6TransportDescriptor.h>
+#include <fastrtps/utils/IPLocator.h>
+
 #include "DSManager.h"
 #include "LJ.h"
 #include "IDs.h"
@@ -30,11 +34,12 @@
 #include <sstream>
 
 
+
 using namespace eprosima::fastrtps;
 using namespace eprosima::discovery_server;
 
 
-// non exported from fast-RTPS (watch out they are updated)
+// non exported from fast-RTPS (watch out they may be updated)
 namespace eprosima {
 namespace fastrtps {
 namespace xmlparser
@@ -56,6 +61,7 @@ namespace xmlparser
 /*static members*/
 HelloWorldPubSubType DSManager::_defaultType;
 TopicAttributes DSManager::_defaultTopic("HelloWorldTopic", "HelloWorld");
+std::regex DSManager::_reg4("^((?:[0-9]{1,3}\\.){3}[0-9]{1,3})?:?(?:(\\d+))?$");
 
 DSManager::DSManager(
     const std::string& xml_file_path)
@@ -788,6 +794,99 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
 
     }
 
+    // check for listening ports
+    const char* lp = client->Attribute(s_sListeningPort.c_str());
+    if (lp)
+    {
+        // parse the expression, listening ports only have sense on TCP
+        long listening_port;
+        std::cmatch mr;
+        std::string address; // WAN address, IPv4 address saw from the outside
+
+        if (std::regex_match(lp, mr, _reg4))
+        {
+            listening_port = std::stol(mr[2].str());
+            
+            // if address is empty _reg4 matches a port number but we don't know the kind of transport
+            address = mr[1].str();
+        }
+        else
+        {
+            LOG_ERROR("invalid listening port for server (" << atts.rtps.getName() << ")"); // at least for now
+            return;
+        }
+
+        // Look for a suitable user transport
+        TCPTransportDescriptor * pT = nullptr;
+        std::shared_ptr<TCPv4TransportDescriptor> p4;
+        std::shared_ptr<TCPv6TransportDescriptor> p6;
+
+        // Supossed to be only one transport of each class
+        for (auto sp : atts.rtps.userTransports)
+        {
+            if (pT = dynamic_cast<TCPTransportDescriptor*>(sp.get()))
+            {
+                if (!p4)
+                {   // try to find a descriptor matching the listener port setup
+                    if (p4 = std::dynamic_pointer_cast<TCPv4TransportDescriptor>(sp))
+                    {
+                        continue;
+                    }
+                }
+
+                if (!p6)
+                {   // try to find a descriptor matching the listener port setup
+                    p6 = std::dynamic_pointer_cast<TCPv6TransportDescriptor>(sp);
+                }
+            }
+        }
+
+        if ((address.empty() && !p4 && !p6) || (!address.empty() && !p4))
+        {
+            // create a new tcp4 one
+            p4 = std::make_shared<TCPv4TransportDescriptor>();
+            pT = p4.get();
+            
+            // update participant attributes
+            atts.rtps.userTransports.push_back(p4);
+        }
+        else if (p4)
+        {
+            // create a copy of a tcp4 and replace in transports
+            for (std::shared_ptr<TransportDescriptorInterface> & sp : atts.rtps.userTransports)
+            {
+                if (p4 == sp)
+                {
+                    p4 = std::make_shared<TCPv4TransportDescriptor>(*p4);
+                    pT = p4.get();
+                    sp.swap(std::dynamic_pointer_cast<TransportDescriptorInterface>(p4));
+                }
+            }
+        }
+        else
+        {
+            // create a copy of a tcp6 and replace in transports
+            for (std::shared_ptr<TransportDescriptorInterface> & sp : atts.rtps.userTransports)
+            {
+                if (p6 == sp)
+                {
+                    p6 = std::make_shared<TCPv6TransportDescriptor>(*p6);
+                    pT = p6.get();
+                    sp.swap(std::dynamic_pointer_cast<TransportDescriptorInterface>(p6));
+                }
+            }
+        }
+
+        pT->add_listener_port(static_cast<uint16_t>(listening_port));
+
+        // set up WAN if specified
+        if (!address.empty() && p4)
+        {
+            p4->set_WAN_address(address);
+        }
+
+    }
+
     GUID_t guid(atts.rtps.prefix, c_EntityId_RTPSParticipant);
     DPD* pD = nullptr;
     DPC* pC = nullptr;
@@ -829,7 +928,6 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
         loadSubscriber(guid, sub, pC);
         sub = sub->NextSiblingElement(xmlparser::SUBSCRIBER);
     }
-
 }
 
 void DSManager::loadSubscriber(

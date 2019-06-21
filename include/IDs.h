@@ -42,6 +42,7 @@ namespace discovery_server {
     static const std::string s_sDS_Snapshot("DS_Snapshot");
     static const std::string s_sUserShutdown("user_shutdown");
     static const std::string s_sPrefixValidation("prefix_validation");
+    static const std::string s_sListeningPort("listening_port");
 
     // specific Snapshot schema string literals
     static const std::string s_sTimestamp("timestamp");

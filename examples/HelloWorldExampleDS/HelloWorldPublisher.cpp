@@ -57,7 +57,7 @@ bool HelloWorldPublisher::init(bool tcp)
 
     if (tcp)
     {												  
-        Locator_t server_address; // {kind=4 port=4273940083 address=0x0000020689f8ab58 "" }
+        Locator_t server_address; 
         server_address.kind = LOCATOR_KIND_TCPv4;
         IPLocator::setLogicalPort(server_address, 65215);
         IPLocator::setPhysicalPort(server_address, 9843); 

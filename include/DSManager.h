@@ -19,6 +19,7 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include <regex>
 #include <chrono>
 
 #include "log/DSLog.h"
@@ -182,6 +183,9 @@ public:
     // default topics
     static HelloWorldPubSubType _defaultType;
     static TopicAttributes _defaultTopic;
+
+    // parsing regex
+    static std::regex _reg4;
 };
 
 
