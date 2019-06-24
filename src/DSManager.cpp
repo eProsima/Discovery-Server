@@ -598,7 +598,7 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
 
     if (server_list)
     {
-        RemoteServerList_t& list = atts.rtps.builtin.m_DiscoveryServers;
+        RemoteServerList_t& list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
         list.clear(); // server elements take precedence over profile ones
 
         tinyxml2::XMLElement * rserver = server_list->FirstChildElement(s_sRServer.c_str());
@@ -631,7 +631,7 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     }
 
     // We define the PDP as external (when moved to fast library it would be SERVER)
-    BuiltinAttributes& b = atts.rtps.builtin;
+    DiscoverySettings & b = atts.rtps.builtin.discovery_config;
     (void)b;
     assert(b.discoveryProtocol == SERVER || b.discoveryProtocol == BACKUP);
 
@@ -716,7 +716,7 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
     }
 
     // we must assert that DiscoveryProtocol is CLIENT
-    if (atts.rtps.builtin.discoveryProtocol != rtps::DiscoveryProtocol_t::CLIENT)
+    if (atts.rtps.builtin.discovery_config.discoveryProtocol != rtps::DiscoveryProtocol_t::CLIENT)
     {
         LOG_ERROR("DSManager::loadClient try to create a client with an incompatible profile: " << profile_name);
         return;
@@ -743,7 +743,7 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
             return;
         }
 
-        RemoteServerList_t & list = atts.rtps.builtin.m_DiscoveryServers;
+        RemoteServerList_t & list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
         list.clear(); // server elements take precedence over profile ones
 
         // load the locator lists
@@ -761,7 +761,7 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
 
         if (server_list)
         {
-            RemoteServerList_t & list = atts.rtps.builtin.m_DiscoveryServers;
+            RemoteServerList_t & list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
             list.clear(); // server elements take precedence over profile ones
 
             tinyxml2::XMLElement * rserver = server_list->FirstChildElement(s_sRServer.c_str());
@@ -1288,13 +1288,12 @@ void DSManager::onParticipantDiscovery(
     case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
     case ParticipantDiscoveryInfo::DROPPED_PARTICIPANT:
     {
+        // only update the database if alive
         _state.RemoveParticipant(participant->getGuid(), partid);
         break;
     }
-    case ParticipantDiscoveryInfo::CHANGED_QOS_PARTICIPANT:
-    {
+    default:
         break;
-    }
     }
 
     // note that I ignore DROPPED_PARTICIPANT because it deals with liveliness
@@ -1305,6 +1304,8 @@ void DSManager::onSubscriberDiscovery(
     Participant* participant,
     rtps::ReaderDiscoveryInfo&& info)
 {
+    typedef ReaderDiscoveryInfo::DISCOVERY_STATUS DS;
+
     GUID_t & subsid = info.info.guid();
     GUID_t partid = iHandle2GUID(info.info.RTPSParticipantKey());
 
@@ -1343,7 +1344,25 @@ void DSManager::onSubscriberDiscovery(
         part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
     }
 
-    _state.AddSubscriber(participant->getGuid(), partid, subsid, info.info.typeName().to_string(), info.info.topicName().to_string());
+    switch (info.status)
+    {
+    case DS::DISCOVERED_READER:
+        _state.AddSubscriber(participant->getGuid(), partid, subsid, info.info.typeName().to_string(), info.info.topicName().to_string());
+        break;
+    case DS::REMOVED_READER:
+    {
+        // only notify if participant is alive
+        GUID_t guid;
+        iHandle2GUID(guid, info.info.RTPSParticipantKey());
+        if (getParticipant(guid))
+        {
+            _state.RemoveSubscriber(participant->getGuid(), partid, subsid);
+        }
+    }
+        break;
+    default:
+        break;
+    }
 
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a subscriber of participant "
         << part_name << " is " << info.status << " with typename: " << info.info.typeName()
@@ -1354,6 +1373,8 @@ void  DSManager::onPublisherDiscovery(
     Participant* participant,
     rtps::WriterDiscoveryInfo&& info)
 {
+    typedef WriterDiscoveryInfo::DISCOVERY_STATUS DS;
+
     GUID_t& pubsid = info.info.guid();
     GUID_t partid = iHandle2GUID(info.info.RTPSParticipantKey());
 
@@ -1391,7 +1412,25 @@ void  DSManager::onPublisherDiscovery(
         part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
     }
 
-    _state.AddPublisher(participant->getGuid(), partid, pubsid, info.info.typeName().to_string(), info.info.topicName().to_string());
+    switch (info.status)
+    {
+    case DS::DISCOVERED_WRITER:
+        _state.AddPublisher(participant->getGuid(), partid, pubsid, info.info.typeName().to_string(), info.info.topicName().to_string());
+        break;
+    case DS::REMOVED_WRITER:
+    {
+        // only notify if participant is alive
+        GUID_t guid;
+        iHandle2GUID(guid, info.info.RTPSParticipantKey());
+        if (getParticipant(guid))
+        {
+            _state.RemovePublisher(participant->getGuid(), partid, pubsid);
+        }
+    }
+        break;
+    default:
+        break;
+    }
 
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a publisher of participant "
         << part_name << " is " << info.status << " with typename: " << info.info.typeName()

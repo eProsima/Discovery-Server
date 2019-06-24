@@ -50,7 +50,7 @@ bool HelloWorldPublisher::init(bool tcp)
     ratt.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
 
     ParticipantAttributes PParam;
-    PParam.rtps.builtin.discoveryProtocol = DiscoveryProtocol_t::CLIENT;
+    PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::CLIENT;
     PParam.rtps.builtin.domainId = 0;
     PParam.rtps.builtin.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_pub");
@@ -64,7 +64,7 @@ bool HelloWorldPublisher::init(bool tcp)
         IPLocator::setIPv4(server_address, 127, 0, 0, 1);
 
         ratt.metatrafficUnicastLocatorList.push_back(server_address);
-        PParam.rtps.builtin.m_DiscoveryServers.push_back(ratt);
+        PParam.rtps.builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
 
         PParam.rtps.useBuiltinTransports = false;
         std::shared_ptr<TCPv4TransportDescriptor> descriptor = std::make_shared<TCPv4TransportDescriptor>();
@@ -83,7 +83,7 @@ bool HelloWorldPublisher::init(bool tcp)
         IPLocator::setIPv4(server_address, 127, 0, 0, 1);
 
         ratt.metatrafficUnicastLocatorList.push_back(server_address);
-        PParam.rtps.builtin.m_DiscoveryServers.push_back(ratt);
+        PParam.rtps.builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
     }
 
     mp_participant = Domain::createParticipant(PParam);

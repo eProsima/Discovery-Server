@@ -31,19 +31,21 @@
     <participant profile_name="UDP client" >
       <rtps>
         <builtin>
-          <discoveryProtocol>CLIENT</discoveryProtocol>
-          <discoveryServersList>
-            <RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
-              <metatrafficUnicastLocatorList>
-                <locator>
-                  <udpv4>
-                    <address>127.0.0.1</address>
-                    <port>${RANDOM_PORT}</port>
-                  </udpv4>
-                </locator>
-              </metatrafficUnicastLocatorList>
-            </RemoteServer>
-          </discoveryServersList>
+            <discovery_config>
+                <discoveryProtocol>CLIENT</discoveryProtocol>
+                <discoveryServersList>
+                    <RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
+                        <metatrafficUnicastLocatorList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>${RANDOM_PORT}</port>
+                                </udpv4>
+                            </locator>
+                        </metatrafficUnicastLocatorList>
+                    </RemoteServer>
+                </discoveryServersList>
+            </discovery_config>
         </builtin>
       </rtps>
     </participant>
@@ -54,7 +56,9 @@
           4D.49.47.55.45.4c.5f.42.41.52.52.4f
         </prefix>
         <builtin>
-          <discoveryProtocol>SERVER</discoveryProtocol>
+            <discovery_config>
+                <discoveryProtocol>SERVER</discoveryProtocol>
+            </discovery_config>
           <metatrafficUnicastLocatorList>
             <locator>
               <udpv4>

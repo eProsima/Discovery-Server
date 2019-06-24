@@ -53,7 +53,9 @@
             <useBuiltinTransports>false</useBuiltinTransports>
 
             <builtin>
-                <discoveryProtocol>SERVER</discoveryProtocol>
+                <discovery_config>
+                    <discoveryProtocol>SERVER</discoveryProtocol>
+                </discovery_config>
                 <metatrafficUnicastLocatorList>
                     <locator>
                         <tcpv4>
@@ -74,20 +76,22 @@
         <useBuiltinTransports>false</useBuiltinTransports>
         
         <builtin>
-          <discoveryProtocol>CLIENT</discoveryProtocol>
-          <discoveryServersList>
-            <RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
-              <metatrafficUnicastLocatorList>
-                <locator>
-                  <tcpv4>
-                    <address>127.0.0.1</address>
-                    <physical_port>${RANDOM_PORT}</physical_port>
-                    <port>6339</port>
-                  </tcpv4>
-                </locator>
-              </metatrafficUnicastLocatorList>
-            </RemoteServer>
-          </discoveryServersList>
+            <discovery_config>
+                <discoveryProtocol>CLIENT</discoveryProtocol>
+                <discoveryServersList>
+                    <RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
+                        <metatrafficUnicastLocatorList>
+                            <locator>
+                                <tcpv4>
+                                    <address>127.0.0.1</address>
+                                    <physical_port>${RANDOM_PORT}</physical_port>
+                                    <port>6339</port>
+                                </tcpv4>
+                            </locator>
+                        </metatrafficUnicastLocatorList>
+                    </RemoteServer>
+                </discoveryServersList>
+            </discovery_config>
         </builtin>
       </rtps>
     </participant>
