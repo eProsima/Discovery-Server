@@ -715,8 +715,8 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
         return;
     }
 
-    // we must assert that PDPtype is CLIENT
-    if (atts.rtps.builtin.discoveryProtocol != rtps::PDPType_t::CLIENT)
+    // we must assert that DiscoveryProtocol is CLIENT
+    if (atts.rtps.builtin.discoveryProtocol != rtps::DiscoveryProtocol_t::CLIENT)
     {
         LOG_ERROR("DSManager::loadClient try to create a client with an incompatible profile: " << profile_name);
         return;

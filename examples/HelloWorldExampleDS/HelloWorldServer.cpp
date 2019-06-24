@@ -36,7 +36,7 @@ HelloWorldServer::HelloWorldServer():mp_participant(nullptr)
 bool HelloWorldServer::init(bool tcp)
 {
     ParticipantAttributes PParam;
-    PParam.rtps.builtin.discoveryProtocol = PDPType_t::SERVER;
+    PParam.rtps.builtin.discoveryProtocol = DiscoveryProtocol_t::SERVER;
     PParam.rtps.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
     PParam.rtps.builtin.domainId = 0;
     PParam.rtps.builtin.leaseDuration = c_TimeInfinite;

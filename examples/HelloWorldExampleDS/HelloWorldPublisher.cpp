@@ -50,7 +50,7 @@ bool HelloWorldPublisher::init(bool tcp)
     ratt.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
 
     ParticipantAttributes PParam;
-    PParam.rtps.builtin.discoveryProtocol = PDPType_t::CLIENT;
+    PParam.rtps.builtin.discoveryProtocol = DiscoveryProtocol_t::CLIENT;
     PParam.rtps.builtin.domainId = 0;
     PParam.rtps.builtin.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_pub");
