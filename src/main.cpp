@@ -70,8 +70,8 @@ int main(int argc, char * argv[])
         }
     }
 
-    Log::Reset();
     Domain::stopAll();
+    Log::Reset();
 
     return return_code;
 

@@ -11,11 +11,10 @@
     <client name="client1" profile_name="TCP client" listening_port="${RANDOM_PORT_2}" />
     <client name="client2" profile_name="TCP client" listening_port="${RANDOM_PORT_3}" />
     <client name="client3" profile_name="TCP client" listening_port="${RANDOM_PORT_4}" />
-    <client name="client4" profile_name="TCP client" listening_port="${RANDOM_PORT_5}" />
   </clients>
 
   <snapshots>
-    <snapshot time="10">Check all clients met the server and know each other</snapshot>
+    <snapshot time="5">Check all clients met the server and know each other</snapshot>
   </snapshots>
   
   <profiles>
