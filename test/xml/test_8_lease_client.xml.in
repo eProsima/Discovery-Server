@@ -39,13 +39,13 @@
                         </metatrafficUnicastLocatorList>
                     </RemoteServer>
                 </discoveryServersList>
+                <leaseDuration>
+                    <sec>5</sec>
+                </leaseDuration>
                 <leaseAnnouncement>
                     <sec>2</sec>
                 </leaseAnnouncement>
             </discovery_config>
-          <leaseDuration>
-            <sec>5</sec>
-          </leaseDuration>
         </builtin>
       </rtps>
     </participant>
