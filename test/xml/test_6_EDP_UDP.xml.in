@@ -7,7 +7,7 @@
     <server name="server" profile_name="UDP server" creation_time="1" >
       <subscriber topic="topic 1" creation_time="3" />
       <publisher topic="topic 2" creation_time="5" />
-....</server>
+    </server>
   </servers>
 
   <clients>
@@ -15,25 +15,25 @@
       <subscriber creation_time="7" removal_time="14" /> <!-- defaults to helloworld type -->
       <subscriber topic="topic 2" creation_time="7" removal_time="14" />
       <subscriber profile_name="Sub 1" creation_time="7" removal_time="14" />
-      <publisher profile_name="Pub 2" creation_time="12" />....
-....</client>
+      <publisher profile_name="Pub 2" creation_time="12" />    
+    </client>
   <client name="client2" profile_name="UDP client" creation_time="9">
       <publisher creation_time="10" />  <!-- defaults to helloworld type -->
       <publisher topic="topic 1" creation_time="10" />
       <publisher profile_name="Pub 1" creation_time="10" />
       <subscriber profile_name="Sub 2" creation_time="10" />
-....</client>
+    </client>
   </clients>
 
   <snapshots>
-....  <snapshot time="2">Check client1 detects the server</snapshot>
-....  <snapshot time="4">Check client1 detects server's subscriber</snapshot>
-....  <snapshot time="6">Check client1 detects server's publisher</snapshot>
-....  <snapshot time="8">Check server detects client1's subscribers</snapshot>
-....  <snapshot time="11">Check server and client1 detects client2's and its entities</snapshot>
-....  <snapshot time="13">Check everybody detects new client1's publisher</snapshot>
-....  <snapshot time="15">Check everybody detects client1's subscribers' removal</snapshot>
-....  <snapshot time="17" someone="false">Check server and client2 detects client1 removal</snapshot>
+      <snapshot time="2">Check client1 detects the server</snapshot>
+      <snapshot time="4">Check client1 detects server's subscriber</snapshot>
+      <snapshot time="6">Check client1 detects server's publisher</snapshot>
+      <snapshot time="8">Check server detects client1's subscribers</snapshot>
+      <snapshot time="11">Check server and client1 detects client2's and its entities</snapshot>
+      <snapshot time="13">Check everybody detects new client1's publisher</snapshot>
+      <snapshot time="15">Check everybody detects client1's subscribers' removal</snapshot>
+      <snapshot time="17" someone="false">Check server and client2 detects client1 removal</snapshot>
   </snapshots>
   
   <profiles>

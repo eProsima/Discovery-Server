@@ -16,13 +16,13 @@
 
   <snapshots>
     <snapshot time="1">Check server and client1 known each other</snapshot>
-	  <snapshot time="3">Check server and client1 acknowledge client2 creation</snapshot>
-	  <snapshot time="5">Check server, client1 and client2 acknowledge client3 creation</snapshot>
-	  <snapshot time="7">Check server, client1, client2 and client3 acknowledge client4 creation</snapshot>
-	  <snapshot time="9">Check client1 removal is acknowledge by all remaining</snapshot>
-	  <snapshot time="11">Check client2 removal is acknowledge by all remaining</snapshot>
-	  <snapshot time="13">Check client3 removal is acknowledge by all remaining</snapshot>
-	  <snapshot time="15">Check client4 removal is acknowledge by all remaining</snapshot>
+      <snapshot time="3">Check server and client1 acknowledge client2 creation</snapshot>
+      <snapshot time="5">Check server, client1 and client2 acknowledge client3 creation</snapshot>
+      <snapshot time="7">Check server, client1, client2 and client3 acknowledge client4 creation</snapshot>
+      <snapshot time="9">Check client1 removal is acknowledge by all remaining</snapshot>
+      <snapshot time="11">Check client2 removal is acknowledge by all remaining</snapshot>
+      <snapshot time="13">Check client3 removal is acknowledge by all remaining</snapshot>
+      <snapshot time="15">Check client4 removal is acknowledge by all remaining</snapshot>
   </snapshots>
   
   <profiles>

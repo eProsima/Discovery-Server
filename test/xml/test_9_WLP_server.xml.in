@@ -3,12 +3,12 @@
   
   <!-- 
   Basically we'll launch two discovery-servers instances:
-	
-		1 - A server with several clients that create subscribers of a common topic. This instances will take an snapshot at the beginning and another at the end.
-		
-		2 - A client which references the server on the first instance and creates a publisher for the common topic. This process would be killed from python between the snapshots.
-		
-	The first snapshot must show how all clients (remote one included) known each other and the user publishers and subscribers.
+    
+        1 - A server with several clients that create subscribers of a common topic. This instances will take an snapshot at the beginning and another at the end.
+        
+        2 - A client which references the server on the first instance and creates a publisher for the common topic. This process would be killed from python between the snapshots.
+        
+    The first snapshot must show how all clients (remote one included) known each other and the user publishers and subscribers.
   After killing process 2 (and its client) the server must kill its Writer proxy by lease duration time out and report it to all subscribers.
   The second snapshot must show how all participants have removed the publisher from the discovery database. 
   

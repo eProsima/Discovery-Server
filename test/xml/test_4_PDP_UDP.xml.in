@@ -3,24 +3,24 @@
   
   <!-- This test assess server to server communication:
 
-		server 1 will link with client1 
-		server 2 will link with client2, client3 and client4
-		server2 references server 1
-		
-	all clients must know each other independently of which server are linked to.
-	
-	Note that to simplify configuration server and client allow tags and attributes that precede the profile provided 
-	and simplify the configuration files:
-		- server prefix can be specified as attribute.
-		- server and client can specify a ServerList where servers are only referenced by prefix (no locator needed)
-		- server listening ports can be specified as a tag that mimics the profile one.
-		- client can specify is associated server as an attribute
+        server 1 will link with client1 
+        server 2 will link with client2, client3 and client4
+        server2 references server 1
+        
+    all clients must know each other independently of which server are linked to.
+    
+    Note that to simplify configuration server and client allow tags and attributes that precede the profile provided 
+    and simplify the configuration files:
+        - server prefix can be specified as attribute.
+        - server and client can specify a ServerList where servers are only referenced by prefix (no locator needed)
+        - server listening ports can be specified as a tag that mimics the profile one.
+        - client can specify is associated server as an attribute
    -->
   
   <servers>
     <server name="server1" prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f" profile_name="UDP server" />
-	<server name="server2" prefix="4D.49.47.55.45.4c.7e.42.41.52.52.4f" profile_name="UDP server">
-	  <ListeningPorts>
+    <server name="server2" prefix="4D.49.47.55.45.4c.7e.42.41.52.52.4f" profile_name="UDP server">
+      <ListeningPorts>
         <metatrafficUnicastLocatorList>
           <locator>
             <udpv4>
@@ -32,8 +32,8 @@
       </ListeningPorts>
       <ServersList>
         <RServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f" />
-      </ServersList>	
-	</server>
+      </ServersList>    
+    </server>
   </servers>
 
   <clients>

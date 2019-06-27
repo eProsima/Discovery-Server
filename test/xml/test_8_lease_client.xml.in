@@ -3,12 +3,12 @@
   
   <!-- 
   Basically we'll launch two discovery-servers instances:
-	
-		1 - A server with several clients. This instances will take an snapshot at the beginning and another at the end.
-		
-		2 - A client which references the server on the first instance. This process would be killed from python between the snapshots.
-		
-	The first snapshot must show how all clients (remote one included) known each other. 
+    
+        1 - A server with several clients. This instances will take an snapshot at the beginning and another at the end.
+        
+        2 - A client which references the server on the first instance. This process would be killed from python between the snapshots.
+        
+    The first snapshot must show how all clients (remote one included) known each other. 
   After killing process 2 (and its client) the server must kill its proxy by lease duration time out and report it to all other clients.
   The second snapshot must show how all participants have removed the remote client from its discovery database.
   -->

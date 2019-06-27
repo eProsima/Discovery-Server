@@ -2,32 +2,32 @@
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
   
   <!-- This test verifies that:
-	- the clients can locate each others and server's publisher and subscribers.
-	- create dynamic types using fast-RTPS xml schema.
-	- create Publishers and Subscriber profiles
-	- specify topics using attributes to constrain the number of profiles needed
-	-->
+    - the clients can locate each others and server's publisher and subscribers.
+    - create dynamic types using fast-RTPS xml schema.
+    - create Publishers and Subscriber profiles
+    - specify topics using attributes to constrain the number of profiles needed
+    -->
   
   <servers>
     <server name="server" profile_name="UDP server">
-	    <subscriber topic="topic 1" />
+        <subscriber topic="topic 1" />
       <publisher topic="topic 2" />
-	</server>
+    </server>
   </servers>
 
   <clients>
     <client name="client1" profile_name="UDP client">
-	    <subscriber /> <!-- defaults to helloworld type -->
-	    <subscriber topic="topic 2" />
-	    <subscriber profile_name="Sub 1" />
-	    <publisher profile_name="Pub 2" />	
-	</client>
+        <subscriber /> <!-- defaults to helloworld type -->
+        <subscriber topic="topic 2" />
+        <subscriber profile_name="Sub 1" />
+        <publisher profile_name="Pub 2" />    
+    </client>
     <client name="client2" profile_name="UDP client">
-	    <publisher />  <!-- defaults to helloworld type -->
+        <publisher />  <!-- defaults to helloworld type -->
       <publisher topic="topic 1" />
       <publisher profile_name="Pub 1" />
       <subscriber profile_name="Sub 2" />
-	</client>
+    </client>
   </clients>
 
   <snapshots>

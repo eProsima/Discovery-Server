@@ -91,7 +91,7 @@ class DSManager : public xmlparser::XMLParser,      // access to parsing protect
     // Snapshops container
     snapshots_list _snapshots;
 
-    bool _nocallbacks;      // ongoing participant destruction
+    volatile bool _nocallbacks;      // ongoing participant destruction
     bool _shutdown;         // close when event processing is finished?
     bool _prefixvalidation; // allow multiple servers share the same prefix? (only for testing purposes)
 

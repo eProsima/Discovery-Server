@@ -15,9 +15,9 @@
 import subprocess, time, os, sys
 
 # compose the arguments
-discovery_path = sys.argv[1] 	# '\\...\\discovery-server\\build64\\Debug\\discovery-server-1.1.0d.exe'
-xml_server_path = sys.argv[2] 	# '\\...\\discovery-server\\resources\\xml\\test_8_lease_server.xml'
-xml_client_path = sys.argv[3] 	# '\\...\\discovery-server\\resources\\xml\\test_8_lease_client.xml'
+discovery_path = sys.argv[1]     # '\\...\\discovery-server\\build64\\Debug\\discovery-server-1.1.0d.exe'
+xml_server_path = sys.argv[2]     # '\\...\\discovery-server\\resources\\xml\\test_8_lease_server.xml'
+xml_client_path = sys.argv[3]     # '\\...\\discovery-server\\resources\\xml\\test_8_lease_client.xml'
 
 # launch 
 proc_server = subprocess.Popen([discovery_path, xml_server_path])
