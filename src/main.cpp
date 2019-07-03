@@ -70,9 +70,9 @@ int main(int argc, char * argv[])
         }
     }
 
+    Log::Flush();
     Domain::stopAll();
-    Log::Reset();
-
+    
     return return_code;
 
 }

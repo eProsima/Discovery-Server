@@ -20,8 +20,13 @@
     <participant profile_name="UDP server">
       <rtps>
         <builtin>
-          <discoveryProtocol>SERVER</discoveryProtocol>
-        </builtin>        
+            <discovery_config>
+                <discoveryProtocol>SERVER</discoveryProtocol>
+                <leaseDuration>
+                    <sec>DURATION_INFINITY</sec>
+                </leaseDuration>
+            </discovery_config>
+        </builtin>
       </rtps>
     </participant>
     

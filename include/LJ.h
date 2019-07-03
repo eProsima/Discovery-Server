@@ -208,10 +208,11 @@ class DED : public LJD // Delayed Endpoint Destruction
 public:
 
     DED(
-        const std::chrono::steady_clock::time_point& tp,
-        GUID_t id = GUID_t::unknown())
+            const std::chrono::steady_clock::time_point& tp,
+            GUID_t id = GUID_t::unknown())
         : LJD(tp)
-        , _id(id) {}
+        , _id(id) 
+    {}
 
     ~DED() override {}
 

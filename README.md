@@ -28,15 +28,17 @@ In order to cope with the above issues the fast-RTPS discovery mechanism was ext
 
 ### **Installation**
 
+In order to use discovery server its necessary have a compatible version of [fast RTPS](https://eprosima-fast-rtps.readthedocs.io/en/latest/) installed (over release 1.9.0). Fast RTPS dependencies as [tinyxml](https://github.com/leethomason/tinyxml2.git) must be accessible, either because Fast RTPS was build-installed defining THIRDPARTY=ON or because those libraries have been specifically installed.
+
 The well known cross-platform tool [colcon](https://colcon.readthedocs.io/en/released/) was chosen to simplify installation of the several mutually dependent [CMake](https://cmake.org/cmake/help/latest/) projects. In order to use colcon, [python](https://www.python.org/) and [CMake](https://cmake.org/cmake/help/latest/) must be first installed as detailed in the corresponding hyperlinks.
 
 The following repositories should be downloaded from github into a directory that henceforth would be called **SOURCES**:
 
-+ eProsima/Fast-CDR:	https://github.com/eProsima/Fast-CDR.git			branch: master
++ eProsima/Fast-CDR:			https://github.com/eProsima/Fast-CDR.git			
 	
-+ eProsima/Fast-RTPS:	https://github.com/eProsima/Fast-RTPS.git			branch: feature/discovery-server
++ eProsima/Fast-RTPS:			https://github.com/eProsima/Fast-RTPS.git			
 	
-+ eProsima/beta:		https://github.com/eProsima/Discovery-Server.git	branch: feature/beta
++ eProsima/Discovery-Server:	https://github.com/eProsima/Discovery-Server.git	
 
 
 We also assume that the user wants to keep the build, log and installation files in a separate directory called **[BUILD]**. If this is not the case, flag `--base-paths [SOURCES]` can be ignored in what follows.
@@ -100,7 +102,7 @@ Valid placeholders for the windows example may be:
 		
 	here --ctest-args allows you to specify the configuration (Debug or Release) of interest (names are case sensitive). If you are using a single configuration tool this flag has no effect, as only the test matching the build (step 3) configuration would run.
 	
-5. In order to run the example, navigate to directory **[BUILD]**/install/discovery-server/examples/HelloWorldExampleDS/bin and run the executable, running first the configuration bat file located within install folder in order to set required environment variables:
+5. In order to run the example, navigate to directory **[BUILD]**\install\discovery-server\examples\HelloWorldExampleDS\bin and run the executable, running first the configuration bat file located within install folder in order to set required environment variables:
 	
 		[BUILD]\install\discovery-server\examples\C++\HelloWorldExampleDS\bin>..\..\..\..\..\local_setup.bat
 	
@@ -158,80 +160,85 @@ Clients must be aware of how to reach the server, usually by specifying an IP ad
 
 One of the design goals of the current implementation was to keep both the discovery messages structure and standard RTPS writer and reader behavior unchanged. In order to do so, clients must be aware of their server's `GuidPrefix`. `GuidPrefix` is the RTPS standard participant unique identifier (basically 12 octecs), and allows clients to assess whether they are receiving messages from the right server, as each standard RTPS message contains this piece of information. Note that server's IP address may not be a reliable server's identifier because several can be specified and multicast addresses are acceptable. In future implementations any other more convenient and non-standard identifier may substitute the `GuidPrefix` at the expense of adding non-standard members to the RTPS discovery messages structure. 
 
-Several fast-RTPS configuration structures have been updated in order to deal with this new info needs:
+Several fast-RTPS configuration structures have been updated in order to deal with the new client-server discovery strategy. Note that the following elements belong exclusively to fast RTPS builtin discovery architecture and that the discovery server application just profits from the capabilities provided by fast RTPS library.
 
 #### RTPSParticipantAttributes
 
-+ a new `GuidPrefix_t guidPrefix` member has been added to specify the server's identity.  This member has only significance if `discoveryProtocol` is **SERVER** or **BACKUP**. There is a `ReadguidPrefix` method to easily fill in this member from a string formatted like `"4D.49.47.55.45.4c.5f.42.41.52.52.4f"` (note that each octec must be a valid hexadecimal figure).
-
-In order to receive client metatraffic, `metatrafficUnicastLocatorList` or `metatrafficMulticastLocatorList` must be populated with the addresses that were given to the clients.
++ a `GuidPrefix_t guidPrefix` member specifies server's identity.  This member has only significance if `discovery_config.discoveryProtocol` is **SERVER** or **BACKUP**. There is a `ReadguidPrefix` method to easily fill in this member from a string formatted like `"4D.49.47.55.45.4c.5f.42.41.52.52.4f"` (note that each octec must be a valid hexadecimal figure).
 
 #### BuiltinAttributes
 
-+ a new `PDPType_t discoveryProtocol` member has been added to specify participant's discovery kind:
++ All discovery related info is gathered in a `DiscoverySettings discovery_config` member.
+
++ In order to receive client metatraffic, `metatrafficUnicastLocatorList` or `metatrafficMulticastLocatorList` must be populated with the addresses that were given to the clients.
+
+#### DiscoverySettings
+
++ a `DiscoveryProtocol_t discoveryProtocol` specifies participant's discovery kind:
 	- **SIMPLE** generates a standard participant with complete backward compatibility with any other RTPS implementation.
 	- **CLIENT** generates a *client* participant, which relies on a server to be notified of other *clients* presence. This participant can create publishers and subscribers of any topic (static or dynamic) as ordinary participants do.
 	- **SERVER** generates a *server* participant, which receives, manages and spreads its linked *clients* metatraffic assuring any single one is aware of the others. This participant can create publishers and subscribers of any topic (static or dynamic) as ordinary participants do. Servers can link to other servers in order to share its clients information.
 	- **BACKUP** generates a *server* participant with additional functionality over **SERVER**. Specifically, it uses a database to backup its client information, so that if for whatever reason it disappears, it can be automatically restored and continue spreading metatraffic to late joiners. A **SERVER** in the same scenario ought to collect client information again, introducing a recovery delay.
 	
-+ a new `RemoteServerList_t  m_DiscoveryServers` member has been added to list the server or servers linked to the participant. This member has only significance if `discoveryProtocol` is **CLIENT**, **SERVER** or **BACKUP**. This member elements are `RemoteServerAttributes` objects that identify each server and report where to reach it:
++ a `RemoteServerList_t  m_DiscoveryServers` lists the servers linked to the participant. This member has only significance if `discoveryProtocol` is **CLIENT**, **SERVER** or **BACKUP**. This member elements are `RemoteServerAttributes` objects that identify each server and report where to reach it:
 	- `GuidPrefix_t guidPrefix` is the RTPS unique identifier of the server participant we want to link to. There is a `ReadguidPrefix` method to easily fill in this member from a string formatted like `"4D.49.47.55.45.4c.5f.42.41.52.52.4f"` (note that each octec must be a valid hexadecimal figure).
 	- `metatrafficUnicastLocatorList` and `metatrafficMulticastLocatorList` are ordinary `LocatorList_t` (see fast-RTPS documentation) where server's locators must be specified. At least one of them should be populated.
 	- `Duration_t discoveryServer_client_syncperiod` specifies the time span between PDP metatraffic exchange, and has only significance if `discoveryProtocol` is **CLIENT**, **SERVER** or **BACKUP**. The default value is half a second.
-
+	
 #### fast-RTPS XML schema (*fastRTPS_profiles.xsd*)
 
 Each of the attributes in fast-RTPS has an echo in the XML profiles. XML profiles make it possible to avoid tiresome hard-coded settings within applications sources using XML configuration files. The fast XML schema was duly updated to accommodate the new client-server attributes:
 
-+ The participant profile **rtps** tag can contain a new **prefix** tag where the server `GuidPrefix_t` can be specified.
++  The participant profile **rtps** tag contains a new optional **prefix** tag where the server `GuidPrefix_t` must be specified. Any other discovery selection as simple or clients may disregard this member.
 
-+ The participant profile **builtin** tag can contain:
-	- new **discoveryProtocol** tag, where the discovery type can be specified through the `PDPType_t` enumeration.
-	- new **discoveryServersList** tag, where the server or servers linked with a participant can be specified.
-	- new **clientAnnouncementPeriod** tag, where the time span between PDP metatraffic exchange can be specified.
++ The participant profile **builtin** tag contains a **discovery_config** tag where all discovery related info is gathered. This new tag contains the following new elements:
+	- a **discoveryProtocol** tag, where the discovery type can be specified through the `DiscoveryProtocol_t` enumeration.
+	- a **discoveryServersList** tag, where the server or servers linked with a participant can be specified.
+	- a **clientAnnouncementPeriod** tag, where the time span between PDP metatraffic exchange can be specified.
 	
 Below we provide an example xml participant profile using this new *tags*:
 	
 ```
+<participant profile_name="UDP client" >
+  <rtps>
+	<builtin>
+		<discovery_config>
+		  <discoveryProtocol>CLIENT</discoveryProtocol>
+		  <discoveryServersList>
+			<RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
+			  <metatrafficUnicastLocatorList>
+				<locator>
+				  <udpv4>
+					<address>127.0.0.1</address>
+					<port>64863</port>
+				  </udpv4>
+				</locator>
+			  </metatrafficUnicastLocatorList>
+			</RemoteServer>
+		  </discoveryServersList>
+		</discovery_config>
+	</builtin>
+  </rtps>
+</participant>
+
 <participant profile_name="UDP server">
   <rtps>
 	<prefix>
 	  4D.49.47.55.45.4c.5f.42.41.52.52.4f
 	</prefix>
 	<builtin>
-	  <discoveryProtocol>SERVER</discoveryProtocol>
-	  <metatrafficUnicastLocatorList>
-		<locator>
-		  <udpv4>
-			<address>127.0.0.1</address>
-			<port>65215</port>
-		  </udpv4>
-		</locator>
-	  </metatrafficUnicastLocatorList>
-	</builtin>        
-  </rtps>
-</participant>
-
-<participant profile_name="UDP client" >
-  <rtps>
-	<builtin>
-	  <discoveryProtocol>CLIENT</discoveryProtocol>
-	  <discoveryServersList>
-		<RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
-		  <metatrafficUnicastLocatorList>
+		<discovery_config>
+		  <discoveryProtocol>SERVER</discoveryProtocol>
+		</discovery_config>
+		<metatrafficUnicastLocatorList>
 			<locator>
-			  <udpv4>
-				<address>127.0.0.1</address>
-				<port>65215</port>
-			  </udpv4>
+				<udpv4>
+					<address>127.0.0.1</address>
+					<port>64863</port>
+				</udpv4>
 			</locator>
-		  </metatrafficUnicastLocatorList>
-		</RemoteServer>
-	  </discoveryServersList>
-	  <clientAnnouncementPeriod>
-		<sec>3</sec>
-	  </clientAnnouncementPeriod>
-	</builtin>
+		</metatrafficUnicastLocatorList>
+	</builtin>        
   </rtps>
 </participant>
 ```
@@ -241,44 +248,127 @@ The fast-RTPS **HelloWorldExample** has been updated to illustrate the client-se
 
 As usual, we launch publishers and subscribers by running HelloWorldExampleDS.exe with the corresponding **publisher** or **subscriber** argument. Each publisher and subscriber is launched within its own participant, but now the HelloWorldPublisher::init() and HelloWorldSubscriber::init() methods are modified to create clients and hard code the server reference.
 
-```
-	// new client setup
-    Locator_t server_address(LOCATOR_KIND_UDPv4, 65215);
-    IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+#### UDP transport attribute settings
 
+In order to use UDP we can rely in the default transport where the locators are actual ports and IP addresses.
+
+##### UDP transport code setup for a client
+
+```
     RemoteServerAttributes ratt;
     ratt.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
-    ratt.metatrafficUnicastLocatorList.push_back(server_address);
 
     ParticipantAttributes PParam;
-    PParam.rtps.builtin.discoveryProtocol = PDPType_t::CLIENT;
-    PParam.rtps.builtin.m_DiscoveryServers.push_back(ratt);
-	
-	// ordinary setup
+    PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::CLIENT;
     PParam.rtps.builtin.domainId = 0;
-    PParam.rtps.builtin.leaseDuration = c_TimeInfinite;
-    PParam.rtps.setName("Participant_sub");
-    mp_participant = Domain::createParticipant(PParam);
-```
-
- In order to launch a server, a new class HelloWorldServer is added to the example. This class creates the participant server referenced by the clients. Its initialization code is:
- 
- ```
-	// new server setup
-    Locator_t server_address(LOCATOR_KIND_UDPv4, 65215);
+    PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
+    PParam.rtps.setName("Participant_pub");
+	
+	Locator_t server_address(LOCATOR_KIND_UDPv4, 65215);
     IPLocator::setIPv4(server_address, 127, 0, 0, 1);
 
+    ratt.metatrafficUnicastLocatorList.push_back(server_address);
+    PParam.rtps.builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
+	
+	mp_participant = Domain::createParticipant(PParam);
+```
+
+Note that according with [former attributes explanation](#rtpsparticipantattributes) we must populate the **DiscoverySettings discovery_config** specifying we want to create a **DiscoveryProtocol_t::CLIENT** and adding a new *RemoteServerAttributes* object to the *m_DiscoveryServers* list. In this case the UDP port 65215 is hardcoded as is the server prefix.
+
+##### UDP transport code setup for a server
+
+```
     ParticipantAttributes PParam;
-    PParam.rtps.builtin.discoveryProtocol = PDPType_t::SERVER;
+    PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::SERVER;
     PParam.rtps.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
+    PParam.rtps.builtin.domainId = 0;
+    PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
+    PParam.rtps.setName("Participant_server");
+	
+	Locator_t server_address(LOCATOR_KIND_UDPv4, 65215);
+    IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+
     PParam.rtps.builtin.metatrafficUnicastLocatorList.push_back(server_address);
 	
-	// ordinary setup
-    PParam.rtps.builtin.domainId = 0;
-    PParam.rtps.builtin.leaseDuration = c_TimeInfinite;
-    PParam.rtps.setName("Participant_server");
-    mp_participant = Domain::createParticipant(PParam);
+	mp_participant = Domain::createParticipant(PParam);
 ```
+Note that according with [former attributes explanation](#rtpsparticipantattributes) we must populate the **DiscoverySettings discovery_config** specifying we want to create a **DiscoveryProtocol_t::SERVER** and adding a new listening locator to any **BuiltinAttributes** metatraffic lists (this locator or locators must be known by the clients). In this case the UDP port 65215 is hardcoded as is the server prefix.
+
+#### TCP transport attribute settings
+
+For TCP transport is mandatory to disable the default transport setting the **RTPSParticipantAttributes::useBuiltinTransports** as false and creating a new *transport descriptor* thus fast RTPS framework might create a suitable transport object.
+
+##### TCP transport code setup for a client
+
+```
+    RemoteServerAttributes ratt;
+    ratt.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
+
+    ParticipantAttributes PParam;
+    PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::CLIENT;
+    PParam.rtps.builtin.domainId = 0;
+    PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
+    PParam.rtps.setName("Participant_pub");
+	
+	Locator_t server_address; 
+	server_address.kind = LOCATOR_KIND_TCPv4;
+	IPLocator::setLogicalPort(server_address, 65215);
+	IPLocator::setPhysicalPort(server_address, 9843); 
+	IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+
+	ratt.metatrafficUnicastLocatorList.push_back(server_address);
+	PParam.rtps.builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
+
+	PParam.rtps.useBuiltinTransports = false;
+	std::shared_ptr<TCPv4TransportDescriptor> descriptor = std::make_shared<TCPv4TransportDescriptor>();
+
+	// Generate a listening port for the client
+	std::default_random_engine gen(System::GetPID());
+	std::uniform_int_distribution<int> rdn(49152, 65535);
+	descriptor->add_listener_port(rdn(gen)); // IANA ephemeral port number
+
+	descriptor->wait_for_tcp_negotiation = false;
+	PParam.rtps.userTransports.push_back(descriptor);
+
+	mp_participant = Domain::createParticipant(PParam);
+``` 
+
+The **DiscoverySettings discovery_config** is almost the same as in [analogous UDP case](#udp-transport-code-setup-for-a-client).  Note that here the *server_address* locator specifies 65215 as a logical port and 9843 as a physical one. The reason behind this is that TCP transport was devised in order to allow a single TCP connection tunnel several participants traffic through it. In order to differenciate each participant sharing the connection a *logical port concept* was introduced. The transport will understand that must connect to the physical port (using TCP protocol) and rely meta traffic to the logical port 65215 which is the meta traffic mailbox of the server we are interested in.
+
+A new TCPv4TransportDescriptor must be created and a physical listening port selected. In this case each HelloWorldExample instance creates a single participant thus the linked proccess ID is a suitable seed to make up a listening port number (this way each time a new client is created a different port is selected).
+
+##### TCP transport code setup for a server
+
+```
+    ParticipantAttributes PParam;
+    PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::SERVER;
+    PParam.rtps.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
+    PParam.rtps.builtin.domainId = 0;
+    PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
+    PParam.rtps.setName("Participant_server");
+	
+	Locator_t server_address; 
+	server_address.kind = LOCATOR_KIND_TCPv4;
+	IPLocator::setLogicalPort(server_address, 65215);
+	IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+
+	PParam.rtps.builtin.metatrafficUnicastLocatorList.push_back(server_address);
+
+	std::shared_ptr<TCPv4TransportDescriptor> descriptor = std::make_shared<TCPv4TransportDescriptor>();
+	descriptor->wait_for_tcp_negotiation = false;
+	descriptor->add_listener_port(9843);
+
+	PParam.rtps.useBuiltinTransports = false;
+	PParam.rtps.userTransports.push_back(descriptor);
+	
+	mp_participant = Domain::createParticipant(PParam);
+```
+
+The **DiscoverySettings discovery_config** is almost the same as in [analogous UDP case](#udp-transport-code-setup-for-a-server). Note that here the *server_address* locator specifies 65215 as a logical port instead of a physical one. 
+
+A new TCPv4TransportDescriptor must be created and a physical listening port selected. Unlike the client code this listening port (9843 in the example) must be known beforehand for all clients in order to successfully deliver meta traffic to the server. 
+
+###HelloWorldExample command line
 
 Assuming the current directory is the example binary one, the execution steps would be:
 
@@ -704,34 +794,37 @@ The outermost XML tag is **DS**. It admits an optional boolean attribute called 
 	- **prefix** server unique identifier. It's optional because it may be specified in the profile but using this attribute we can avoid generate server profiles that only differ in prefix.
 	- **profile_name** identifies the profile associated with this server is a mandatory one.
 	- **persist** specifies if the participant is a [**SERVER**](#builtinattributes) or a [**BACKUP**](#builtinattributes).
-	- **creation_time** introduced for testing purposes specifies when a server must be created.
-	- **removal_time** introduced for testing purposes specifies when a server must be destroyed.
+	- **creation_time** introduced for testing purposes specifies in seconds when a server must be created.
+	- **removal_time** introduced for testing purposes specifies in seconds when a server must be destroyed.
 	
-	Each server admits the following tags:
-	- **ListeningPorts** contains lists of locators where this server would use to listen for incoming client metatraffic.
+	Each server element admits the following tags:
+	- **ListeningPorts** contains lists of locators where this server will listen for incoming client metatraffic.
 	- **ServersList** contains at least one **RServer** tag that references the servers this one wants to link to.  **RServer** only has a prefix attribute. Based on this prefix the discover-server parser would search for the corresponding server locators within the config file.
-	- **publisher** introduced for testing purposes. Creates a publisher characterized by *profile_name*, *topic*, *creation_time* and *removal_time*.
-	- **subscriber** introduced for testing purposes. Creates a publisher characterized by *profile_name*, *topic*, *creation_time* and *removal_time*.
+	- **publisher** introduced for testing purposes. Creates a dummy publisher characterized by *profile_name*, *topic*, *creation_time* and *removal_time*.
+	- **subscriber** introduced for testing purposes. Creates a dummy publisher characterized by *profile_name*, *topic*, *creation_time* and *removal_time*.
 
 + **clients** introduced for testing purposes. Is a list of dummy clients that the discovery-server must create and setup. Must contain at least a **client** tag. Each client admits the following attributes:
 	- **name** non mandatory but advisable for debugging purposes.
 	- **profile_name** identifies the profile associated with this server is a mandatory one.
 	- **server** specifies the prefix of the server we want to link to. This optional attribute saves us the nuisance of creating a **ServerList** (only if this client references a single server). Based on this prefix the discover-server parser would search for the corresponding server locators within the config file. 
-	- **creation_time** introduced for testing purposes specifies when a server must be created.
-	- **removal_time** introduced for testing purposes specifies when a server must be destroyed.
+	 - **listening_port** specifies a physical port where to listen for incomming traffic. This attribute is mandatory in TCP transport (client wouldn't receive other clients traffic without it). When using the TCPv4 the format is: [XXX.XXX.XXX.XXX:]XXXX where the IP address is the client's WAN address that must be specified if we want the client to be reachable from outside a local NAT.
+	- **creation_time** introduced for testing purposes specifies in seconds when a client must be created.
+	- **removal_time** introduced for testing purposes specifies in seconds when a client must be destroyed.
 	
-	Each server admits the following tags:
+	Each client element admits the following tags:
 	- **ServersList** contains at least one **RServer** tag that references the servers this one wants to link to.  **RServer** only has a prefix attribute. Based on this prefix the discover-server parser would search for the corresponding server locators within the config file.
 	- **publisher** introduced for testing purposes. Creates a publisher characterized by *profile_name*, *topic*, *creation_time* and *removal_time*.
 	- **subscriber** introduced for testing purposes. Creates a publisher characterized by *profile_name*, *topic*, *creation_time* and *removal_time*.
 
 + **types** is plainly the fast-RTPS types. It's introduced here for testing purposes to check how topic and type discovery info is handled by EDP. The associated documentation can be found [here](https://eprosima-fast-rtps.readthedocs.io/en/latest/xmlprofiles.html#xml-dynamic-types).
 
-+ **snapshots** contains **snapshot** tags. Whenever a discovery-server creates a participant (client or a server) it becomes its *listener* in the sense that all discovery info received by the participant is relayed to him. This reported discovery info is stored in a database. A *snapshot* is a *commit* of this database in a given time. 
++ **snapshots** contains **snapshot** tags. Whenever a discovery-server creates a participant (client or a server) it becomes its *listener* in the sense that all discovery info received by the participant is relayed to him. This reported discovery info is stored in a database. A *snapshot* is a *commit* of this database in a given time point. The **snapshots** element has a **file** attribute that must be filled with the filename of the xml results file if immediate validation is not desired.
 
-*Snapshots* are useful because within is recorded how much information each participant is aware of. If a participant reported no info or incomplete one there is a discovery failure. When the discovery server has finished to process the config file (creating and destroying entities or taking snapshots) then all **snapshots** taken are checked. If any of them shows discovery info leakages discovery server returns -1 and the unsuccessful *snapshot* is logged to the standard error. 
-
-**snapshot**  tag has a single mandatory attribute **time** which specifies when the snapshot must be taken. The text content of the tag is regarded as a description where the user can specify which event may required validation (participant creation or removal, etc...).
+ *Snapshots* are useful because within is recorded how much information each participant is aware of. If a participant reported no info or incomplete one there is a discovery failure. When the discovery server has finished to process the config file (creating and destroying entities or taking snapshots) then all **snapshots** taken are checked. If any of them shows discovery info leakages discovery server returns -1 and the unsuccessful *snapshot* is logged to the standard error. Note:
+  - this validation can be avoided using the **file** atribute of the **snapshots** collection.
+  - there is a particular case that requires special treatment by using **snapshot** attribute **someone**. By default **someone** is true and no discovery info reported by any participant is regarded as a failure, yet in some tests we want to validate the absence of discovery if settings are wrong so **someone** may be set false then.
+  
+ **snapshot**  tag has a single mandatory attribute **time** which specifies when the snapshot must be taken. The text content of the tag is regarded as a description where the user can specify which event may required validation (participant creation or removal, etc...).
 
 The [tests](#testing) are probably the best examples of the above xml definitions put into practice.
 

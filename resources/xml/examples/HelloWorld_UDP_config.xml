@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" >
   
-  <!-- This test merely assess the clients can locate a UDP server -->
-  
   <servers>
     <server name="server" profile_name="UDP server" />
   </servers>
@@ -17,6 +15,9 @@
         <builtin>
             <discovery_config>
                 <discoveryProtocol>SERVER</discoveryProtocol>
+                <leaseDuration>
+                    <sec>DURATION_INFINITY</sec>
+                </leaseDuration>
             </discovery_config>
             <metatrafficUnicastLocatorList>
             <locator>
