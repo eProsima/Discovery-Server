@@ -482,7 +482,49 @@ Participant 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1 discovered:
          Participant client4 1.f.1.30.ac.12.0.0.5.0.0.0|0.0.1.c1
 ```
 
+We'll only get this with the *Debug* binary. On *Release* mode we can resort to provide a filename to the **snapshots** tag. Then an xml file will be generated with the same info (note that generating an xml automatically disables validation thus it cannot be used in singleton tests).
+
+```
+<DS_Snapshots>
+    <DS_Snapshot timestamp="11684334716598" someone="true">
+        <description>Check all clients met the server and know each other</description>
+        <ptdb guid_prefix="1.f.74.42.80.35.0.0.2.0.0.0" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="1.f.74.42.80.35.0.0.3.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client2"/>
+            <ptdi guid_prefix="1.f.74.42.80.35.0.0.4.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client3"/>
+            <ptdi guid_prefix="1.f.74.42.80.35.0.0.5.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client4"/>
+            <ptdi guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1" server="true" alive="true" name="server"/>
+        </ptdb>
+        <ptdb guid_prefix="1.f.74.42.80.35.0.0.3.0.0.0" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="1.f.74.42.80.35.0.0.2.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client1"/>
+            <ptdi guid_prefix="1.f.74.42.80.35.0.0.4.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client3"/>
+            <ptdi guid_prefix="1.f.74.42.80.35.0.0.5.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client4"/>
+            <ptdi guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1" server="true" alive="true" name="server"/>
+        </ptdb>
+        <ptdb guid_prefix="1.f.74.42.80.35.0.0.4.0.0.0" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="1.f.74.42.80.35.0.0.2.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client1"/>
+            <ptdi guid_prefix="1.f.74.42.80.35.0.0.3.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client2"/>
+            <ptdi guid_prefix="1.f.74.42.80.35.0.0.5.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client4"/>
+            <ptdi guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1" server="true" alive="true" name="server"/>
+        </ptdb>
+        <ptdb guid_prefix="1.f.74.42.80.35.0.0.5.0.0.0" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="1.f.74.42.80.35.0.0.2.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client1"/>
+            <ptdi guid_prefix="1.f.74.42.80.35.0.0.3.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client2"/>
+            <ptdi guid_prefix="1.f.74.42.80.35.0.0.4.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client3"/>
+            <ptdi guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1" server="true" alive="true" name="server"/>
+        </ptdb>
+        <ptdb guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="1.f.74.42.80.35.0.0.2.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client1"/>
+            <ptdi guid_prefix="1.f.74.42.80.35.0.0.3.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client2"/>
+            <ptdi guid_prefix="1.f.74.42.80.35.0.0.4.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client3"/>
+            <ptdi guid_prefix="1.f.74.42.80.35.0.0.5.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client4"/>
+        </ptdb>
+    </DS_Snapshot>
+</DS_Snapshots>
+```
+
 Here we see how all participants reported the discovery of all the others. Note that, because there is no fast-RTPS discovery callback from a participant to report its own discovery, participants do not report themselves. This must be taken into account when a snapshot is checked. Note, however, that participants do discover themselves when they create a publisher or subscriber, because there are callbacks associated for those cases.
+
+
 
 ### test_2_PDP_TCP.xml
 
@@ -537,8 +579,6 @@ Here we see how all participants reported the discovery of all the others. Note 
   </rtps>
 </participant>
 ```
-
-This test is currently disabled because the fast-RTPS commit discovery-server is based upon was undergoing TCP transport refactoring. The test will be enabled when this fast-RTPS branch merges with the updated version of fast.
  
 
 #### test_3_PDP_UDP.xml
@@ -573,9 +613,11 @@ Here we test the discovery capacity of handling late joiners. A single server is
 
 Here we test the capability of one server to exchange information with another one. Two servers are created and each one has two associated clients. We take a snapshot to assess all clients are aware of the other server's clients existence. Note that we don't need to modify the previous tests profiles, as we can rely on *server* and *client* tag attributes to avoid create redundant boilerplate profiles:
 
-	- *server* **prefix** attribute is used to superseed the profile specified one, and uniquely identifies each server.
-	- *server* **ListeningPorts** and **ServerList** tags allow us to link servers between them without creating specific server profiles.
-	- *client* **server** attribute is used to link a client with its server without using a new profile or a **ServerList**.
+- *server* **prefix** attribute is used to superseed the profile specified one, and uniquely identifies each server.
+	
+- *server* **ListeningPorts** and **ServerList** tags allow us to link servers between them without creating specific server profiles.
+	
+- *client* **server** attribute is used to link a client with its server without using a new profile or a **ServerList**.
 	
 ```
   <servers>
@@ -755,6 +797,49 @@ Here we test how the discover handles EDP late joiners. It's the same scenario w
 	  <snapshot time="17">Check  server and client2 detects client1 removal</snapshot>
   </snapshots>
 ```
+
+#### test_7_PDP_UDP.xml
+
+Here we test how the discovery handles server shutdown and reboot. This is a clean shutdown made from the fast RTPS API :code:`Domain::removeParticipant`. Each time the server dies it notifies this fact to all its clients which automatically begin pinging on the server again trying to reconnect when its rebooted. Snapshots check that clients are aware of server absence after shutdown and presence after reboot.
+
+```
+  <servers>
+    <server name="server" profile_name="UDP server" removal_time="2" />
+    <server name="server" profile_name="UDP server" creation_time="4" removal_time="6" />
+    <server name="server" profile_name="UDP server" creation_time="8" removal_time="10" />
+  </servers>
+
+  <clients>
+    <client name="client1" profile_name="UDP client" />
+    <client name="client2" profile_name="UDP client" />
+    <client name="client3" profile_name="UDP client" />
+    <client name="client4" profile_name="UDP client" />
+  </clients>
+
+  <snapshots>
+    <snapshot time="1">Check server-clients awareness</snapshot>
+    <snapshot time="3">Check server demise has been reported to all clients</snapshot>
+    <snapshot time="5">Check server-clients awareness has been recovered</snapshot>
+    <snapshot time="7">Check server demise has been reported to all clients</snapshot>
+    <snapshot time="9">Check server-clients awareness has been recovered</snapshot>
+    <snapshot time="11">Check server demise has been reported to all clients</snapshot>
+  </snapshots>
+```
+
+#### test_8_lease_client.xml & test_8_lease_server.xml
+
+Standard lease duration mechanism no longer makes sense on the client-server architecture. Clients no longer multicast `DATA(p)` messages in order to make all other clients aware of its presence as in PDP standard mechanism, thus, this periodical messages can no longer be used to assert participant liveliness. In the client-server architecture:
+
+	- clients only track its server liveliness by sending periodical messages to them. If a server dies because of lease-duration its client must resume pinging on it in order to reconnect.
+	- servers track clients and linked servers liveliness by sending preiodical messages to them. If a client dies the server must propagate a `DATA(p[UD])` for that client over its PDP network. This way all server's clients have a shared lease duration capability.
+	
+In order to test this a python script is used to launch two discovery-servers instances:
+
+	1 - A server with several clients. This instances will take an snapshot at the beginning and another at the end.
+	2 - A client which references the server on the first instance. This process would be killed from python between the snapshots.
+	
+The first snapshot must show how all clients (remote one included) known each other. After killing process 2 (and its client) the server must kill its proxy by lease duration time out and report it to all other clients. The second snapshot must show how all participants have removed the remote client from its discovery database.	
+
 
 ### **Documentation**
 
