@@ -29,7 +29,8 @@
 
 #include "HelloWorld.h"
 
-class HelloWorldPublisher {
+class HelloWorldPublisher 
+{
 public:
     HelloWorldPublisher();
     virtual ~HelloWorldPublisher();
@@ -40,7 +41,7 @@ public:
     //!Run for number samples
     void run(uint32_t number, uint32_t sleep);
 private:
-    HelloWorld m_Hello;
+    HelloWorld m_hello;
     eprosima::fastrtps::Participant* mp_participant;
     eprosima::fastrtps::Publisher* mp_publisher;
     bool stop;

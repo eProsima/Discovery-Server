@@ -34,8 +34,9 @@
 using namespace eprosima::fastrtps;
 using namespace eprosima::fastrtps::rtps;
 
-HelloWorldPublisher::HelloWorldPublisher():mp_participant(nullptr),
-mp_publisher(nullptr)
+HelloWorldPublisher::HelloWorldPublisher()
+    : mp_participant(nullptr)
+    , mp_publisher(nullptr)
 {
 
 
@@ -43,8 +44,8 @@ mp_publisher(nullptr)
 
 bool HelloWorldPublisher::init(bool tcp)
 {
-    m_Hello.index(0);
-    m_Hello.message("HelloWorld");
+    m_hello.index(0);
+    m_hello.message("HelloWorld");
 
     RemoteServerAttributes ratt;
     ratt.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
@@ -121,11 +122,12 @@ bool HelloWorldPublisher::init(bool tcp)
 
 HelloWorldPublisher::~HelloWorldPublisher()
 {
-    // TODO Auto-generated destructor stub
     Domain::removeParticipant(mp_participant);
 }
 
-void HelloWorldPublisher::PubListener::onPublicationMatched(Publisher* /*pub*/,MatchingInfo& info)
+void HelloWorldPublisher::PubListener::onPublicationMatched(
+    Publisher* /*pub*/,
+    MatchingInfo& info)
 {
     if(info.status == MATCHED_MATCHING)
     {
@@ -140,7 +142,9 @@ void HelloWorldPublisher::PubListener::onPublicationMatched(Publisher* /*pub*/,M
     }
 }
 
-void HelloWorldPublisher::runThread(uint32_t samples, uint32_t sleep)
+void HelloWorldPublisher::runThread(
+    uint32_t samples,
+    uint32_t sleep)
 {
     if (samples == 0)
     {
@@ -148,7 +152,7 @@ void HelloWorldPublisher::runThread(uint32_t samples, uint32_t sleep)
         {
             if(publish(false))
             {
-                std::cout << "Message: "<<m_Hello.message()<< " with index: "<< m_Hello.index()<< " SENT"<<std::endl;
+                std::cout << "Message: "<<m_hello.message()<< " with index: "<< m_hello.index()<< " SENT"<<std::endl;
             }
             eClock::my_sleep(sleep);
         }
@@ -157,18 +161,22 @@ void HelloWorldPublisher::runThread(uint32_t samples, uint32_t sleep)
     {
         for(uint32_t i = 0;i<samples;++i)
         {
-            if(!publish())
+            if (!publish())
+            {
                 --i;
+            }
             else
             {
-                std::cout << "Message: "<<m_Hello.message()<< " with index: "<< m_Hello.index()<< " SENT"<<std::endl;
+                std::cout << "Message: "<<m_hello.message()<< " with index: "<< m_hello.index()<< " SENT"<<std::endl;
             }
             eClock::my_sleep(sleep);
         }
     }
 }
 
-void HelloWorldPublisher::run(uint32_t samples, uint32_t sleep)
+void HelloWorldPublisher::run(
+    uint32_t samples,
+    uint32_t sleep)
 {
     stop = false;
     std::thread thread(&HelloWorldPublisher::runThread, this, samples, sleep);
@@ -189,8 +197,8 @@ bool HelloWorldPublisher::publish(bool waitForListener)
 {
     if(m_listener.firstConnected || !waitForListener || m_listener.n_matched>0)
     {
-        m_Hello.index(m_Hello.index()+1);
-        mp_publisher->write((void*)&m_Hello);
+        m_hello.index(m_hello.index()+1);
+        mp_publisher->write((void*)&m_hello);
         return true;
     }
     return false;

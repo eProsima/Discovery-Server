@@ -26,8 +26,7 @@
 #include <string>
 #include <ostream>
 
-namespace tinyxml2
-{
+namespace tinyxml2 {
 class XMLElement;
 class XMLDocument;
 }
@@ -43,10 +42,10 @@ struct DI
     typedef std::set<DI>::size_type size_type;
 
     //! enpoint identifier
-    GUID_t _id;
+    GUID_t endpoint_guid;
 
-    DI(const GUID_t& id) : _id(id) {}
-    DI(GUID_t&& id) : _id(std::move(id)) {}
+    DI(const GUID_t& id) : endpoint_guid(id) {}
+    DI(GUID_t&& id) : endpoint_guid(std::move(id)) {}
     DI(const DI&) = default;
 
     DI() = delete;
@@ -73,8 +72,8 @@ struct PDI : public DI
         const std::string& type,
         const std::string& topic)
         : DI(id)
-        , _typeName(type)
-        , _topicName(topic)
+        , type_name(type)
+        , topic_name(topic)
     {
     }
 
@@ -83,8 +82,8 @@ struct PDI : public DI
         std::string&& type,
         std::string&& topic)
         : DI(id)
-        , _typeName(std::move(type))
-        , _topicName(std::move(topic))
+        , type_name(std::move(type))
+        , topic_name(std::move(topic))
     {
     }
 
@@ -95,10 +94,10 @@ struct PDI : public DI
     PDI& operator=(PDI&&) = default;
 
     //!Type name
-    std::string _typeName;
+    std::string type_name;
 
     //!Topic name
-    std::string _topicName;
+    std::string topic_name;
 
     //! comparissons
     bool operator==(const PDI&) const;
@@ -114,8 +113,8 @@ struct SDI : public DI
         const std::string& type,
         const std::string& topic)
         : DI(id)
-        , _typeName(type)
-        , _topicName(topic)
+        , type_name(type)
+        , topic_name(topic)
     {
     }
 
@@ -124,8 +123,8 @@ struct SDI : public DI
         std::string&& type,
         std::string&& topic)
         : DI(id),
-        _typeName(std::move(type)),
-        _topicName(std::move(topic))
+        type_name(std::move(type)),
+        topic_name(std::move(topic))
     {
     }
 
@@ -136,10 +135,10 @@ struct SDI : public DI
     SDI& operator=(SDI&&) = default;
 
     //!Type name
-    std::string _typeName;
+    std::string type_name;
 
     //!Topic name
-    std::string _topicName;
+    std::string topic_name;
 
     //! comparissons
     bool operator==(const SDI&) const;
@@ -154,22 +153,22 @@ struct PtDI : public DI
     typedef std::set<SDI> subscriber_set;
 
     // identity
-    bool _server; // false -> client
-    bool _alive; // false if death already reported but owned endpoints yet to be
-    std::string _name;
+    bool is_server; // false -> client
+    bool is_alive; // false if death already reported but owned endpoints yet to be
+    std::string participant_name;
 
     // local user entities
-    publisher_set _publishers;
-    subscriber_set _subscribers;
+    publisher_set publishers;
+    subscriber_set subscribers;
 
     PtDI(
         const GUID_t& id,
         const std::string& name = std::string(),
         bool server = false)
         : DI(id),
-        _server(server),
-        _alive(true),
-        _name(name)
+        is_server(server),
+        is_alive(true),
+        participant_name(name)
     {
     }
 
@@ -177,9 +176,9 @@ struct PtDI : public DI
         std::string&& name = std::string(),
         bool server = false)
         : DI(id),
-        _server(server),
-        _alive(true),
-        _name(name)
+        is_server(server),
+        is_alive(true),
+        participant_name(name)
     {
     }
 
@@ -215,16 +214,16 @@ struct PtDI : public DI
 
     //! get publishers
     publisher_set& getPublishers() const
-        { return const_cast<publisher_set &>(_publishers); }
+        { return const_cast<publisher_set &>(publishers); }
 
     //! get subscribers
     subscriber_set& getSubscribers() const
-        { return const_cast<subscriber_set&>(_subscribers); }
+        { return const_cast<subscriber_set&>(subscribers); }
 
     void setName(const std::string & name) const 
-        { const_cast<std::string&>(_name) = name; }
+        { const_cast<std::string&>(participant_name) = name; }
     void setServer(bool & s) const 
-        { const_cast<bool &>(_server) = s; }
+        { const_cast<bool &>(is_server) = s; }
 
     //! Returns the number of endpoints owned
     size_type CountEndpoints() const;
@@ -266,7 +265,7 @@ struct Snapshot : public std::set<PtDB>
     // snapshot time
     std::chrono::steady_clock::time_point _time;
     // report test framework that if nobody is discovered it should fail
-    bool _someone; 
+    bool if_someone; 
 
     // time conversions auxiliary
     static std::chrono::system_clock::time_point _sy_ck;
@@ -280,7 +279,7 @@ struct Snapshot : public std::set<PtDB>
         std::chrono::steady_clock::time_point t,
         bool someone = true)
         : _time(t),
-        _someone(someone)
+        if_someone(someone)
     {
     }
 
@@ -290,7 +289,7 @@ struct Snapshot : public std::set<PtDB>
         bool someone = true)
         : _time(t),
         _des(des),
-        _someone(someone)
+        if_someone(someone)
     {
     }
 
@@ -319,8 +318,8 @@ class DI_database
     typedef PtDB::size_type size_type;
 
     // reported discovery info
-    Snapshot _participants; // each participant database info
-    mutable std::mutex _mtx; // atomic database operation
+    Snapshot image; // each participant database info
+    mutable std::mutex database_mutex; // atomic database operation
 
     // AddSubscriber and AddPublisher common implementation
 
@@ -342,13 +341,13 @@ class DI_database
 
 public:
     DI_database()
-        : _participants(std::chrono::steady_clock::now())
+        : image(std::chrono::steady_clock::now())
     {
     }
 
     //! Get Snapshot time
     std::chrono::steady_clock::time_point getTime() const
-        { return _participants._time;  }
+        { return image._time;  }
 
     //! Returns a pointer to the PtDI or null if not found
     std::vector<const PtDI*> FindParticipant(const GUID_t & ptid) const;
@@ -397,8 +396,8 @@ public:
     // Get a copy the current SnapShot
     Snapshot GetState() const
     {
-        std::lock_guard<std::mutex> lock(_mtx);
-        return _participants;
+        std::lock_guard<std::mutex> lock(database_mutex);
+        return image;
     }
 
 };

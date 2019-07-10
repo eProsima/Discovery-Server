@@ -22,7 +22,8 @@
 
 #include <fastrtps/fastrtps_fwd.h>
 
-class HelloWorldServer {
+class HelloWorldServer
+{
 public:
     HelloWorldServer();
     virtual ~HelloWorldServer();

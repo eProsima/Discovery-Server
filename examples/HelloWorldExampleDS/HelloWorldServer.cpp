@@ -29,7 +29,8 @@
 using namespace eprosima::fastrtps;
 using namespace eprosima::fastrtps::rtps;
 
-HelloWorldServer::HelloWorldServer():mp_participant(nullptr)
+HelloWorldServer::HelloWorldServer()
+    : mp_participant(nullptr)
 {
 }
 
@@ -75,8 +76,8 @@ bool HelloWorldServer::init(bool tcp)
     return true;
 }
 
-HelloWorldServer::~HelloWorldServer() {
-    // TODO Auto-generated destructor stub
+HelloWorldServer::~HelloWorldServer() 
+{
     Domain::removeParticipant(mp_participant);
 }
 

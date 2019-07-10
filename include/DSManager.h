@@ -68,32 +68,32 @@ class DSManager : public xmlparser::XMLParser,      // access to parsing protect
     typedef std::vector<Snapshot> snapshots_list;
 
     // synch protection
-    std::recursive_mutex _mtx;
+    std::recursive_mutex management_mutex;
 
     // Participant maps
-    participant_map _servers;
-    participant_map _clients;
+    participant_map servers;
+    participant_map clients;
 
     // endpoints maps
-    subscriber_map _subs;
-    publisher_map _pubs;
+    subscriber_map subscribers;
+    publisher_map publishers;
 
     // server address info
-    serverLocator_map _server_locators;
+    serverLocator_map server_locators;
 
     // Discovery status
-    DI_database _state;
+    DI_database state;
     std::chrono::steady_clock::time_point getTime() const;
 
     // Event list for late joiner creation, destruction and take snapshots
-    event_list _events;
+    event_list events;
 
     // Snapshops container
-    snapshots_list _snapshots;
+    snapshots_list snapshots;
 
-    volatile bool _nocallbacks;      // ongoing participant destruction
-    bool _shutdown;         // close when event processing is finished?
-    bool _prefixvalidation; // allow multiple servers share the same prefix? (only for testing purposes)
+    volatile bool no_callbacks;      // ongoing participant destruction
+    bool auto_shutdown;         // close when event processing is finished?
+    bool enable_prefix_validation; // allow multiple servers share the same prefix? (only for testing purposes)
 
     void loadProfiles(tinyxml2::XMLElement *profiles);
     void loadServer(tinyxml2::XMLElement* server);
@@ -116,10 +116,10 @@ class DSManager : public xmlparser::XMLParser,      // access to parsing protect
     void saveSnapshots(const std::string& file) const;
 
     // type handling
-    type_map _types;
+    type_map loaded_types;
 
     // File where to save snapshots
-    std::string sh_file_;
+    std::string snapshots_output_file;
 
 public:
     DSManager(const std::string& xml_file_path);
@@ -127,7 +127,7 @@ public:
     ~DSManager();
 
     // testing database
-    bool shouldValidate() const { return sh_file_.empty(); }
+    bool shouldValidate() const { return snapshots_output_file.empty(); }
     bool validateAllSnapshots() const;
     bool allKnowEachOther() const;
     static bool allKnowEachOther(const Snapshot& shot);
@@ -181,11 +181,11 @@ public:
     }
 
     // default topics
-    static HelloWorldPubSubType _defaultType;
-    static TopicAttributes _defaultTopic;
+    static HelloWorldPubSubType builtin_defaultType;
+    static TopicAttributes builtin_defaultTopic;
 
     // parsing regex
-    static std::regex _reg4;
+    static std::regex ipv4_regular_expression;
 };
 
 

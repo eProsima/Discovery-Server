@@ -22,36 +22,36 @@ using namespace eprosima::discovery_server;
 // delayed creation of a new participant
 void DPC::operator()(DSManager& man ) /*override*/
 {
-    Participant * p = Domain::createParticipant(_atts, &man);
+    Participant * p = Domain::createParticipant(attributes, &man);
     if (p)
     {
-        (man.*_m)(p); // addServer or addClient
-        _guid = p->getGuid();
+        (man.*participant_creation_function)(p); // addServer or addClient
+        participant_guid = p->getGuid();
         // update the associated DPD
-        if (_pD)
+        if (removal_event)
         {
-            _pD->SetGuid(_guid);
+            removal_event->SetGuid(participant_guid);
         }
 
-        LOG_INFO("New participant called " << _atts.rtps.getName() << " with prefix " << p->getGuid() );
+        LOG_INFO("New participant called " << attributes.rtps.getName() << " with prefix " << p->getGuid() );
     }
     else
     {
-        LOG_ERROR("DSManager couldn't create the participant " << _atts.rtps.prefix  );
+        LOG_ERROR("DSManager couldn't create the participant " << attributes.rtps.prefix  );
     }
 }
 
 // delayed destruction of a new participant
 void DPD::operator()(DSManager& man) /*override*/
 {
-    Participant * p = man.removeParticipant(_id);
+    Participant * p = man.removeParticipant(participant_id);
     if (p)
     {
         std::string name = p->getAttributes().rtps.getName();
 
         Domain::removeParticipant(p);
 
-        LOG_INFO("Removed participant called " << name << " with prefix " << _id );
+        LOG_INFO("Removed participant called " << name << " with prefix " << participant_id );
     }
 }
 
@@ -59,24 +59,24 @@ void DPD::SetGuid(const GUID_t& id)
 {
     if (id != GUID_t::unknown())
     {
-        _id = id; // update
+        participant_id = id; // update
     }
 }
 
 // static LJD_atts pointer to member
-const std::string LJD_traits<Publisher>::_endpoint_type("Publisher");
-const LJD_traits<Publisher>::addEndpoint LJD_traits<Publisher>::_ae = &DSManager::addPublisher;
-const LJD_traits<Publisher>::getEndpoint LJD_traits<Publisher>::_ge = &DSManager::removePublisher;
-const LJD_traits<Publisher>::createEndpoint LJD_traits<Publisher>::_ce = &Domain::createPublisher;
-const LJD_traits<Publisher>::removeEndpoint LJD_traits<Publisher>::_re = &Domain::removePublisher;
+const std::string LJD_traits<Publisher>::endpoint_type("Publisher");
+const LJD_traits<Publisher>::AddEndpoint LJD_traits<Publisher>::add_endpoint_function = &DSManager::addPublisher;
+const LJD_traits<Publisher>::GetEndpoint LJD_traits<Publisher>::retrieve_endpoint_function = &DSManager::removePublisher;
+const LJD_traits<Publisher>::CreateEndpoint LJD_traits<Publisher>::create_endpoint_function = &Domain::createPublisher;
+const LJD_traits<Publisher>::removeEndpoint LJD_traits<Publisher>::remove_endpoint_function = &Domain::removePublisher;
 
-const std::string LJD_traits<Subscriber>::_endpoint_type("Subscriber");
-const LJD_traits<Subscriber>::addEndpoint LJD_traits<Subscriber>::_ae = &DSManager::addSubscriber;
-const LJD_traits<Subscriber>::getEndpoint LJD_traits<Subscriber>::_ge = &DSManager::removeSubscriber;
-const LJD_traits<Subscriber>::createEndpoint LJD_traits<Subscriber>::_ce = &Domain::createSubscriber;
-const LJD_traits<Subscriber>::removeEndpoint LJD_traits<Subscriber>::_re = &Domain::removeSubscriber;
+const std::string LJD_traits<Subscriber>::endpoint_type("Subscriber");
+const LJD_traits<Subscriber>::AddEndpoint LJD_traits<Subscriber>::add_endpoint_function = &DSManager::addSubscriber;
+const LJD_traits<Subscriber>::GetEndpoint LJD_traits<Subscriber>::retrieve_endpoint_function = &DSManager::removeSubscriber;
+const LJD_traits<Subscriber>::CreateEndpoint LJD_traits<Subscriber>::create_endpoint_function = &Domain::createSubscriber;
+const LJD_traits<Subscriber>::removeEndpoint LJD_traits<Subscriber>::remove_endpoint_function = &Domain::removeSubscriber;
 
 void DS::operator()(DSManager & man) /*override*/
 {
-    man.takeSnapshot(std::chrono::steady_clock::now(), _desc, _someone);
+    man.takeSnapshot(std::chrono::steady_clock::now(), description, if_someone);
 }

@@ -42,13 +42,13 @@ class DPD;
 class LJD // Late Joiner Data basic class
 {
     // When the late joiner should be added
-    std::chrono::steady_clock::time_point _time;
+    std::chrono::steady_clock::time_point time;
 
 public:
 
     LJD(
         const std::chrono::steady_clock::time_point& tp)
-        : _time(tp)
+        : time(tp)
     {
     }
 
@@ -64,33 +64,33 @@ public:
     virtual void operator()(DSManager& ) = 0;
 
     bool operator<(const LJD & event) const
-        { return _time < event._time; }
+        { return time < event.time; }
 
     void Wait() const
-        { std::this_thread::sleep_until(_time); }
+        { std::this_thread::sleep_until(time); }
 };
 
 class DPC : public LJD // Delayed Participant Creation
 {
-    typedef void (DSManager::* addPart)(fastrtps::Participant *);
+    typedef void (DSManager::* AddParticipant)(fastrtps::Participant *);
 
-    ParticipantAttributes _atts;
-    addPart _m;
-    DPD * _pD;
+    ParticipantAttributes attributes;
+    AddParticipant participant_creation_function;
+    DPD * removal_event;
 
 public:
 
-    GUID_t _guid; // participant GUID_t
+    GUID_t participant_guid; // participant GUID_t
 
     DPC(
             const std::chrono::steady_clock::time_point tp,
             fastrtps::ParticipantAttributes&& atts,
-            addPart m,
+            AddParticipant m,
             DPD* pD = nullptr)
         : LJD(tp)
-        , _atts(std::move(atts))
-        , _m(m)
-        , _pD(pD) {}
+        , attributes(std::move(atts))
+        , participant_creation_function(m)
+        , removal_event(pD) {}
 
     ~DPC() override {}
 
@@ -105,7 +105,7 @@ public:
 
 class DPD : public LJD // Delayed Participant Destruction
 {
-    GUID_t _id; // participant to remove
+    GUID_t participant_id; // participant to remove
 
 public:
 
@@ -113,7 +113,7 @@ public:
         const std::chrono::steady_clock::time_point tp,
         GUID_t & id)
         : LJD(tp)
-        , _id(id) {}
+        , participant_id(id) {}
 
     ~DPD() override {}
 
@@ -135,31 +135,31 @@ template<class PS> struct LJD_traits
 template<> struct LJD_traits<Publisher>
 {
     typedef PublisherAttributes Attributes;
-    typedef void (DSManager::* addEndpoint)(Publisher *);
-    typedef Publisher * (DSManager::* getEndpoint)(GUID_t &);
-    typedef Publisher * (*createEndpoint)(Participant* part, const PublisherAttributes&, PublisherListener*);
+    typedef void (DSManager::* AddEndpoint)(Publisher *);
+    typedef Publisher * (DSManager::* GetEndpoint)(GUID_t &);
+    typedef Publisher * (*CreateEndpoint)(Participant* part, const PublisherAttributes&, PublisherListener*);
     typedef bool(*removeEndpoint)(Publisher*);
 
-    static const std::string _endpoint_type;
-    static const addEndpoint _ae;
-    static const getEndpoint _ge;
-    static const createEndpoint _ce;
-    static const removeEndpoint _re;
+    static const std::string endpoint_type;
+    static const AddEndpoint add_endpoint_function;
+    static const GetEndpoint retrieve_endpoint_function;
+    static const CreateEndpoint create_endpoint_function;
+    static const removeEndpoint remove_endpoint_function;
 };
 
 template<> struct LJD_traits<Subscriber>
 {
     typedef SubscriberAttributes Attributes;
-    typedef void (DSManager::* addEndpoint)(Subscriber *);
-    typedef Subscriber * (DSManager::* getEndpoint)(GUID_t &);
-    typedef Subscriber * (*createEndpoint)(Participant* part, const SubscriberAttributes&, SubscriberListener*);
+    typedef void (DSManager::* AddEndpoint)(Subscriber *);
+    typedef Subscriber * (DSManager::* GetEndpoint)(GUID_t &);
+    typedef Subscriber * (*CreateEndpoint)(Participant* part, const SubscriberAttributes&, SubscriberListener*);
     typedef bool(*removeEndpoint)(Subscriber*);
 
-    static const std::string _endpoint_type;
-    static const addEndpoint _ae;
-    static const getEndpoint _ge;
-    static const createEndpoint _ce;
-    static const removeEndpoint _re;
+    static const std::string endpoint_type;
+    static const AddEndpoint add_endpoint_function;
+    static const GetEndpoint retrieve_endpoint_function;
+    static const CreateEndpoint create_endpoint_function;
+    static const removeEndpoint remove_endpoint_function;
 };
 
 template<class PS> class DED;
@@ -168,10 +168,10 @@ template<class PS>
 class DEC : public LJD // Delayed Enpoint Creation
 {
     typedef typename LJD_traits<PS>::Attributes Attributes;
-    Attributes * _atts;
-    GUID_t _pid;
-    DED<PS> * _pD; // destruction object
-    DPC * _part; // associated participant event
+    Attributes * participant_attributes;
+    GUID_t participant_guid;
+    DED<PS> * linked_destruction_event; 
+    DPC * owner_event; // associated participant event
 
 public:
     DEC(
@@ -181,10 +181,10 @@ public:
         DED<PS> * p = nullptr,
         DPC * part = nullptr)
         : LJD(tp)
-        , _atts(atts)
-        , _pid(pid)
-        , _pD(p)
-        , _part(part)
+        , participant_attributes(atts)
+        , participant_guid(pid)
+        , linked_destruction_event(p)
+        , owner_event(part)
     {
     }
 
@@ -203,7 +203,7 @@ public:
 template<class PS>
 class DED : public LJD // Delayed Endpoint Destruction
 {
-    GUID_t _id; // endpoint to remove
+    GUID_t endpoint_guid; // endpoint to remove
 
 public:
 
@@ -211,7 +211,7 @@ public:
             const std::chrono::steady_clock::time_point& tp,
             GUID_t id = GUID_t::unknown())
         : LJD(tp)
-        , _id(id) 
+        , endpoint_guid(id) 
     {}
 
     ~DED() override {}
@@ -229,8 +229,8 @@ public:
 
 class DS : public LJD // Delayed Snapshot
 {
-    std::string _desc;
-    bool _someone;
+    std::string description;
+    bool if_someone;
 
 public:
     DS(
@@ -238,8 +238,8 @@ public:
         const std::string& desc,
         bool someone = true)
         : LJD(tp)
-        , _desc(desc)
-        , _someone(true)
+        , description(desc)
+        , if_someone(true)
     {
     }
 
@@ -259,37 +259,37 @@ template<class PS>
 void DEC<PS>::operator()(DSManager & man) /*override*/
 {
     // Retrieve the corresponding participant
-    Participant* part = man.getParticipant(_pid);
+    Participant* part = man.getParticipant(participant_guid);
 
-    if (!part && _part)
+    if (part == nullptr && owner_event != nullptr)
     {
-        part = man.getParticipant(_part->_guid);
+        part = man.getParticipant(owner_event->participant_guid);
     }
 
     if (!part)
     {   // invalid participant
-        LOG_ERROR(LJD_traits<PS>::_endpoint_type << " cannot be created because no participant assign.");
+        LOG_ERROR(LJD_traits<PS>::endpoint_type << " cannot be created because no participant assign.");
         return;
     }
 
     // First we must register the type in the associated participant
-    if (_atts->topic.getTopicName() == "UNDEF")
+    if (participant_attributes->topic.getTopicName() == "UNDEF")
     {
         // fill in default topic
-        _atts->topic = DSManager::_defaultTopic;
+        participant_attributes->topic = DSManager::builtin_defaultTopic;
 
         // assure the participant has default type registered
         TopicDataType* pT = nullptr;
-        if (!Domain::getRegisteredType(part, _atts->topic.topicDataType.c_str(), &pT))
+        if (!Domain::getRegisteredType(part, participant_attributes->topic.topicDataType.c_str(), &pT))
         {
-            Domain::registerType(part, &DSManager::_defaultType);
+            Domain::registerType(part, &DSManager::builtin_defaultType);
         }
     }
     else
     {
         // assure the participant has the type registered
         TopicDataType* pT = nullptr;
-        std::string type_name = _atts->topic.topicDataType.to_string();
+        std::string type_name = participant_attributes->topic.topicDataType.to_string();
         if (!Domain::getRegisteredType(part, type_name.c_str(), &pT))
         {
             eprosima::fastrtps::types::DynamicPubSubType* pDt = man.setType(type_name);
@@ -304,19 +304,19 @@ void DEC<PS>::operator()(DSManager & man) /*override*/
     }
 
     // Now we create the endpoint: Domain::createSubscriber or createPublisher
-    PS * pEp = (*LJD_traits<PS>::_ce)(part, *_atts, nullptr);
+    PS * pEp = (*LJD_traits<PS>::create_endpoint_function)(part, *participant_attributes, nullptr);
 
     if (pEp)
     {
         // update the associated DED if exists
-        if (_pD)
+        if (linked_destruction_event)
         {
-            _pD->SetGuid(pEp->getGuid());
+            linked_destruction_event->SetGuid(pEp->getGuid());
         }
         // and we update the state: DSManager::addPublisher or DSManager::addSubscriber
-        (man.*LJD_traits<PS>::_ae)(pEp);
+        (man.*LJD_traits<PS>::add_endpoint_function)(pEp);
 
-        LOG_INFO("New " << LJD_traits<PS>::_endpoint_type << " created on participant " << part->getGuid() )
+        LOG_INFO("New " << LJD_traits<PS>::endpoint_type << " created on participant " << part->getGuid() )
     }
 
 }
@@ -325,7 +325,7 @@ template<class PS>
 void DED<PS>::operator()(DSManager & man) /*override*/
 {
     // now we get the endpoint: DSManager::removePublisher or DSManager::removeSubscriber
-    PS * p = (man.*LJD_traits<PS>::_ge)(_id);
+    PS * p = (man.*LJD_traits<PS>::retrieve_endpoint_function)(endpoint_guid);
 
     if (p)
     {
@@ -333,9 +333,9 @@ void DED<PS>::operator()(DSManager & man) /*override*/
         (void)guid;
 
         // and we removed the endpoint: Domain::removePublisher or Domain::removeSubscriber
-        (*LJD_traits<PS>::_re)(p);
+        (*LJD_traits<PS>::remove_endpoint_function)(p);
 
-        LOG_INFO(LJD_traits<PS>::_endpoint_type << " called " << guid  << " destroyed ")
+        LOG_INFO(LJD_traits<PS>::endpoint_type << " called " << guid  << " destroyed ")
     }
 }
 
@@ -343,9 +343,9 @@ void DED<PS>::operator()(DSManager & man) /*override*/
 template<class PS>
 void DED<PS>::SetGuid(const GUID_t& id)
 {
-    if (_id == GUID_t::unknown())
+    if (endpoint_guid == GUID_t::unknown())
     {
-        _id = id; // update
+        endpoint_guid = id; // update
     }
 }
 
@@ -353,11 +353,11 @@ template<class PS>
 DEC<PS>& DEC<PS>::operator=(DEC<PS>&& d)
 {
     LJD::operator=(d);
-    _pid = std::move(d._pid);
-    _pD = d._pD;
-    _atts = d._atts;
-    _part = d._part;
-    d._atts = nullptr;
+    participant_guid = std::move(d.participant_guid);
+    linked_destruction_event = d.linked_destruction_event;
+    participant_attributes = d.participant_attributes;
+    owner_event = d.owner_event;
+    d.participant_attributes = nullptr;
 
     return *this;
 }
@@ -366,19 +366,19 @@ template<class PS>
 DEC<PS>::DEC(DEC<PS>&& d)
     : LJD(std::move(d))
 {
-    _pid = std::move(d._pid);
-    _pD = d._pD;
-    _atts = d._atts;
-    _part = d._part;
-    d._atts = nullptr;
+    participant_guid = std::move(d.participant_guid);
+    linked_destruction_event = d.linked_destruction_event;
+    participant_attributes = d.participant_attributes;
+    owner_event = d.owner_event;
+    d.participant_attributes = nullptr;
 }
 
 template<class PS>
 DEC<PS>::~DEC() /*override*/
 {
-    if (_atts)
+    if (participant_attributes)
     {
-        delete _atts;
+        delete participant_attributes;
     }
 }
 

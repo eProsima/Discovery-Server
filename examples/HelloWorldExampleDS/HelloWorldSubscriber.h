@@ -32,7 +32,8 @@
 
 #include "HelloWorld.h"
 
-class HelloWorldSubscriber {
+class HelloWorldSubscriber
+{
 public:
     HelloWorldSubscriber();
     virtual ~HelloWorldSubscriber();
@@ -53,7 +54,7 @@ public:
         ~SubListener() {};
         void onSubscriptionMatched(eprosima::fastrtps::Subscriber* sub, eprosima::fastrtps::rtps::MatchingInfo& info);
         void onNewDataMessage(eprosima::fastrtps::Subscriber* sub);
-        HelloWorld m_Hello;
+        HelloWorld m_hello;
         eprosima::fastrtps::SampleInfo_t m_info;
         int n_matched;
         uint32_t n_samples;

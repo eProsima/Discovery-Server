@@ -234,7 +234,7 @@ int main(int argc, char** argv)
             break;
         }
     }
+    Log::Flush();
     Domain::stopAll();
-    Log::Reset();
     return 0;
 }

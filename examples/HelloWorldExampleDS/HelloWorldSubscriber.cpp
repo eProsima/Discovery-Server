@@ -33,8 +33,9 @@
 using namespace eprosima::fastrtps;
 using namespace eprosima::fastrtps::rtps;
 
-HelloWorldSubscriber::HelloWorldSubscriber():mp_participant(nullptr),
-mp_subscriber(nullptr)
+HelloWorldSubscriber::HelloWorldSubscriber()
+    : mp_participant(nullptr)
+    , mp_subscriber(nullptr)
 {
 }
 
@@ -112,12 +113,14 @@ bool HelloWorldSubscriber::init(bool tcp)
     return true;
 }
 
-HelloWorldSubscriber::~HelloWorldSubscriber() {
-    // TODO Auto-generated destructor stub
+HelloWorldSubscriber::~HelloWorldSubscriber() 
+{
     Domain::removeParticipant(mp_participant);
 }
 
-void HelloWorldSubscriber::SubListener::onSubscriptionMatched(Subscriber* /*sub*/,MatchingInfo& info)
+void HelloWorldSubscriber::SubListener::onSubscriptionMatched(
+    Subscriber* /*sub*/,
+    MatchingInfo& info)
 {
     if(info.status == MATCHED_MATCHING)
     {
@@ -133,13 +136,13 @@ void HelloWorldSubscriber::SubListener::onSubscriptionMatched(Subscriber* /*sub*
 
 void HelloWorldSubscriber::SubListener::onNewDataMessage(Subscriber* sub)
 {
-    if(sub->takeNextData((void*)&m_Hello, &m_info))
+    if(sub->takeNextData((void*)&m_hello, &m_info))
     {
         if(m_info.sampleKind == ALIVE)
         {
             this->n_samples++;
             // Print your structure data here.
-            std::cout << "Message "<<m_Hello.message()<< " "<< m_Hello.index()<< " RECEIVED"<<std::endl;
+            std::cout << "Message "<<m_hello.message()<< " "<< m_hello.index()<< " RECEIVED"<<std::endl;
         }
     }
 
@@ -154,6 +157,8 @@ void HelloWorldSubscriber::run()
 void HelloWorldSubscriber::run(uint32_t number)
 {
     std::cout << "Subscriber running until "<< number << "samples have been received"<<std::endl;
-    while(number > this->m_listener.n_samples)
+    while (number > this->m_listener.n_samples)
+    {
         eClock::my_sleep(500);
+    }
 }

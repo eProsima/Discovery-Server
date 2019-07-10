@@ -33,60 +33,60 @@ using namespace eprosima::discovery_server;
 
 bool DI::operator==(const GUID_t& guid) const
 {
-    return _id == guid;
+    return endpoint_guid == guid;
 }
 
 bool DI::operator!=(const GUID_t& guid) const
 {
-    return _id != guid;
+    return endpoint_guid != guid;
 }
 
 bool DI::operator==(const DI& d) const
 {
-    return _id == d._id;
+    return endpoint_guid == d.endpoint_guid;
 }
 
 bool DI::operator!=(const DI& d) const
 {
-    return _id != d._id;
+    return endpoint_guid != d.endpoint_guid;
 }
 
 bool DI::operator<(const GUID_t& guid) const
 {
-    return _id < guid;
+    return endpoint_guid < guid;
 }
 
 bool DI::operator<(const DI& d) const
 {
-    return _id < d._id;
+    return endpoint_guid < d.endpoint_guid;
 }
 
 // publiser discovery item operations
 bool PDI::operator==(const PDI& p) const
 {
     return DI::operator==(p)
-        && _typeName == p._typeName
-        && _topicName == p._topicName;
+        && type_name == p.type_name
+        && topic_name == p.topic_name;
 }
 
 std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PDI& di)
 {
-    return os << "Publisher " << di._id << " TypeName: " << di._typeName
-        << " TopicName: " << di._topicName;
+    return os << "Publisher " << di.endpoint_guid << " TypeName: " << di.type_name
+        << " TopicName: " << di.topic_name;
 }
 
 // subscriber discovery item operations
 bool SDI::operator==(const SDI& p) const
 {
     return DI::operator==(p)
-        && _typeName == p._typeName
-        && _topicName == p._topicName;
+        && type_name == p.type_name
+        && topic_name == p.topic_name;
 }
 
 std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const SDI& di)
 {
-    return os << "Subscriber " << di._id << " TypeName: " << di._typeName
-        << " TopicName: " << di._topicName;
+    return os << "Subscriber " << di.endpoint_guid << " TypeName: " << di.type_name
+        << " TopicName: " << di.topic_name;
 }
 
 // participant discovery item operations
@@ -94,54 +94,54 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const SDI
 bool PtDI::operator==(const PtDI& p) const
 {
     return DI::operator==(p)
-        // && this->_alive == p._alive // own participant may not be aware
-        // && this->_server == p._server // only in-process participants may be aware of this
-        // && this->_name == p._name // own participant may not be aware
-        && this->_publishers == p._publishers
-        && this->_subscribers == p._subscribers;
+        // && this->is_alive == p.is_alive // own participant may not be aware
+        // && this->is_server == p.is_server // only in-process participants may be aware of this
+        // && this->participant_name == p.participant_name // own participant may not be aware
+        && this->publishers == p.publishers
+        && this->subscribers == p.subscribers;
 }
 
 bool PtDI::operator!=(const PtDI& p) const
 {
     return DI::operator!=(p)
-        // || this->_alive != p._alive // own participant may not be aware
-        // || this->_server != p._server // only in-process participants may be aware of this
-        // || this->_name != p._name // own participant may not be aware
-        || this->_publishers != p._publishers
-        || this->_subscribers != p._subscribers;
+        // || this->is_alive != p.is_alive // own participant may not be aware
+        // || this->is_server != p.is_server // only in-process participants may be aware of this
+        // || this->participant_name != p.participant_name // own participant may not be aware
+        || this->publishers != p.publishers
+        || this->subscribers != p.subscribers;
 }
 
 std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtDI& di)
 {
     os << "\t Participant ";
 
-    if (!di._name.empty())
+    if (!di.participant_name.empty())
     {
-        os << di._name << ' ';
+        os << di.participant_name << ' ';
     }
 
-    os << di._id;
+    os << di.endpoint_guid;
 
     if ( di.CountEndpoints() > 0 )
     {
         os << " has:" << std::endl;
     }
 
-    if (di._publishers.size())
+    if (di.publishers.size())
     {
-        os << "\t\t" << di._publishers.size() << " publishers:" << std::endl;
+        os << "\t\t" << di.publishers.size() << " publishers:" << std::endl;
 
-        for ( const PDI & pdi : di._publishers )
+        for ( const PDI & pdi : di.publishers )
         {
             os << "\t\t\t" << pdi << std::endl;
         }
     }
 
-    if (di._subscribers.size())
+    if (di.subscribers.size())
     {
-        os << "\t\t" << di._subscribers.size() << " subscribers:" << std::endl;
+        os << "\t\t" << di.subscribers.size() << " subscribers:" << std::endl;
 
-        for (const SDI & sdi : di._subscribers)
+        for (const SDI & sdi : di.subscribers)
         {
             os << "\t\t\t" << sdi << std::endl;
         }
@@ -153,13 +153,13 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtD
 bool PtDI::operator[](const PDI& p) const
 {
     // search the list
-    return _publishers.end() != _publishers.find(p);
+    return publishers.end() != publishers.find(p);
 }
 
 bool PtDI::operator[](const SDI& p) const
 {
     // search the list
-    return _subscribers.end() != _subscribers.find(p);
+    return subscribers.end() != subscribers.find(p);
 }
 
 void PtDI::acknowledge(bool alive) const
@@ -167,17 +167,17 @@ void PtDI::acknowledge(bool alive) const
     // STL makes iterator const to prevent that any key changing unsorts the container
     // so we introduce this method to avoid constant ugly const_cast use
     PtDI & part = const_cast<PtDI&>(*this);
-    part._alive = alive;
+    part.is_alive = alive;
 }
 
 PtDI::size_type PtDI::CountEndpoints() const
 {
-    return  _publishers.size() + _subscribers.size();
+    return  publishers.size() + subscribers.size();
 }
 
 std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtDB& db)
 {
-    os << "Participant " << db._id << " discovered: " << std::endl;
+    os << "Participant " << db.endpoint_guid << " discovered: " << std::endl;
 
     for (const PtDI & pt : db)
     {
@@ -203,12 +203,12 @@ std::time_t Snapshot::getSystemTime() const
 // livetime of the return objects is not guaranteed, do not store
 std::vector<const PtDI*> DI_database::FindParticipant(const GUID_t& ptid) const
 {
-    std::lock_guard<std::mutex> lock(_mtx);
+    std::lock_guard<std::mutex> lock(database_mutex);
 
     std::vector<const PtDI*> v;
 
     // traverse the map of participants searching for one particular specific info
-    for (Snapshot::const_iterator pit = _participants.cbegin(); pit != _participants.cend(); ++pit)
+    for (Snapshot::const_iterator pit = image.cbegin(); pit != image.cend(); ++pit)
     {
         const PtDB & _database = *pit;
         auto  it = std::lower_bound(_database.cbegin(), _database.cend(), ptid);
@@ -228,9 +228,9 @@ bool DI_database::AddParticipant(
     const std::string& name,
     bool server/* = false*/)
 {
-    std::lock_guard<std::mutex> lock(_mtx);
+    std::lock_guard<std::mutex> lock(database_mutex);
 
-    PtDB & _database = _participants[spokesman];
+    PtDB & _database = image[spokesman];
     PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
     if (it == _database.end() || *it != ptid)
@@ -239,14 +239,14 @@ bool DI_database::AddParticipant(
     }
 
     // already there, assert liveliness
-    if (!it->_alive)
+    if (!it->is_alive)
     {   // update the zombie
         it->setName(name);
         it->acknowledge(true);
         it->setServer(server);
     }
 
-    assert(it->_server == server);
+    assert(it->is_server == server);
 
     return true;
 
@@ -254,18 +254,18 @@ bool DI_database::AddParticipant(
 
 bool DI_database::RemoveParticipant(const GUID_t& deceased)
 {
-    std::lock_guard<std::mutex> lock(_mtx);
+    std::lock_guard<std::mutex> lock(database_mutex);
 
-    return _participants.erase(deceased) != 0;
+    return image.erase(deceased) != 0;
 }
 
 bool DI_database::RemoveParticipant(
     const GUID_t& spokesman,
     const GUID_t& ptid)
 {
-    std::lock_guard<std::mutex> lock(_mtx);
+    std::lock_guard<std::mutex> lock(database_mutex);
 
-    PtDB & _database = _participants[spokesman];
+    PtDB & _database = image[spokesman];
     PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(),ptid);
 
     if (it == _database.end() || *it != ptid)
@@ -297,9 +297,9 @@ bool DI_database::AddEndPoint(
     const std::string& _typename,
     const std::string& topicname)
 {
-    std::lock_guard<std::mutex> lock(_mtx);
+    std::lock_guard<std::mutex> lock(database_mutex);
 
-    PtDB & _database = _participants[spokesman];
+    PtDB & _database = image[spokesman];
     PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
     if (it == _database.end() || *it != ptid )
@@ -325,8 +325,8 @@ bool DI_database::AddEndPoint(
         sit = cont.emplace_hint(sit, id, _typename, topicname);
     }
 
-    assert(_typename == sit->_typeName);
-    assert(topicname == sit->_topicName);
+    assert(_typename == sit->type_name);
+    assert(topicname == sit->topic_name);
 
     return true;
 }
@@ -338,9 +338,9 @@ bool DI_database::RemoveEndPoint(
     const GUID_t& ptid,
     const GUID_t& id)
 {
-    std::lock_guard<std::mutex> lock(_mtx);
+    std::lock_guard<std::mutex> lock(database_mutex);
 
-    PtDB & _database = _participants[spokesman];
+    PtDB & _database = image[spokesman];
     PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
     if (it == _database.end() || *it != ptid)
@@ -360,7 +360,7 @@ bool DI_database::RemoveEndPoint(
 
     cont.erase(sit);
 
-    if (it->CountEndpoints() == 0 && !it->_alive)
+    if (it->CountEndpoints() == 0 && !it->is_alive)
     {
         // remove participant if zombie
         _database.erase(it);
@@ -408,9 +408,9 @@ bool DI_database::RemovePublisher(
 
 DI_database::size_type DI_database::CountParticipants(const GUID_t& spokesman) const
 {
-    std::lock_guard<std::mutex> lock(_mtx);
+    std::lock_guard<std::mutex> lock(database_mutex);
 
-    const PtDB* p = _participants[spokesman];
+    const PtDB* p = image[spokesman];
 
     if (p != nullptr)
     {
@@ -422,9 +422,9 @@ DI_database::size_type DI_database::CountParticipants(const GUID_t& spokesman) c
 
 DI_database::size_type DI_database::CountSubscribers(const GUID_t& spokesman) const
 {
-    std::lock_guard<std::mutex> lock(_mtx);
+    std::lock_guard<std::mutex> lock(database_mutex);
 
-    const PtDB* p = _participants[spokesman];
+    const PtDB* p = image[spokesman];
 
     if (p != nullptr)
     {
@@ -432,7 +432,7 @@ DI_database::size_type DI_database::CountSubscribers(const GUID_t& spokesman) co
 
         for (const PtDI& part : *p)
         {
-            count += part._subscribers.size();
+            count += part.subscribers.size();
         }
 
         return count;
@@ -443,9 +443,9 @@ DI_database::size_type DI_database::CountSubscribers(const GUID_t& spokesman) co
 
 DI_database::size_type DI_database::CountPublishers(const GUID_t& spokesman) const
 {
-    std::lock_guard<std::mutex> lock(_mtx);
+    std::lock_guard<std::mutex> lock(database_mutex);
 
-    const PtDB* p = _participants[spokesman];
+    const PtDB* p = image[spokesman];
 
     if (p != nullptr)
     {
@@ -453,7 +453,7 @@ DI_database::size_type DI_database::CountPublishers(const GUID_t& spokesman) con
 
         for (const PtDI& part : *p)
         {
-            count += part._publishers.size();
+            count += part.publishers.size();
         }
 
         return count;
@@ -466,9 +466,9 @@ DI_database::size_type DI_database::CountSubscribers(
     const GUID_t& spokesman,
     const GUID_t& ptid) const
 {
-    std::lock_guard<std::mutex> lock(_mtx);
+    std::lock_guard<std::mutex> lock(database_mutex);
 
-    const PtDB* p = _participants[spokesman];
+    const PtDB* p = image[spokesman];
 
     if (p != nullptr)
     {
@@ -481,7 +481,7 @@ DI_database::size_type DI_database::CountSubscribers(
             return 0;
         }
 
-        return it->_subscribers.size();
+        return it->subscribers.size();
     }
 
     return 0;
@@ -491,9 +491,9 @@ DI_database::size_type DI_database::CountPublishers(
     const GUID_t& spokesman,
     const GUID_t& ptid) const
 {
-    std::lock_guard<std::mutex> lock(_mtx);
+    std::lock_guard<std::mutex> lock(database_mutex);
 
-    const PtDB* p = _participants[spokesman];
+    const PtDB* p = image[spokesman];
 
     if (p != nullptr)
     {
@@ -506,7 +506,7 @@ DI_database::size_type DI_database::CountPublishers(
             return 0;
         }
 
-        return it->_publishers.size();
+        return it->publishers.size();
     }
 
     return 0;
@@ -529,7 +529,7 @@ bool eprosima::discovery_server::operator==(const PtDB& l,const PtDB& r)
             // finish simultaneously or differ only in
             // each other discovery data
             return (rit == r.end()
-                || ((rit->_id == l._id || rit->_id == r._id) && r.end() == ++rit));
+                || ((rit->endpoint_guid == l.endpoint_guid || rit->endpoint_guid == r.endpoint_guid) && r.end() == ++rit));
         }
 
         if (rit == r.end())
@@ -537,11 +537,11 @@ bool eprosima::discovery_server::operator==(const PtDB& l,const PtDB& r)
             // finish simultaneously or differ only in
             // each other discovery data
             return (lit == l.end()
-                || ((lit->_id == r._id || lit->_id == l._id) && l.end() == ++lit));
+                || ((lit->endpoint_guid == r.endpoint_guid || lit->endpoint_guid == l.endpoint_guid) && l.end() == ++lit));
         }
 
         // comparing elements
-        if (lit->_id == rit->_id)
+        if (lit->endpoint_guid == rit->endpoint_guid)
         {
             // check members
             if (*lit != *rit) 
@@ -555,12 +555,12 @@ bool eprosima::discovery_server::operator==(const PtDB& l,const PtDB& r)
         {   // check if our own discovery data is interfering
             go = false;
 
-            if (lit++->_id == r._id)
+            if (lit++->endpoint_guid == r.endpoint_guid)
             {
                 go = true; // sweep over
             }
 
-            if (rit++->_id == l._id)
+            if (rit++->endpoint_guid == l.endpoint_guid)
             {
                 go = true; // sweep over
             }
@@ -611,7 +611,7 @@ void Snapshot::to_xml(
     //pTimestamp->SetText(this->_time.time_since_epoch().count());
     //pRoot->InsertEndChild(pTimestamp);
     pRoot->SetAttribute(s_sTimestamp.c_str(), this->_time.time_since_epoch().count());
-    pRoot->SetAttribute(s_sSomeone.c_str(), _someone);
+    pRoot->SetAttribute(s_sSomeone.c_str(), if_someone);
 
     XMLElement* pDescription = xmlDoc.NewElement(s_sDescription.c_str());
     pDescription->SetText(this->_des.c_str());
@@ -622,12 +622,12 @@ void Snapshot::to_xml(
         XMLElement* pPtdb = xmlDoc.NewElement(s_sPtDB.c_str());
         {
             std::stringstream sstream;
-            sstream << ptdb._id.guidPrefix;
+            sstream << ptdb.endpoint_guid.guidPrefix;
             pPtdb->SetAttribute(s_sGUID_prefix.c_str(), sstream.str().c_str());
         }
         {
             std::stringstream sstream;
-            sstream << ptdb._id.entityId;
+            sstream << ptdb.endpoint_guid.entityId;
             pPtdb->SetAttribute(s_sGUID_entity.c_str(), sstream.str().c_str());
         }
 
@@ -636,50 +636,50 @@ void Snapshot::to_xml(
             XMLElement* pPtdi = xmlDoc.NewElement(s_sPtDI.c_str());
             {
                 std::stringstream sstream;
-                sstream << ptdi._id.guidPrefix;
+                sstream << ptdi.endpoint_guid.guidPrefix;
                 pPtdi->SetAttribute(s_sGUID_prefix.c_str(),sstream.str().c_str());
             }
             {
                 std::stringstream sstream;
-                sstream << ptdi._id.entityId;
+                sstream << ptdi.endpoint_guid.entityId;
                 pPtdi->SetAttribute(s_sGUID_entity.c_str(),sstream.str().c_str());
             }
 
-            pPtdi->SetAttribute(s_sServer.c_str(), ptdi._server);
-            pPtdi->SetAttribute(s_sAlive.c_str(), ptdi._alive);
-            pPtdi->SetAttribute(s_sName.c_str(), ptdi._name.c_str());
+            pPtdi->SetAttribute(s_sServer.c_str(), ptdi.is_server);
+            pPtdi->SetAttribute(s_sAlive.c_str(), ptdi.is_alive);
+            pPtdi->SetAttribute(s_sName.c_str(), ptdi.participant_name.c_str());
 
-            for (const SDI& sub : ptdi._subscribers)
+            for (const SDI& sub : ptdi.subscribers)
             {
                 XMLElement* pSub = xmlDoc.NewElement(s_sSubscriber.c_str());
-                pSub->SetAttribute(s_sType.c_str(), sub._typeName.c_str());
-                pSub->SetAttribute(s_sTopic.c_str(), sub._topicName.c_str());
+                pSub->SetAttribute(s_sType.c_str(), sub.type_name.c_str());
+                pSub->SetAttribute(s_sTopic.c_str(), sub.topic_name.c_str());
                 {
                     std::stringstream sstream;
-                    sstream << sub._id.guidPrefix;
+                    sstream << sub.endpoint_guid.guidPrefix;
                     pSub->SetAttribute(s_sGUID_prefix.c_str(),sstream.str().c_str());
                 }
                 {
                     std::stringstream sstream;
-                    sstream << sub._id.entityId;
+                    sstream << sub.endpoint_guid.entityId;
                     pSub->SetAttribute(s_sGUID_entity.c_str(),sstream.str().c_str());
                 }
                 pPtdi->InsertEndChild(pSub);
             }
 
-            for (const PDI& pub : ptdi._publishers)
+            for (const PDI& pub : ptdi.publishers)
             {
                 XMLElement* pPub = xmlDoc.NewElement(s_sPublisher.c_str());
-                pPub->SetAttribute(s_sType.c_str(), pub._typeName.c_str());
-                pPub->SetAttribute(s_sTopic.c_str(), pub._topicName.c_str());
+                pPub->SetAttribute(s_sType.c_str(), pub.type_name.c_str());
+                pPub->SetAttribute(s_sTopic.c_str(), pub.topic_name.c_str());
                 {
                     std::stringstream sstream;
-                    sstream << pub._id.guidPrefix;
+                    sstream << pub.endpoint_guid.guidPrefix;
                     pPub->SetAttribute(s_sGUID_prefix.c_str(),sstream.str().c_str());
                 }
                 {
                     std::stringstream sstream;
-                    sstream << pub._id.entityId;
+                    sstream << pub.endpoint_guid.entityId;
                     pPub->SetAttribute(s_sGUID_entity.c_str(),sstream.str().c_str());
                 }
                 pPtdi->InsertEndChild(pPub);
@@ -711,7 +711,7 @@ void Snapshot::from_xml(tinyxml2::XMLElement* pRoot)
             //std::cout << "Timestamp: " << timestamp << std::endl;
         }
 
-        _someone = pRoot->BoolAttribute(s_sSomeone.c_str(), true);
+        if_someone = pRoot->BoolAttribute(s_sSomeone.c_str(), true);
 
         XMLElement* pDescription = pRoot->FirstChildElement(s_sDescription.c_str());
         if (pDescription != nullptr)
@@ -770,10 +770,10 @@ void Snapshot::from_xml(tinyxml2::XMLElement* pRoot)
                 }
                 PtDI ptdi(ptdi_guid);
 
-                pPtdi->QueryBoolAttribute(s_sServer.c_str(), &ptdi._server);
-                pPtdi->QueryBoolAttribute(s_sAlive.c_str(), &ptdi._alive);
-                ptdi._name = pPtdi->Attribute(s_sName.c_str());
-                //std::cout << "PTDI: " << ptdi._id << std::endl;
+                pPtdi->QueryBoolAttribute(s_sServer.c_str(), &ptdi.is_server);
+                pPtdi->QueryBoolAttribute(s_sAlive.c_str(), &ptdi.is_alive);
+                ptdi.participant_name = pPtdi->Attribute(s_sName.c_str());
+                //std::cout << "PTDI: " << ptdi.id_ << std::endl;
 
                 for (XMLElement* pSub = pPtdi->FirstChildElement(s_sSubscriber.c_str());
                         pSub != nullptr;
@@ -799,7 +799,7 @@ void Snapshot::from_xml(tinyxml2::XMLElement* pRoot)
                         sub_guid.entityId = entityId;
                     }
                     SDI sub(sub_guid, pSub->Attribute(s_sType.c_str()), pSub->Attribute(s_sTopic.c_str()));
-                    ptdi._subscribers.insert(std::move(sub));
+                    ptdi.subscribers.insert(std::move(sub));
                 }
 
                 for (XMLElement* pPub = pPtdi->FirstChildElement(s_sPublisher.c_str());
@@ -826,7 +826,7 @@ void Snapshot::from_xml(tinyxml2::XMLElement* pRoot)
                         pub_guid.entityId = entityId;
                     }
                     PDI pub(pub_guid, pPub->Attribute(s_sType.c_str()), pPub->Attribute(s_sTopic.c_str()));
-                    ptdi._publishers.insert(std::move(pub));
+                    ptdi.publishers.insert(std::move(pub));
                 }
 
                 ptdb.insert(std::move(ptdi));
