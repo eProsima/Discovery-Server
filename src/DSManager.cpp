@@ -816,7 +816,9 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
         // Supossed to be only one transport of each class
         for (auto sp : atts.rtps.userTransports)
         {
-            if (pT = dynamic_cast<TCPTransportDescriptor*>(sp.get()))
+            pT = dynamic_cast<TCPTransportDescriptor*>(sp.get());
+
+            if (pT != nullptr)
             {
                 if (!p4)
                 {   // try to find a descriptor matching the listener port setup
@@ -851,7 +853,7 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
                 {
                     p4 = std::make_shared<TCPv4TransportDescriptor>(*p4);
                     pT = p4.get();
-                    sp.swap(std::dynamic_pointer_cast<TransportDescriptorInterface>(p4));
+                    sp = std::dynamic_pointer_cast<TransportDescriptorInterface>(p4);
                 }
             }
         }
@@ -864,7 +866,7 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
                 {
                     p6 = std::make_shared<TCPv6TransportDescriptor>(*p6);
                     pT = p6.get();
-                    sp.swap(std::dynamic_pointer_cast<TransportDescriptorInterface>(p6));
+                    sp = std::dynamic_pointer_cast<TransportDescriptorInterface>(p6);
                 }
             }
         }

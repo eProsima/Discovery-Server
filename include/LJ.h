@@ -239,7 +239,7 @@ public:
         bool someone = true)
         : LJD(tp)
         , description(desc)
-        , if_someone(true)
+        , if_someone(someone)
     {
     }
 
