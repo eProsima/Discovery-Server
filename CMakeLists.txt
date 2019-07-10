@@ -239,9 +239,19 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 #    target_compile_options(${PROJECT_NAME} PRIVATE	-wd4251)
 #endif()
 
+if(NOT TINYXML2_LIB_NAME)
+    if(TARGET tinyxml2)
+        set(TINYXML2_LIB_NAME tinyxml2)
+    elseif(TARGET tinyxml2::tinyxml2)
+        set(TINYXML2_LIB_NAME tinyxml2::tinyxml2)  
+    else()
+        message(ERROR "Non standard tinyxml2 target name. Please TINYXML2_LIB_NAME to current targets name.")
+    endif()
+endif()
+
 # we link dynamically to tinyxml2
 target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr 
-	$<TARGET_NAME_IF_EXISTS:tinyxml2> $<TARGET_NAME_IF_EXISTS:tinyxml2::tinyxml2> 
+	${TINYXML2_LIB_NAME}
 	OpenSSL::SSL 
 	)
 # note that future versions of tinyxml2 will define the target as tinyxml2::tinyxml2 
