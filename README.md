@@ -324,7 +324,7 @@ In order to use UDP, we can rely on the default transport where the locators are
 	mp_participant = Domain::createParticipant(PParam);
 ```
 
-Note that according with [former attributes explanation](#rtpsparticipantattributes) we must populate the
+Note that according to [former attributes explanation](#rtpsparticipantattributes) we must populate the
  **DiscoverySettings discovery_config** specifying we want to create a **DiscoveryProtocol_t::CLIENT** and adding a new
  *RemoteServerAttributes* object to the *m_DiscoveryServers* list. In this case, the UDP port 65215 is hardcoded as is
  the server prefix.
@@ -397,10 +397,10 @@ The **DiscoverySettings discovery_config** is almost the same as in the
  65215 as a logical port and 9843 as a physical one. The reason behind this is that TCP transport was devised in order
  to allow a single TCP connection tunnel several participants traffic through it. In order to differentiate each
  participant sharing the connection, a *logical port concept* was introduced. The transport will understand that must
- connect to the physical port (using TCP protocol) and rely meta traffic to the logical port 65215 which is the meta
+ connect to the physical port (using TCP protocol) and relay meta traffic to the logical port 65215 which is the meta
  traffic mailbox of the server we are interested in.
 
-A new TCPv4TransportDescriptor must be created and a physical listening port selected. In this case each
+A new TCPv4TransportDescriptor must be created and a physical listening port selected. In this case, each
  HelloWorldExample instance creates a single participant thus the linked process ID is a suitable seed to make up a
  listening port number (this way each time a new client is created a different port is selected).
 
