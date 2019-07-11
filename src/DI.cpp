@@ -23,7 +23,7 @@
 #include "IDs.h"
 
 #ifndef XMLCheckResult
-	#define XMLCheckResult(a_eResult) if (a_eResult != XML_SUCCESS) { printf("Error: %i\n", a_eResult); \
+#define XMLCheckResult(a_eResult) if (a_eResult != XML_SUCCESS) { printf("Error: %i\n", a_eResult); \
     return a_eResult; }
 #endif
 
@@ -31,38 +31,45 @@ using namespace eprosima::discovery_server;
 
 // basic discovery items operations
 
-bool DI::operator==(const GUID_t& guid) const
+bool DI::operator==(
+    const GUID_t& guid) const
 {
     return endpoint_guid == guid;
 }
 
-bool DI::operator!=(const GUID_t& guid) const
+bool DI::operator!=(
+    const GUID_t& guid) const
 {
     return endpoint_guid != guid;
 }
 
-bool DI::operator==(const DI& d) const
+bool DI::operator==(
+    const DI& d) const
 {
     return endpoint_guid == d.endpoint_guid;
 }
 
-bool DI::operator!=(const DI& d) const
+bool DI::operator!=(
+    const DI& d) const
 {
     return endpoint_guid != d.endpoint_guid;
 }
 
-bool DI::operator<(const GUID_t& guid) const
+bool DI::operator<(
+    const GUID_t& guid) const
 {
     return endpoint_guid < guid;
 }
 
-bool DI::operator<(const DI& d) const
+bool DI::operator<(
+    const DI& d) const
 {
     return endpoint_guid < d.endpoint_guid;
 }
 
 // publiser discovery item operations
-bool PDI::operator==(const PDI& p) const
+bool PDI::operator==(
+    const PDI& p) const
 {
     return DI::operator==(p)
         && type_name == p.type_name
@@ -76,7 +83,8 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PDI
 }
 
 // subscriber discovery item operations
-bool SDI::operator==(const SDI& p) const
+bool SDI::operator==(
+    const SDI& p) const
 {
     return DI::operator==(p)
         && type_name == p.type_name
@@ -91,7 +99,8 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const SDI
 
 // participant discovery item operations
 
-bool PtDI::operator==(const PtDI& p) const
+bool PtDI::operator==(
+    const PtDI& p) const
 {
     return DI::operator==(p)
         // && this->is_alive == p.is_alive // own participant may not be aware
@@ -101,7 +110,8 @@ bool PtDI::operator==(const PtDI& p) const
         && this->subscribers == p.subscribers;
 }
 
-bool PtDI::operator!=(const PtDI& p) const
+bool PtDI::operator!=(
+    const PtDI& p) const
 {
     return DI::operator!=(p)
         // || this->is_alive != p.is_alive // own participant may not be aware
@@ -150,19 +160,22 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtD
     return os;
 }
 
-bool PtDI::operator[](const PDI& p) const
+bool PtDI::operator[](
+    const PDI& p) const
 {
     // search the list
     return publishers.end() != publishers.find(p);
 }
 
-bool PtDI::operator[](const SDI& p) const
+bool PtDI::operator[](
+    const SDI& p) const
 {
     // search the list
     return subscribers.end() != subscribers.find(p);
 }
 
-void PtDI::acknowledge(bool alive) const
+void PtDI::acknowledge(
+    bool alive) const
 {
     // STL makes iterator const to prevent that any key changing unsorts the container
     // so we introduce this method to avoid constant ugly const_cast use
@@ -234,13 +247,15 @@ bool DI_database::AddParticipant(
     PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
     if (it == _database.end() || *it != ptid)
-    { // add participant
+    {
+        // add participant
         it = _database.emplace_hint(it, ptid, name, server);
     }
 
     // already there, assert liveliness
     if (!it->is_alive)
-    {   // update the zombie
+    {
+        // update the zombie
         it->setName(name);
         it->acknowledge(true);
         it->setServer(server);
@@ -544,7 +559,7 @@ bool eprosima::discovery_server::operator==(const PtDB& l,const PtDB& r)
         if (lit->endpoint_guid == rit->endpoint_guid)
         {
             // check members
-            if (*lit != *rit) 
+            if (*lit != *rit)
                 return false;
 
             // next iteration

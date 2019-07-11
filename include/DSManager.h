@@ -37,7 +37,7 @@ using namespace eprosima::fastrtps::rtps;
 
 namespace tinyxml2
 {
-    class XMLElement;
+class XMLElement;
 }
 
 namespace eprosima {
@@ -56,7 +56,8 @@ namespace discovery_server
 class LJD;
 class DPC;
 
-class DSManager : public xmlparser::XMLParser,      // access to parsing protected functions
+class DSManager : 
+    public xmlparser::XMLParser,      // access to parsing protected functions
     public eprosima::fastrtps::ParticipantListener  // receive discovery callback information
 {
     typedef std::map<GUID_t, Participant*> participant_map;

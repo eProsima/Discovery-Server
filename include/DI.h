@@ -347,7 +347,9 @@ public:
 
     //! Get Snapshot time
     std::chrono::steady_clock::time_point getTime() const
-        { return image._time;  }
+    { 
+        return image._time;
+    }
 
     //! Returns a pointer to the PtDI or null if not found
     std::vector<const PtDI*> FindParticipant(const GUID_t & ptid) const;
