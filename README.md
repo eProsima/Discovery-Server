@@ -165,45 +165,9 @@ Under the new client-server discovery paradigm, the metatraffic (message exchang
 other) is centralized in one or several *server* participants (right figure), as opposed to simple discovery
 (left figure), where metatraffic is exchanged using a message broadcast mechanism like an IP multicast protocol.
 
-```plantuml
-@startuml
+![discovery diagrams][diagrams]
 
-package "Simple Discovery" {
-
-(participant 1) as p1
-(participant 2) as p2
-(participant 3) as p3
-(participant 4) as p4
-
-
-p1 <-right-> p2
-p1 <-left-> p3
-p1 <-up-> p4
-p2 <-up-> p3
-p2 <-> p4
-p3 <-> p4
-
-}
-
-
-package "Discovery Server" {
-
-' node "Discovery Server" as server
-cloud "Discovery Server" as server
-(participant 1) as ps1
-(participant 2) as ps2
-(participant 3) as ps3
-(participant 4) as ps4
-
-ps1 <-down-> server
-ps2 <-up-> server
-ps3 <-down-> server
-ps4 <-up-> server
-
-}
-
-@enduml
-```
+[diagrams]: resources/images/ds_uml.png
 
 Clients must be aware of how to reach the server, usually by specifying an IP address and a transport protocol like UDP
  or TCP. Servers don't need any beforehand knowledge of clients but, we must specify where they may be reached by

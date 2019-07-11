@@ -41,16 +41,16 @@ namespace eprosima {
 namespace fastrtps {
 namespace xmlparser
 {
-    const char* PROFILES = "profiles";
-    const char* PROFILE_NAME = "profile_name";
-    const char* PREFIX = "prefix";
-    const char* NAME = "name";
-    const char* META_UNI_LOC_LIST = "metatrafficUnicastLocatorList";
-    const char* META_MULTI_LOC_LIST = "metatrafficMulticastLocatorList";
-    const char* TYPES = "types";
-    const char* PUBLISHER = "publisher";
-    const char* SUBSCRIBER = "subscriber";
-    const char* TOPIC = "topic";
+const char* PROFILES = "profiles";
+const char* PROFILE_NAME = "profile_name";
+const char* PREFIX = "prefix";
+const char* NAME = "name";
+const char* META_UNI_LOC_LIST = "metatrafficUnicastLocatorList";
+const char* META_MULTI_LOC_LIST = "metatrafficMulticastLocatorList";
+const char* TYPES = "types";
+const char* PUBLISHER = "publisher";
+const char* SUBSCRIBER = "subscriber";
+const char* TOPIC = "topic";
 }
 }
 }
@@ -186,7 +186,8 @@ DSManager::DSManager(
     LOG_INFO("File " << xml_file_path << " parsed successfully.");
 }
 
-DSManager::DSManager(const std::set<std::string>& xml_snapshot_files)
+DSManager::DSManager(
+        const std::set<std::string>& xml_snapshot_files)
     : no_callbacks(true)
     , auto_shutdown(true)
     , enable_prefix_validation(true)
@@ -199,8 +200,8 @@ DSManager::DSManager(const std::set<std::string>& xml_snapshot_files)
 }
 
 void DSManager::runEvents(
-    std::istream& in /*= std::cin*/,
-    std::ostream& out /*= std::cout*/)
+        std::istream& in /*= std::cin*/,
+        std::ostream& out /*= std::cout*/)
 {
     // Order the event list
     std::sort(events.begin(), events.end(), [](LJD* p1, LJD* p2) -> bool { return *p1 < *p2; });
@@ -223,7 +224,8 @@ void DSManager::runEvents(
     }
 }
 
-void DSManager::addServer(Participant* s)
+void DSManager::addServer(
+        Participant* s)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
     assert(servers[s->getGuid()] == nullptr);
@@ -231,14 +233,16 @@ void DSManager::addServer(Participant* s)
     servers[s->getGuid()] = s;
 }
 
-void DSManager::addClient(Participant* c)
+void DSManager::addClient(
+        Participant* c)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
     assert(clients[c->getGuid()] == nullptr);
     clients[c->getGuid()] = c;
 }
 
-Participant* DSManager::getParticipant(GUID_t& id)
+Participant* DSManager::getParticipant(
+        GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
@@ -256,7 +260,8 @@ Participant* DSManager::getParticipant(GUID_t& id)
     return nullptr;
 }
 
-Participant* DSManager::removeParticipant(GUID_t& id)
+Participant* DSManager::removeParticipant(
+        GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
@@ -300,14 +305,16 @@ Participant* DSManager::removeParticipant(GUID_t& id)
     return ret;
 }
 
-void DSManager::addSubscriber(Subscriber* sub)
+void DSManager::addSubscriber(
+        Subscriber* sub)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
     assert(subscribers[sub->getGuid()] == nullptr);
     subscribers[sub->getGuid()] = sub;
 }
 
-Subscriber* DSManager::getSubscriber(GUID_t& id)
+Subscriber* DSManager::getSubscriber(
+        GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
@@ -320,7 +327,8 @@ Subscriber* DSManager::getSubscriber(GUID_t& id)
     return nullptr;
 }
 
-Subscriber* DSManager::removeSubscriber(GUID_t& id)
+Subscriber* DSManager::removeSubscriber(
+        GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
@@ -336,14 +344,16 @@ Subscriber* DSManager::removeSubscriber(GUID_t& id)
     return ret;
 }
 
-void DSManager::addPublisher(Publisher* pub)
+void DSManager::addPublisher(
+        Publisher* pub)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
     assert(publishers[pub->getGuid()] == nullptr);
     publishers[pub->getGuid()] = pub;
 }
 
-Publisher* DSManager::getPublisher(GUID_t& id)
+Publisher* DSManager::getPublisher(
+        GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
@@ -356,7 +366,8 @@ Publisher* DSManager::getPublisher(GUID_t& id)
     return nullptr;
 }
 
-Publisher* DSManager::removePublisher(GUID_t& id)
+Publisher* DSManager::removePublisher(
+        GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
@@ -372,7 +383,8 @@ Publisher* DSManager::removePublisher(GUID_t& id)
     return ret;
 }
 
-types::DynamicPubSubType* DSManager::getType(std::string& name)
+types::DynamicPubSubType* DSManager::getType(
+        std::string& name)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
@@ -385,7 +397,8 @@ types::DynamicPubSubType* DSManager::getType(std::string& name)
     return nullptr;
 }
 
-types::DynamicPubSubType* DSManager::setType(std::string& type_name)
+types::DynamicPubSubType* DSManager::setType(
+        std::string& type_name)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
@@ -407,7 +420,8 @@ types::DynamicPubSubType* DSManager::setType(std::string& type_name)
     return pDt;
 }
 
-void DSManager::loadProfiles(tinyxml2::XMLElement* profiles)
+void DSManager::loadProfiles(
+        tinyxml2::XMLElement* profiles)
 {
     xmlparser::XMLP_ret ret = xmlparser::XMLProfileManager::loadXMLProfiles(*profiles);
 
@@ -491,7 +505,8 @@ DSManager::~DSManager()
     onTerminate();
 }
 
-void DSManager::loadServer(tinyxml2::XMLElement* server)
+void DSManager::loadServer(
+        tinyxml2::XMLElement* server)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
@@ -664,7 +679,8 @@ void DSManager::loadServer(tinyxml2::XMLElement* server)
     }
 }
 
-void DSManager::loadClient(tinyxml2::XMLElement* client)
+void DSManager::loadClient(
+        tinyxml2::XMLElement* client)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
@@ -925,8 +941,8 @@ void DSManager::loadClient(tinyxml2::XMLElement* client)
 }
 
 void DSManager::loadSubscriber(
-    GUID_t& part_guid, tinyxml2::XMLElement* sub,
-    DPC* pLJ /*= nullptrt*/)
+        GUID_t& part_guid, tinyxml2::XMLElement* sub,
+        DPC* pLJ /*= nullptrt*/)
 {
     assert(sub != nullptr);
 
@@ -1021,8 +1037,8 @@ void DSManager::loadSubscriber(
 }
 
 void DSManager::loadPublisher(
-    GUID_t& part_guid, tinyxml2::XMLElement* sub,
-    DPC* pLJ /*= nullptrt*/)
+        GUID_t& part_guid, tinyxml2::XMLElement* sub,
+        DPC* pLJ /*= nullptrt*/)
 {
     assert(sub != nullptr);
 
@@ -1121,7 +1137,8 @@ std::chrono::steady_clock::time_point DSManager::getTime() const
     return state.getTime();
 }
 
-void DSManager::loadSnapshot(tinyxml2::XMLElement* snapshot)
+void DSManager::loadSnapshot(
+        tinyxml2::XMLElement* snapshot)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
@@ -1153,7 +1170,8 @@ void DSManager::loadSnapshot(tinyxml2::XMLElement* snapshot)
 }
 
 
-void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
+void DSManager::MapServerInfo(
+        tinyxml2::XMLElement* server)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
@@ -1247,8 +1265,8 @@ void DSManager::MapServerInfo(tinyxml2::XMLElement* server)
 }
 
 void DSManager::onParticipantDiscovery(
-    Participant* participant,
-    rtps::ParticipantDiscoveryInfo&& info)
+        Participant* participant,
+        rtps::ParticipantDiscoveryInfo&& info)
 {
     bool server = false;
     GUID_t& partid = info.info.m_guid;
@@ -1292,8 +1310,8 @@ void DSManager::onParticipantDiscovery(
 }
 
 void DSManager::onSubscriberDiscovery(
-    Participant* participant,
-    rtps::ReaderDiscoveryInfo&& info)
+        Participant* participant,
+        rtps::ReaderDiscoveryInfo&& info)
 {
     typedef ReaderDiscoveryInfo::DISCOVERY_STATUS DS;
 
@@ -1361,8 +1379,8 @@ void DSManager::onSubscriberDiscovery(
 }
 
 void  DSManager::onPublisherDiscovery(
-    Participant* participant,
-    rtps::WriterDiscoveryInfo&& info)
+        Participant* participant,
+        rtps::WriterDiscoveryInfo&& info)
 {
     typedef WriterDiscoveryInfo::DISCOVERY_STATUS DS;
 
@@ -1431,7 +1449,9 @@ void  DSManager::onPublisherDiscovery(
         << " topic: " << info.info.topicName() << " GUID: " << pubsid);
 }
 
-std::ostream& eprosima::discovery_server::operator<<(std::ostream& o, ParticipantDiscoveryInfo::DISCOVERY_STATUS s)
+std::ostream& eprosima::discovery_server::operator<<(
+        std::ostream& o,
+        ParticipantDiscoveryInfo::DISCOVERY_STATUS s)
 {
     typedef ParticipantDiscoveryInfo::DISCOVERY_STATUS DS;
 
@@ -1452,7 +1472,9 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& o, Participan
     return o;
 }
 
-std::ostream& eprosima::discovery_server::operator<<(std::ostream& o, ReaderDiscoveryInfo::DISCOVERY_STATUS s)
+std::ostream& eprosima::discovery_server::operator<<(
+        std::ostream& o,
+        ReaderDiscoveryInfo::DISCOVERY_STATUS s)
 {
     typedef ReaderDiscoveryInfo::DISCOVERY_STATUS DS;
 
@@ -1471,7 +1493,9 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& o, ReaderDisc
     return o;
 }
 
-std::ostream& eprosima::discovery_server::operator<<(std::ostream& o, WriterDiscoveryInfo::DISCOVERY_STATUS s)
+std::ostream& eprosima::discovery_server::operator<<(
+        std::ostream& o,
+        WriterDiscoveryInfo::DISCOVERY_STATUS s)
 {
     typedef WriterDiscoveryInfo::DISCOVERY_STATUS DS;
 
@@ -1498,9 +1522,9 @@ bool DSManager::allKnowEachOther() const
 }
 
 Snapshot& DSManager::takeSnapshot(
-    const std::chrono::steady_clock::time_point tp,
-    const std::string& desc/* = std::string()*/,
-    bool someone)
+        const std::chrono::steady_clock::time_point tp,
+        const std::string& desc/* = std::string()*/,
+        bool someone)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
@@ -1538,7 +1562,8 @@ Snapshot& DSManager::takeSnapshot(
 }
 
 /*static*/
-bool DSManager::allKnowEachOther(const Snapshot & shot)
+bool DSManager::allKnowEachOther(
+        const Snapshot & shot)
 {
     // nobody discovered is bad?
     if (shot.if_someone && shot.empty())
@@ -1591,7 +1616,8 @@ bool DSManager::validateAllSnapshots() const
     return work_it_all;
 }
 
-void DSManager::loadSnapshots(const std::string& file)
+void DSManager::loadSnapshots(
+        const std::string& file)
 {
     using namespace tinyxml2;
     XMLDocument xmlDoc;
@@ -1627,7 +1653,8 @@ void DSManager::loadSnapshots(const std::string& file)
     }
 }
 
-void DSManager::saveSnapshots(const std::string& file) const
+void DSManager::saveSnapshots(
+        const std::string& file) const
 {
     using namespace tinyxml2;
     XMLDocument xmlDoc;

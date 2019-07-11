@@ -44,7 +44,7 @@ bool HelloWorldServer::init(bool tcp)
     PParam.rtps.setName("Participant_server");
 
     if (tcp)
-    {											
+    {
         Locator_t server_address; // {kind=4 port=4273930240 address=0x0000024cd53398a8 "" }
         server_address.kind = LOCATOR_KIND_TCPv4;
         IPLocator::setLogicalPort(server_address, 65215);
@@ -70,7 +70,7 @@ bool HelloWorldServer::init(bool tcp)
 
 
     mp_participant = Domain::createParticipant(PParam);
-    if(mp_participant==nullptr)
+    if (mp_participant==nullptr)
         return false;
 
     return true;

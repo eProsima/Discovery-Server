@@ -355,10 +355,10 @@ bool DI_database::RemoveEndPoint(
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    PtDB & _database = image[spokesman];
-    PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+    PtDB & database = image[spokesman];
+    PtDB::iterator it = std::lower_bound(database.begin(), database.end(), ptid);
 
-    if (it == _database.end() || *it != ptid)
+    if (it == database.end() || *it != ptid)
     {
         // participant is no there, should be a zombie
         return false;
@@ -378,7 +378,7 @@ bool DI_database::RemoveEndPoint(
     if (it->CountEndpoints() == 0 && !it->is_alive)
     {
         // remove participant if zombie
-        _database.erase(it);
+        database.erase(it);
     }
 
     return true;
@@ -487,10 +487,10 @@ DI_database::size_type DI_database::CountSubscribers(
 
     if (p != nullptr)
     {
-        const PtDB & _database = *p;
-        PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+        const PtDB & database = *p;
+        PtDB::iterator it = std::lower_bound(database.begin(), database.end(), ptid);
 
-        if (it == _database.end() || *it != ptid)
+        if (it == database.end() || *it != ptid)
         {
             // participant is no there
             return 0;
@@ -512,10 +512,10 @@ DI_database::size_type DI_database::CountPublishers(
 
     if (p != nullptr)
     {
-        const PtDB & _database = *p;
-        PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+        const PtDB & database = *p;
+        PtDB::iterator it = std::lower_bound(database.begin(), database.end(), ptid);
 
-        if (it == _database.end() || *it != ptid)
+        if (it == database.end() || *it != ptid)
         {
             // participant is no there
             return 0;
@@ -527,7 +527,9 @@ DI_database::size_type DI_database::CountPublishers(
     return 0;
 }
 
-bool eprosima::discovery_server::operator==(const PtDB& l,const PtDB& r)
+bool eprosima::discovery_server::operator==(
+        const PtDB& l,
+        const PtDB& r)
 {
     // Note that each participant doesn't keep its own discovery info
     // The only acceptable difference between participants discovery information is their own
@@ -587,7 +589,8 @@ bool eprosima::discovery_server::operator==(const PtDB& l,const PtDB& r)
     return false;
 }
 
-PtDB& Snapshot::operator[](const GUID_t& id)
+PtDB& Snapshot::operator[](
+        const GUID_t& id)
 {
     auto it = std::lower_bound(begin(), end(), id);
     const PtDB * p = nullptr;
@@ -604,7 +607,8 @@ PtDB& Snapshot::operator[](const GUID_t& id)
     return const_cast<PtDB&>(*p);
 }
 
-const PtDB* Snapshot::operator[](const GUID_t& id) const
+const PtDB* Snapshot::operator[](
+        const GUID_t& id) const
 {
     auto it = std::lower_bound(begin(), end(), id);
 
@@ -707,7 +711,8 @@ void Snapshot::to_xml(
     }
 }
 
-void Snapshot::from_xml(tinyxml2::XMLElement* pRoot)
+void Snapshot::from_xml(
+        tinyxml2::XMLElement* pRoot)
 {
     using namespace tinyxml2;
     using eprosima::fastrtps::rtps::GuidPrefix_t;
@@ -857,13 +862,16 @@ void Snapshot::from_xml(tinyxml2::XMLElement* pRoot)
     }*/
 }
 
-Snapshot& Snapshot::operator+=(const Snapshot& sh)
+Snapshot& Snapshot::operator+=(
+        const Snapshot& sh)
 {
     this->insert(sh.begin(), sh.end());
     return *this;
 }
 
-std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const Snapshot& shot)
+std::ostream& eprosima::discovery_server::operator<<(
+        std::ostream& os,
+        const Snapshot& shot)
 {
     std::string timestamp;
 

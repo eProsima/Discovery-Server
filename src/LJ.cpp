@@ -20,7 +20,8 @@ using namespace eprosima::fastrtps;
 using namespace eprosima::discovery_server;
 
 // delayed creation of a new participant
-void DPC::operator()(DSManager& man ) /*override*/
+void DPC::operator()(
+        DSManager& man ) /*override*/
 {
     Participant * p = Domain::createParticipant(attributes, &man);
     if (p)
@@ -42,7 +43,8 @@ void DPC::operator()(DSManager& man ) /*override*/
 }
 
 // delayed destruction of a new participant
-void DPD::operator()(DSManager& man) /*override*/
+void DPD::operator()(
+        DSManager& man) /*override*/
 {
     Participant * p = man.removeParticipant(participant_id);
     if (p)
@@ -55,7 +57,8 @@ void DPD::operator()(DSManager& man) /*override*/
     }
 }
 
-void DPD::SetGuid(const GUID_t& id)
+void DPD::SetGuid(
+        const GUID_t& id)
 {
     if (id != GUID_t::unknown())
     {
@@ -76,7 +79,8 @@ const LJD_traits<Subscriber>::GetEndpoint LJD_traits<Subscriber>::retrieve_endpo
 const LJD_traits<Subscriber>::CreateEndpoint LJD_traits<Subscriber>::create_endpoint_function = &Domain::createSubscriber;
 const LJD_traits<Subscriber>::removeEndpoint LJD_traits<Subscriber>::remove_endpoint_function = &Domain::removeSubscriber;
 
-void DS::operator()(DSManager & man) /*override*/
+void DS::operator()(
+        DSManager & man) /*override*/
 {
     man.takeSnapshot(std::chrono::steady_clock::now(), description, if_someone);
 }

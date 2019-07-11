@@ -64,13 +64,18 @@ public:
     virtual void operator()(DSManager& ) = 0;
 
     bool operator<(const LJD & event) const
-        { return time < event.time; }
+    {
+        return time < event.time;
+    }
 
     void Wait() const
-        { std::this_thread::sleep_until(time); }
+     {
+        std::this_thread::sleep_until(time);
+    }
 };
 
-class DPC : public LJD // Delayed Participant Creation
+class DPC
+    : public LJD // Delayed Participant Creation
 {
     typedef void (DSManager::* AddParticipant)(fastrtps::Participant *);
 
@@ -103,7 +108,8 @@ public:
     void operator()(DSManager& ) override;
 };
 
-class DPD : public LJD // Delayed Participant Destruction
+class DPD
+    : public LJD // Delayed Participant Destruction
 {
     GUID_t participant_id; // participant to remove
 
@@ -165,7 +171,8 @@ template<> struct LJD_traits<Subscriber>
 template<class PS> class DED;
 
 template<class PS>
-class DEC : public LJD // Delayed Enpoint Creation
+class DEC
+    : public LJD // Delayed Enpoint Creation
 {
     typedef typename LJD_traits<PS>::Attributes Attributes;
     Attributes * participant_attributes;
@@ -201,7 +208,8 @@ public:
 };
 
 template<class PS>
-class DED : public LJD // Delayed Endpoint Destruction
+class DED
+    : public LJD // Delayed Endpoint Destruction
 {
     GUID_t endpoint_guid; // endpoint to remove
 
@@ -227,7 +235,8 @@ public:
 
 };
 
-class DS : public LJD // Delayed Snapshot
+class DS
+    : public LJD // Delayed Snapshot
 {
     std::string description;
     bool if_someone;
@@ -256,7 +265,8 @@ public:
 
 // delayed construction of a new subscriber or publisher
 template<class PS>
-void DEC<PS>::operator()(DSManager & man) /*override*/
+void DEC<PS>::operator()(
+        DSManager & man) /*override*/
 {
     // Retrieve the corresponding participant
     Participant* part = man.getParticipant(participant_guid);
@@ -322,7 +332,8 @@ void DEC<PS>::operator()(DSManager & man) /*override*/
 }
 
 template<class PS>
-void DED<PS>::operator()(DSManager & man) /*override*/
+void DED<PS>::operator()(
+        DSManager & man) /*override*/
 {
     // now we get the endpoint: DSManager::removePublisher or DSManager::removeSubscriber
     PS * p = (man.*LJD_traits<PS>::retrieve_endpoint_function)(endpoint_guid);
@@ -341,7 +352,8 @@ void DED<PS>::operator()(DSManager & man) /*override*/
 
 // DED only knows its linked object guid after its creation
 template<class PS>
-void DED<PS>::SetGuid(const GUID_t& id)
+void DED<PS>::SetGuid(
+        const GUID_t& id)
 {
     if (endpoint_guid == GUID_t::unknown())
     {
@@ -350,7 +362,8 @@ void DED<PS>::SetGuid(const GUID_t& id)
 }
 
 template<class PS>
-DEC<PS>& DEC<PS>::operator=(DEC<PS>&& d)
+DEC<PS>& DEC<PS>::operator=(
+        DEC<PS>&& d)
 {
     LJD::operator=(d);
     participant_guid = std::move(d.participant_guid);
@@ -363,7 +376,8 @@ DEC<PS>& DEC<PS>::operator=(DEC<PS>&& d)
 }
 
 template<class PS>
-DEC<PS>::DEC(DEC<PS>&& d)
+DEC<PS>::DEC(
+        DEC<PS>&& d)
     : LJD(std::move(d))
 {
     participant_guid = std::move(d.participant_guid);

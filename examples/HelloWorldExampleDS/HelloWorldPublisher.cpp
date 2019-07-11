@@ -57,7 +57,7 @@ bool HelloWorldPublisher::init(bool tcp)
     PParam.rtps.setName("Participant_pub");
 
     if (tcp)
-    {												  
+    {
         Locator_t server_address; 
         server_address.kind = LOCATOR_KIND_TCPv4;
         IPLocator::setLogicalPort(server_address, 65215);
@@ -129,16 +129,16 @@ void HelloWorldPublisher::PubListener::onPublicationMatched(
     Publisher* /*pub*/,
     MatchingInfo& info)
 {
-    if(info.status == MATCHED_MATCHING)
+    if (info.status == MATCHED_MATCHING)
     {
         n_matched++;
         firstConnected = true;
-        std::cout << "Publisher matched"<<std::endl;
+        std::cout << "Publisher matched" << std::endl;
     }
     else
     {
         n_matched--;
-        std::cout << "Publisher unmatched"<<std::endl;
+        std::cout << "Publisher unmatched" << std::endl;
     }
 }
 
@@ -150,9 +150,9 @@ void HelloWorldPublisher::runThread(
     {
         while(!stop)
         {
-            if(publish(false))
+            if (publish(false))
             {
-                std::cout << "Message: "<<m_hello.message()<< " with index: "<< m_hello.index()<< " SENT"<<std::endl;
+                std::cout << "Message: " << m_hello.message() << " with index: " << m_hello.index() << " SENT" << std::endl;
             }
             eClock::my_sleep(sleep);
         }
@@ -167,7 +167,7 @@ void HelloWorldPublisher::runThread(
             }
             else
             {
-                std::cout << "Message: "<<m_hello.message()<< " with index: "<< m_hello.index()<< " SENT"<<std::endl;
+                std::cout << "Message: " << m_hello.message() << " with index: " << m_hello.index() << " SENT" << std::endl;
             }
             eClock::my_sleep(sleep);
         }
@@ -195,7 +195,7 @@ void HelloWorldPublisher::run(
 
 bool HelloWorldPublisher::publish(bool waitForListener)
 {
-    if(m_listener.firstConnected || !waitForListener || m_listener.n_matched>0)
+    if (m_listener.firstConnected || !waitForListener || m_listener.n_matched>0)
     {
         m_hello.index(m_hello.index()+1);
         mp_publisher->write((void*)&m_hello);

@@ -122,27 +122,27 @@ void HelloWorldSubscriber::SubListener::onSubscriptionMatched(
     Subscriber* /*sub*/,
     MatchingInfo& info)
 {
-    if(info.status == MATCHED_MATCHING)
+    if (info.status == MATCHED_MATCHING)
     {
         n_matched++;
-        std::cout << "Subscriber matched"<<std::endl;
+        std::cout << "Subscriber matched" << std::endl;
     }
     else
     {
         n_matched--;
-        std::cout << "Subscriber unmatched"<<std::endl;
+        std::cout << "Subscriber unmatched" << std::endl;
     }
 }
 
 void HelloWorldSubscriber::SubListener::onNewDataMessage(Subscriber* sub)
 {
-    if(sub->takeNextData((void*)&m_hello, &m_info))
+    if (sub->takeNextData((void*)&m_hello, &m_info))
     {
-        if(m_info.sampleKind == ALIVE)
+        if (m_info.sampleKind == ALIVE)
         {
             this->n_samples++;
             // Print your structure data here.
-            std::cout << "Message "<<m_hello.message()<< " "<< m_hello.index()<< " RECEIVED"<<std::endl;
+            std::cout << "Message " << m_hello.message() << " "<< m_hello.index() << " RECEIVED" <<std::endl;
         }
     }
 
@@ -156,7 +156,7 @@ void HelloWorldSubscriber::run()
 
 void HelloWorldSubscriber::run(uint32_t number)
 {
-    std::cout << "Subscriber running until "<< number << "samples have been received"<<std::endl;
+    std::cout << "Subscriber running until " << number << "samples have been received" << std::endl;
     while (number > this->m_listener.n_samples)
     {
         eClock::my_sleep(500);

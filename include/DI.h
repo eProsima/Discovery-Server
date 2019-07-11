@@ -214,16 +214,24 @@ struct PtDI : public DI
 
     //! get publishers
     publisher_set& getPublishers() const
-        { return const_cast<publisher_set &>(publishers); }
+    { 
+        return const_cast<publisher_set &>(publishers);
+    }
 
     //! get subscribers
     subscriber_set& getSubscribers() const
-        { return const_cast<subscriber_set&>(subscribers); }
+    {
+        return const_cast<subscriber_set&>(subscribers);
+    }
 
     void setName(const std::string & name) const 
-        { const_cast<std::string&>(participant_name) = name; }
+    { 
+        const_cast<std::string&>(participant_name) = name;
+    }
     void setServer(bool & s) const 
-        { const_cast<bool &>(is_server) = s; }
+    { 
+        const_cast<bool &>(is_server) = s;
+    }
 
     //! Returns the number of endpoints owned
     size_type CountEndpoints() const;

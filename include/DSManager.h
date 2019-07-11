@@ -56,9 +56,9 @@ namespace discovery_server
 class LJD;
 class DPC;
 
-class DSManager : 
-    public xmlparser::XMLParser,      // access to parsing protected functions
-    public eprosima::fastrtps::ParticipantListener  // receive discovery callback information
+class DSManager
+    : public xmlparser::XMLParser      // access to parsing protected functions
+    , public eprosima::fastrtps::ParticipantListener  // receive discovery callback information
 {
     typedef std::map<GUID_t, Participant*> participant_map;
     typedef std::map<GUID_t, Subscriber*> subscriber_map;
@@ -128,10 +128,15 @@ public:
     ~DSManager();
 
     // testing database
-    bool shouldValidate() const { return snapshots_output_file.empty(); }
+    bool shouldValidate() const
+    {
+        return snapshots_output_file.empty();
+    }
+
     bool validateAllSnapshots() const;
     bool allKnowEachOther() const;
-    static bool allKnowEachOther(const Snapshot& shot);
+    static bool allKnowEachOther(
+        const Snapshot& shot);
     Snapshot&  takeSnapshot(
         const std::chrono::steady_clock::time_point tp,
         const std::string& desc = std::string(),
