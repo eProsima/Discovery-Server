@@ -1,13 +1,13 @@
 # eProsima Discovery Server
 
-[Current standard](http://www.omg.org/spec/DDSI-RTPS/2.2) in its section 8.5 specifies a non-centralized, distributed
+The [current standard](http://www.omg.org/spec/DDSI-RTPS/2.2) in section 8.5 specifies a non-centralized, distributed
 simple discovery mechanism for RTPS. This mechanism was devised to allow interoperability among independent  vendor-specific implementations but is not expected to be optimal in every environment. There are several scenarios were the simple discovery mechanism is unsuitable or plainly cannot be
 applied:
 
 - a high number of endpoint entities are continuously entering and exiting a large network.
 - a network without multicasting capabilities.
 
-In order to cope with the above issues the Fast-RTPS discovery mechanism was extended with a client-server
+In order to cope with the above issues, the Fast-RTPS discovery mechanism was extended with a client-server
  functionality. Besides, to simplify the management and testing of this new functionality a discovery-server application
  was devised.
 
@@ -32,7 +32,7 @@ In order to cope with the above issues the Fast-RTPS discovery mechanism was ext
 
 ### **Installation**
 
-In order to use discovery server its necessary have a compatible version of
+In order to use discovery server, its necessary have a compatible version of
  [Fast-RTPS](https://eprosima-fast-rtps.readthedocs.io/en/latest/) installed (over release 1.9.0).
  Fast RTPS dependencies as tinyxml must be accessible, either because Fast RTPS was build-installed defining
  THIRDPARTY=ON or because those libraries have been specifically installed.
@@ -100,7 +100,7 @@ Valid placeholders for the Linux example may be:
    note that only the test matching the build (step 2) configuration would run.
 
 4. To run the example navigate to directory **[BUILD]**/install/discovery-server/examples/HelloWorldExampleDS/bin. The
- configuration bash file located in the install folder must be first run in order to set the required environment
+ configuration bash file located in the install folder must be run first in order to set the required environment
  variables:
 ```bash
 [BUILD]/install/discovery-server/examples/C++/HelloWorldExampleDS/bin$ . ../../../../../local_setup.bash
@@ -145,7 +145,7 @@ here --ctest-args allows to specify the configuration (Debug or Release) of inte
 If using a single configuration tool this flag has no effect, as only the test matching the build (step 3)
  configuration would run.
 
-5. In order to run the example, navigate to directory
+5. In order to run the example, navigate to the directory
  **[BUILD]**/install/discovery-server/examples/HelloWorldExampleDS/bin and run the executable, running first the
  configuration bat file located within install folder in order to set required environment variables:
 ```bat
@@ -211,10 +211,10 @@ Clients must be aware of how to reach the server, usually by specifying an IP ad
 
 One of the design goals of the current implementation was to keep both the discovery messages structure and standard
  RTPS writer and reader behavior unchanged. In order to do so, clients must be aware of their server's `GuidPrefix`.
- `GuidPrefix` is the RTPS standard participant unique identifier (basically 12 octecs), which allows clients to assess
+ `GuidPrefix` is the RTPS standard participant unique identifier (basically 12 octets), which allows clients to assess
  whether they are receiving messages from the right server, as each standard RTPS message contains this piece of
  information. Note that the server's IP address may not be a reliable server's identifier because several can be specified
- and multicast addresses are acceptable. In future implementations any other more convenient and non-standard identifier
+ and multicast addresses are acceptable. In future implementations, any other more convenient and non-standard identifier
  may substitute the `GuidPrefix` at the expense of adding non-standard members to the RTPS discovery messages structure.
 
 Several Fast-RTPS configuration structures have been updated in order to deal with the new client-server discovery
@@ -225,7 +225,7 @@ the discovery server application just profits from the capabilities provided by 
 
 + A `GuidPrefix_t guidPrefix` member specifies the server's identity.  This member has only significance if
  `discovery_config.discoveryProtocol` is **SERVER** or **BACKUP**. There is a `ReadguidPrefix` method to easily fill in
- this member from a string formatted like `"4D.49.47.55.45.4c.5f.42.41.52.52.4f"` (note that each octec must be a valid
+ this member from a string formatted like `"4D.49.47.55.45.4c.5f.42.41.52.52.4f"` (note that each octet must be a valid
  hexadecimal figure).
 
 #### BuiltinAttributes
@@ -237,7 +237,7 @@ the discovery server application just profits from the capabilities provided by 
 
 #### DiscoverySettings
 
-+ A `DiscoveryProtocol_t discoveryProtocol` specifies participant's discovery kind:
++ A `DiscoveryProtocol_t discoveryProtocol` specifies the participant's discovery kind:
 	- **SIMPLE** generates a standard participant with complete backward compatibility with any other RTPS
     implementation.
 	- **CLIENT** generates a *client* participant, which relies on a server to be notified of other *clients* presence.
@@ -253,14 +253,14 @@ the discovery server application just profits from the capabilities provided by 
 
 + A `RemoteServerList_t  m_DiscoveryServers` lists the servers linked to the participant. This member has only
  significance if `discoveryProtocol` is **CLIENT**, **SERVER** or **BACKUP**. These member elements are
- `RemoteServerAttributes` objects that identify each server and report where to reach it:
+`RemoteServerAttributes` objects that identify each server and report where the servers can be reached:
 	- `GuidPrefix_t guidPrefix` is the RTPS unique identifier of the server participant we want to link to. There is
        a `ReadguidPrefix` method to easily fill in this member from a string formatted like
-       `"4D.49.47.55.45.4c.5f.42.41.52.52.4f"` (note that each octec must be a valid hexadecimal figure).
+       `"4D.49.47.55.45.4c.5f.42.41.52.52.4f"` (note that each octet must be a valid hexadecimal figure).
 	- `metatrafficUnicastLocatorList` and `metatrafficMulticastLocatorList` are ordinary `LocatorList_t`
       (see Fast-RTPS documentation) where the server's locators must be specified. At least one of them should be
       populated.
-	- `Duration_t discoveryServer_client_syncperiod` specifies the time span between PDP metatraffic exchange, and has
+	- `Duration_t discoveryServer_client_syncperiod` specifies the time span between PDP metatraffic exchange and has
       only significance if `discoveryProtocol` is **CLIENT**, **SERVER** or **BACKUP**. The default value is half a
       second.
 
@@ -277,7 +277,7 @@ Each of the attributes in Fast-RTPS has an echo in the XML profiles. XML profile
 	- a **discoveryServersList** tag, where the server or servers linked with a participant can be specified.
 	- a **clientAnnouncementPeriod** tag, where the time span between PDP metatraffic exchange can be specified.
 
-Below we provide an example XML participant profile using this new *tags*:
+Below we provide an example XML participant profile using these new *tags*:
 ```xml
 <participant profile_name="UDP client" >
   <rtps>
@@ -337,7 +337,7 @@ As usual, we launch publishers and subscribers by running HelloWorldExampleDS.ex
 
 #### UDP transport attribute settings
 
-In order to use UDP we can rely in the default transport where the locators are actual ports and IP addresses.
+In order to use UDP, we can rely on the default transport where the locators are actual ports and IP addresses.
 
 ##### UDP transport code setup for a client
 
@@ -362,7 +362,7 @@ In order to use UDP we can rely in the default transport where the locators are 
 
 Note that according with [former attributes explanation](#rtpsparticipantattributes) we must populate the
  **DiscoverySettings discovery_config** specifying we want to create a **DiscoveryProtocol_t::CLIENT** and adding a new
- *RemoteServerAttributes* object to the *m_DiscoveryServers* list. In this case the UDP port 65215 is hardcoded as is
+ *RemoteServerAttributes* object to the *m_DiscoveryServers* list. In this case, the UDP port 65215 is hardcoded as is
  the server prefix.
 
 ##### UDP transport code setup for a server
@@ -428,16 +428,16 @@ For TCP transport is mandatory to disable the default transport setting the
 	mp_participant = Domain::createParticipant(PParam);
 ```
 
-The **DiscoverySettings discovery_config** is almost the same as in
+The **DiscoverySettings discovery_config** is almost the same as in the
  [analogous UDP case](#udp-transport-code-setup-for-a-client).  Note that here the *server_address* locator specifies
  65215 as a logical port and 9843 as a physical one. The reason behind this is that TCP transport was devised in order
- to allow a single TCP connection tunnel several participants traffic through it. In order to differenciate each
- participant sharing the connection a *logical port concept* was introduced. The transport will understand that must
+ to allow a single TCP connection tunnel several participants traffic through it. In order to differentiate each
+ participant sharing the connection, a *logical port concept* was introduced. The transport will understand that must
  connect to the physical port (using TCP protocol) and rely meta traffic to the logical port 65215 which is the meta
  traffic mailbox of the server we are interested in.
 
 A new TCPv4TransportDescriptor must be created and a physical listening port selected. In this case each
- HelloWorldExample instance creates a single participant thus the linked proccess ID is a suitable seed to make up a
+ HelloWorldExample instance creates a single participant thus the linked process ID is a suitable seed to make up a
  listening port number (this way each time a new client is created a different port is selected).
 
 ##### TCP transport code setup for a server
@@ -467,11 +467,11 @@ A new TCPv4TransportDescriptor must be created and a physical listening port sel
 	mp_participant = Domain::createParticipant(PParam);
 ```
 
-The **DiscoverySettings discovery_config** is almost the same as in
+The **DiscoverySettings discovery_config** is almost the same as in the
  [analogous UDP case](#udp-transport-code-setup-for-a-server). Note that here the *server_address* locator specifies
  65215 as a logical port instead of a physical one.
 
-A new TCPv4TransportDescriptor must be created and a physical listening port selected. Unlike the client code this
+A new TCPv4TransportDescriptor must be created and a physical listening port selected. Unlike the client code, this
  listening port (9843 in the example) must be known beforehand for all clients in order to successfully deliver meta
  traffic to the server.
 
@@ -604,8 +604,8 @@ Participant 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1 discovered:
          Participant client4 1.f.1.30.ac.12.0.0.5.0.0.0|0.0.1.c1
 ```
 
-We'll only get this with the *Debug* binary. On *Release* mode we can resort to provide a filename to the **snapshots**
- tag. Then an xml file will be generated with the same info (note that generating an xml automatically disables
+We'll only get this with the *Debug* binary. On *Release* mode, we can resort to provide a filename to the **snapshots**
+ tag. Then an XML file will be generated with the same info (note that generating an XML automatically disables
  validation thus it cannot be used in singleton tests).
 
 ```xml
@@ -649,7 +649,7 @@ We'll only get this with the *Debug* binary. On *Release* mode we can resort to 
 Here we see how all participants reported the discovery of all the others. Note that, because there is no Fast-RTPS
  discovery callback from a participant to report its own discovery, participants do not report themselves. This must be
  taken into account when a snapshot is checked. Note, however, that participants do discover themselves when they create
- a publisher or subscriber, because there are callbacks associated for those cases.
+ a publisher or subscriber because there are callbacks associated with those cases.
 
 ### test_2_PDP_TCP.xml
 
@@ -742,10 +742,10 @@ information of four clients with different lifespans. The server prefix and list
 
 Here we test the capability of one server to exchange information with another one. Two servers are created and each one
  has two associated clients. We take a snapshot to assess all clients are aware of the other server's clients existence.
- Note that we don't need to modify the previous tests profiles, as we can rely on *server* and *client* tag attributes
+ Note that we don't need to modify the previous tests profiles, as we can rely on the *server* and *client* tag attributes
  to avoid create redundant boilerplate profiles:
 
-- *server* **prefix** attribute is used to supersede the profile specified one, and uniquely identifies each server.
+- *server* **prefix** attribute is used to supersede the profile specified one and uniquely identifies each server.
 - *server* **ListeningPorts** and **ServerList** tags allow us to link servers between them without creating
 specific server profiles.
 - *client* **server** attribute is used to link a client with its server without using a new profile or a
@@ -787,7 +787,7 @@ specific server profiles.
 
 These tests introduce dummy publishers and subscribers to assess proper EDP discovery operation over UDP and TCP
 transport. A server and two clients are created, and each participant (server included) creates publishers and
-subscribers with different types and topics. At the end a snapshot is taken to verify all publishers and subscribers
+subscribers with different types and topics. In the end, a snapshot is taken to verify all publishers and subscribers
 have been reported by all participants. Note that the tags *publisher* and *subscriber* have attributes to supersede
 topics specified in profiles.
 
@@ -898,9 +898,9 @@ Participant 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1 discovered:
 
 #### test_6_EDP_UDP.xml
 
-Here we test how the discover handles EDP late joiners. It's the same scenario with a server and two clients with
+Here we test how the discovery handles EDP late joiners. It's the same scenario with a server and two clients with
  different lifespans. Each participant (server included) creates publishers and subscribers with different lifespans,
- types and topics. Snapshots are taken whenever an endpoint is created or destroyed to assess every participant shares
+ types, and topics. Snapshots are taken whenever an endpoint is created or destroyed to assess every participant shares
  the same discovery info.
 
 ```xml
@@ -940,7 +940,7 @@ Here we test how the discover handles EDP late joiners. It's the same scenario w
 
 #### test_7_PDP_UDP.xml
 
-Here we test how the discovery handles server shutdown and reboot. This is a clean shutdown made from the fast RTPS API
+Here we test how the discovery handles server shutdown and reboot. This is a clean shutdown made from the Fast-RTPS API
  :code:`Domain::removeParticipant`. Each time the server dies it notifies this fact to all its clients which
  automatically begin pinging on the server again trying to reconnect when its rebooted. Snapshots check that clients are
  aware of server absence after shutdown and presence after reboot.
@@ -995,7 +995,7 @@ The first snapshot must show how all clients (remote one included) known each ot
 ### **Documentation**
 
 Using the client-server discovery directly from the fast-RTPS library is possible, as shown in section [Usage](#Usage),
- but is far more convenient to use the **discovery-server** application, specially for testing purposes.
+ but is far more convenient to use the **discovery-server** application, especially for testing purposes.
 
 If the colcon deployment strategy described in section [Installation](#installation) was followed, the discovery-server
  binary can be executed as:
@@ -1013,20 +1013,20 @@ Windows:
 where:
 - the local_setup batch sets up the environment variables for the binary execution.
 - the discovery-server binary name depends on build configuration (debug introduces d postfix) an version number.
-- the config_file.xml is a placeholder for any xml config file that follows the **discovery-server.xsd**.
+- the config_file.xml is a placeholder for any XML config file that follows the **discovery-server.xsd**.
 
 #### Discovery server config files
 
-Discovery-server operation is managed from a XML config file that follows the **discovery-server.xsd** schema located
- in **[SOURCES]**/discovery-server/resources/xsd (this is an extension of the Fast-RTPS xml schema).
- The discovery-server main goals is:
+Discovery-server operation is managed from an XML config file that follows the **discovery-server.xsd** schema located
+ in **[SOURCES]**/discovery-server/resources/xsd (this is an extension of the Fast-RTPS XML schema).
+ The discovery-server main goals are:
 
 - Simplify the configuration of Fast-RTPS servers. Using a Fast-RTPS participant profile for each server is tiresome,
  given the large number of boilerplate code to move around. New XML syntax extensions are introduced to ease this task.
 
 - Provide a flexible testing tool for the client-server discovery implementation. Testing the discovery involves
  creating a large number of participants, publishers, subscribers that use specific topics and types (static or dynamic
- ones) over different transports. Besides all these entities may appear or disappear at different times, and we need to
+ ones) over different transports. Besides, all these entities may appear or disappear at different times, and we need to
  be able to check the discovery status (collective participant knowledge) at any of these times.
 
 The outermost XML tag is **DS**. It admits an optional boolean attribute called **user_shutdown** that defaults to
@@ -1035,7 +1035,7 @@ The outermost XML tag is **DS**. It admits an optional boolean attribute called 
  which grants that the discovery server is closed as soon as the test is fulfilled. The **DS** tag can contain the
  following tags:
 
-+ **profiles** is plainly the Fast-RTPS profiles. We can use them to fine tune the server operation.
++ **profiles** is plainly the Fast-RTPS profiles. We can use them to fine-tune the server operation.
  The associated documentation can be found [here](https://eprosima-fast-rtps.readthedocs.io/en/latest/xmlprofiles.html),
  note the updates introduced in section [Usage](#usage).
 
@@ -1057,9 +1057,9 @@ The outermost XML tag is **DS**. It admits an optional boolean attribute called 
     **RServer** only has a prefix attribute. Based on this prefix the discover-server parser would search for the
     corresponding server locators within the config file.
 	- **publisher** introduced for testing purposes. Creates a dummy publisher characterized by *profile_name*, *topic*,
-    *creation_time* and *removal_time*.
+    *creation_time*, and *removal_time*.
 	- **subscriber** introduced for testing purposes. Creates a dummy publisher characterized by *profile_name*,
-    *topic*, *creation_time* and *removal_time*.
+    *topic*, *creation_time*, and *removal_time*.
 
 
 + **clients** introduced for testing purposes. It's a list of dummy clients that the discovery-server must create and
@@ -1100,7 +1100,7 @@ The outermost XML tag is **DS**. It admits an optional boolean attribute called 
  config file (creating and destroying entities or taking snapshots) then all **snapshots** taken are checked. If any of
  them shows discovery info leakages discovery server returns -1 and the unsuccessful *snapshot* is logged to the
  standard error. Note:
-  - this validation can be avoided using the **file** atribute of the **snapshots** collection.
+  - this validation can be avoided using the **file** attribute of the **snapshots** collection.
   - there is a particular case that requires special treatment by using **snapshot**'s attribute **someone**. By default
   **someone** is true and no discovery info reported by any participant is regarded as a failure, yet in some tests, we
   want to validate the absence of discovery if settings are wrong so **someone** may be set false then.
@@ -1109,7 +1109,7 @@ The outermost XML tag is **DS**. It admits an optional boolean attribute called 
  optional **someone** whose functionality is explained above. The text content of the tag is regarded as a
  description where the user can specify which event may require validation (participant creation or removal, etc...).
 
-The [tests](#testing) are probably the best examples of the above xml definitions put into practice.
+The [tests](#testing) are probably the best examples of the above XML definitions put into practice.
 
 ### **Getting Help**
 
