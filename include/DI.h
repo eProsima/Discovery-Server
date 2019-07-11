@@ -93,14 +93,14 @@ struct PDI : public DI
     PDI& operator=(const PDI&) = default;
     PDI& operator=(PDI&&) = default;
 
+    //! comparissons
+    bool operator==(const PDI&) const;
+
     //!Type name
     std::string type_name;
 
     //!Topic name
     std::string topic_name;
-
-    //! comparissons
-    bool operator==(const PDI&) const;
 };
 
 std::ostream& operator<<(std::ostream&, const PDI&);

@@ -39,8 +39,7 @@ using namespace eprosima::discovery_server;
 // non exported from fast-RTPS (watch out they may be updated)
 namespace eprosima {
 namespace fastrtps {
-namespace xmlparser
-{
+namespace xmlparser {
 const char* PROFILES = "profiles";
 const char* PROFILE_NAME = "profile_name";
 const char* PREFIX = "prefix";

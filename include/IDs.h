@@ -21,44 +21,42 @@
 namespace eprosima {
 namespace discovery_server {
 
-    // specific discovery server schema string literals:
-    static const std::string s_sDS("DS");
-    static const std::string s_sServers("servers");
-    static const std::string s_sServer("server");
-    static const std::string s_sClients("clients");
-    static const std::string s_sClient("client");
-    static const std::string s_sPersist("persist");
-    static const std::string s_sLP("ListeningPorts");
-    static const std::string s_sSL("ServersList");
-    static const std::string s_sRServer("RServer");
-    static const std::string s_sTime("time");
-    static const std::string s_sSomeone("someone");
-    static const std::string s_sCreationTime("creation_time");
-    static const std::string s_sRemovalTime("removal_time");
-    static const std::string s_sSnapshot("snapshot");
-    static const std::string s_sSnapshots("snapshots");
-    static const std::string s_sFile("file");
-    static const std::string s_sDS_Snapshots("DS_Snapshots");
-    static const std::string s_sDS_Snapshot("DS_Snapshot");
-    static const std::string s_sUserShutdown("user_shutdown");
-    static const std::string s_sPrefixValidation("prefix_validation");
-    static const std::string s_sListeningPort("listening_port");
+// specific discovery server schema string literals:
+static const std::string s_sDS("DS");
+static const std::string s_sServers("servers");
+static const std::string s_sServer("server");
+static const std::string s_sClients("clients");
+static const std::string s_sClient("client");
+static const std::string s_sPersist("persist");
+static const std::string s_sLP("ListeningPorts");
+static const std::string s_sSL("ServersList");
+static const std::string s_sRServer("RServer");
+static const std::string s_sTime("time");
+static const std::string s_sSomeone("someone");
+static const std::string s_sCreationTime("creation_time");
+static const std::string s_sRemovalTime("removal_time");
+static const std::string s_sSnapshot("snapshot");
+static const std::string s_sSnapshots("snapshots");
+static const std::string s_sFile("file");
+static const std::string s_sDS_Snapshots("DS_Snapshots");
+static const std::string s_sDS_Snapshot("DS_Snapshot");
+static const std::string s_sUserShutdown("user_shutdown");
+static const std::string s_sPrefixValidation("prefix_validation");
+static const std::string s_sListeningPort("listening_port");
 
-    // specific Snapshot schema string literals
-    static const std::string s_sTimestamp("timestamp");
-    static const std::string s_sDescription("description");
-    static const std::string s_sPtDB("ptdb");
-    static const std::string s_sPtDI("ptdi");
-    static const std::string s_sPublisher("publisher");
-    static const std::string s_sSubscriber("subscriber");
-    static const std::string s_sGUID_prefix("guid_prefix");
-    static const std::string s_sGUID_entity("guid_entity");
-    static const std::string s_sAlive("alive");
-    static const std::string s_sName("name");
-    static const std::string s_sTopic("topic");
-    static const std::string s_sType("type");
-
-
+// specific Snapshot schema string literals
+static const std::string s_sTimestamp("timestamp");
+static const std::string s_sDescription("description");
+static const std::string s_sPtDB("ptdb");
+static const std::string s_sPtDI("ptdi");
+static const std::string s_sPublisher("publisher");
+static const std::string s_sSubscriber("subscriber");
+static const std::string s_sGUID_prefix("guid_prefix");
+static const std::string s_sGUID_entity("guid_entity");
+static const std::string s_sAlive("alive");
+static const std::string s_sName("name");
+static const std::string s_sTopic("topic");
+static const std::string s_sType("type");
 
 } // fastrtps
 } // discovery_server

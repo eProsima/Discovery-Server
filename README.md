@@ -946,9 +946,9 @@ Standard lease duration mechanism no longer makes sense on the client-server arc
 
 In order to test this a python script is used to launch two discovery-servers instances:
 
-  - A server with several clients. This instances will take a snapshot at the beginning and another at the end.
+  - A server with several clients. These instances will take a snapshot at the beginning and another at the end.
 
-  - A client which references the server on the first instance. This process would be killed from python between the
+  - A client who references the server on the first instance. This process would be killed from python between the
     snapshots.
 
 The first snapshot must show how all clients (remote one included) known each other. After killing process 2

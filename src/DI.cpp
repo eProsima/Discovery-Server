@@ -626,9 +626,6 @@ void Snapshot::to_xml(
 {
     using namespace tinyxml2;
 
-    //XMLElement* pTimestamp = xmlDoc.NewElement(s_sTimestamp.c_str());
-    //pTimestamp->SetText(this->_time.time_since_epoch().count());
-    //pRoot->InsertEndChild(pTimestamp);
     pRoot->SetAttribute(s_sTimestamp.c_str(), this->_time.time_since_epoch().count());
     pRoot->SetAttribute(s_sSomeone.c_str(), if_someone);
 
