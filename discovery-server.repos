@@ -1,0 +1,17 @@
+repositories:
+    eProsima/Fast-CDR:
+        type: git
+        url: https://github.com/eProsima/Fast-CDR.git
+        version: master
+    eProsima/Fast-RTPS:
+        type: git
+        url: https://github.com/eProsima/Fast-RTPS.git
+        version: master
+    eProsima/Discovery-Server:
+        type: git
+        url: https://github.com/eProsima/Discovery-Server.git
+        version: master
+    leethomason/tinyxml2:
+        type: git
+        url: https://github.com/leethomason/tinyxml2.git
+        version: master

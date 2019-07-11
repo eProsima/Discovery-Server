@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://www.eprosima.com/XMLSchemas/ds-snapshot"
+    targetNamespace="http://www.eprosima.com/XMLSchemas/ds-snapshot" elementFormDefault="qualified">
+
+    <xs:simpleType name="stringType">
+        <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="uint64Type">
+        <xs:restriction base="xs:unsignedLong"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="boolType">
+        <xs:restriction base="xs:boolean"/>
+        <!-- {true, false} -->
+    </xs:simpleType>
+
+    <xs:simpleType name="guid_prefix">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="([0-9a-fA-F]{1,2}\.){11}[0-9a-fA-F]{1,2}" />
+            <xs:whiteSpace value='collapse'/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="guid_entity">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="([0-9a-fA-F]{1,2}\.){3}[0-9a-fA-F]{1,2}" />
+            <xs:whiteSpace value='collapse'/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="pubsub">
+        <xs:attribute name="guid_prefix" type="guid_prefix" use="required"/>
+        <xs:attribute name="guid_entity" type="guid_entity" use="required"/>
+        <xs:attribute name="type" type="stringType" use="required"/>
+        <xs:attribute name="topic" type="stringType" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="ptdi_type">
+        <xs:sequence>
+            <xs:element name="publisher" type="pubsub" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="subscriber" type="pubsub" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="guid_prefix" type="guid_prefix" use="required"/>
+        <xs:attribute name="guid_entity" type="guid_entity" use="required"/>
+        <xs:attribute name="server" type="boolType" use="required"/>
+        <xs:attribute name="alive" type="boolType" use="required"/>
+        <xs:attribute name="name" type="stringType" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="ptdb_type">
+        <xs:sequence>
+            <xs:element name="ptdi" type="ptdi_type" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="guid_prefix" type="guid_prefix" use="required"/>
+        <xs:attribute name="guid_entity" type="guid_entity" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="DS_Snapshot_Type">
+        <xs:sequence>
+            <xs:element name="description" type="stringType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="ptdb" type="ptdb_type" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="timestamp" type="uint64Type" use="required"/>
+        <xs:attribute name="someone" type="xs:boolean" use="optional" default="true"/>
+    </xs:complexType>
+
+    <xs:element name="DS_Snapshots">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="DS_Snapshot" type="DS_Snapshot_Type" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

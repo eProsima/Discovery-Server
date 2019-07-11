@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" >
+  
+  <!-- 
+  Basically we'll launch two discovery-servers instances:
+    
+        1 - A server with several clients that create subscribers of a common topic. This instances will take an snapshot at the beginning and another at the end.
+        
+        2 - A client which references the server on the first instance and creates a publisher for the common topic. This process would be killed from python between the snapshots.
+        
+    The first snapshot must show how all clients (remote one included) known each other and the user publishers and subscribers.
+  After killing process 2 (and its client) the server must kill its Writer proxy by lease duration time out and report it to all subscribers.
+  The second snapshot must show how all participants have removed the publisher from the discovery database. 
+  
+  This test is currently been disabled till and incoming rebase because WLP mechanism is undergoing a major refactoring.
+  
+  -->
+  
+  <servers>
+    <server profile_name="" />
+  </servers>
+
+  <clients>
+    <client name="client3" profile_name="UDP client">
+      <publisher profile_name="publisher profile"  />
+    </client>
+  </clients>
+
+  
+  <profiles>
+    <participant profile_name="UDP client" >
+      <rtps>
+        <builtin>
+            <discovery_config>
+                <discoveryProtocol>CLIENT</discoveryProtocol>
+                <discoveryServersList>
+                    <RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
+                        <metatrafficUnicastLocatorList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>${RANDOM_PORT}</port>
+                                </udpv4>
+                            </locator>
+                        </metatrafficUnicastLocatorList>
+                    </RemoteServer>
+                </discoveryServersList>
+            </discovery_config>
+        </builtin>
+      </rtps>
+    </participant>
+
+    <publisher profile_name="publisher profile">
+      <topic>
+        <name>test_topic</name>
+        <dataType>sample_type</dataType>
+      </topic>
+      <qos>
+        <reliability>
+          <kind>RELIABLE</kind>
+        </reliability>
+        <liveliness>
+          <kind>AUTOMATIC</kind>
+          <lease_duration>
+            <sec>5</sec>
+          </lease_duration>
+          <announcement_period>
+            <sec>2</sec>
+          </announcement_period>
+        </liveliness>
+      </qos>
+    </publisher>
+
+    <topic profile_name="test topic">
+      <name>test_topic</name>
+      <dataType>sample_type</dataType>
+    </topic>
+
+  </profiles>
+
+  <types>
+    <type>
+      <union name="sample_type">
+        <discriminator type="byte" />
+        <case>
+          <caseDiscriminator value="0" />
+          <member name="index" type="uint32" />
+        </case>
+        <case>
+          <caseDiscriminator value="1" />
+          <member name="message" type="string" />
+        </case>
+      </union>
+    </type>
+
+  </types>
+  
+</DS>

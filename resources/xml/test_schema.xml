@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
+  <!-- This test merely assess the clients can locate a UDP server -->
+
+  <servers>
+    <server name="server" profile_name="UDP server" />
+  </servers>
+
+  <clients>
+    <client name="client1" profile_name="UDP client"/>
+    <client name="client2" profile_name="UDP client"/>
+    <client name="client3" profile_name="UDP client"/>
+    <client name="client4" profile_name="UDP client"/>
+  </clients>
+
+  <snapshots file="my_snapshots.xml">
+    <snapshot time="3">Check all clients met the server and know each other</snapshot>
+  </snapshots>
+
+  <profiles>
+
+    <participant profile_name="UDP client" >
+      <rtps>
+        <builtin>
+          <discoveryProtocol>CLIENT</discoveryProtocol>
+          <discoveryServersList>
+            <RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
+              <metatrafficUnicastLocatorList>
+                <locator>
+                  <udpv4>
+                    <address>127.0.0.1</address>
+                    <port>65215</port>
+                  </udpv4>
+                </locator>
+              </metatrafficUnicastLocatorList>
+            </RemoteServer>
+          </discoveryServersList>
+        </builtin>
+      </rtps>
+    </participant>
+
+    <participant profile_name="UDP server">
+      <rtps>
+        <prefix>
+          4D.49.47.55.45.4c.5f.42.41.52.52.4f
+        </prefix>
+        <builtin>
+          <discoveryProtocol>SERVER</discoveryProtocol>
+          <metatrafficUnicastLocatorList>
+            <locator>
+              <udpv4>
+                <address>127.0.0.1</address>
+                <port>65215</port>
+              </udpv4>
+            </locator>
+          </metatrafficUnicastLocatorList>
+        </builtin>
+      </rtps>
+    </participant>
+
+  </profiles>
+
+</DS>

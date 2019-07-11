@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false" prefix_validation="false" >
+  
+  <!-- This test assess client's capability to detect server's demise and restart announcement in order to
+  properly reconnect with the server when it's restored-->
+  
+  <servers>
+    <server name="server" profile_name="UDP server" removal_time="2" />
+    <server name="server" profile_name="UDP server" creation_time="4" removal_time="6" />
+    <server name="server" profile_name="UDP server" creation_time="8" removal_time="10" />
+  </servers>
+
+  <clients>
+    <client name="client1" profile_name="UDP client" />
+    <client name="client2" profile_name="UDP client" />
+    <client name="client3" profile_name="UDP client" />
+    <client name="client4" profile_name="UDP client" />
+  </clients>
+
+  <snapshots>
+    <snapshot time="1">Check server-clients awareness</snapshot>
+    <snapshot time="3">Check server demise has been reported to all clients</snapshot>
+    <snapshot time="5">Check server-clients awareness has been recovered</snapshot>
+    <snapshot time="7">Check server demise has been reported to all clients</snapshot>
+    <snapshot time="9">Check server-clients awareness has been recovered</snapshot>
+    <snapshot time="11">Check server demise has been reported to all clients</snapshot>
+  </snapshots>
+  
+  <profiles>
+    
+    <participant profile_name="UDP client" >
+      <rtps>
+        <builtin>
+            <discovery_config>
+                <discoveryProtocol>CLIENT</discoveryProtocol>
+                <discoveryServersList>
+                    <RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
+                        <metatrafficUnicastLocatorList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>${RANDOM_PORT}</port>
+                                </udpv4>
+                            </locator>
+                        </metatrafficUnicastLocatorList>
+                    </RemoteServer>
+                </discoveryServersList>
+            </discovery_config>
+        </builtin>
+      </rtps>
+    </participant>
+    
+    <participant profile_name="UDP server">
+      <rtps>
+        <prefix>
+          4D.49.47.55.45.4c.5f.42.41.52.52.4f
+        </prefix>
+        <builtin>
+            <discovery_config>
+                <discoveryProtocol>SERVER</discoveryProtocol>
+            </discovery_config>
+          <metatrafficUnicastLocatorList>
+            <locator>
+              <udpv4>
+                <address>127.0.0.1</address>
+                <port>${RANDOM_PORT}</port>
+              </udpv4>
+            </locator>
+          </metatrafficUnicastLocatorList>
+        </builtin>        
+      </rtps>
+    </participant>
+    
+  </profiles>
+  
+</DS>
