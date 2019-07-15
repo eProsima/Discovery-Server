@@ -90,7 +90,7 @@ Valid placeholders for the Linux example may be:
 2. Compile using the colcon tool. Choose the build configuration by declaring CMAKE_BUILD_TYPE as Debug or Release. In
    this example we've chosen Debug which would be the choice of advance users for debugging purposes:
 ```bash
-[BUILD]$ colcon build --base-paths [SOURCES] --packages-up-to discovery-server --cmake-args -DCOMPILE_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Debug
+[BUILD]$ colcon build --base-paths [SOURCES] --packages-up-to discovery-server --cmake-args -DTHIRDPARTY=ON -DLOG_LEVEL_INFO=ON -DCOMPILE_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
 3. In order to run the tests use the following command:
@@ -131,8 +131,8 @@ Valid placeholders for the Windows example may be:
 3. Compile using the colcon tool. If using a multi-configuration generator like Visual Studio we recommend to
  build both in debug and release modes:
 ```bat
-[BUILD]> colcon build --base-paths [SOURCES] --packages-up-to discovery-server --cmake-args -DCOMPILE_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Debug
-[BUILD]> colcon build --base-paths [SOURCES] --packages-up-to discovery-server --cmake-args -DCOMPILE_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release
+[BUILD]> colcon build --base-paths [SOURCES] --packages-up-to discovery-server --cmake-args -DTHIRDPARTY=ON -DLOG_LEVEL_INFO=ON -DCOMPILE_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Debug
+[BUILD]> colcon build --base-paths [SOURCES] --packages-up-to discovery-server --cmake-args -DTHIRDPARTY=ON -DCOMPILE_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release
 ```
     If you are using a single configuration tool just make above call with your configuration of choice.
 
@@ -506,7 +506,7 @@ Windows:
 [BUILD]\install\discovery-server\bin>discovery-server-X.Y.Z(d) [SOURCES]\discovery-server\resources\xml\test_XXX.xml
 ```
 To view the full discovery information messages and snapshots in debug configuration, run colcon with the additional
- flag `-DLOG_LEVEL_INFO=1`.
+ flag `-DLOG_LEVEL_INFO=ON`.
 
 A brief description of each test is given below. Note that a detailed explanation of the XML syntax is given in section
  [Documentation](#documentation).
