@@ -1268,7 +1268,7 @@ void DSManager::onParticipantDiscovery(
         rtps::ParticipantDiscoveryInfo&& info)
 {
     bool server = false;
-    GUID_t& partid = info.info.m_guid;
+    const GUID_t& partid = info.info.m_guid;
 
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a participant "
         << info.info.m_participantName << " is " << info.status << ". Prefix " << partid);
@@ -1314,7 +1314,7 @@ void DSManager::onSubscriberDiscovery(
 {
     typedef ReaderDiscoveryInfo::DISCOVERY_STATUS DS;
 
-    GUID_t & subsid = info.info.guid();
+    const GUID_t & subsid = info.info.guid();
     GUID_t partid = iHandle2GUID(info.info.RTPSParticipantKey());
 
     // non reported info
@@ -1383,7 +1383,7 @@ void  DSManager::onPublisherDiscovery(
 {
     typedef WriterDiscoveryInfo::DISCOVERY_STATUS DS;
 
-    GUID_t& pubsid = info.info.guid();
+    const GUID_t& pubsid = info.info.guid();
     GUID_t partid = iHandle2GUID(info.info.RTPSParticipantKey());
 
     // non reported info
