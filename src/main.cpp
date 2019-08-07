@@ -14,11 +14,11 @@ using namespace discovery_server;
 int main(int argc, char * argv[])
 {
     // Initialize loging
-    #if defined LOG_LEVEL_INFO
+    #if LOG_LEVEL_INFO
         Log::SetVerbosity(Log::Kind::Info);
-    #elif defined LOG_LEVEL_WARN
+    #elif LOG_LEVEL_WARN
         Log::SetVerbosity(Log::Kind::Warning);
-    #elif defined LOG_LEVEL_ERROR
+    #elif LOG_LEVEL_ERROR
         Log::SetVerbosity(Log::Kind::Error);
     #endif
 
