@@ -23,7 +23,6 @@
 
 #include <fastrtps/Domain.h>
 
-#include <fastrtps/utils/eClock.h>
 #include <fastrtps/log/Log.h>
 
 #include "optionparser.h"
