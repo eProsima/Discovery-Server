@@ -24,7 +24,6 @@
 #include <fastrtps/subscriber/Subscriber.h>
 #include <fastrtps/transport/TCPv4TransportDescriptor.h>
 #include <fastrtps/Domain.h>
-#include <fastrtps/utils/eClock.h>
 #include <fastrtps/utils/IPLocator.h>
 #include <fastrtps/utils/System.h>
 

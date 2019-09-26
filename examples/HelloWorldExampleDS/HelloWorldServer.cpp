@@ -23,7 +23,6 @@
 #include <fastrtps/transport/TCPv4TransportDescriptor.h>
 
 #include <fastrtps/Domain.h>
-#include <fastrtps/utils/eClock.h>
 #include <fastrtps/utils/IPLocator.h>
 
 using namespace eprosima::fastrtps;
