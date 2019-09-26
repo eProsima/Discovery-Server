@@ -24,7 +24,6 @@
 #include <fastrtps/publisher/Publisher.h>
 #include <fastrtps/transport/TCPv4TransportDescriptor.h>
 #include <fastrtps/Domain.h>
-#include <fastrtps/utils/eClock.h>
 #include <fastrtps/utils/IPLocator.h>
 #include <fastrtps/utils/System.h>
 
@@ -154,7 +153,7 @@ void HelloWorldPublisher::runThread(
             {
                 std::cout << "Message: " << m_hello.message() << " with index: " << m_hello.index() << " SENT" << std::endl;
             }
-            eClock::my_sleep(sleep);
+            std::this_thread::sleep_for(std::chrono::duration<uint32_t, std::milli>(sleep));
         }
     }
     else
@@ -169,7 +168,7 @@ void HelloWorldPublisher::runThread(
             {
                 std::cout << "Message: " << m_hello.message() << " with index: " << m_hello.index() << " SENT" << std::endl;
             }
-            eClock::my_sleep(sleep);
+            std::this_thread::sleep_for(std::chrono::duration<uint32_t,std::milli>(sleep));
         }
     }
 }

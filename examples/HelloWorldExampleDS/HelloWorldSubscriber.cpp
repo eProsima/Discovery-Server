@@ -24,7 +24,6 @@
 #include <fastrtps/subscriber/Subscriber.h>
 #include <fastrtps/transport/TCPv4TransportDescriptor.h>
 #include <fastrtps/Domain.h>
-#include <fastrtps/utils/eClock.h>
 #include <fastrtps/utils/IPLocator.h>
 #include <fastrtps/utils/System.h>
 
@@ -159,6 +158,6 @@ void HelloWorldSubscriber::run(uint32_t number)
     std::cout << "Subscriber running until " << number << "samples have been received" << std::endl;
     while (number > this->m_listener.n_samples)
     {
-        eClock::my_sleep(500);
+        std::this_thread::sleep_for(std::chrono::duration<uint32_t, std::milli>(500));
     }
 }
