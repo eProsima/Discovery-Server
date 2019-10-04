@@ -39,7 +39,7 @@ using namespace eprosima::discovery_server;
 // non exported from fast-RTPS (watch out they may be updated)
 namespace eprosima {
 namespace fastrtps {
-namespace xmlparser {
+namespace DSxmlparser {
 const char* PROFILES = "profiles";
 const char* PROFILE_NAME = "profile_name";
 const char* PREFIX = "prefix";
@@ -98,7 +98,7 @@ DSManager::DSManager(
             // first make XMLProfileManager::loadProfiles parse the config file. Afterwards loaded info is accessible
             // through XMLProfileManager::fillParticipantAttributes and related
 
-            tinyxml2::XMLElement* profiles = child->FirstChildElement(xmlparser::PROFILES);
+            tinyxml2::XMLElement* profiles = child->FirstChildElement(DSxmlparser::PROFILES);
             if (profiles != nullptr)
             {
                 loadProfiles(profiles);
@@ -110,7 +110,7 @@ DSManager::DSManager(
             }
 
             // Types parsing
-            tinyxml2::XMLElement* types = child->FirstChildElement(xmlparser::TYPES);
+            tinyxml2::XMLElement* types = child->FirstChildElement(DSxmlparser::TYPES);
             if (types != nullptr)
             {
                 if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::loadXMLDynamicTypes(*types))
@@ -532,12 +532,12 @@ void DSManager::loadServer(
     }
 
     // profile name is mandatory
-    const char* profile_name = server->Attribute(xmlparser::PROFILE_NAME);
+    const char* profile_name = server->Attribute(DSxmlparser::PROFILE_NAME);
 
     if (profile_name == nullptr || *profile_name == '\0')
     {
         std::stringstream msg;
-        msg << xmlparser::PROFILE_NAME << " is a mandatory attribute of server tag";
+        msg << DSxmlparser::PROFILE_NAME << " is a mandatory attribute of server tag";
 
         if (profile_name != nullptr)
         {    // may be empty on purpose (for creating dummie clients)
@@ -561,7 +561,7 @@ void DSManager::loadServer(
     }
 
     // server name is either pass as an attribute (preferred to allow profile reuse) or inside the profile
-    const char* name = server->Attribute(xmlparser::NAME);
+    const char* name = server->Attribute(DSxmlparser::NAME);
     if (name != nullptr)
     {
         atts.rtps.setName(name);
@@ -570,7 +570,7 @@ void DSManager::loadServer(
     // server GuidPrefix is either pass as an attribute (preferred to allow profile reuse)
     // or inside the profile.
     GuidPrefix_t& prefix = atts.rtps.prefix;
-    const char* cprefix = server->Attribute(xmlparser::PREFIX);
+    const char* cprefix = server->Attribute(DSxmlparser::PREFIX);
 
     if (cprefix != nullptr &&
         !(std::istringstream(cprefix) >> prefix) &&
@@ -618,7 +618,7 @@ void DSManager::loadServer(
             GuidPrefix_t& prefix = srv.guidPrefix;
 
             // load the prefix
-            const char* cprefix = rserver->Attribute(xmlparser::PREFIX);
+            const char* cprefix = rserver->Attribute(DSxmlparser::PREFIX);
 
             if (cprefix != nullptr &&
                 !(std::istringstream(cprefix) >> prefix)
@@ -663,18 +663,18 @@ void DSManager::loadServer(
     }
 
     // Once the participant is created we create the associated endpoints
-    tinyxml2::XMLElement* pub = server->FirstChildElement(xmlparser::PUBLISHER);
+    tinyxml2::XMLElement* pub = server->FirstChildElement(DSxmlparser::PUBLISHER);
     while (pub != nullptr)
     {
         loadPublisher(guid, pub);
-        pub = pub->NextSiblingElement(xmlparser::PUBLISHER);
+        pub = pub->NextSiblingElement(DSxmlparser::PUBLISHER);
     }
 
-    tinyxml2::XMLElement* sub = server->FirstChildElement(xmlparser::SUBSCRIBER);
+    tinyxml2::XMLElement* sub = server->FirstChildElement(DSxmlparser::SUBSCRIBER);
     while (sub != nullptr)
     {
         loadSubscriber(guid, sub);
-        sub = sub->NextSiblingElement(xmlparser::SUBSCRIBER);
+        sub = sub->NextSiblingElement(DSxmlparser::SUBSCRIBER);
     }
 }
 
@@ -707,11 +707,11 @@ void DSManager::loadClient(
 
     // clients are created for debugging purposes
     // profile name is mandatory because they must reference servers
-    const char* profile_name = client->Attribute(xmlparser::PROFILE_NAME);
+    const char* profile_name = client->Attribute(DSxmlparser::PROFILE_NAME);
 
     if (profile_name == nullptr)
     {
-        LOG_ERROR(xmlparser::PROFILE_NAME << " is a mandatory attribute of client tag");
+        LOG_ERROR(DSxmlparser::PROFILE_NAME << " is a mandatory attribute of client tag");
         return;
     }
 
@@ -732,7 +732,7 @@ void DSManager::loadClient(
     }
 
     // pick the client's name (isn't mandatory to provide it). Takes precedence over profile provided.
-    const char* name = client->Attribute(xmlparser::NAME);
+    const char* name = client->Attribute(DSxmlparser::NAME);
     if (name != nullptr)
     {
         atts.rtps.setName(name);
@@ -780,7 +780,7 @@ void DSManager::loadClient(
                 GuidPrefix_t & prefix = srv.guidPrefix;
 
                 // load the prefix
-                const char * cprefix = rserver->Attribute(xmlparser::PREFIX);
+                const char * cprefix = rserver->Attribute(DSxmlparser::PREFIX);
 
                 if (cprefix != nullptr && !(std::istringstream(cprefix) >> prefix)
                     && (prefix == c_GuidPrefix_Unknown))
@@ -924,18 +924,18 @@ void DSManager::loadClient(
     }
 
     // Once the participant is created we create the associated endpoints
-    tinyxml2::XMLElement* pub = client->FirstChildElement(xmlparser::PUBLISHER);
+    tinyxml2::XMLElement* pub = client->FirstChildElement(DSxmlparser::PUBLISHER);
     while (pub != nullptr)
     {
         loadPublisher(guid, pub, pC);
-        pub = pub->NextSiblingElement(xmlparser::PUBLISHER);
+        pub = pub->NextSiblingElement(DSxmlparser::PUBLISHER);
     }
 
-    tinyxml2::XMLElement* sub = client->FirstChildElement(xmlparser::SUBSCRIBER);
+    tinyxml2::XMLElement* sub = client->FirstChildElement(DSxmlparser::SUBSCRIBER);
     while (sub != nullptr)
     {
         loadSubscriber(guid, sub, pC);
-        sub = sub->NextSiblingElement(xmlparser::SUBSCRIBER);
+        sub = sub->NextSiblingElement(DSxmlparser::SUBSCRIBER);
     }
 }
 
@@ -980,7 +980,7 @@ void DSManager::loadSubscriber(
 
     // subscribers are created for debugging purposes
     // default topic is the static HelloWorld one
-    const char* profile_name = sub->Attribute(xmlparser::PROFILE_NAME);
+    const char* profile_name = sub->Attribute(DSxmlparser::PROFILE_NAME);
 
     SubscriberAttributes * subatts = new SubscriberAttributes();
 
@@ -1001,7 +1001,7 @@ void DSManager::loadSubscriber(
     }
 
     // see if topic is specified
-    const char* topic_name = sub->Attribute(xmlparser::TOPIC);
+    const char* topic_name = sub->Attribute(DSxmlparser::TOPIC);
 
     if (topic_name != nullptr)
     {
@@ -1076,7 +1076,7 @@ void DSManager::loadPublisher(
 
     // subscribers are created for debugging purposes
     // default topic is the static HelloWorld one
-    const char * profile_name = sub->Attribute(xmlparser::PROFILE_NAME);
+    const char * profile_name = sub->Attribute(DSxmlparser::PROFILE_NAME);
 
     PublisherAttributes* pubatts = new PublisherAttributes();
 
@@ -1097,7 +1097,7 @@ void DSManager::loadPublisher(
     }
 
     // see if topic is specified
-    const char* topic_name = sub->Attribute(xmlparser::TOPIC);
+    const char* topic_name = sub->Attribute(DSxmlparser::TOPIC);
 
     if (topic_name != nullptr)
     {
@@ -1177,11 +1177,11 @@ void DSManager::MapServerInfo(
     uint8_t ident = 1;
 
     // profile name is mandatory
-    std::string profile_name(server->Attribute(xmlparser::PROFILE_NAME));
+    std::string profile_name(server->Attribute(DSxmlparser::PROFILE_NAME));
 
     if (profile_name.empty())
     {   // its doesn't log as error because may be empty on purpose
-        LOG_INFO(xmlparser::PROFILE_NAME << " is a mandatory attribute of server tag");
+        LOG_INFO(DSxmlparser::PROFILE_NAME << " is a mandatory attribute of server tag");
         return;
     }
 
@@ -1190,7 +1190,7 @@ void DSManager::MapServerInfo(
     GuidPrefix_t prefix;
     std::shared_ptr<ParticipantAttributes> atts;
 
-    const char* cprefix = server->Attribute(xmlparser::PREFIX);
+    const char* cprefix = server->Attribute(DSxmlparser::PREFIX);
 
     if (cprefix != nullptr)
     {
@@ -1223,19 +1223,19 @@ void DSManager::MapServerInfo(
     tinyxml2::XMLElement* LP = server->FirstChildElement(s_sLP.c_str());
     if (LP != nullptr)
     {
-        tinyxml2::XMLElement * list = LP->FirstChildElement(xmlparser::META_MULTI_LOC_LIST);
+        tinyxml2::XMLElement * list = LP->FirstChildElement(DSxmlparser::META_MULTI_LOC_LIST);
 
         if (list != nullptr &&
             (xmlparser::XMLP_ret::XML_OK != getXMLLocatorList(list, pair.first, ident)))
         {
-            LOG_ERROR("Server " << prefix << " has an ill formed " << xmlparser::META_MULTI_LOC_LIST);
+            LOG_ERROR("Server " << prefix << " has an ill formed " << DSxmlparser::META_MULTI_LOC_LIST);
         }
 
-        list = LP->FirstChildElement(xmlparser::META_UNI_LOC_LIST);
+        list = LP->FirstChildElement(DSxmlparser::META_UNI_LOC_LIST);
         if (list != nullptr &&
             (xmlparser::XMLP_ret::XML_OK != getXMLLocatorList(list, pair.second, ident)))
         {
-            LOG_ERROR("Server " << prefix << " has an ill formed " << xmlparser::META_UNI_LOC_LIST);
+            LOG_ERROR("Server " << prefix << " has an ill formed " << DSxmlparser::META_UNI_LOC_LIST);
         }
 
     }
