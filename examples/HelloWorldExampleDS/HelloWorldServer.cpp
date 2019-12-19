@@ -42,22 +42,26 @@ bool HelloWorldServer::init(Locator_t server_address)
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_server");
 
-    if (server_address == LOCATOR_KIND_TCPv4 ||
-        server_address == LOCATOR_KIND_TCPv6)
+    uint16_t default_port = IPLocator::getPhysicalPort(server_address.port);
+
+    if (server_address.kind == LOCATOR_KIND_TCPv4 ||
+        server_address.kind == LOCATOR_KIND_TCPv6)
     {
         if(!IsAddressDefined(server_address))
         {
             server_address.kind = LOCATOR_KIND_TCPv4;
-            IPLocator::setLogicalPort(server_address, 65215);
-            // IPLocator::setPhysicalPort(server_address, 9843); // redundant is already in the transport descriptor
             IPLocator::setIPv4(server_address, 127, 0, 0, 1);
         }
+
+        // logical port cannot be customize in this example
+        IPLocator::setLogicalPort(server_address, 65215);
+        IPLocator::setPhysicalPort(server_address, default_port); // redundant is already in the transport descriptor
 
         PParam.rtps.builtin.metatrafficUnicastLocatorList.push_back(server_address);
 
         std::shared_ptr<TCPv4TransportDescriptor> descriptor = std::make_shared<TCPv4TransportDescriptor>();
         descriptor->wait_for_tcp_negotiation = false;
-        descriptor->add_listener_port(9843);
+        descriptor->add_listener_port(default_port);
 
         PParam.rtps.useBuiltinTransports = false;
         PParam.rtps.userTransports.push_back(descriptor);
@@ -66,7 +70,8 @@ bool HelloWorldServer::init(Locator_t server_address)
     {
         if(!IsAddressDefined(server_address))
         {
-            Locator_t server_address(LOCATOR_KIND_UDPv4, 65215);
+            server_address.kind = LOCATOR_KIND_UDPv4;
+            server_address.port = default_port;
             IPLocator::setIPv4(server_address, 127, 0, 0, 1);
         }
 

@@ -147,6 +147,7 @@ int main(int argc, char** argv)
     int count = 20;
     long sleep = 100;
     Locator_t server_address;
+    server_address.port = 60006; // default physical port
 
     if(argc > 1)
     {
@@ -220,15 +221,19 @@ int main(int argc, char** argv)
             {
                 std::cmatch mr;
                 std::string ip_address;
-                uint16_t port;
+                uint16_t port = server_address.port;
                 bool v4 = true;
 
                 if((v4 = regex_match(opt.arg, mr, Arg::ipv4))
                     || regex_match(opt.arg, mr, Arg::ipv6))
                 {
-                    std::cmatch::iterator it = mr.begin();
+                    std::cmatch::iterator it = mr.cbegin();
                     ip_address = (++it)->str();
-                    port = std::stoi((++it)->str());
+
+                    if((++it)->matched)
+                    {
+                        port = std::stoi(it->str());
+                    }
                 }
 
                 // promote to v6 if needed
