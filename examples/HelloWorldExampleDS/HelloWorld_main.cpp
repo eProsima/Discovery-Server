@@ -25,6 +25,8 @@
 
 #include <fastrtps/log/Log.h>
 
+#include <regex>
+
 #include "optionparser.h"
 
 struct Arg : public option::Arg
@@ -69,18 +71,25 @@ struct Arg : public option::Arg
         return option::ARG_ILLEGAL;
     }
 
-    static option::ArgStatus String(const option::Option& option, bool msg)
+    static option::ArgStatus Locator(const option::Option& option, bool msg)
     {
         if (option.arg != 0)
         {
-            return option::ARG_OK;
+            // we must check if its a correct ip address plus port number
+            if(std::regex_match(option.arg, ipv4)
+                || std::regex_match(option.arg, ipv6))
+            {
+                return option::ARG_OK;
+            }
         }
         if (msg)
         {
-            print_error("Option '", option, "' requires a numeric argument\n");
+            print_error("Option '", option, "' requires an IPaddress[:portnumber] argument\n");
         }
         return option::ARG_ILLEGAL;
     }
+
+    static const std::regex ipv4, ipv6;
 };
 
 enum  optionIndex {
@@ -88,7 +97,8 @@ enum  optionIndex {
     HELP,
     SAMPLES,
     INTERVAL,
-    TCP
+    TCP,
+    LOCATOR
 };
 
 const option::Descriptor usage[] = {
@@ -101,8 +111,13 @@ const option::Descriptor usage[] = {
         "  -c <num>, \t--count=<num>  \tNumber of datagrams to send (0 = infinite) defaults to 10." },
     { INTERVAL,0,"i","interval",            Arg::Numeric,
         "  -i <num>, \t--interval=<num>  \tTime between samples in milliseconds (Default: 100)." },
+    { LOCATOR, 0, "l", "ip",                Arg::Locator,
+        "  -l <IPaddress[:port number]>, \t--ip=<IPaddress[:port number]>  \tServer address." },
     { 0, 0, 0, 0, 0, 0 }
 };
+
+/*static*/ const std::regex Arg::ipv4(R"(^((?:[0-9]{1,3}\.){3}[0-9]{1,3})?:?(?:(\d+))?$)");
+/*static*/ const std::regex Arg::ipv6(R"(^\[?((?:[0-9a-fA-F]{0,4}\:){7}[0-9a-fA-F]{0,4})?(?:\]:)?(?:(\d+))?$)");
 
 using namespace eprosima;
 using namespace fastrtps;
@@ -131,7 +146,7 @@ int main(int argc, char** argv)
     int type = 1;
     int count = 20;
     long sleep = 100;
-    bool use_tpc = false;
+    Locator_t server_address;
 
     if(argc > 1)
     {
@@ -183,9 +198,63 @@ int main(int argc, char** argv)
                 sleep = strtol(opt.arg, nullptr, 10);
                 break;
 
+            // remember that options can be parsed in any order
             case TCP:
-                use_tpc = true;
+            {
+                // locators default to LOCATOR_KIND_UDPv4
+                // promote from UDP to TCP
+                if(IsAddressDefined(server_address))
+                {
+                    server_address.kind =
+                        ( server_address.kind == LOCATOR_KIND_UDPv4 ) ? LOCATOR_KIND_TCPv4 : LOCATOR_KIND_TCPv6;
+                }
+                else
+                {
+                    server_address.kind = LOCATOR_KIND_TCPv4;
+                }
+
                 break;
+            }
+
+            case LOCATOR:
+            {
+                std::cmatch mr;
+                std::string ip_address;
+                uint16_t port;
+                bool v4 = true;
+
+                if((v4 = regex_match(opt.arg, mr, Arg::ipv4))
+                    || regex_match(opt.arg, mr, Arg::ipv6))
+                {
+                    std::cmatch::iterator it = mr.begin();
+                    ip_address = (++it)->str();
+                    port = std::stoi((++it)->str());
+                }
+
+                // promote to v6 if needed
+                if(!v4)
+                {
+                    server_address.kind =
+                        (server_address.kind == LOCATOR_KIND_UDPv4) ? LOCATOR_KIND_UDPv6 : LOCATOR_KIND_TCPv6;
+                }
+
+                if(!ip_address.empty() && port > 1000)
+                {
+                    IPLocator::setPhysicalPort(server_address, port);
+                    if(v4)
+                    {
+                        IPLocator::setIPv4(server_address, ip_address);
+                    }
+                    else
+                    {
+                        IPLocator::setIPv6(server_address, ip_address);
+                    }
+
+                    break;
+                }
+
+                // fail as UNKNOWN_OPT
+            }
 
             case UNKNOWN_OPT:
                 option::printUsage(fwrite, stdout, usage, columns);
@@ -208,7 +277,7 @@ int main(int argc, char** argv)
         case 1:
             {
                 HelloWorldPublisher mypub;
-                if(mypub.init(use_tpc))
+                if(mypub.init(server_address))
                 {
                     mypub.run(count, sleep);
                 }
@@ -217,7 +286,7 @@ int main(int argc, char** argv)
         case 2:
             {
                 HelloWorldSubscriber mysub;
-                if(mysub.init(use_tpc))
+                if(mysub.init(server_address))
                 {
                     mysub.run();
                 }
@@ -226,7 +295,7 @@ int main(int argc, char** argv)
         case 3:
         {
             HelloWorldServer myserver;
-            if (myserver.init(use_tpc))
+            if (myserver.init(server_address))
             {
                 myserver.run();
             }

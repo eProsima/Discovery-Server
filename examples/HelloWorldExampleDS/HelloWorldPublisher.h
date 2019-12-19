@@ -35,7 +35,7 @@ public:
     HelloWorldPublisher();
     virtual ~HelloWorldPublisher();
     //!Initialize
-    bool init(bool tcp);
+    bool init(eprosima::fastrtps::rtps::Locator_t server_address);
     //!Publish a sample
     bool publish(bool waitForListener = true);
     //!Run for number samples

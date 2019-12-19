@@ -33,7 +33,7 @@ HelloWorldServer::HelloWorldServer()
 {
 }
 
-bool HelloWorldServer::init(bool tcp)
+bool HelloWorldServer::init(Locator_t server_address)
 {
     ParticipantAttributes PParam;
     PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::SERVER;
@@ -42,13 +42,16 @@ bool HelloWorldServer::init(bool tcp)
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_server");
 
-    if (tcp)
+    if (server_address == LOCATOR_KIND_TCPv4 ||
+        server_address == LOCATOR_KIND_TCPv6)
     {
-        Locator_t server_address; // {kind=4 port=4273930240 address=0x0000024cd53398a8 "" }
-        server_address.kind = LOCATOR_KIND_TCPv4;
-        IPLocator::setLogicalPort(server_address, 65215);
-        // IPLocator::setPhysicalPort(server_address, 9843); // redundant is already in the transport descriptor
-        IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+        if(!IsAddressDefined(server_address))
+        {
+            server_address.kind = LOCATOR_KIND_TCPv4;
+            IPLocator::setLogicalPort(server_address, 65215);
+            // IPLocator::setPhysicalPort(server_address, 9843); // redundant is already in the transport descriptor
+            IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+        }
 
         PParam.rtps.builtin.metatrafficUnicastLocatorList.push_back(server_address);
 
@@ -61,8 +64,11 @@ bool HelloWorldServer::init(bool tcp)
     }
     else
     {
-        Locator_t server_address(LOCATOR_KIND_UDPv4, 65215);
-        IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+        if(!IsAddressDefined(server_address))
+        {
+            Locator_t server_address(LOCATOR_KIND_UDPv4, 65215);
+            IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+        }
 
         PParam.rtps.builtin.metatrafficUnicastLocatorList.push_back(server_address);
     }

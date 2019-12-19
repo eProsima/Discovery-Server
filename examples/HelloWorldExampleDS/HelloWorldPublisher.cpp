@@ -41,7 +41,7 @@ HelloWorldPublisher::HelloWorldPublisher()
 
 }
 
-bool HelloWorldPublisher::init(bool tcp)
+bool HelloWorldPublisher::init(Locator_t server_address)
 {
     m_hello.index(0);
     m_hello.message("HelloWorld");
@@ -55,13 +55,16 @@ bool HelloWorldPublisher::init(bool tcp)
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_pub");
 
-    if (tcp)
+    if (server_address == LOCATOR_KIND_TCPv4 ||
+        server_address == LOCATOR_KIND_TCPv6)
     {
-        Locator_t server_address; 
-        server_address.kind = LOCATOR_KIND_TCPv4;
-        IPLocator::setLogicalPort(server_address, 65215);
-        IPLocator::setPhysicalPort(server_address, 9843); 
-        IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+        if(!IsAddressDefined(server_address))
+        {
+            server_address.kind = LOCATOR_KIND_TCPv4;
+            IPLocator::setLogicalPort(server_address, 65215);
+            IPLocator::setPhysicalPort(server_address, 9843);
+            IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+        }
 
         ratt.metatrafficUnicastLocatorList.push_back(server_address);
         PParam.rtps.builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
@@ -79,8 +82,11 @@ bool HelloWorldPublisher::init(bool tcp)
     }
     else
     {
-        Locator_t server_address(LOCATOR_KIND_UDPv4, 65215);
-        IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+        if(!IsAddressDefined(server_address))
+        {
+            Locator_t server_address(LOCATOR_KIND_UDPv4, 65215);
+            IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+        }
 
         ratt.metatrafficUnicastLocatorList.push_back(server_address);
         PParam.rtps.builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
