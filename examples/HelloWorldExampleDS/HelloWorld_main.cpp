@@ -257,11 +257,9 @@ int main(int argc, char** argv)
                     {
                         IPLocator::setIPv6(server_address, ip_address);
                     }
-
-                    break;
                 }
 
-                // fail as UNKNOWN_OPT
+                break;
             }
 
             case UNKNOWN_OPT:
