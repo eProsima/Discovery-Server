@@ -47,7 +47,7 @@ bool HelloWorldSubscriber::init(Locator_t server_address)
     ParticipantAttributes PParam;
     PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::CLIENT;
     PParam.rtps.builtin.domainId = 0;
-    PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
+    PParam.rtps.builtin.discovery_config.leaseDuration = {6,0} /*c_TimeInfinite*/;
     PParam.rtps.setName("Participant_sub");
 
     uint16_t default_port = IPLocator::getPhysicalPort(server_address.port);

@@ -126,6 +126,9 @@ int main(int argc, char** argv)
 {
     int columns;
 
+    Log::SetVerbosity(Log::Kind::Info);
+    Log::SetCategoryFilter(std::regex("(RTPS_PDP)|(RTPS_PARTICIPANT)|(DISCOVERY_SERVER)|(SERVER_PDP_THREAD)|(CLIENT_PDP_THREAD)"));
+
     #if defined(_WIN32)
         char* buf = nullptr;
         size_t sz = 0;
