@@ -25,7 +25,6 @@
 
 #include <fastrtps/Domain.h>
 #include <fastrtps/utils/IPLocator.h>
-#include <fastrtps/utils/IPFinder.h>
 
 using namespace eprosima::fastrtps;
 using namespace eprosima::fastrtps::rtps;
@@ -44,44 +43,20 @@ bool HelloWorldServer::init(Locator_t server_address)
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_server");
 
-    // If no address provided get all local
-    LocatorList_t local_interfaces;
-    
-    if(!IsAddressDefined(server_address))
-    {
-        std::vector<IPFinder::info_IP> loc_info;
-        IPFinder::getIPs(&loc_info, false);
-
-        for(const IPFinder::info_IP & ip : loc_info)
-        {
-            local_interfaces.push_back(ip.locator);
-        }
-
-    }
-    else
-    {
-        local_interfaces.push_back(server_address);
-    }
-
     uint16_t default_port = IPLocator::getPhysicalPort(server_address.port);
+
+    // The library is wise enough to handle the empty IP address scenario by replacing it with
+    // all local interfaces
 
     if (server_address.kind == LOCATOR_KIND_TCPv4 ||
         server_address.kind == LOCATOR_KIND_TCPv6)
     {
 
-        for(Locator_t & loc : local_interfaces)
-        {
-            if(IPLocator::hasIPv4(loc.kind) == IPLocator::hasIPv4(server_address.kind))
-            {
-                loc.kind = server_address.kind;
+        // logical port cannot be customize in this example
+        IPLocator::setLogicalPort(server_address, 65215);
+        IPLocator::setPhysicalPort(server_address, default_port); // redundant is already in the transport descriptor
 
-                // logical port cannot be customize in this example
-                IPLocator::setLogicalPort(loc, 65215);
-                IPLocator::setPhysicalPort(loc, default_port); // redundant is already in the transport descriptor
-
-                PParam.rtps.builtin.metatrafficUnicastLocatorList.push_back(loc);
-            }
-        }
+        PParam.rtps.builtin.metatrafficUnicastLocatorList.push_back(server_address);
 
         std::shared_ptr<TCPTransportDescriptor> descriptor;
 
@@ -101,14 +76,8 @@ bool HelloWorldServer::init(Locator_t server_address)
     }
     else
     {
-        for(Locator_t & loc : local_interfaces)
-        {
-            if(loc.kind == server_address.kind)
-            {
-                loc.port = default_port;
-                PParam.rtps.builtin.metatrafficUnicastLocatorList.push_back(loc);
-            }
-        }
+        server_address.port = default_port;
+        PParam.rtps.builtin.metatrafficUnicastLocatorList.push_back(server_address);
     }
 
     mp_participant = Domain::createParticipant(PParam);
