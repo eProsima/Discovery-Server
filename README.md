@@ -253,7 +253,8 @@ Below we provide an example XML participant profile using these new *tags*:
 			  <metatrafficUnicastLocatorList>
 				<locator>
 				  <udpv4>
-					<address>127.0.0.1</address>
+                    <!-- placeholder server UDP address -->
+					<address>192.168.1.113</address>
 					<port>64863</port>
 				  </udpv4>
 				</locator>
@@ -277,7 +278,8 @@ Below we provide an example XML participant profile using these new *tags*:
 		<metatrafficUnicastLocatorList>
 			<locator>
 				<udpv4>
-					<address>127.0.0.1</address>
+                    <!-- placeholder server UDP address -->
+					<address>192.168.1.113</address>
 					<port>64863</port>
 				</udpv4>
 			</locator>
@@ -295,9 +297,8 @@ The Fast-RTPS **HelloWorldExample** has been updated to illustrate the client-se
 
 As usual, we launch publishers and subscribers by running HelloWorldExampleDS.exe with the corresponding **publisher**
  or **subscriber** argument. Each publisher and subscriber is launched within its own participant, but now the
- HelloWorldPublisher::init() and HelloWorldSubscriber::init() methods are modified to create clients and hard code the
- server reference.
-
+ HelloWorldPublisher::init() and HelloWorldSubscriber::init() methods are modified to create clients and add the server
+address specify by command line [see examples](#helloworldexample-command-line).
 
 #### UDP transport attribute settings
 
@@ -315,8 +316,9 @@ In order to use UDP, we can rely on the default transport where the locators are
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_pub");
 
-	Locator_t server_address(LOCATOR_KIND_UDPv4, 65215);
-    IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+    // placeholder values for the server address
+	Locator_t server_address(LOCATOR_KIND_UDPv4, 64863);
+    IPLocator::setIPv4(server_address, 192, 168, 1, 113);
 
     ratt.metatrafficUnicastLocatorList.push_back(server_address);
     PParam.rtps.builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
@@ -326,7 +328,7 @@ In order to use UDP, we can rely on the default transport where the locators are
 
 Note that according to [former attributes explanation](#rtpsparticipantattributes) we must populate the
  **DiscoverySettings discovery_config** specifying we want to create a **DiscoveryProtocol_t::CLIENT** and adding a new
- *RemoteServerAttributes* object to the *m_DiscoveryServers* list. In this case, the UDP port 65215 is hardcoded as is
+ *RemoteServerAttributes* object to the *m_DiscoveryServers* list. In this case, the UDP port 64863 is hardcoded as is
  the server prefix.
 
 ##### UDP transport code setup for a server
@@ -338,9 +340,10 @@ Note that according to [former attributes explanation](#rtpsparticipantattribute
     PParam.rtps.builtin.domainId = 0;
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_server");
-
-	Locator_t server_address(LOCATOR_KIND_UDPv4, 65215);
-    IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+    
+    // Placeholder values for the server address
+	Locator_t server_address(LOCATOR_KIND_UDPv4, 64863);
+    IPLocator::setIPv4(server_address, 192, 168, 1, 113);
 
     PParam.rtps.builtin.metatrafficUnicastLocatorList.push_back(server_address);
 
@@ -349,7 +352,7 @@ Note that according to [former attributes explanation](#rtpsparticipantattribute
 Note that according with [former attributes explanation](#rtpsparticipantattributes) we must populate the
  **DiscoverySettings discovery_config** specifying we want to create a **DiscoveryProtocol_t::SERVER** and adding a new
  listening locator to any **BuiltinAttributes** metatraffic lists (this locator or locators must be known by the
- clients). In this case the UDP port 65215 is hardcoded as is the server prefix.
+ clients). In this case the UDP port 64863 is hardcoded as is the server prefix.
 
 #### TCP transport attribute settings
 
@@ -368,12 +371,13 @@ For TCP transport is mandatory to disable the default transport setting the
     PParam.rtps.builtin.domainId = 0;
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_pub");
-
+    
+    // Placeholder values for the server address
 	Locator_t server_address;
 	server_address.kind = LOCATOR_KIND_TCPv4;
-	IPLocator::setLogicalPort(server_address, 65215);
+	IPLocator::setLogicalPort(server_address, 64863);
 	IPLocator::setPhysicalPort(server_address, 9843);
-	IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+	IPLocator::setIPv4(server_address, 192, 168, 1, 113);
 
 	ratt.metatrafficUnicastLocatorList.push_back(server_address);
 	PParam.rtps.builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
@@ -394,10 +398,10 @@ For TCP transport is mandatory to disable the default transport setting the
 
 The **DiscoverySettings discovery_config** is almost the same as in the
  [analogous UDP case](#udp-transport-code-setup-for-a-client).  Note that here the *server_address* locator specifies
- 65215 as a logical port and 9843 as a physical one. The reason behind this is that TCP transport was devised in order
+ 64863 as a logical port and 9843 as a physical one. The reason behind this is that TCP transport was devised in order
  to allow a single TCP connection tunnel several participants traffic through it. In order to differentiate each
  participant sharing the connection, a *logical port concept* was introduced. The transport will understand that must
- connect to the physical port (using TCP protocol) and relay meta traffic to the logical port 65215 which is the meta
+ connect to the physical port (using TCP protocol) and relay meta traffic to the logical port 64863 which is the meta
  traffic mailbox of the server we are interested in.
 
 A new TCPv4TransportDescriptor must be created and a physical listening port selected. In this case, each
@@ -414,10 +418,11 @@ A new TCPv4TransportDescriptor must be created and a physical listening port sel
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_server");
 
+    // Placeholder values for the server address
 	Locator_t server_address;
 	server_address.kind = LOCATOR_KIND_TCPv4;
-	IPLocator::setLogicalPort(server_address, 65215);
-	IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+	IPLocator::setLogicalPort(server_address, 64863);
+	IPLocator::setIPv4(server_address, 192, 168, 1, 113);
 
 	PParam.rtps.builtin.metatrafficUnicastLocatorList.push_back(server_address);
 
@@ -433,7 +438,7 @@ A new TCPv4TransportDescriptor must be created and a physical listening port sel
 
 The **DiscoverySettings discovery_config** is almost the same as in the
  [analogous UDP case](#udp-transport-code-setup-for-a-server). Note that here the *server_address* locator specifies
- 65215 as a logical port instead of a physical one.
+ 64863 as a logical port instead of a physical one.
 
 A new TCPv4TransportDescriptor must be created and a physical listening port selected. Unlike the client code, this
  listening port (9843 in the example) must be known beforehand for all clients in order to successfully deliver meta
@@ -442,6 +447,8 @@ A new TCPv4TransportDescriptor must be created and a physical listening port sel
 ### HelloWorldExample command line
 
 Assuming the current directory is the example binary one, the execution steps would be:
+
+#### Testing on a single computer (localhost)
 
 + Windows:
 
@@ -455,8 +462,8 @@ Assuming the current directory is the example binary one, the execution steps wo
  Console 2:
 
  ```bat
->..\..\..\..\..\local_setup.bat
-> HelloWorldExampleDS subscriber
+ >..\..\..\..\..\local_setup.bat
+ > HelloWorldExampleDS subscriber
  ```
 
  Console 3:
@@ -477,8 +484,8 @@ Assuming the current directory is the example binary one, the execution steps wo
  Terminal 2:
 
  ```bash
-$ . ../../../../../local_setup.bash
-$ ./HelloWorldExampleDS subscriber
+ $ . ../../../../../local_setup.bash
+ $ ./HelloWorldExampleDS subscriber
  ```
  Terminal 3:
 
@@ -487,7 +494,67 @@ $ ./HelloWorldExampleDS subscriber
  $ ./HelloWorldExampleDS server
  ```
 
-Information exchange between publisher and subscriber should take place when the server begins running.
+#### Testing over a network 
+
+We need to now the server address and physical port. In our example it would be 192.186.1.113:64863. Defaults to UDP if we want
+to use TCP add the `--tcp` flag to the following commands.
+
++ Windows:
+
+ Console 1:
+
+ ```bat
+ >..\..\..\..\..\local_setup.bat
+ > HelloWorldExampleDS publisher --count=0 --ip=192.168.1.113:64863
+ ```
+
+ by specifying `--count=0` the publisher keeps publishing samples forever. 
+
+ Console 2:
+
+ ```bat
+ >..\..\..\..\..\local_setup.bat
+ > HelloWorldExampleDS subscriber --ip=192.168.1.113:64863
+ ```
+
+ Console 3:
+
+ ```bat
+ >..\..\..\..\..\local_setup.bat
+ > HelloWorldExampleDS server --ip=0.0.0.0:64863
+ ```
+
+ Note that by using 0.0.0.0 we are hinting the server to publish all the local interfaces as metatraffic (192.168.1.133
+would be one of them in this example). The clients once received the server metadata would choose the faster among the server
+interfaces. Of course we can force the use of a single interface by doing --ip=192.168.1.133:64863. If we specify
+localhost as the interface (by doing --ip=127.0.0.1:64863) only local clients would be able to reach the server (we
+strongly discourage this).
+
+ Note also that if not port number is provided a default one is used.   
+
+ Information exchange between publisher and subscriber should take place when the server begins running.
+
++ Linux:
+
+ Terminal 1:
+
+ ```bash
+ $ . ../../../../../local_setup.bash
+ $ ./HelloWorldExampleDS publisher --count=0 --ip=192.168.1.113:64863
+ ```
+
+ Terminal 2:
+
+ ```bash
+ $ . ../../../../../local_setup.bash
+ $ ./HelloWorldExampleDS subscriber --ip=192.168.1.113:64863
+ ```
+ Terminal 3:
+
+ ```bash
+ $ . ../../../../../local_setup.bash
+ $ ./HelloWorldExampleDS server --ip=0.0.0.0:64863
+ ```
 
 ### **Testing**
 
