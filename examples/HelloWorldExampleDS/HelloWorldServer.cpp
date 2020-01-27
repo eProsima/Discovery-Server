@@ -21,6 +21,7 @@
 #include <fastrtps/participant/Participant.h>
 #include <fastrtps/attributes/ParticipantAttributes.h>
 #include <fastrtps/transport/TCPv4TransportDescriptor.h>
+#include <fastrtps/transport/TCPv6TransportDescriptor.h>
 
 #include <fastrtps/Domain.h>
 #include <fastrtps/utils/IPLocator.h>
@@ -33,7 +34,7 @@ HelloWorldServer::HelloWorldServer()
 {
 }
 
-bool HelloWorldServer::init(bool tcp)
+bool HelloWorldServer::init(Locator_t server_address)
 {
     ParticipantAttributes PParam;
     PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::SERVER;
@@ -42,31 +43,42 @@ bool HelloWorldServer::init(bool tcp)
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_server");
 
-    if (tcp)
+    uint16_t default_port = IPLocator::getPhysicalPort(server_address.port);
+
+    // The library is wise enough to handle the empty IP address scenario by replacing it with
+    // all local interfaces
+
+    if (server_address.kind == LOCATOR_KIND_TCPv4 ||
+        server_address.kind == LOCATOR_KIND_TCPv6)
     {
-        Locator_t server_address; // {kind=4 port=4273930240 address=0x0000024cd53398a8 "" }
-        server_address.kind = LOCATOR_KIND_TCPv4;
+
+        // logical port cannot be customize in this example
         IPLocator::setLogicalPort(server_address, 65215);
-        // IPLocator::setPhysicalPort(server_address, 9843); // redundant is already in the transport descriptor
-        IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+        IPLocator::setPhysicalPort(server_address, default_port); // redundant is already in the transport descriptor
 
         PParam.rtps.builtin.metatrafficUnicastLocatorList.push_back(server_address);
 
-        std::shared_ptr<TCPv4TransportDescriptor> descriptor = std::make_shared<TCPv4TransportDescriptor>();
-        descriptor->wait_for_tcp_negotiation = false;
-        descriptor->add_listener_port(9843);
+        std::shared_ptr<TCPTransportDescriptor> descriptor;
 
+        if(server_address.kind == LOCATOR_KIND_TCPv4)
+        {
+            descriptor = std::make_shared<TCPv4TransportDescriptor>();
+        }
+        else
+        {
+            descriptor = std::make_shared<TCPv6TransportDescriptor>();
+        }
+
+        descriptor->wait_for_tcp_negotiation = false;
+        descriptor->add_listener_port(default_port);
         PParam.rtps.useBuiltinTransports = false;
         PParam.rtps.userTransports.push_back(descriptor);
     }
     else
     {
-        Locator_t server_address(LOCATOR_KIND_UDPv4, 65215);
-        IPLocator::setIPv4(server_address, 127, 0, 0, 1);
-
+        server_address.port = default_port;
         PParam.rtps.builtin.metatrafficUnicastLocatorList.push_back(server_address);
     }
-
 
     mp_participant = Domain::createParticipant(PParam);
     if (mp_participant==nullptr)

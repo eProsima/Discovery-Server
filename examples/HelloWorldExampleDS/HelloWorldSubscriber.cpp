@@ -38,7 +38,7 @@ HelloWorldSubscriber::HelloWorldSubscriber()
 {
 }
 
-bool HelloWorldSubscriber::init(bool tcp)
+bool HelloWorldSubscriber::init(Locator_t server_address)
 {
 
     RemoteServerAttributes ratt;
@@ -49,33 +49,44 @@ bool HelloWorldSubscriber::init(bool tcp)
     PParam.rtps.builtin.domainId = 0;
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_sub");
+
+    uint16_t default_port = IPLocator::getPhysicalPort(server_address.port);
    
-    if (tcp)
+    if(server_address.kind == LOCATOR_KIND_TCPv4 ||
+        server_address.kind == LOCATOR_KIND_TCPv6)
     {
-        Locator_t server_address;
-        server_address.kind = LOCATOR_KIND_TCPv4;
+        if(!IsAddressDefined(server_address))
+        {
+            server_address.kind = LOCATOR_KIND_TCPv4;
+            IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+        }
+
+        // server logical port is not customizable in this example
         IPLocator::setLogicalPort(server_address, 65215);
-        IPLocator::setPhysicalPort(server_address, 9843);
-        IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+        IPLocator::setPhysicalPort(server_address, default_port);
 
         ratt.metatrafficUnicastLocatorList.push_back(server_address);
         PParam.rtps.builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
 
         PParam.rtps.useBuiltinTransports = false;
         std::shared_ptr<TCPv4TransportDescriptor> descriptor = std::make_shared<TCPv4TransportDescriptor>();
-        descriptor->wait_for_tcp_negotiation = false;
 
         // Generate a listening port for the client
         std::default_random_engine gen(System::GetPID());
         std::uniform_int_distribution<int> rdn(49152, 65535);
         descriptor->add_listener_port(rdn(gen)); // IANA ephemeral port number
 
+        descriptor->wait_for_tcp_negotiation = false;
         PParam.rtps.userTransports.push_back(descriptor);
     }
     else
     {
-        Locator_t server_address(LOCATOR_KIND_UDPv4, 65215);
-        IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+        if(!IsAddressDefined(server_address))
+        {
+            server_address.kind = LOCATOR_KIND_UDPv4;
+            server_address.port = default_port;
+            IPLocator::setIPv4(server_address, 127, 0, 0, 1);
+        }
 
         ratt.metatrafficUnicastLocatorList.push_back(server_address);
         PParam.rtps.builtin.discovery_config.m_DiscoveryServers.push_back(ratt);

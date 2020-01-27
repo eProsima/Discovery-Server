@@ -21,6 +21,7 @@
 #define HELLOWORLDSERVER_H_
 
 #include <fastrtps/fastrtps_fwd.h>
+#include <fastrtps/rtps/common/Locator.h>
 
 class HelloWorldServer
 {
@@ -28,7 +29,7 @@ public:
     HelloWorldServer();
     virtual ~HelloWorldServer();
     //!Initialize the subscriber
-    bool init(bool tcp);
+    bool init(eprosima::fastrtps::rtps::Locator_t server_address);
     //!RUN the subscriber
     void run();
 
