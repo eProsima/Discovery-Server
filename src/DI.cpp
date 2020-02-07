@@ -626,7 +626,9 @@ void Snapshot::to_xml(
 {
     using namespace tinyxml2;
 
-    pRoot->SetAttribute(s_sTimestamp.c_str(), this->_time.time_since_epoch().count());
+    // Snapshot time is recorded in ms from the process creation measured with the steady clock
+    pRoot->SetAttribute(s_sTimestamp.c_str(),
+        std::chrono::duration_cast<std::chrono::milliseconds>(_time-Snapshot::_st_ck).count());
     pRoot->SetAttribute(s_sSomeone.c_str(), if_someone);
 
     XMLElement* pDescription = xmlDoc.NewElement(s_sDescription.c_str());
@@ -720,11 +722,9 @@ void Snapshot::from_xml(
         std::string timestamp = pRoot->Attribute(s_sTimestamp.c_str());
         if (!timestamp.empty())
         {
-            uint64_t time = std::stoull(timestamp);
-            //pTimestamp->QueryInt64Text(&time);
-            using Ns = std::chrono::nanoseconds;
-
-            _time = std::chrono::steady_clock::time_point(Ns(time));
+            std::chrono::milliseconds time(std::stoull(timestamp));
+            
+            _time = std::chrono::steady_clock::time_point(time);
             //std::cout << "Timestamp: " << timestamp << std::endl;
         }
 
