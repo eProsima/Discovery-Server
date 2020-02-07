@@ -23,7 +23,6 @@ int main(int argc, char * argv[])
     #endif
 
     Log::SetCategoryFilter(std::regex("(RTPS_PARTICIPANT)|(DISCOVERY_SERVER)|(SERVER_PDP_THREAD)|(CLIENT_PDP_THREAD)"));
-   
 
     if (!(argc > 1))
     {
@@ -50,6 +49,10 @@ int main(int argc, char * argv[])
                     LOG_ERROR("Discovery Server error: several snapshots show info leakage");
                     return_code = -1; // report CTest the test fail
                 }
+                else
+                {
+                    std::cout << "Discovery Server run succeeded!" << endl;
+                }
             }
         }
     }
@@ -67,6 +70,10 @@ int main(int argc, char * argv[])
         {
             LOG_ERROR("Discovery Server error: several snapshots show info leakage");
             return_code = -1; // report CTest the test fail
+        }
+        else
+        {
+            std::cout << "Output file validation succeeded!" << endl;
         }
     }
 

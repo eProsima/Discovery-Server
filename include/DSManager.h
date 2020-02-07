@@ -113,7 +113,7 @@ class DSManager
     void loadSnapshot(tinyxml2::XMLElement* snapshot);
     void MapServerInfo(tinyxml2::XMLElement* server);
 
-    void loadSnapshots(const std::string& file);
+    bool loadSnapshots(const std::string& file);
     void saveSnapshots(const std::string& file) const;
 
     // type handling

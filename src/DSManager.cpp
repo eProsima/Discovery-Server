@@ -193,8 +193,10 @@ DSManager::DSManager(
 {
     for (const std::string& file : xml_snapshot_files)
     {
-        loadSnapshots(file);
-        LOG("Loaded snapshot file " << file);
+        if(loadSnapshots(file))
+        {
+            LOG("Loaded snapshot file " << file);
+        }
     }
 }
 
@@ -1615,12 +1617,18 @@ bool DSManager::validateAllSnapshots() const
     return work_it_all;
 }
 
-void DSManager::loadSnapshots(
+bool DSManager::loadSnapshots(
         const std::string& file)
 {
     using namespace tinyxml2;
     XMLDocument xmlDoc;
-    xmlDoc.LoadFile(file.c_str());
+
+    if(tinyxml2::XML_SUCCESS != xmlDoc.LoadFile(file.c_str()))
+    {
+        LOG_ERROR("Couldn't parse the file: " << file);
+        return false;
+    }
+    
     XMLNode * pRoot = xmlDoc.FirstChild();
 
     snapshots_list::iterator it;
@@ -1650,6 +1658,8 @@ void DSManager::loadSnapshots(
             *it++ += sh;
         }
     }
+
+    return true;
 }
 
 void DSManager::saveSnapshots(
