@@ -1272,6 +1272,9 @@ void DSManager::onParticipantDiscovery(
     bool server = false;
     const GUID_t& partid = info.info.m_guid;
 
+    // update last_callback time
+    last_callback_ = std::chrono::steady_clock::now();
+
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a participant "
         << info.info.m_participantName << " is " << info.status << ". Prefix " << partid);
 
@@ -1314,6 +1317,9 @@ void DSManager::onSubscriberDiscovery(
         Participant* participant,
         rtps::ReaderDiscoveryInfo&& info)
 {
+    // update last_callback time
+    last_callback_ = std::chrono::steady_clock::now();
+
     typedef ReaderDiscoveryInfo::DISCOVERY_STATUS DS;
 
     const GUID_t & subsid = info.info.guid();
@@ -1383,6 +1389,9 @@ void  DSManager::onPublisherDiscovery(
         Participant* participant,
         rtps::WriterDiscoveryInfo&& info)
 {
+    // update last_callback time
+    last_callback_ = std::chrono::steady_clock::now();
+
     typedef WriterDiscoveryInfo::DISCOVERY_STATUS DS;
 
     const GUID_t& pubsid = info.info.guid();
@@ -1533,6 +1542,7 @@ Snapshot& DSManager::takeSnapshot(
 
     Snapshot& shot = snapshots.back();
     shot._time = tp;
+    shot.last_callback_ = last_callback_;
     shot._des = desc;
     shot.if_someone = someone;
 
@@ -1642,8 +1652,9 @@ bool DSManager::loadSnapshots(
         pSh != nullptr;
         pSh = pSh->NextSiblingElement(s_sDS_Snapshot.c_str()))
     {
-        Snapshot sh(std::chrono::steady_clock::now());
+        Snapshot sh;
         sh.from_xml(pSh);
+
         if (inserter)
         {
             snapshots.emplace_back(sh);

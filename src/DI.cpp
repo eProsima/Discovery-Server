@@ -629,6 +629,8 @@ void Snapshot::to_xml(
     // Snapshot time is recorded in ms from the process creation measured with the steady clock
     pRoot->SetAttribute(s_sTimestamp.c_str(),
         std::chrono::duration_cast<std::chrono::milliseconds>(_time-Snapshot::_st_ck).count());
+    pRoot->SetAttribute(s_sLastCallback.c_str(),
+        std::chrono::duration_cast<std::chrono::milliseconds>(last_callback_-Snapshot::_st_ck).count());
     pRoot->SetAttribute(s_sSomeone.c_str(), if_someone);
 
     XMLElement* pDescription = xmlDoc.NewElement(s_sDescription.c_str());
@@ -719,13 +721,14 @@ void Snapshot::from_xml(
 
     if (pRoot != nullptr)
     {
-        std::string timestamp = pRoot->Attribute(s_sTimestamp.c_str());
-        if (!timestamp.empty())
-        {
-            std::chrono::milliseconds time(std::stoull(timestamp));
-            
-            _time = std::chrono::steady_clock::time_point(time);
-            //std::cout << "Timestamp: " << timestamp << std::endl;
+        {   // load timestamps
+
+            std::chrono::milliseconds dts(pRoot->Int64Attribute(s_sTimestamp.c_str()));
+            std::chrono::milliseconds dcb(pRoot->Int64Attribute(s_sLastCallback.c_str()));
+
+            std::chrono::steady_clock::time_point current = std::chrono::steady_clock::now();
+            _time = current + dts;
+            last_callback_ = current + dcb;
         }
 
         if_someone = pRoot->BoolAttribute(s_sSomeone.c_str(), true);
@@ -862,7 +865,13 @@ void Snapshot::from_xml(
 Snapshot& Snapshot::operator+=(
         const Snapshot& sh)
 {
-    this->insert(sh.begin(), sh.end());
+    // We keep the later last call in the merging
+    if(last_callback_ < sh.last_callback_)
+    {
+        last_callback_ = sh.last_callback_;
+    }
+
+    insert(sh.begin(), sh.end());
     return *this;
 }
 

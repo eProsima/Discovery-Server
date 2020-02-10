@@ -272,6 +272,8 @@ struct Snapshot : public std::set<PtDB>
 {
     // snapshot time
     std::chrono::steady_clock::time_point _time;
+    // last callback time
+    std::chrono::steady_clock::time_point last_callback_;
     // report test framework that if nobody is discovered it should fail
     bool if_someone; 
 
@@ -284,24 +286,27 @@ struct Snapshot : public std::set<PtDB>
     std::string _des;
 
     explicit Snapshot(
-        std::chrono::steady_clock::time_point t,
+        std::chrono::steady_clock::time_point t = std::chrono::steady_clock::time_point(),
+        std::chrono::steady_clock::time_point c = std::chrono::steady_clock::time_point(),
         bool someone = true)
         : _time(t)
+        , last_callback_(c)
         , if_someone(someone)
     {
     }
 
     Snapshot(
         std::chrono::steady_clock::time_point t,
+        std::chrono::steady_clock::time_point c,
         std::string & des,
         bool someone = true)
         : _time(t)
+        , last_callback_(c)
         , if_someone(someone)
         , _des(des)
     {
     }
 
-    Snapshot() = delete;
     Snapshot(const Snapshot&) = default;
     Snapshot(Snapshot&&) = default;
     Snapshot& operator=(const Snapshot&) = default;
@@ -349,7 +354,8 @@ class DI_database
 
 public:
     DI_database()
-        : image(std::chrono::steady_clock::now())
+        : image(std::chrono::steady_clock::now()
+        , std::chrono::steady_clock::now())
     {
     }
 

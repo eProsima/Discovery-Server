@@ -38,14 +38,15 @@ static const std::string s_sRemovalTime("removal_time");
 static const std::string s_sSnapshot("snapshot");
 static const std::string s_sSnapshots("snapshots");
 static const std::string s_sFile("file");
-static const std::string s_sDS_Snapshots("DS_Snapshots");
-static const std::string s_sDS_Snapshot("DS_Snapshot");
 static const std::string s_sUserShutdown("user_shutdown");
 static const std::string s_sPrefixValidation("prefix_validation");
 static const std::string s_sListeningPort("listening_port");
 
 // specific Snapshot schema string literals
+static const std::string s_sDS_Snapshots("DS_Snapshots");
+static const std::string s_sDS_Snapshot("DS_Snapshot");
 static const std::string s_sTimestamp("timestamp");
+static const std::string s_sLastCallback("last_callback");
 static const std::string s_sDescription("description");
 static const std::string s_sPtDB("ptdb");
 static const std::string s_sPtDI("ptdi");

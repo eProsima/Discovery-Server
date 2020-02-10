@@ -121,6 +121,8 @@ class DSManager
 
     // File where to save snapshots
     std::string snapshots_output_file;
+    // last callback recorded time
+    std::atomic<std::chrono::steady_clock::time_point> last_callback_;
 
 public:
     DSManager(const std::string& xml_file_path);
