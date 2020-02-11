@@ -27,6 +27,7 @@
     return a_eResult; }
 #endif
 
+using namespace eprosima::fastrtps;
 using namespace eprosima::discovery_server;
 
 // basic discovery items operations
@@ -200,15 +201,18 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtD
     return os;
 }
 
+// acceptable snapshot missalignment in ms
+std::chrono::milliseconds Snapshot::aceptable_offset_ = std::chrono::milliseconds(300);
+
 // Time conversion auxiliary
 std::chrono::system_clock::time_point Snapshot::_sy_ck(std::chrono::system_clock::now());
 std::chrono::steady_clock::time_point Snapshot::_st_ck(std::chrono::steady_clock::now());
-
-std::time_t Snapshot::getSystemTime() const
+ 
+std::chrono::system_clock::time_point Snapshot::getSystemTime(std::chrono::steady_clock::time_point tp)
 {
     using namespace std::chrono;
 
-    return system_clock::to_time_t(_sy_ck + duration_cast<system_clock::duration>(_time - _st_ck));
+    return _sy_ck + duration_cast<system_clock::duration>(tp - _st_ck);
 }
 
 // DI_database methods
@@ -626,11 +630,20 @@ void Snapshot::to_xml(
 {
     using namespace tinyxml2;
 
-    // Snapshot time is recorded in ms from the process creation measured with the steady clock
+    // timestamp time is recorded in ms from the POSIX epoch
     pRoot->SetAttribute(s_sTimestamp.c_str(),
-        std::chrono::duration_cast<std::chrono::milliseconds>(_time-Snapshot::_st_ck).count());
-    pRoot->SetAttribute(s_sLastCallback.c_str(),
-        std::chrono::duration_cast<std::chrono::milliseconds>(last_callback_-Snapshot::_st_ck).count());
+        std::chrono::duration_cast<std::chrono::milliseconds>(getSystemTime(_time).time_since_epoch()).count());
+
+    // process_time is recorded in ms from the process startup
+    pRoot->SetAttribute(s_sProcessTime.c_str(),
+        std::chrono::duration_cast<std::chrono::milliseconds>(_time - _st_ck).count());
+
+    // last_?dp_callback time is recorded in ms from the process startup
+    pRoot->SetAttribute(s_sLastPdpCallback.c_str(),
+        std::chrono::duration_cast<std::chrono::milliseconds>(last_PDP_callback_-_st_ck).count());
+    pRoot->SetAttribute(s_sLastEdpCallback.c_str(),
+        std::chrono::duration_cast<std::chrono::milliseconds>(last_EDP_callback_-_st_ck).count());
+
     pRoot->SetAttribute(s_sSomeone.c_str(), if_someone);
 
     XMLElement* pDescription = xmlDoc.NewElement(s_sDescription.c_str());
@@ -722,13 +735,22 @@ void Snapshot::from_xml(
     if (pRoot != nullptr)
     {
         {   // load timestamps
+            using namespace std::chrono;
 
-            std::chrono::milliseconds dts(pRoot->Int64Attribute(s_sTimestamp.c_str()));
-            std::chrono::milliseconds dcb(pRoot->Int64Attribute(s_sLastCallback.c_str()));
+            milliseconds dts(pRoot->Int64Attribute(s_sTimestamp.c_str()));
+            milliseconds dpt(pRoot->Int64Attribute(s_sTimestamp.c_str()));
+            milliseconds d_pdp_cb(pRoot->Int64Attribute(s_sLastPdpCallback.c_str()));
+            milliseconds d_edp_cb(pRoot->Int64Attribute(s_sLastEdpCallback.c_str()));
 
-            std::chrono::steady_clock::time_point current = std::chrono::steady_clock::now();
-            _time = current + dts;
-            last_callback_ = current + dcb;
+            // recreate the steady_clock::time_point from the timestamp
+            _time = (system_clock::time_point() + dts) - _sy_ck + _st_ck;
+
+            // recreate the original process startup time
+            steady_clock::time_point steady_startup = _time - dpt;
+
+            // recreate the steady_clock__time_point from last_callback
+            last_PDP_callback_ = steady_startup + d_pdp_cb;
+            last_EDP_callback_ = steady_startup + d_edp_cb;
         }
 
         if_someone = pRoot->BoolAttribute(s_sSomeone.c_str(), true);
@@ -763,112 +785,122 @@ void Snapshot::from_xml(
                 ptdb_guid.guidPrefix = guidPrefix;
                 ptdb_guid.entityId = entityId;
             }
-            PtDB ptdb(ptdb_guid);
+PtDB ptdb(ptdb_guid);
 
-            for (XMLElement* pPtdi = pPtdb->FirstChildElement(s_sPtDI.c_str());
-                    pPtdi != nullptr;
-                    pPtdi = pPtdi->NextSiblingElement(s_sPtDI.c_str()))
+for(XMLElement* pPtdi = pPtdb->FirstChildElement(s_sPtDI.c_str());
+    pPtdi != nullptr;
+    pPtdi = pPtdi->NextSiblingElement(s_sPtDI.c_str()))
+{
+    GUID_t ptdi_guid;
+    {
+        GuidPrefix_t guidPrefix;
+        {
+            std::string guid = pPtdi->Attribute(s_sGUID_prefix.c_str());
+            std::stringstream sstream;
+            sstream << guid;
+            sstream >> guidPrefix;
+        }
+        EntityId_t entityId;
+        {
+            std::string guid = pPtdi->Attribute(s_sGUID_entity.c_str());
+            std::stringstream sstream;
+            sstream << guid;
+            sstream >> entityId;
+        }
+        ptdi_guid.guidPrefix = guidPrefix;
+        ptdi_guid.entityId = entityId;
+    }
+    PtDI ptdi(ptdi_guid);
+
+    pPtdi->QueryBoolAttribute(s_sServer.c_str(), &ptdi.is_server);
+    pPtdi->QueryBoolAttribute(s_sAlive.c_str(), &ptdi.is_alive);
+    ptdi.participant_name = pPtdi->Attribute(s_sName.c_str());
+    //std::cout << "PTDI: " << ptdi.id_ << std::endl;
+
+    for(XMLElement* pSub = pPtdi->FirstChildElement(s_sSubscriber.c_str());
+        pSub != nullptr;
+        pSub = pSub->NextSiblingElement(s_sSubscriber.c_str()))
+    {
+        GUID_t sub_guid;
+        {
+            GuidPrefix_t guidPrefix;
             {
-                GUID_t ptdi_guid;
-                {
-                    GuidPrefix_t guidPrefix;
-                    {
-                        std::string guid = pPtdi->Attribute(s_sGUID_prefix.c_str());
-                        std::stringstream sstream;
-                        sstream << guid;
-                        sstream >> guidPrefix;
-                    }
-                    EntityId_t entityId;
-                    {
-                        std::string guid = pPtdi->Attribute(s_sGUID_entity.c_str());
-                        std::stringstream sstream;
-                        sstream << guid;
-                        sstream >> entityId;
-                    }
-                    ptdi_guid.guidPrefix = guidPrefix;
-                    ptdi_guid.entityId = entityId;
-                }
-                PtDI ptdi(ptdi_guid);
-
-                pPtdi->QueryBoolAttribute(s_sServer.c_str(), &ptdi.is_server);
-                pPtdi->QueryBoolAttribute(s_sAlive.c_str(), &ptdi.is_alive);
-                ptdi.participant_name = pPtdi->Attribute(s_sName.c_str());
-                //std::cout << "PTDI: " << ptdi.id_ << std::endl;
-
-                for (XMLElement* pSub = pPtdi->FirstChildElement(s_sSubscriber.c_str());
-                        pSub != nullptr;
-                        pSub = pSub->NextSiblingElement(s_sSubscriber.c_str()))
-                {
-                    GUID_t sub_guid;
-                    {
-                        GuidPrefix_t guidPrefix;
-                        {
-                            std::string guid = pSub->Attribute(s_sGUID_prefix.c_str());
-                            std::stringstream sstream;
-                            sstream << guid;
-                            sstream >> guidPrefix;
-                        }
-                        EntityId_t entityId;
-                        {
-                            std::string guid = pSub->Attribute(s_sGUID_entity.c_str());
-                            std::stringstream sstream;
-                            sstream << guid;
-                            sstream >> entityId;
-                        }
-                        sub_guid.guidPrefix = guidPrefix;
-                        sub_guid.entityId = entityId;
-                    }
-                    SDI sub(sub_guid, pSub->Attribute(s_sType.c_str()), pSub->Attribute(s_sTopic.c_str()));
-                    ptdi.subscribers.insert(std::move(sub));
-                }
-
-                for (XMLElement* pPub = pPtdi->FirstChildElement(s_sPublisher.c_str());
-                        pPub != nullptr;
-                        pPub = pPub->NextSiblingElement(s_sPublisher.c_str()))
-                {
-                    GUID_t pub_guid;
-                    {
-                        GuidPrefix_t guidPrefix;
-                        {
-                            std::string guid = pPub->Attribute(s_sGUID_prefix.c_str());
-                            std::stringstream sstream;
-                            sstream << guid;
-                            sstream >> guidPrefix;
-                        }
-                        EntityId_t entityId;
-                        {
-                            std::string guid = pPub->Attribute(s_sGUID_entity.c_str());
-                            std::stringstream sstream;
-                            sstream << guid;
-                            sstream >> entityId;
-                        }
-                        pub_guid.guidPrefix = guidPrefix;
-                        pub_guid.entityId = entityId;
-                    }
-                    PDI pub(pub_guid, pPub->Attribute(s_sType.c_str()), pPub->Attribute(s_sTopic.c_str()));
-                    ptdi.publishers.insert(std::move(pub));
-                }
-
-                ptdb.insert(std::move(ptdi));
+                std::string guid = pSub->Attribute(s_sGUID_prefix.c_str());
+                std::stringstream sstream;
+                sstream << guid;
+                sstream >> guidPrefix;
             }
+            EntityId_t entityId;
+            {
+                std::string guid = pSub->Attribute(s_sGUID_entity.c_str());
+                std::stringstream sstream;
+                sstream << guid;
+                sstream >> entityId;
+            }
+            sub_guid.guidPrefix = guidPrefix;
+            sub_guid.entityId = entityId;
+        }
+        SDI sub(sub_guid, pSub->Attribute(s_sType.c_str()), pSub->Attribute(s_sTopic.c_str()));
+        ptdi.subscribers.insert(std::move(sub));
+    }
 
-            this->insert(std::move(ptdb));
+    for(XMLElement* pPub = pPtdi->FirstChildElement(s_sPublisher.c_str());
+        pPub != nullptr;
+        pPub = pPub->NextSiblingElement(s_sPublisher.c_str()))
+    {
+        GUID_t pub_guid;
+        {
+            GuidPrefix_t guidPrefix;
+            {
+                std::string guid = pPub->Attribute(s_sGUID_prefix.c_str());
+                std::stringstream sstream;
+                sstream << guid;
+                sstream >> guidPrefix;
+            }
+            EntityId_t entityId;
+            {
+                std::string guid = pPub->Attribute(s_sGUID_entity.c_str());
+                std::stringstream sstream;
+                sstream << guid;
+                sstream >> entityId;
+            }
+            pub_guid.guidPrefix = guidPrefix;
+            pub_guid.entityId = entityId;
+        }
+        PDI pub(pub_guid, pPub->Attribute(s_sType.c_str()), pPub->Attribute(s_sTopic.c_str()));
+        ptdi.publishers.insert(std::move(pub));
+    }
+
+    ptdb.insert(std::move(ptdi));
+}
+
+this->insert(std::move(ptdb));
 
         }
-    }/*
-    else
-    {
-        LOG_ERROR("Error loading XML file " << file);
-    }*/
+    }
 }
 
 Snapshot& Snapshot::operator+=(
-        const Snapshot& sh)
+    const Snapshot& sh)
 {
-    // We keep the later last call in the merging
-    if(last_callback_ < sh.last_callback_)
+    // Verify snapshot sync
+    std::chrono::milliseconds offset =
+        std::chrono::duration_cast<std::chrono::milliseconds>(_time - sh._time);
+
+    if( abs(offset) > Snapshot::aceptable_offset_ )
     {
-        last_callback_ = sh.last_callback_;
+        LOG_ERROR("Watch out Snapshot sync. They are more than " << offset.count() << " ms away");
+    }
+
+    // We keep the later last call in the merging
+    if(last_PDP_callback_ < sh.last_PDP_callback_)
+    {
+        last_PDP_callback_ = sh.last_PDP_callback_;
+    }
+
+    if(last_EDP_callback_ < sh.last_EDP_callback_)
+    {
+        last_EDP_callback_ = sh.last_EDP_callback_;
     }
 
     insert(sh.begin(), sh.end());
@@ -882,16 +914,14 @@ std::ostream& eprosima::discovery_server::operator<<(
     std::string timestamp;
 
     {
-        std::time_t time = shot.getSystemTime();
-        std::ostringstream stream;
+        std::chrono::system_clock::time_point tp = Snapshot::getSystemTime(shot._time);
+        std::time_t time = std::chrono::system_clock::to_time_t(tp);
+        std::chrono::milliseconds ms =
+            std::chrono::duration_cast<std::chrono::milliseconds>(tp - std::chrono::system_clock::from_time_t(time));
 
-#if defined(_WIN32)
-        struct tm timeinfo;
-        localtime_s(&timeinfo, &time);
-        stream << std::put_time(&timeinfo, "%F %T");
-#else
-        stream << std::put_time(localtime(&time), "%F %T");
-#endif
+        std::ostringstream stream;
+        stream << std::put_time(localtime(&time), "%F %T") << std::setw(3) << std::setfill('0') << ms.count() << " ";
+
         timestamp = stream.str();
     }
 

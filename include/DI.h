@@ -272,36 +272,45 @@ struct Snapshot : public std::set<PtDB>
 {
     // snapshot time
     std::chrono::steady_clock::time_point _time;
-    // last callback time
-    std::chrono::steady_clock::time_point last_callback_;
+    // last PDP callback time
+    std::chrono::steady_clock::time_point last_PDP_callback_;
+    // last EDP callback time
+    std::chrono::steady_clock::time_point last_EDP_callback_;
     // report test framework that if nobody is discovered it should fail
     bool if_someone; 
 
     // time conversions auxiliary
     static std::chrono::system_clock::time_point _sy_ck;
     static std::chrono::steady_clock::time_point _st_ck;
-    std::time_t getSystemTime() const;
+    static std::chrono::system_clock::time_point getSystemTime(std::chrono::steady_clock::time_point tp);
+
+    // acceptable snapshot missalignment in ms
+    static std::chrono::milliseconds aceptable_offset_;
 
     // description
     std::string _des;
 
     explicit Snapshot(
-        std::chrono::steady_clock::time_point t = std::chrono::steady_clock::time_point(),
-        std::chrono::steady_clock::time_point c = std::chrono::steady_clock::time_point(),
+        std::chrono::steady_clock::time_point t = Snapshot::_st_ck,
+        std::chrono::steady_clock::time_point pdp_cb = Snapshot::_st_ck,
+        std::chrono::steady_clock::time_point edp_cb = Snapshot::_st_ck,
         bool someone = true)
         : _time(t)
-        , last_callback_(c)
+        , last_PDP_callback_(pdp_cb)
+        , last_EDP_callback_(edp_cb)
         , if_someone(someone)
     {
     }
 
     Snapshot(
         std::chrono::steady_clock::time_point t,
-        std::chrono::steady_clock::time_point c,
+        std::chrono::steady_clock::time_point pdp_cb,
+        std::chrono::steady_clock::time_point edp_cb,
         std::string & des,
         bool someone = true)
         : _time(t)
-        , last_callback_(c)
+        , last_PDP_callback_(pdp_cb)
+        , last_EDP_callback_(edp_cb)
         , if_someone(someone)
         , _des(des)
     {

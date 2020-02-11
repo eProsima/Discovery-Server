@@ -63,7 +63,9 @@
             <xs:element name="ptdb" type="ptdb_type" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="timestamp" type="uint64Type" use="required"/>
-        <xs:attribute name="last_callback" type="uint64Type" use="required"/>
+        <xs:attribute name="process_time" type="uint64Type" use="required"/>
+        <xs:attribute name="last_pdp_callback_time" type="uint64Type" use="required"/>
+        <xs:attribute name="last_edp_callback_time" type="uint64Type" use="required"/>
         <xs:attribute name="someone" type="xs:boolean" use="optional" default="true"/>
     </xs:complexType>
 

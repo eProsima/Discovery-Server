@@ -122,7 +122,10 @@ class DSManager
     // File where to save snapshots
     std::string snapshots_output_file;
     // last callback recorded time
-    std::atomic<std::chrono::steady_clock::time_point> last_callback_;
+    std::atomic<std::chrono::steady_clock::time_point> last_PDP_callback_;
+    std::atomic<std::chrono::steady_clock::time_point> last_EDP_callback_;
+    // last snapshot delay, needed for sync purposes
+    static const std::chrono::seconds last_snapshot_delay_;
 
 public:
     DSManager(const std::string& xml_file_path);
@@ -193,7 +196,8 @@ public:
     static TopicAttributes builtin_defaultTopic;
 
     // parsing regex
-    static std::regex ipv4_regular_expression;
+    static const std::regex ipv4_regular_expression;
+
 };
 
 

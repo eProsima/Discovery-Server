@@ -57,13 +57,16 @@ const char* TOPIC = "topic";
 /*static members*/
 HelloWorldPubSubType DSManager::builtin_defaultType;
 TopicAttributes DSManager::builtin_defaultTopic("HelloWorldTopic", "HelloWorld");
-std::regex DSManager::ipv4_regular_expression("^((?:[0-9]{1,3}\\.){3}[0-9]{1,3})?:?(?:(\\d+))?$");
+const std::regex DSManager::ipv4_regular_expression("^((?:[0-9]{1,3}\\.){3}[0-9]{1,3})?:?(?:(\\d+))?$");
+const std::chrono::seconds DSManager::last_snapshot_delay_ = std::chrono::seconds(1);
 
 DSManager::DSManager(
     const std::string& xml_file_path)
     : no_callbacks(false)
     , auto_shutdown(false)
     , enable_prefix_validation(true)
+    , last_PDP_callback_(Snapshot::_st_ck)
+    , last_EDP_callback_(Snapshot::_st_ck)
 {
     tinyxml2::XMLDocument doc;
     if (doc.LoadFile(xml_file_path.c_str()) == tinyxml2::XMLError::XML_SUCCESS)
@@ -190,6 +193,8 @@ DSManager::DSManager(
     : no_callbacks(true)
     , auto_shutdown(true)
     , enable_prefix_validation(true)
+    , last_PDP_callback_(Snapshot::_st_ck)
+    , last_EDP_callback_(Snapshot::_st_ck)
 {
     for (const std::string& file : xml_snapshot_files)
     {
@@ -214,6 +219,12 @@ void DSManager::runEvents(
         p->Wait();
         // execute
         (*p)(*this);
+    }
+
+    // multiple processes sync delay
+    if(!snapshots_output_file.empty())
+    {
+        std::this_thread::sleep_for(last_snapshot_delay_);
     }
 
     // Wait for user shutdown
@@ -1273,7 +1284,7 @@ void DSManager::onParticipantDiscovery(
     const GUID_t& partid = info.info.m_guid;
 
     // update last_callback time
-    last_callback_ = std::chrono::steady_clock::now();
+    last_PDP_callback_ = std::chrono::steady_clock::now();
 
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a participant "
         << info.info.m_participantName << " is " << info.status << ". Prefix " << partid);
@@ -1318,7 +1329,7 @@ void DSManager::onSubscriberDiscovery(
         rtps::ReaderDiscoveryInfo&& info)
 {
     // update last_callback time
-    last_callback_ = std::chrono::steady_clock::now();
+    last_EDP_callback_ = std::chrono::steady_clock::now();
 
     typedef ReaderDiscoveryInfo::DISCOVERY_STATUS DS;
 
@@ -1390,7 +1401,7 @@ void  DSManager::onPublisherDiscovery(
         rtps::WriterDiscoveryInfo&& info)
 {
     // update last_callback time
-    last_callback_ = std::chrono::steady_clock::now();
+    last_EDP_callback_ = std::chrono::steady_clock::now();
 
     typedef WriterDiscoveryInfo::DISCOVERY_STATUS DS;
 
@@ -1542,7 +1553,8 @@ Snapshot& DSManager::takeSnapshot(
 
     Snapshot& shot = snapshots.back();
     shot._time = tp;
-    shot.last_callback_ = last_callback_;
+    shot.last_PDP_callback_ = last_PDP_callback_;
+    shot.last_EDP_callback_ = last_EDP_callback_;
     shot._des = desc;
     shot.if_someone = someone;
 
