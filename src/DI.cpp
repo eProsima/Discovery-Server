@@ -202,7 +202,7 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtD
 }
 
 // acceptable snapshot missalignment in ms
-std::chrono::milliseconds Snapshot::aceptable_offset_ = std::chrono::milliseconds(300);
+std::chrono::milliseconds Snapshot::aceptable_offset_ = std::chrono::milliseconds(400);
 
 // Time conversion auxiliary
 std::chrono::system_clock::time_point Snapshot::_sy_ck(std::chrono::system_clock::now());
@@ -889,7 +889,7 @@ Snapshot& Snapshot::operator+=(
 
     if( abs(offset) > Snapshot::aceptable_offset_ )
     {
-        LOG_ERROR("Watch out Snapshot sync. They are more than " << offset.count() << " ms away");
+        LOG_ERROR("Watch out Snapshot sync. They are " << abs(offset.count()) << " ms away.");
     }
 
     // We keep the later last call in the merging
