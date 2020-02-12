@@ -235,6 +235,8 @@ struct PtDI : public DI
 
     //! Returns the number of endpoints owned
     size_type CountEndpoints() const;
+    size_type CountSubscribers() const;
+    size_type CountPublishers() const;
 
 };
 
@@ -262,6 +264,11 @@ struct PtDB : public DI, public std::set<PtDI>
     PtDB(PtDB&&) = default;
     PtDB& operator=(const PtDB&) = default;
     PtDB& operator=(PtDB&&) = default;
+
+    size_type CountParticipants() const;
+    size_type CountSubscribers() const;
+    size_type CountPublishers() const;
+
 };
 
 bool operator==(const PtDB &, const  PtDB &);
@@ -270,6 +277,8 @@ std::ostream& operator<<(std::ostream&, const PtDB&);
 //! Snapshot, discovery info associated with all participants
 struct Snapshot : public std::set<PtDB>
 {
+    // process time
+    std::chrono::steady_clock::time_point process_startup_;
     // snapshot time
     std::chrono::steady_clock::time_point _time;
     // last PDP callback time
@@ -283,6 +292,7 @@ struct Snapshot : public std::set<PtDB>
     static std::chrono::system_clock::time_point _sy_ck;
     static std::chrono::steady_clock::time_point _st_ck;
     static std::chrono::system_clock::time_point getSystemTime(std::chrono::steady_clock::time_point tp);
+    static std::string getTimeStamp(std::chrono::steady_clock::time_point tp);
 
     // acceptable snapshot missalignment in ms
     static std::chrono::milliseconds aceptable_offset_;
@@ -296,6 +306,7 @@ struct Snapshot : public std::set<PtDB>
         std::chrono::steady_clock::time_point edp_cb = Snapshot::_st_ck,
         bool someone = true)
         : _time(t)
+        , process_startup_(Snapshot::_st_ck)
         , last_PDP_callback_(pdp_cb)
         , last_EDP_callback_(edp_cb)
         , if_someone(someone)
@@ -309,6 +320,7 @@ struct Snapshot : public std::set<PtDB>
         std::string & des,
         bool someone = true)
         : _time(t)
+        , process_startup_(Snapshot::_st_ck)
         , last_PDP_callback_(pdp_cb)
         , last_EDP_callback_(edp_cb)
         , if_someone(someone)

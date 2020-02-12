@@ -15,6 +15,7 @@
 #include "log/DSLog.h"
 #include <cassert>
 #include <algorithm>
+#include <numeric>
 #include <iterator>
 #include <sstream>
 #include <iomanip>
@@ -184,14 +185,50 @@ void PtDI::acknowledge(
     part.is_alive = alive;
 }
 
+PtDI::size_type PtDI::CountSubscribers() const
+{
+    return  subscribers.size();
+}
+
+PtDI::size_type PtDI::CountPublishers() const
+{
+    return  publishers.size();
+}
+
 PtDI::size_type PtDI::CountEndpoints() const
 {
     return  publishers.size() + subscribers.size();
 }
 
+PtDB::size_type PtDB::CountParticipants() const
+{
+    return size();
+}
+
+PtDB::size_type PtDB::CountSubscribers() const
+{
+    return std::accumulate(begin(),end(), size_type(0),
+        [](size_type subs, const PtDI & part)
+        {
+            return subs + part.CountSubscribers();
+        }
+    );
+}
+
+PtDB::size_type PtDB::CountPublishers() const
+{
+    return std::accumulate(begin(), end(), size_type(0),
+        [](size_type pubs, const PtDI & part)
+    {
+        return pubs + part.CountPublishers();
+    }
+    );
+}
+
 std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtDB& db)
 {
-    os << "Participant " << db.endpoint_guid << " discovered: " << std::endl;
+    os << "Participant " << db.endpoint_guid << " discovered " << db.CountParticipants() << " participants, ";
+    os << db.CountPublishers() << " publishers and " << db.CountSubscribers() << " subscribers:" << std::endl;
 
     for (const PtDI & pt : db)
     {
@@ -213,6 +250,19 @@ std::chrono::system_clock::time_point Snapshot::getSystemTime(std::chrono::stead
     using namespace std::chrono;
 
     return _sy_ck + duration_cast<system_clock::duration>(tp - _st_ck);
+}
+
+std::string Snapshot::getTimeStamp(std::chrono::steady_clock::time_point snap_time)
+{
+    std::chrono::system_clock::time_point tp = Snapshot::getSystemTime(snap_time);
+    std::time_t time = std::chrono::system_clock::to_time_t(tp);
+    std::chrono::milliseconds ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(tp - std::chrono::system_clock::from_time_t(time));
+
+    std::ostringstream stream;
+    stream << std::put_time(localtime(&time), "%F %T") << std::setw(3) << std::setfill('0') << ms.count() << " ";
+
+    return stream.str();
 }
 
 // DI_database methods
@@ -738,19 +788,19 @@ void Snapshot::from_xml(
             using namespace std::chrono;
 
             milliseconds dts(pRoot->Int64Attribute(s_sTimestamp.c_str()));
-            milliseconds dpt(pRoot->Int64Attribute(s_sTimestamp.c_str()));
+            milliseconds dpt(pRoot->Int64Attribute(s_sProcessTime.c_str()));
             milliseconds d_pdp_cb(pRoot->Int64Attribute(s_sLastPdpCallback.c_str()));
             milliseconds d_edp_cb(pRoot->Int64Attribute(s_sLastEdpCallback.c_str()));
 
             // recreate the steady_clock::time_point from the timestamp
             _time = (system_clock::time_point() + dts) - _sy_ck + _st_ck;
 
-            // recreate the original process startup time
-            steady_clock::time_point steady_startup = _time - dpt;
+            // update the original process startup time for this snapshot
+            process_startup_ = _time - dpt;
 
             // recreate the steady_clock__time_point from last_callback
-            last_PDP_callback_ = steady_startup + d_pdp_cb;
-            last_EDP_callback_ = steady_startup + d_edp_cb;
+            last_PDP_callback_ = process_startup_ + d_pdp_cb;
+            last_EDP_callback_ = process_startup_ + d_edp_cb;
         }
 
         if_someone = pRoot->BoolAttribute(s_sSomeone.c_str(), true);
@@ -893,12 +943,12 @@ Snapshot& Snapshot::operator+=(
     }
 
     // We keep the later last call in the merging
-    if(last_PDP_callback_ < sh.last_PDP_callback_)
+    if( (last_PDP_callback_- process_startup_) < (sh.last_PDP_callback_ - sh.process_startup_) )
     {
         last_PDP_callback_ = sh.last_PDP_callback_;
     }
 
-    if(last_EDP_callback_ < sh.last_EDP_callback_)
+    if( (last_EDP_callback_ - process_startup_) < (sh.last_EDP_callback_ -  sh.process_startup_) )
     {
         last_EDP_callback_ = sh.last_EDP_callback_;
     }
@@ -911,26 +961,26 @@ std::ostream& eprosima::discovery_server::operator<<(
         std::ostream& os,
         const Snapshot& shot)
 {
-    std::string timestamp;
+    using namespace std;
+    using namespace std::chrono;
 
-    {
-        std::chrono::system_clock::time_point tp = Snapshot::getSystemTime(shot._time);
-        std::time_t time = std::chrono::system_clock::to_time_t(tp);
-        std::chrono::milliseconds ms =
-            std::chrono::duration_cast<std::chrono::milliseconds>(tp - std::chrono::system_clock::from_time_t(time));
+    os << "Snapshot taken at " << Snapshot::getTimeStamp(shot._time) << " description: " << shot._des << std::endl;
 
-        std::ostringstream stream;
-        stream << std::put_time(localtime(&time), "%F %T") << std::setw(3) << std::setfill('0') << ms.count() << " ";
+    os << "Snapshot process startupt at " << Snapshot::getTimeStamp(shot.process_startup_) << endl;
+    
+    os << "Last PDP callback at " << Snapshot::getTimeStamp(shot.last_PDP_callback_) << " or ";
+    os << duration_cast<milliseconds>(shot.last_PDP_callback_ - shot.process_startup_).count();
+    os << " ms since process startup." << endl;
 
-        timestamp = stream.str();
-    }
+    os << "Last EDP callback at " << Snapshot::getTimeStamp(shot.last_EDP_callback_) << " or ";
+    os << duration_cast<milliseconds>(shot.last_EDP_callback_ - shot.process_startup_).count();
+    os << " ms since process startup." << endl;
 
-    os << "Snapshot taken at " << timestamp << " description: " << shot._des << std::endl;
-    os << shot.size() << " participants report the following discovery info:" << std::endl;
+    os << shot.size() << " participants report the following discovery info:" << endl;
 
     for (const PtDB& db : shot)
     {
-        os << db << std::endl;
+        os << db << endl;
     }
 
     return os;
