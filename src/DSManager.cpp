@@ -162,6 +162,18 @@ DSManager::DSManager(
                 }
             }
 
+            // Create the simples according with the configuration, simples have only testing purposes
+            tinyxml2::XMLElement* simples = child->FirstChildElement(s_sSimples.c_str());
+            if(simples != nullptr)
+            {
+                tinyxml2::XMLElement* simple = simples->FirstChildElement(s_sSimple.c_str());
+                while(simple != nullptr)
+                {
+                    loadSimple(simple);
+                    simple = simple->NextSiblingElement(s_sSimple.c_str());
+                }
+            }
+
             // Create snapshot events
             tinyxml2::XMLElement* snapshots = child->FirstChildElement(s_sSnapshots.c_str());
             if (snapshots)
@@ -241,7 +253,6 @@ void DSManager::addServer(
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
     assert(servers[s->getGuid()] == nullptr);
-
     servers[s->getGuid()] = s;
 }
 
@@ -251,6 +262,14 @@ void DSManager::addClient(
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
     assert(clients[c->getGuid()] == nullptr);
     clients[c->getGuid()] = c;
+}
+
+void DSManager::addSimple(
+    Participant* s)
+{
+    std::lock_guard<std::recursive_mutex> lock(management_mutex);
+    assert(simples[s->getGuid()] == nullptr);
+    simples[s->getGuid()] = s;
 }
 
 Participant* DSManager::getParticipant(
@@ -265,6 +284,10 @@ Participant* DSManager::getParticipant(
         return it->second;
     }
     else if ((it = servers.find(id)) != servers.end())
+    {
+        return it->second;
+    }
+    else if((it = simples.find(id)) != simples.end())
     {
         return it->second;
     }
@@ -312,6 +335,11 @@ Participant* DSManager::removeParticipant(
     {
         ret = it->second;
         servers.erase(it);
+    }
+    else if((it = simples.find(id)) != simples.end())
+    {
+        ret = it->second;
+        simples.erase(it);
     }
 
     return ret;
@@ -476,6 +504,7 @@ void DSManager::onTerminate()
 
     publishers.clear();
 
+    clients.insert(simples.begin(), simples.end());
     // the servers are appended because they should be destroyed at the end
     clients.insert(servers.begin(), servers.end());
 
@@ -490,6 +519,7 @@ void DSManager::onTerminate()
 
     servers.clear();
     clients.clear();
+    simples.clear();
 
     //unregister the types
     for (const auto& t : loaded_types)
@@ -1348,7 +1378,8 @@ void DSManager::onSubscriberDiscovery(
         {
             // is one of ours?
             if ((it = servers.find(partid)) != servers.end() ||
-                (it = clients.find(partid)) != clients.end())
+                (it = clients.find(partid)) != clients.end() ||
+                (it = simples.find(partid)) != simples.end())
             {
                 part_name = it->second->getAttributes().rtps.getName();
             }
@@ -1367,7 +1398,7 @@ void DSManager::onSubscriberDiscovery(
 
     if (part_name.empty())
     {   // if remote use prefix instead of name
-        part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
+        part_name = std::ostringstream(std::ostringstream() << partid).str();
     }
 
     switch (info.status)
@@ -1420,7 +1451,8 @@ void  DSManager::onPublisherDiscovery(
             participant_map::iterator it;
 
             if ((it = servers.find(partid)) != servers.end() ||
-                (it = clients.find(partid)) != clients.end())
+                (it = clients.find(partid)) != clients.end() ||
+                (it = simples.find(partid)) != simples.end())
             {
                 part_name = it->second->getAttributes().rtps.getName();
             }
@@ -1439,7 +1471,7 @@ void  DSManager::onPublisherDiscovery(
 
     if (part_name.empty())
     {   // if remote use prefix instead of name
-        part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
+        part_name = std::ostringstream(std::ostringstream() << partid).str();
     }
 
     switch (info.status)
@@ -1558,11 +1590,12 @@ Snapshot& DSManager::takeSnapshot(
     shot._des = desc;
     shot.if_someone = someone;
 
-    // Add any client or server isolated information 
+    // Add any simple, client or server isolated information 
     // those have not make any callbacks if no subscriber or publisher
 
     participant_map temp(servers);
     temp.insert(clients.begin(), clients.end());
+    temp.insert(simples.begin(), simples.end());
 
     std::function<bool(const participant_map::value_type &, const Snapshot::value_type &)> pred(
         [](const participant_map::value_type & p1, const Snapshot::value_type & p2)

@@ -27,6 +27,8 @@ static const std::string s_sServers("servers");
 static const std::string s_sServer("server");
 static const std::string s_sClients("clients");
 static const std::string s_sClient("client");
+static const std::string s_sSimples("simples");
+static const std::string s_sSimple("simple");
 static const std::string s_sPersist("persist");
 static const std::string s_sLP("ListeningPorts");
 static const std::string s_sSL("ServersList");

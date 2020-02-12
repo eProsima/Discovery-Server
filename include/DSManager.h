@@ -74,6 +74,7 @@ class DSManager
     // Participant maps
     participant_map servers;
     participant_map clients;
+    participant_map simples;
 
     // endpoints maps
     subscriber_map subscribers;
@@ -99,6 +100,7 @@ class DSManager
     void loadProfiles(tinyxml2::XMLElement *profiles);
     void loadServer(tinyxml2::XMLElement* server);
     void loadClient(tinyxml2::XMLElement* client);
+    void loadSimple(tinyxml2::XMLElement* simple);
 
     void loadSubscriber(
         GUID_t & part_guid,
@@ -155,6 +157,7 @@ public:
     // update entity state functions
     void addServer(Participant* b);
     void addClient(Participant* p);
+    void addSimple(Participant* s);
     void addSubscriber(Subscriber *);
     void addPublisher(Publisher *);
 
