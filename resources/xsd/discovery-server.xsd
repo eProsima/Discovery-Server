@@ -771,7 +771,7 @@
 
     <xs:complexType name="stringListType">
         <xs:sequence>
-            <xs:element name="id" type="stringType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="transport_id" type="stringType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -1134,7 +1134,11 @@
 
     <xs:complexType name="unionDcl">
         <xs:sequence>
-            <xs:element name="discriminator" type="string" minOccurs="1"/>
+            <xs:element name="discriminator" minOccurs="1">
+                <xs:complexType>
+                    <xs:attribute name="type" type="string"/>
+                </xs:complexType>
+            </xs:element>
             <xs:sequence maxOccurs="unbounded">
                 <xs:element name="case" type="caseDcl" minOccurs="1"/>
             </xs:sequence>
