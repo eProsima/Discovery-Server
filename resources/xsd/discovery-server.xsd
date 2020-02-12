@@ -124,18 +124,18 @@
 
     <xs:complexType name="propertyType">
         <xs:all>
-            <xs:element name="name" type="stringType"/>
-            <xs:element name="value" type="stringType"/>
-            <xs:element name="propagate" type="boolType"/>
+            <xs:element name="name" type="stringType" minOccurs="1"/>
+            <xs:element name="value" type="stringType" minOccurs="1"/>
+            <xs:element name="propagate" type="boolType" minOccurs="0"/>
         </xs:all>
     </xs:complexType>
 
     <xs:complexType name="binaryPropertyType">
         <xs:all>
-            <xs:element name="name" type="stringType"/>
-            <xs:element name="value" type="stringType"/>
+            <xs:element name="name" type="stringType" minOccurs="1"/>
+            <xs:element name="value" type="stringType" minOccurs="0"/>
             <!-- std::vector<uint8_t> -->
-            <xs:element name="propagate" type="boolType"/>
+            <xs:element name="propagate" type="boolType" minOccurs="0"/>
         </xs:all>
     </xs:complexType>
 
@@ -166,7 +166,7 @@
     <xs:complexType name="durationType">
         <xs:all>
             <xs:element name="sec" type="nonNegativeInteger_Duration_SEC" minOccurs="0"/>
-            <xs:element name="fraction" type="nonNegativeInteger_Duration_NSEC" minOccurs="0"/>
+            <xs:element name="nanosec" type="nonNegativeInteger_Duration_NSEC" minOccurs="0"/>
         </xs:all>
     </xs:complexType>
 
@@ -287,6 +287,12 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="ParticipantFlags">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="((FILTER_DIFFERENT_HOST|FILTER_DIFFERENT_PROCESS|FILTER_SAME_PROCESS|NO_FILTER)(\||\s)*)*" />
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:simpleType name="EDPType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="SIMPLE"/>
@@ -321,12 +327,21 @@
         </xs:sequence>
     </xs:complexType>
 
+    <xs:complexType name="initialAnnouncementsType">
+        <xs:all minOccurs="0">
+            <xs:element name="count" type="uint32Type" minOccurs="0"/>
+            <xs:element name="period" type="durationType" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+
     <xs:complexType name="discoverySettingsType">
         <xs:all minOccurs="0">
             <xs:element name="discoveryProtocol" type="DiscoveryProtocol" minOccurs="0"/>
+            <xs:element name="ignoreParticipantFlags" type="ParticipantFlags" minOccurs="0"/>
             <xs:element name="EDP" type="EDPType" minOccurs="0"/>
             <xs:element name="leaseDuration" type="durationType" minOccurs="0"/>
             <xs:element name="leaseAnnouncement" type="durationType" minOccurs="0"/>
+            <xs:element name="initialAnnouncements" type="initialAnnouncementsType" minOccurs="0"/>
             <xs:element name="simpleEDP" type="simpleEDPType" minOccurs="0"/>
             <xs:element name="clientAnnouncementPeriod" type="durationType" minOccurs="0"/>
             <xs:element name="discoveryServersList" type="DiscoveryServerList" minOccurs="0"/>
@@ -345,6 +360,7 @@
             <xs:element name="readerHistoryMemoryPolicy" type="historyMemoryPolicyType" minOccurs="0"/>
             <xs:element name="writerHistoryMemoryPolicy" type="historyMemoryPolicyType" minOccurs="0"/>
             <xs:element name="mutation_tries" type="uint32Type" minOccurs="0"/>
+            <xs:element name="avoid_builtin_multicast" type="boolType" minOccurs="0"/>
         </xs:all>
     </xs:complexType>
 
@@ -361,6 +377,30 @@
             <xs:element name="max_instances" type="int32Type" minOccurs="0"/>
             <xs:element name="max_samples_per_instance" type="int32Type" minOccurs="0"/>
             <xs:element name="allocated_samples" type="int32Type" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="containerAllocationConfigType">
+        <xs:all minOccurs="0">
+            <xs:element name="initial" type="uint32Type" minOccurs="0"/>
+            <xs:element name="maximum" type="uint32Type" minOccurs="0"/>
+            <xs:element name="increment" type="uint32Type" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="remoteLocatorsAllocationConfigType">
+        <xs:all minOccurs="0">
+            <xs:element name="max_unicast_locators" type="uint32Type" minOccurs="0"/>
+            <xs:element name="max_multicast_locators" type="uint32Type" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="rtpsParticipantAllocationAttributesType">
+        <xs:all minOccurs="0">
+            <xs:element name="remote_locators" type="remoteLocatorsAllocationConfigType" minOccurs="0"/>
+            <xs:element name="total_participants" type="containerAllocationConfigType" minOccurs="0"/>
+            <xs:element name="total_readers" type="containerAllocationConfigType" minOccurs="0"/>
+            <xs:element name="total_writers" type="containerAllocationConfigType" minOccurs="0"/>
         </xs:all>
     </xs:complexType>
 
@@ -619,6 +659,7 @@
 
     <xs:complexType name="rtpsParticipantAttributesType">
         <xs:all minOccurs="0">
+            <xs:element name="allocation" type="rtpsParticipantAllocationAttributesType" minOccurs="0"/>
             <xs:element name="prefix" type="guid" minOccurs="0"/>
             <xs:element name="defaultUnicastLocatorList" type="locatorListType" minOccurs="0"/>
             <xs:element name="defaultMulticastLocatorList" type="locatorListType" minOccurs="0"/>
@@ -641,6 +682,7 @@
             <xs:element name="rtps" type="rtpsParticipantAttributesType"/>
         </xs:sequence>
         <xs:attribute name="profile_name" type="stringType" use="required"/>
+        <xs:attribute name="is_default_profile" type="boolean" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="publisherProfileType">
@@ -655,8 +697,10 @@
             <xs:element name="propertiesPolicy" type="propertyPolicyType" minOccurs="0"/>
             <xs:element name="userDefinedID" type="int16Type" minOccurs="0"/>
             <xs:element name="entityID" type="int16Type" minOccurs="0"/>
+            <xs:element name="matchedSubscribersAllocation" type="containerAllocationConfigType" minOccurs="0"/>
         </xs:all>
         <xs:attribute name="profile_name" type="stringType" use="required"/>
+        <xs:attribute name="is_default_profile" type="boolean" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="subscriberProfileType">
@@ -671,8 +715,10 @@
             <xs:element name="propertiesPolicy" type="propertyPolicyType" minOccurs="0"/>
             <xs:element name="userDefinedID" type="int16Type" minOccurs="0"/>
             <xs:element name="entityID" type="int16Type" minOccurs="0"/>
+            <xs:element name="matchedPublishersAllocation" type="containerAllocationConfigType" minOccurs="0"/>
         </xs:all>
         <xs:attribute name="profile_name" type="stringType" use="required"/>
+        <xs:attribute name="is_default_profile" type="boolean" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="topicProfileType">
@@ -706,7 +752,7 @@
             <xs:element name="TTL" type="uint8Type" minOccurs="0" maxOccurs="1"/>
             <xs:element name="maxMessageSize" type="uint32Type" minOccurs="0" maxOccurs="1"/>
             <xs:element name="maxInitialPeersRange" type="uint32Type" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="interfaceWhiteList" type="stringListType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="interfaceWhiteList" type="addressListType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="wan_addr" type="stringType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="output_port" type="uint16Type" minOccurs="0" maxOccurs="1"/>
             <xs:element name="keep_alive_frequency_ms" type="uint32Type" minOccurs="0" maxOccurs="1"/>
@@ -725,7 +771,13 @@
 
     <xs:complexType name="stringListType">
         <xs:sequence>
-            <xs:element name="transport_id" type="stringType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="id" type="stringType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="addressListType">
+        <xs:sequence>
+            <xs:element name="address" type="stringType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -734,7 +786,6 @@
             <xs:element name="port" type="uint16Type" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
-
 
     <xs:complexType name="profileDescriptorType">
         <xs:sequence>
@@ -1028,8 +1079,6 @@
         </xs:complexType>
     </xs:element> -->
 
-    <!-- Dynamic Types -->
-
     <xs:complexType name="typeDescriptorType">
         <xs:group ref="moduleElems"/>
     </xs:complexType>
@@ -1040,6 +1089,7 @@
         </xs:sequence>
     </xs:complexType>
 
+    <!-- Dynamic Types -->
 
     <xs:group name="moduleElems">
         <xs:sequence>
@@ -1048,9 +1098,29 @@
                 <xs:element name="union" type="unionDcl" minOccurs="0"/>
                 <xs:element name="enum" type="enumDcl" minOccurs="0"/>
                 <xs:element name="typedef" type="typedefDcl" minOccurs="0"/>
+                <xs:element name="bitset" type="bitsetDcl" minOccurs="0"/>
+                <xs:element name="bitmask" type="bitmaskDcl" minOccurs="0"/>
             </xs:choice>
         </xs:sequence>
     </xs:group>
+
+    <xs:complexType name="bitsetDcl">
+        <xs:sequence>
+            <xs:choice maxOccurs="unbounded">
+                <xs:element name="bitfield" type="bitfieldDcl" minOccurs="1"/>
+            </xs:choice>
+        </xs:sequence>
+        <xs:attribute name="name" type="stringType" use="required"/>
+        <xs:attribute name="baseType" type="stringType" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="bitmaskDcl">
+        <xs:sequence>
+            <xs:element name="bit_value" type="bit_valueType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required"/>
+        <xs:attribute name="bit_bound" use="optional"/>
+    </xs:complexType>
 
     <xs:complexType name="structDcl">
         <xs:sequence>
@@ -1059,15 +1129,12 @@
             </xs:choice>
         </xs:sequence>
         <xs:attribute name="name" type="stringType" use="required"/>
+        <xs:attribute name="baseType" type="stringType" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="unionDcl">
         <xs:sequence>
-            <xs:element name="discriminator" minOccurs="1">
-                <xs:complexType>
-                    <xs:attribute name="type" type="string"/>
-                </xs:complexType>
-            </xs:element>
+            <xs:element name="discriminator" type="string" minOccurs="1"/>
             <xs:sequence maxOccurs="unbounded">
                 <xs:element name="case" type="caseDcl" minOccurs="1"/>
             </xs:sequence>
@@ -1090,11 +1157,17 @@
         <xs:attribute name="value" type="stringType" use="optional"/>
     </xs:complexType>
 
+    <xs:complexType name="bit_valueType">
+        <xs:attribute name="name" type="stringType" use="required"/>
+        <xs:attribute name="position" type="int16Type" use="optional"/>
+    </xs:complexType>
+
     <xs:complexType name="enumDcl">
         <xs:sequence>
             <xs:element name="enumerator" type="enumeratorType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" use="required"/>
+        <xs:attribute name="name" type="stringType" use="required"/>
+        <xs:attribute name="bitBound" type="int16Type" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="memberDcl">
@@ -1104,9 +1177,16 @@
         <xs:attribute name="name" type="string" use="required"/>
         <xs:attribute name="type" type="string" use="required"/>
         <xs:attribute name="arrayDimensions" type="string" use="optional"/>
-        <xs:attribute name="nonBasic" type="string" use="optional"/>
         <xs:attribute name="sequenceMaxLength" type="string" use="optional"/>
         <xs:attribute name="mapMaxLength" type="string" use="optional"/>
+        <xs:attribute name="nonBasic" type="string" use="optional"/>
+        <xs:attribute name="nonBasicTypeName" type="string" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="bitfieldDcl">
+        <xs:attribute name="name" type="stringType" use="optional"/>
+        <xs:attribute name="type" type="stringType" use="optional"/>
+        <xs:attribute name="bit_bound" type="int16Type" use="required"/>
     </xs:complexType>
 
 </xs:schema>

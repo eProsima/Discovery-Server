@@ -967,7 +967,7 @@ std::ostream& eprosima::discovery_server::operator<<(
 
     os << "Snapshot taken at " << Snapshot::getTimeStamp(shot._time) << " description: " << shot._des << std::endl;
 
-    os << "Snapshot process startupt at " << Snapshot::getTimeStamp(shot.process_startup_) << endl;
+    os << "Snapshot process startup at " << Snapshot::getTimeStamp(shot.process_startup_) << endl;
     
     os << "Last PDP callback at " << Snapshot::getTimeStamp(shot.last_PDP_callback_) << " or ";
     os << duration_cast<milliseconds>(shot.last_PDP_callback_ - shot.process_startup_).count();
