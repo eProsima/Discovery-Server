@@ -937,7 +937,8 @@ Snapshot& Snapshot::operator+=(
     std::chrono::milliseconds offset =
         std::chrono::duration_cast<std::chrono::milliseconds>(_time - sh._time);
 
-    if( abs(offset) > Snapshot::aceptable_offset_ )
+    // if( abs(offset) > Snapshot::aceptable_offset_ ) // uses abs(duration< ...) which is a C++17 hack
+    if( abs(offset.count()) > Snapshot::aceptable_offset_.count() )
     {
         LOG_ERROR("Watch out Snapshot sync. They are " << abs(offset.count()) << " ms away.");
     }
