@@ -965,15 +965,17 @@ std::ostream& eprosima::discovery_server::operator<<(
     using namespace std;
     using namespace std::chrono;
 
-    os << "Snapshot taken at " << Snapshot::getTimeStamp(shot._time) << " description: " << shot._des << std::endl;
+    os << "Snapshot taken at " << Snapshot::getTimeStamp(shot._time) << "or ";
+    os << duration_cast<milliseconds>(shot._time - shot.process_startup_).count();
+    os << " ms since process startup." << " Description: " << shot._des << std::endl;
 
     os << "Snapshot process startup at " << Snapshot::getTimeStamp(shot.process_startup_) << endl;
     
-    os << "Last PDP callback at " << Snapshot::getTimeStamp(shot.last_PDP_callback_) << " or ";
+    os << "Last PDP callback at " << Snapshot::getTimeStamp(shot.last_PDP_callback_) << "or ";
     os << duration_cast<milliseconds>(shot.last_PDP_callback_ - shot.process_startup_).count();
     os << " ms since process startup." << endl;
 
-    os << "Last EDP callback at " << Snapshot::getTimeStamp(shot.last_EDP_callback_) << " or ";
+    os << "Last EDP callback at " << Snapshot::getTimeStamp(shot.last_EDP_callback_) << "or ";
     os << duration_cast<milliseconds>(shot.last_EDP_callback_ - shot.process_startup_).count();
     os << " ms since process startup." << endl;
 
