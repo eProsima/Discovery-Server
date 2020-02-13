@@ -1410,14 +1410,14 @@ void DSManager::onParticipantDiscovery(
     bool server = false;
     const GUID_t& partid = info.info.m_guid;
 
-    // update last_callback time
-    last_PDP_callback_ = std::chrono::steady_clock::now();
-
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a participant "
         << info.info.m_participantName << " is " << info.status << ". Prefix " << partid);
 
     {
         std::lock_guard<std::recursive_mutex> lock(management_mutex);
+
+        // update last_callback time
+        last_PDP_callback_ = std::chrono::steady_clock::now();
 
         if (!no_callbacks)
         {
@@ -1455,9 +1455,6 @@ void DSManager::onSubscriberDiscovery(
         Participant* participant,
         rtps::ReaderDiscoveryInfo&& info)
 {
-    // update last_callback time
-    last_EDP_callback_ = std::chrono::steady_clock::now();
-
     typedef ReaderDiscoveryInfo::DISCOVERY_STATUS DS;
 
     const GUID_t & subsid = info.info.guid();
@@ -1468,6 +1465,9 @@ void DSManager::onSubscriberDiscovery(
 
     {
         std::lock_guard<std::recursive_mutex> lock(management_mutex);
+
+        // update last_callback time
+        last_EDP_callback_ = std::chrono::steady_clock::now();
 
         participant_map::iterator it;
 
@@ -1528,9 +1528,6 @@ void  DSManager::onPublisherDiscovery(
         Participant* participant,
         rtps::WriterDiscoveryInfo&& info)
 {
-    // update last_callback time
-    last_EDP_callback_ = std::chrono::steady_clock::now();
-
     typedef WriterDiscoveryInfo::DISCOVERY_STATUS DS;
 
     const GUID_t& pubsid = info.info.guid();
@@ -1541,6 +1538,9 @@ void  DSManager::onPublisherDiscovery(
 
     {
         std::lock_guard<std::recursive_mutex> lock(management_mutex);
+
+        // update last_callback time
+        last_EDP_callback_ = std::chrono::steady_clock::now();
 
         if (!no_callbacks)
         {

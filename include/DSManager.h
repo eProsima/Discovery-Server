@@ -124,8 +124,8 @@ class DSManager
     // File where to save snapshots
     std::string snapshots_output_file;
     // last callback recorded time
-    std::atomic<std::chrono::steady_clock::time_point> last_PDP_callback_;
-    std::atomic<std::chrono::steady_clock::time_point> last_EDP_callback_;
+    std::chrono::steady_clock::time_point last_PDP_callback_;
+    std::chrono::steady_clock::time_point last_EDP_callback_;
     // last snapshot delay, needed for sync purposes
     static const std::chrono::seconds last_snapshot_delay_;
 
