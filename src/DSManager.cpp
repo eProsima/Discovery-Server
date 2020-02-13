@@ -545,8 +545,6 @@ DSManager::~DSManager()
 void DSManager::loadServer(
         tinyxml2::XMLElement* server)
 {
-    std::lock_guard<std::recursive_mutex> lock(management_mutex);
-
     // check if we need to create an event
     std::chrono::steady_clock::time_point creation_time, removal_time;
     creation_time = removal_time = getTime();
@@ -719,8 +717,6 @@ void DSManager::loadServer(
 void DSManager::loadClient(
         tinyxml2::XMLElement* client)
 {
-    std::lock_guard<std::recursive_mutex> lock(management_mutex);
-
     // check if we need to create an event
     std::chrono::steady_clock::time_point creation_time, removal_time;
     creation_time = removal_time = getTime();
@@ -980,8 +976,6 @@ void DSManager::loadClient(
 void DSManager::loadSimple(
     tinyxml2::XMLElement* simple)
 {
-    std::lock_guard<std::recursive_mutex> lock(management_mutex);
-
     // check if we need to create an event
     std::chrono::steady_clock::time_point creation_time, removal_time;
     creation_time = removal_time = getTime();
@@ -1085,8 +1079,6 @@ void DSManager::loadSubscriber(
 {
     assert(sub != nullptr);
 
-    std::lock_guard<std::recursive_mutex> lock(management_mutex);
-
     // retrieve participant
     Participant* part = getParticipant(part_guid);
 
@@ -1180,8 +1172,6 @@ void DSManager::loadPublisher(
         DPC* pLJ /*= nullptrt*/)
 {
     assert(sub != nullptr);
-
-    std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
     // retrieve participant
     Participant * part = getParticipant(part_guid);
