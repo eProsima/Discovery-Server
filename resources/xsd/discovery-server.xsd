@@ -915,7 +915,7 @@
         <!-- not mandatory may be present in the profile -->
         <xs:attribute name="name" type="stringType" use="optional" />
         <!-- name may be specified within the profile -->
-        <xs:attribute name="profile_name" type="stringType" use="required" />
+        <xs:attribute name="profile_name" type="stringType" use="optional" />
         <xs:attribute name="creation_time" type="uint32Type" use="optional" />
         <!-- creation time in seconds from startup-->
         <xs:attribute name="removal_time" type="uint32Type" use="optional" />
@@ -939,22 +939,22 @@
     <xs:element name="DS">
         <xs:complexType>
             <xs:all>
-                <xs:element name="profiles" type="profileDescriptorType" minOccurs="1" />
-                <xs:element name="servers" minOccurs="1">
+                <xs:element name="profiles" type="profileDescriptorType" minOccurs="0" maxOccurs="1" />
+                <xs:element name="servers" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="server" type="serverType" minOccurs="1" maxOccurs="unbounded"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="clients" minOccurs="0">
+                <xs:element name="clients" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="client" type="clientType" minOccurs="1" maxOccurs="unbounded"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="simples" minOccurs="0">
+                <xs:element name="simples" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="simple" type="simpleType" minOccurs="1" maxOccurs="unbounded"/>

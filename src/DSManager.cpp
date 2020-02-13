@@ -106,11 +106,6 @@ DSManager::DSManager(
             {
                 loadProfiles(profiles);
             }
-            else
-            {
-                LOG_ERROR("No profiles found!");
-                return;
-            }
 
             // Types parsing
             tinyxml2::XMLElement* types = child->FirstChildElement(DSxmlparser::TYPES);
