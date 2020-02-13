@@ -1495,7 +1495,7 @@ void DSManager::onSubscriberDiscovery(
 
     if (part_name.empty())
     {   // if remote use prefix instead of name
-        part_name = std::ostringstream(std::ostringstream() << partid).str();
+        part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
     }
 
     switch (info.status)
@@ -1568,7 +1568,7 @@ void  DSManager::onPublisherDiscovery(
 
     if (part_name.empty())
     {   // if remote use prefix instead of name
-        part_name = std::ostringstream(std::ostringstream() << partid).str();
+        part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
     }
 
     switch (info.status)
