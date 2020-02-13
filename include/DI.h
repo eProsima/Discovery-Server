@@ -305,8 +305,8 @@ struct Snapshot : public std::set<PtDB>
         std::chrono::steady_clock::time_point pdp_cb = Snapshot::_st_ck,
         std::chrono::steady_clock::time_point edp_cb = Snapshot::_st_ck,
         bool someone = true)
-        : _time(t)
-        , process_startup_(Snapshot::_st_ck)
+        : process_startup_(Snapshot::_st_ck)
+        , _time(t)
         , last_PDP_callback_(pdp_cb)
         , last_EDP_callback_(edp_cb)
         , if_someone(someone)
@@ -319,8 +319,8 @@ struct Snapshot : public std::set<PtDB>
         std::chrono::steady_clock::time_point edp_cb,
         std::string & des,
         bool someone = true)
-        : _time(t)
-        , process_startup_(Snapshot::_st_ck)
+        : process_startup_(Snapshot::_st_ck)
+        , _time(t)
         , last_PDP_callback_(pdp_cb)
         , last_EDP_callback_(edp_cb)
         , if_someone(someone)
