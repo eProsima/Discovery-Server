@@ -982,6 +982,108 @@ void DSManager::loadClient(
     }
 }
 
+void DSManager::loadSimple(
+    tinyxml2::XMLElement* simple)
+{
+    std::lock_guard<std::recursive_mutex> lock(management_mutex);
+
+    // check if we need to create an event
+    std::chrono::steady_clock::time_point creation_time, removal_time;
+    creation_time = removal_time = getTime();
+
+    {
+        const char* creation_time_str = simple->Attribute(s_sCreationTime.c_str());
+        if(creation_time_str != nullptr)
+        {
+            int aux;
+            std::istringstream(creation_time_str) >> aux;
+            creation_time += std::chrono::seconds(aux);
+        }
+
+        const char* removal_time_str = simple->Attribute(s_sRemovalTime.c_str());
+        if(removal_time_str != nullptr)
+        {
+            int aux;
+            std::istringstream(removal_time_str) >> aux;
+            removal_time += std::chrono::seconds(aux);
+        }
+    }
+
+    // simple are created for debugging purposes
+    // profile name is not mandatory 
+    const char* profile_name = simple->Attribute(DSxmlparser::PROFILE_NAME);
+
+    ParticipantAttributes atts;
+
+    if(profile_name != nullptr)
+    {
+        // retrieve profile attributes
+        if(xmlparser::XMLP_ret::XML_OK !=
+            xmlparser::XMLProfileManager::fillParticipantAttributes(std::string(profile_name), atts))
+        {
+            LOG_ERROR("DSManager::loadSimple couldn't load profile " << profile_name);
+            return;
+        }
+
+        // we must assert that DiscoveryProtocol is CLIENT
+        if(atts.rtps.builtin.discovery_config.discoveryProtocol != rtps::DiscoveryProtocol_t::SIMPLE)
+        {
+            LOG_ERROR("DSManager::loadSimple try to create a simple participant with an incompatible profile: " << profile_name);
+            return;
+        }
+
+    }
+
+    // pick the client's name (isn't mandatory to provide it). Takes precedence over profile provided.
+    const char* name = simple->Attribute(DSxmlparser::NAME);
+    if(name != nullptr)
+    {
+        atts.rtps.setName(name);
+    }
+
+    GUID_t guid(atts.rtps.prefix, c_EntityId_RTPSParticipant);
+    DPD* pD = nullptr;
+    DPC* pC = nullptr;
+
+    if(removal_time != getTime())
+    {
+        // early leaver
+        pD = new DPD(removal_time, guid);
+        events.push_back(pD);
+    }
+
+    // Create the participant or the associated events
+    DPC event(creation_time, std::move(atts), &DSManager::addSimple, pD);
+
+    if(creation_time == getTime())
+    {
+        event(*this);
+
+        // get the client guid
+        guid = event.participant_guid;
+    }
+    else
+    {   // late joiner
+        pC = new DPC(std::move(event));
+        events.push_back(pC);
+    }
+
+    // Once the participant is created we create the associated endpoints
+    tinyxml2::XMLElement* pub = simple->FirstChildElement(DSxmlparser::PUBLISHER);
+    while(pub != nullptr)
+    {
+        loadPublisher(guid, pub, pC);
+        pub = pub->NextSiblingElement(DSxmlparser::PUBLISHER);
+    }
+
+    tinyxml2::XMLElement* sub = simple->FirstChildElement(DSxmlparser::SUBSCRIBER);
+    while(sub != nullptr)
+    {
+        loadSubscriber(guid, sub, pC);
+        sub = sub->NextSiblingElement(DSxmlparser::SUBSCRIBER);
+    }
+}
+
 void DSManager::loadSubscriber(
         GUID_t& part_guid, tinyxml2::XMLElement* sub,
         DPC* pLJ /*= nullptrt*/)
