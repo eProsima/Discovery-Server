@@ -66,25 +66,44 @@ endif()
 # Load external dependencies
 ###############################################################################
 
-# colcon will take care of solving any dependency issues
-#find_package(Asio REQUIRED )
+# tinyxml2 
+# first we search for the new policy
+find_package(tinyxml2 CONFIG) 
+
+if(TARGET tinyxml2)
+
+    # retrieve required properties
+    set(TINYXML2_LIBRARY tinyxml2)
+    get_target_property(TINYXML2_INCLUDE_DIR tinyxml2 INTERFACE_INCLUDE_DIRECTORIES)
+
+else()
+    find_package(TinyXML2 CONFIG) # redundant matches find_package(tinyxml2 CONFIG) behavior
+
+    if(NOT TinyXML2_FOUND)
+        # we try find the binaries directly
+
+        include(FindPackageHandleStandardArgs)
+
+        find_path(TINYXML2_INCLUDE_DIR NAMES tinyxml2.h) 
+        find_library(TINYXML2_LIBRARY tinyxml2)
+   
+        find_package_handle_standard_args(tinyxml2 DEFAULT_MSG TINYXML2_LIBRARY TINYXML2_INCLUDE_DIR)
+
+        if(NOT tinyxml2_FOUND)
+            message(FATAL_ERROR "Unable to load tinyxml2 dependency. ${TINYXML2_INCLUDE_DIR}")
+        endif()
+ 
+    endif()
+
+endif()
+
+
 find_package(fastcdr REQUIRED )
-find_package(tinyxml2 REQUIRED )
 find_package(fastrtps REQUIRED)
 find_package(OpenSSL QUIET) # according to cmake docs on FindOpenSS is hinted define OPENSSL_ROOT_DIR
 
 #some tests require python
 find_package(PythonInterp 3 REQUIRED)
-
-if(NOT TINYXML2_LIB_NAME)
-    if(TARGET tinyxml2)
-        set(TINYXML2_LIB_NAME tinyxml2)
-    elseif(TARGET tinyxml2::tinyxml2)
-        set(TINYXML2_LIB_NAME tinyxml2::tinyxml2)  
-    else()
-        message(ERROR "Non standard tinyxml2 target name. Please TINYXML2_LIB_NAME to current targets name.")
-    endif()
-endif()
 
 # OpenSSL isn't mandatory
 if(TARGET OpenSSL::SSL)
@@ -257,7 +276,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 
 # we link dynamically to tinyxml2
 target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr 
-	${TINYXML2_LIB_NAME}
+	${TINYXML2_LIBRARY}
 	${OPENSSL_TARGET}
 	)
 # note that future versions of tinyxml2 will define the target as tinyxml2::tinyxml2 

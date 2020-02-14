@@ -24,13 +24,13 @@ int main(int argc, char * argv[])
 
     Log::SetCategoryFilter(std::regex("(RTPS_PARTICIPANT)|(DISCOVERY_SERVER)|(SERVER_PDP_THREAD)|(CLIENT_PDP_THREAD)"));
 
+    int return_code = 0;
+
     if (!(argc > 1))
     {
         std::cout << "Usage: discovery-server [CONFIG_XML|SNAPSHOT_XML+]" << std::endl;
     }
-
-    int return_code = 0;
-    if (argc == 2)
+    else if (argc == 2)
     {
         std::string path_to_config = argv[1];
 
