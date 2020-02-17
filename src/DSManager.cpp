@@ -219,12 +219,6 @@ void DSManager::runEvents(
     // Order the event list
     std::sort(events.begin(), events.end(), [](LJD* p1, LJD* p2) -> bool { return *p1 < *p2; });
 
-    for(LJD* p : events)
-    {
-        using namespace std;
-        cout << typeid(*p).name() << " time: " << Snapshot::getTimeStamp(p->executionTime()) << endl;
-    }
-
     // traverse the list
     for (LJD* p : events)
     {
