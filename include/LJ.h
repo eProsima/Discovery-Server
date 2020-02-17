@@ -72,6 +72,12 @@ public:
      {
         std::this_thread::sleep_until(time);
     }
+
+    // return associated time_point
+    std::chrono::steady_clock::time_point executionTime() const
+    {
+        return time;
+    }
 };
 
 class DPC

@@ -55,6 +55,7 @@ namespace discovery_server
 
 class LJD;
 class DPC;
+class DPD;
 
 class DSManager
     : public xmlparser::XMLParser      // access to parsing protected functions
@@ -88,6 +89,7 @@ class DSManager
     std::chrono::steady_clock::time_point getTime() const;
 
     // Event list for late joiner creation, destruction and take snapshots
+    // only modified from the main thread (no synchronization required)
     event_list events;
 
     // Snapshops container
@@ -105,12 +107,14 @@ class DSManager
     void loadSubscriber(
         GUID_t & part_guid,
         tinyxml2::XMLElement* subs,
-        DPC* pLJ = nullptr);
+        DPC* pPC = nullptr,
+        DPD* pPD = nullptr);
 
     void loadPublisher(
         GUID_t & part_guid,
         tinyxml2::XMLElement* pubs,
-        DPC* pLJ = nullptr);
+        DPC* pPC = nullptr,
+        DPD* pPD = nullptr);
 
     void loadSnapshot(tinyxml2::XMLElement* snapshot);
     void MapServerInfo(tinyxml2::XMLElement* server);

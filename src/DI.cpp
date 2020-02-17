@@ -260,7 +260,7 @@ std::string Snapshot::getTimeStamp(std::chrono::steady_clock::time_point snap_ti
         std::chrono::duration_cast<std::chrono::milliseconds>(tp - std::chrono::system_clock::from_time_t(time));
 
     std::ostringstream stream;
-    stream << std::put_time(localtime(&time), "%F %T") << std::setw(3) << std::setfill('0') << ms.count() << " ";
+    stream << std::put_time(localtime(&time), "%F %T.") << std::setw(3) << std::setfill('0') << ms.count() << " ";
 
     return stream.str();
 }

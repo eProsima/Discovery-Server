@@ -219,6 +219,12 @@ void DSManager::runEvents(
     // Order the event list
     std::sort(events.begin(), events.end(), [](LJD* p1, LJD* p2) -> bool { return *p1 < *p2; });
 
+    for(LJD* p : events)
+    {
+        using namespace std;
+        cout << typeid(*p).name() << " time: " << Snapshot::getTimeStamp(p->executionTime()) << endl;
+    }
+
     // traverse the list
     for (LJD* p : events)
     {
@@ -1075,7 +1081,8 @@ void DSManager::loadSimple(
 
 void DSManager::loadSubscriber(
         GUID_t& part_guid, tinyxml2::XMLElement* sub,
-        DPC* pLJ /*= nullptrt*/)
+        DPC* pPC /*= nullptr*/,
+        DPD* pPD /*= nullptr*/)
 {
     assert(sub != nullptr);
 
@@ -1084,7 +1091,29 @@ void DSManager::loadSubscriber(
 
     // check if we need to create an event
     std::chrono::steady_clock::time_point creation_time, removal_time;
-    creation_time = removal_time = getTime();
+
+    // Match the creation and destruction times to the participant
+    if(nullptr != pPC)
+    {
+        creation_time = pPC->executionTime();
+        // prevent creation before the participant
+        creation_time += std::chrono::nanoseconds(1);
+    }
+    else
+    {
+        creation_time = getTime();
+    }
+
+    if(nullptr != pPD)
+    {
+        removal_time = pPC->executionTime();
+        // prevent destruction after the participant
+        creation_time -= std::chrono::nanoseconds(1);
+    }
+    else
+    {
+        removal_time = getTime();
+    }
 
     {
         const char* creation_time_str = sub->Attribute(s_sCreationTime.c_str());
@@ -1092,7 +1121,7 @@ void DSManager::loadSubscriber(
         {
             int aux;
             std::istringstream(creation_time_str) >> aux;
-            creation_time += std::chrono::seconds(aux);
+            creation_time = getTime() + std::chrono::seconds(aux);
         }
         else if (part == nullptr)
         {
@@ -1106,7 +1135,7 @@ void DSManager::loadSubscriber(
         {
             int aux;
             std::istringstream(removal_time_str) >> aux;
-            removal_time += std::chrono::seconds(aux);
+            removal_time = getTime() + std::chrono::seconds(aux);
         }
     }
 
@@ -1155,7 +1184,7 @@ void DSManager::loadSubscriber(
         events.push_back(pDE);
     }
 
-    DEC<Subscriber> event(creation_time, subatts, part_guid, pDE, pLJ);
+    DEC<Subscriber> event(creation_time, subatts, part_guid, pDE, pPC);
 
     if (creation_time == getTime())
     {
@@ -1169,7 +1198,8 @@ void DSManager::loadSubscriber(
 
 void DSManager::loadPublisher(
         GUID_t& part_guid, tinyxml2::XMLElement* sub,
-        DPC* pLJ /*= nullptrt*/)
+        DPC* pPC /*= nullptr*/,
+        DPD* pPD /*= nullptr*/)
 {
     assert(sub != nullptr);
 
@@ -1178,7 +1208,29 @@ void DSManager::loadPublisher(
 
     // check if we need to create an event
     std::chrono::steady_clock::time_point creation_time, removal_time;
-    creation_time = removal_time = getTime();
+
+    // Match the creation and destruction times to the participant
+    if( nullptr != pPC)
+    {
+        creation_time = pPC->executionTime();
+        // prevent creation before the participant
+        creation_time += std::chrono::nanoseconds(1);
+    }
+    else
+    {
+        creation_time = getTime();
+    }
+
+    if(nullptr != pPD)
+    {
+        removal_time = pPC->executionTime();
+        // prevent destruction after the participant
+        creation_time -= std::chrono::nanoseconds(1);
+    }
+    else
+    {
+        removal_time = getTime();
+    }
 
     {
         const char * creation_time_str = sub->Attribute(s_sCreationTime.c_str());
@@ -1186,7 +1238,7 @@ void DSManager::loadPublisher(
         {
             int aux;
             std::istringstream(creation_time_str) >> aux;
-            creation_time += std::chrono::seconds(aux);
+            creation_time = getTime() + std::chrono::seconds(aux);
         }
         else if (part == nullptr)
         {
@@ -1200,7 +1252,7 @@ void DSManager::loadPublisher(
         {
             int aux;
             std::istringstream(removal_time_str) >> aux;
-            removal_time += std::chrono::seconds(aux);
+            removal_time = getTime() + std::chrono::seconds(aux);
         }
     }
 
@@ -1249,7 +1301,7 @@ void DSManager::loadPublisher(
         events.push_back(pDE);
     }
 
-    DEC<Publisher> event(creation_time, pubatts, part_guid, pDE, pLJ);
+    DEC<Publisher> event(creation_time, pubatts, part_guid, pDE, pPC);
 
     if (creation_time == getTime())
     {
