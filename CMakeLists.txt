@@ -67,8 +67,17 @@ endif()
 ###############################################################################
 
 # tinyxml2 
-# first we search for the new policy
+# first we search for the new config files
 find_package(tinyxml2 CONFIG) 
+
+# according to docs and sources the above call searching for tinyxml2 would focus on:
+#   tinyxml2Config.cmake
+#   tinyxml2-config.cmake
+# but this is only true for unix like OS. CMake windows APIs rely on non-case-sensitive
+# APIs like GetFileAttributes thus the above call will on windows find:
+#   TinyXML2Config.cmake 
+# as a match for tinyxml2Config.cmake. That forces us to use the tinyxml2 target as a 
+# decision variable (old TinyXML2Config.cmake doesn't create any target).
 
 if(TARGET tinyxml2)
 
@@ -77,7 +86,8 @@ if(TARGET tinyxml2)
     get_target_property(TINYXML2_INCLUDE_DIR tinyxml2 INTERFACE_INCLUDE_DIRECTORIES)
 
 else()
-    find_package(TinyXML2 CONFIG) # redundant matches find_package(tinyxml2 CONFIG) behavior
+    # redundant on Windows because matches find_package(tinyxml2 CONFIG) behaviour
+    find_package(TinyXML2 CONFIG) 
 
     if(NOT TinyXML2_FOUND)
         # we try find the binaries directly
