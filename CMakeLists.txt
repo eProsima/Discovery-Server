@@ -332,11 +332,15 @@ foreach(TEST_XML ${${PROJECT_NAME}_xml_tests})
 
     # update only if are files from different tests
     if(NOT NEW_TEST_NUMBER EQUAL LAST_TEST_NUMBER)
+        # making up port numbers
         random_port(1024 65531 RANDOM_PORT)
         math(EXPR RANDOM_PORT_2 ${RANDOM_PORT}+1)
         math(EXPR RANDOM_PORT_3 ${RANDOM_PORT}+2)
         math(EXPR RANDOM_PORT_4 ${RANDOM_PORT}+3)
         math(EXPR RANDOM_PORT_5 ${RANDOM_PORT}+4)
+        # making up domain number
+        random_port(1 120 RANDOM_DOMAIN)
+        math(EXPR RANDOM_DOMAIN ${RANDOM_DOMAIN}) # removing leading 0s
     endif()
 
     set(LAST_TEST_NUMBER ${NEW_TEST_NUMBER})
@@ -408,6 +412,10 @@ set_tests_properties(test_9_WLP PROPERTIES
     REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_client.xml 
     REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_server.xml  DISABLED true )
 
+# Testing server demise detection by clients
+list(APPEND TEST_LIST test_10_simple_PDP_EDP)
+add_test(NAME test_10_simple_PDP_EDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_10_simple_PDP_EDP.xml)
+set_tests_properties(test_10_simple_PDP_EDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_10_simple_PDP_EDP.xml)
 
 # add_test(NAME PubSubTest COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}pub_subs_creation.xml )
 

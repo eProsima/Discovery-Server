@@ -1080,9 +1080,6 @@ void DSManager::loadSubscriber(
 {
     assert(sub != nullptr);
 
-    // retrieve participant
-    Participant* part = getParticipant(part_guid);
-
     // check if we need to create an event
     std::chrono::steady_clock::time_point creation_time, removal_time;
 
@@ -1116,12 +1113,6 @@ void DSManager::loadSubscriber(
             int aux;
             std::istringstream(creation_time_str) >> aux;
             creation_time = getTime() + std::chrono::seconds(aux);
-        }
-        else if (part == nullptr)
-        {
-            // late joiners must spawn late joiners
-            LOG_ERROR("DSManager::loadSubscriber tries to create a subscriber to a late joiner.");
-            return;
         }
 
         const char* removal_time_str = sub->Attribute(s_sRemovalTime.c_str());
@@ -1197,9 +1188,6 @@ void DSManager::loadPublisher(
 {
     assert(sub != nullptr);
 
-    // retrieve participant
-    Participant * part = getParticipant(part_guid);
-
     // check if we need to create an event
     std::chrono::steady_clock::time_point creation_time, removal_time;
 
@@ -1233,12 +1221,6 @@ void DSManager::loadPublisher(
             int aux;
             std::istringstream(creation_time_str) >> aux;
             creation_time = getTime() + std::chrono::seconds(aux);
-        }
-        else if (part == nullptr)
-        {
-            // late joiners must spawn late joiners
-            LOG_ERROR("DSManager::loadSubscriber tries to create a subscriber to a late joiner.");
-            return;
         }
 
         const char * removal_time_str = sub->Attribute(s_sRemovalTime.c_str());
