@@ -130,6 +130,8 @@ class DSManager
 
     // File where to save snapshots
     std::string snapshots_output_file;
+    // validation required
+    bool validate_{false};
     // last callback recorded time
     std::chrono::steady_clock::time_point last_PDP_callback_;
     std::chrono::steady_clock::time_point last_EDP_callback_;
@@ -138,13 +140,14 @@ class DSManager
 
 public:
     DSManager(const std::string& xml_file_path);
-    DSManager(const std::set<std::string>& xml_snapshot_files);
+    DSManager(const std::set<std::string>& xml_snapshot_files,
+        const std::string & output_file);
     ~DSManager();
 
     // testing database
     bool shouldValidate() const
     {
-        return snapshots_output_file.empty();
+        return validate_;
     }
 
     bool validateAllSnapshots() const;
@@ -155,6 +158,9 @@ public:
         const std::chrono::steady_clock::time_point tp,
         const std::string& desc = std::string(),
         bool someone = true);
+
+    // success message depends on run type
+    std::string successMessage();
 
     // processing events
     void runEvents(

@@ -11,6 +11,8 @@ using namespace fastrtps;
 using namespace rtps;
 using namespace discovery_server;
 
+std::pair<std::set<std::string>, std::string> validationCommandLineParser(int argc, char * argv[]);
+
 int main(int argc, char * argv[])
 {
     // Initialize loging
@@ -28,7 +30,7 @@ int main(int argc, char * argv[])
 
     if (!(argc > 1))
     {
-        std::cout << "Usage: discovery-server [CONFIG_XML|SNAPSHOT_XML+]" << std::endl;
+        std::cout << "Usage: discovery-server [CONFIG_XML|SNAPSHOT_XML+ [-out output_filename]]" << std::endl;
     }
     else if (argc == 2)
     {
@@ -51,29 +53,28 @@ int main(int argc, char * argv[])
                 }
                 else
                 {
-                    std::cout << "Discovery Server run succeeded!" << endl;
+                    std::cout << manager.successMessage() << endl;
                 }
             }
         }
     }
     else
     {
-        std::set<std::string> files;
-        for (int i = 1; i < argc; ++i)
-        {
-            files.emplace(argv[i]);
-        }
-        DSManager manager(files);
+        auto arguments = validationCommandLineParser(argc, argv);
+        DSManager manager(arguments.first, arguments.second);
 
         // Check the snapshots read
-        if (!manager.validateAllSnapshots())
+        if(manager.shouldValidate())
         {
-            LOG_ERROR("Discovery Server error: several snapshots show info leakage");
-            return_code = -1; // report CTest the test fail
-        }
-        else
-        {
-            std::cout << "Output file validation succeeded!" << endl;
+            if(!manager.validateAllSnapshots())
+            {
+                LOG_ERROR("Discovery Server error: several snapshots show info leakage");
+                return_code = -1; // report CTest the test fail
+            }
+            else
+            {
+                std::cout << manager.successMessage() << endl;
+            }
         }
     }
 
@@ -82,4 +83,46 @@ int main(int argc, char * argv[])
     
     return return_code;
 
+}
+
+std::pair<std::set<std::string>,std::string> validationCommandLineParser(int argc, char * argv[])
+{
+    using namespace std;
+
+    // handle -out output_file_name scenario
+    bool next_is_filename = false;
+    string outfilename;
+    string outflag("-out");
+
+    set<string> files;
+    for(int i = 1; i < argc; ++i)
+    {
+        const char * argtext = argv[i];
+
+        // former argument was -out flag
+        if(next_is_filename)
+        {
+            next_is_filename = false;
+            outfilename = argtext;
+        }
+        else
+        {
+            // check if its a flag or a file
+            string::size_type len = string::traits_type::length(argtext);
+            string file(len, ' ');
+            transform(argtext, argtext + len, file.begin(), std::tolower);
+
+            if(outflag == file)
+            {
+                next_is_filename = true;
+            }
+            else
+            {
+                // kept the file
+                files.emplace(argtext, len);
+            }
+        }
+    }
+
+    return std::make_pair(std::move(files),std::move(outfilename));
 }

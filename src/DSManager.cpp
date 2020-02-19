@@ -69,7 +69,7 @@ DSManager::DSManager(
     , last_EDP_callback_(Snapshot::_st_ck)
 {
     tinyxml2::XMLDocument doc;
-    if (doc.LoadFile(xml_file_path.c_str()) == tinyxml2::XMLError::XML_SUCCESS)
+    if (tinyxml2::XMLError::XML_SUCCESS == doc.LoadFile(xml_file_path.c_str()))
     {
         tinyxml2::XMLElement* root = doc.FirstChildElement(s_sDS.c_str());
         if (root == nullptr)
@@ -77,17 +77,21 @@ DSManager::DSManager(
             root = doc.FirstChildElement(s_sDS_Snapshots.c_str());
             if (root == nullptr)
             {
-                LOG("Invalid config or snapshot file");
+                LOG_ERROR("Invalid config or snapshot file");
                 return;
             }
             else
             {
                 loadSnapshots(xml_file_path);
+                validate_ = true;
                 auto_shutdown = true;
-                LOG("Loaded snapshot file");
+                LOG_INFO("Loaded snapshot file");
                 return;
             }
         }
+
+        // config file, we must validate
+        validate_ = true;
 
         // try load the user_shutdown attribute
         auto_shutdown = !root->BoolAttribute(s_sUserShutdown.c_str(), !auto_shutdown);
@@ -189,20 +193,27 @@ DSManager::DSManager(
     }
     else
     {
-        LOG("Config file not found.");
+        LOG_ERROR("Config file not found.");
+        return;
     }
 
     LOG_INFO("File " << xml_file_path << " parsed successfully.");
 }
 
 DSManager::DSManager(
-        const std::set<std::string>& xml_snapshot_files)
+        const std::set<std::string>& xml_snapshot_files,
+        const std::string & output_file)
     : no_callbacks(true)
     , auto_shutdown(true)
     , enable_prefix_validation(true)
     , last_PDP_callback_(Snapshot::_st_ck)
     , last_EDP_callback_(Snapshot::_st_ck)
 {
+    // validating snapshots files
+    validate_ = true;
+    // keep output_file if any
+    snapshots_output_file = output_file;
+
     for (const std::string& file : xml_snapshot_files)
     {
         if(loadSnapshots(file))
@@ -1792,6 +1803,17 @@ bool DSManager::validateAllSnapshots() const
     }
 
     return work_it_all;
+}
+
+std::string DSManager::successMessage()
+{
+    if(snapshots.empty())
+    {
+        // direct run
+        return "Discovery Server run succeeded!";
+    }
+
+    return "Output file validation succeeded!";
 }
 
 bool DSManager::loadSnapshots(
