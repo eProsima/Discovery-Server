@@ -15,10 +15,6 @@
   This test is currently been disabled till and incoming rebase because WLP mechanism is undergoing a major refactoring.
   
   -->
-  
-  <servers>
-    <server profile_name="" />
-  </servers>
 
   <clients>
     <client name="client3" profile_name="UDP client">

@@ -140,6 +140,10 @@ struct SDI : public DI
     //!Topic name
     std::string topic_name;
 
+    //!Liveliness info
+    int32_t alive_count{};
+    int32_t not_alive_count{};
+
     //! comparissons
     bool operator==(const SDI&) const;
 };
@@ -423,6 +427,10 @@ public:
     bool RemovePublisher(const GUID_t& spokesman,
         const GUID_t & ptid,
         const GUID_t & pid);
+
+    void UpdateSubLiveliness(const GUID_t & subs,
+        int32_t alive_count,
+        int32_t not_alive_count);
 
     size_type CountParticipants(const GUID_t& spokesman ) const;
     size_type CountSubscribers(const GUID_t& spokesman ) const;

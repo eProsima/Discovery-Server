@@ -410,7 +410,7 @@ add_test(NAME test_9_WLP
  $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_BINARY_DIR}/test_9_WLP_server.xml ${CMAKE_CURRENT_BINARY_DIR}/test_9_WLP_client.xml)
 set_tests_properties(test_9_WLP PROPERTIES 
     REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_client.xml 
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_server.xml  DISABLED true )
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_server.xml )
 
 # Testing server demise detection by clients
 list(APPEND TEST_LIST test_10_simple_PDP_EDP)

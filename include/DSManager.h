@@ -26,6 +26,8 @@
 
 #include <fastrtps/participant/Participant.h>
 #include <fastrtps/participant/ParticipantListener.h>
+#include <fastrtps/subscriber/SubscriberListener.h>
+#include <fastrtps/publisher/PublisherListener.h>
 #include <fastrtps/xmlparser/XMLParser.h>
 
 #include "../resources/static_types/HelloWorldPubSubTypes.h"
@@ -60,6 +62,7 @@ class DPD;
 class DSManager
     : public xmlparser::XMLParser      // access to parsing protected functions
     , public eprosima::fastrtps::ParticipantListener  // receive discovery callback information
+    , public eprosima::fastrtps::SubscriberListener  // receive subscriber lifeliness information
 {
     typedef std::map<GUID_t, Participant*> participant_map;
     typedef std::map<GUID_t, Subscriber*> subscriber_map;
@@ -188,6 +191,11 @@ public:
     void onPublisherDiscovery(
         Participant* participant,
         rtps::WriterDiscoveryInfo&& info) override;
+
+    // callback liveliness functions
+    void on_liveliness_changed(
+        Subscriber* sub,
+        const LivelinessChangedStatus& status) override;
 
     void onTerminate();
 

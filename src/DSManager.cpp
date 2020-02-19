@@ -1617,6 +1617,13 @@ void  DSManager::onPublisherDiscovery(
         << " topic: " << info.info.topicName() << " GUID: " << pubsid);
 }
 
+void DSManager::on_liveliness_changed(
+    Subscriber* sub,
+    const LivelinessChangedStatus& status)
+{
+    state.UpdateSubLiveliness(sub->getGuid(), status.alive_count, status.not_alive_count);
+}
+
 std::ostream& eprosima::discovery_server::operator<<(
         std::ostream& o,
         ParticipantDiscoveryInfo::DISCOVERY_STATUS s)

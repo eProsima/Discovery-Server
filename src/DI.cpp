@@ -475,6 +475,49 @@ bool DI_database::RemovePublisher(
     return RemoveEndPoint(&PtDI::getPublishers, spokesman, ptid, pid);
 }
 
+void DI_database::UpdateSubLiveliness(const GUID_t & subs,
+    int32_t alive_count,
+    int32_t not_alive_count)
+{
+    std::lock_guard<std::mutex> lock(database_mutex);
+
+    // Retrieve the participant that owns this subscriber
+    GUID_t pguid(subs);
+    pguid.entityId = eprosima::fastrtps::rtps::c_EntityId_RTPSParticipant;
+
+    // Locate the PtDI associated with the subscriber
+    PtDB & database = image[pguid];
+    PtDB::iterator it = std::lower_bound(database.begin(), database.end(), pguid);
+
+    if(it == database.end() || *it != pguid)
+    {
+        // participant should be here because the subscriber should create it on its callback
+        LOG_ERROR("Non reported subscriber liveliness callback. Participant:" << pguid)
+        return;
+    }
+
+    // Locate the SDI associated with the subscriber
+    PtDI::subscriber_set & ss = it->getSubscribers();
+    PtDI::subscriber_set::iterator sit = std::lower_bound(ss.begin(), ss.end(), subs);
+
+    if(sit == ss.end() || *sit != subs)
+    {
+        // subscriber should be here because should be created on its callback
+        LOG_ERROR("Non reported subscriber liveliness callback. Subscriber: " << subs)
+            return;
+    }
+
+    // Update the liveliness info
+    SDI & sub = const_cast<SDI&>(*sit);
+
+    sub.alive_count = alive_count;
+    sub.not_alive_count = not_alive_count;
+
+    LOG_INFO("Subscriber " << subs << " liveliness callback reporting:"
+        " alive_count " << alive_count << 
+        " not_alive_count " << not_alive_count )
+}
+
 DI_database::size_type DI_database::CountParticipants(const GUID_t& spokesman) const
 {
     std::lock_guard<std::mutex> lock(database_mutex);
