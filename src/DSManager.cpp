@@ -220,6 +220,11 @@ DSManager::DSManager(
         {
             LOG("Loaded snapshot file " << file);
         }
+        else
+        {
+            // if some file fails, do not validate
+            validate_ = false;
+        }
     }
 }
 
