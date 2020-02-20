@@ -729,13 +729,13 @@ void Snapshot::to_xml(
 
     // process_time is recorded in ms from the process startup
     pRoot->SetAttribute(s_sProcessTime.c_str(),
-        std::chrono::duration_cast<std::chrono::milliseconds>(_time - _st_ck).count());
+        std::chrono::duration_cast<std::chrono::milliseconds>(_time - process_startup_).count());
 
     // last_?dp_callback time is recorded in ms from the process startup
     pRoot->SetAttribute(s_sLastPdpCallback.c_str(),
-        std::chrono::duration_cast<std::chrono::milliseconds>(last_PDP_callback_-_st_ck).count());
+        std::chrono::duration_cast<std::chrono::milliseconds>(last_PDP_callback_-process_startup_).count());
     pRoot->SetAttribute(s_sLastEdpCallback.c_str(),
-        std::chrono::duration_cast<std::chrono::milliseconds>(last_EDP_callback_-_st_ck).count());
+        std::chrono::duration_cast<std::chrono::milliseconds>(last_EDP_callback_-process_startup_).count());
 
     pRoot->SetAttribute(s_sSomeone.c_str(), if_someone);
 

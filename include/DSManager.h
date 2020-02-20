@@ -147,7 +147,7 @@ public:
     // testing database
     bool shouldValidate() const
     {
-        return validate_;
+        return validate_ && !snapshots.empty();
     }
 
     bool validateAllSnapshots() const;
