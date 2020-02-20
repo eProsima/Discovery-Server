@@ -79,30 +79,52 @@ find_package(tinyxml2 CONFIG)
 # as a match for tinyxml2Config.cmake. That forces us to use the tinyxml2 target as a 
 # decision variable (old TinyXML2Config.cmake doesn't create any target).
 
-if(TARGET tinyxml2)
+# There are two versions of the tinyxml2Config.cmake:
+# - old one: generated with the cmake export() command that defines a tinyxml2 target
+#   with all config info.
+# - new one: generated with the cmake install(TARGET ... EXPORT ...) and install(EXPORT ..)
+#   cmake commands. This one deprecates the above one in per-target installation. Tinyxml2
+#   CMakelists uses the install(EXPORT) namespace option, thus, the target is actually call 
+#   tinyxml2::tinyxml2.
+# The tinyxml2 CMakelists.txt uses export() together with install(...) generating two independent
+# tinyxml2Config.cmake files. Fortunately only installs one. We must be able to handle the existence
+# of tinyxml2 and tinyxml2::tinyxml2 targets because we don't know which one is gonna find. 
+
+if(TARGET tinyxml2::tinyxml2)
 
     # retrieve required properties
-    set(TINYXML2_LIBRARY tinyxml2)
-    get_target_property(TINYXML2_INCLUDE_DIR tinyxml2 INTERFACE_INCLUDE_DIRECTORIES)
+    set(TINYXML2_LIBRARY tinyxml2::tinyxml2)
+    get_target_property(TINYXML2_INCLUDE_DIR tinyxml2::tinyxml2 INTERFACE_INCLUDE_DIRECTORIES)
 
 else()
-    # redundant on Windows because matches find_package(tinyxml2 CONFIG) behaviour
-    find_package(TinyXML2 CONFIG) 
 
-    if(NOT TinyXML2_FOUND)
-        # we try find the binaries directly
+    if(TARGET tinyxml2)
 
-        include(FindPackageHandleStandardArgs)
+        # retrieve required properties
+        set(TINYXML2_LIBRARY tinyxml2)
+        get_target_property(TINYXML2_INCLUDE_DIR tinyxml2 INTERFACE_INCLUDE_DIRECTORIES)
 
-        find_path(TINYXML2_INCLUDE_DIR NAMES tinyxml2.h) 
-        find_library(TINYXML2_LIBRARY tinyxml2)
-   
-        find_package_handle_standard_args(tinyxml2 DEFAULT_MSG TINYXML2_LIBRARY TINYXML2_INCLUDE_DIR)
+    else()
 
-        if(NOT tinyxml2_FOUND)
-            message(FATAL_ERROR "Unable to load tinyxml2 dependency. ${TINYXML2_INCLUDE_DIR}")
+        # redundant on Windows because matches find_package(tinyxml2 CONFIG) behaviour
+        find_package(TinyXML2 CONFIG) 
+
+        if(NOT TinyXML2_FOUND)
+            # we try find the binaries directly
+
+            include(FindPackageHandleStandardArgs)
+
+            find_path(TINYXML2_INCLUDE_DIR NAMES tinyxml2.h) 
+            find_library(TINYXML2_LIBRARY tinyxml2)
+       
+            find_package_handle_standard_args(tinyxml2 DEFAULT_MSG TINYXML2_LIBRARY TINYXML2_INCLUDE_DIR)
+
+            if(NOT tinyxml2_FOUND)
+                message(FATAL_ERROR "Unable to load tinyxml2 dependency. ${TINYXML2_INCLUDE_DIR}")
+            endif()
+     
         endif()
- 
+
     endif()
 
 endif()
