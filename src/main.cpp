@@ -85,6 +85,12 @@ int main(int argc, char * argv[])
 
 }
 
+// C++11 template deduction cannot directly map std::tolower in std::transform
+char toLower(const char & c)
+{
+    return std::tolower(c);
+}
+
 std::pair<std::set<std::string>,std::string> validationCommandLineParser(int argc, char * argv[])
 {
     using namespace std;
@@ -110,7 +116,7 @@ std::pair<std::set<std::string>,std::string> validationCommandLineParser(int arg
             // check if its a flag or a file
             string::size_type len = string::traits_type::length(argtext);
             string file(len, ' ');
-            transform(argtext, argtext + len, file.begin(), std::tolower);
+            transform(argtext, argtext + len, file.begin(), toLower);
 
             if(outflag == file)
             {
