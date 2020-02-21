@@ -157,7 +157,8 @@ public:
     Snapshot&  takeSnapshot(
         const std::chrono::steady_clock::time_point tp,
         const std::string& desc = std::string(),
-        bool someone = true);
+        bool someone = true,
+        bool show_liveliness = false);
 
     // success message depends on run type
     std::string successMessage();

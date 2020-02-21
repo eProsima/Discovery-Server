@@ -291,6 +291,8 @@ struct Snapshot : public std::set<PtDB>
     std::chrono::steady_clock::time_point last_EDP_callback_;
     // report test framework that if nobody is discovered it should fail
     bool if_someone; 
+    // show liveliness info
+    bool show_liveliness_;
 
     // time conversions auxiliary
     static std::chrono::system_clock::time_point _sy_ck;
@@ -308,12 +310,14 @@ struct Snapshot : public std::set<PtDB>
         std::chrono::steady_clock::time_point t = Snapshot::_st_ck,
         std::chrono::steady_clock::time_point pdp_cb = Snapshot::_st_ck,
         std::chrono::steady_clock::time_point edp_cb = Snapshot::_st_ck,
-        bool someone = true)
+        bool someone = true,
+        bool show_liveliness = false)
         : process_startup_(Snapshot::_st_ck)
         , _time(t)
         , last_PDP_callback_(pdp_cb)
         , last_EDP_callback_(edp_cb)
         , if_someone(someone)
+        , show_liveliness_(show_liveliness)
     {
     }
 
@@ -322,12 +326,14 @@ struct Snapshot : public std::set<PtDB>
         std::chrono::steady_clock::time_point pdp_cb,
         std::chrono::steady_clock::time_point edp_cb,
         std::string & des,
-        bool someone = true)
+        bool someone = true,
+        bool show_liveliness = false)
         : process_startup_(Snapshot::_st_ck)
         , _time(t)
         , last_PDP_callback_(pdp_cb)
         , last_EDP_callback_(edp_cb)
         , if_someone(someone)
+        , show_liveliness_(show_liveliness)
         , _des(des)
     {
     }

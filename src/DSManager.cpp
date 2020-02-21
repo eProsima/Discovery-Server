@@ -181,6 +181,8 @@ DSManager::DSManager(
                 if (file != nullptr)
                 {
                     snapshots_output_file = file;
+                    // if we want an output file do not validate
+                    validate_ = false;
                 }
                 tinyxml2::XMLElement* snapshot = snapshots->FirstChildElement(s_sSnapshot.c_str());
                 while (snapshot != nullptr)
@@ -1335,11 +1337,14 @@ void DSManager::loadSnapshot(
     // fail if nobody is found?
     bool someone = snapshot->BoolAttribute(s_sSomeone.c_str(), true);
 
+    // show subscriber liveliness info
+    bool show_liveliness = snapshot->BoolAttribute(s_sShowLiveliness.c_str(),false);
+
     // Get the description from the tag
     std::string description(snapshot->GetText());
 
     // Add the event
-    events.push_back(new DS(time, description,someone));
+    events.push_back(new DS(time, description,someone,show_liveliness));
 }
 
 
@@ -1715,7 +1720,8 @@ bool DSManager::allKnowEachOther() const
 Snapshot& DSManager::takeSnapshot(
         const std::chrono::steady_clock::time_point tp,
         const std::string& desc/* = std::string()*/,
-        bool someone)
+        bool someone,
+        bool show_liveliness)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
@@ -1727,6 +1733,7 @@ Snapshot& DSManager::takeSnapshot(
     shot.last_EDP_callback_ = last_EDP_callback_;
     shot._des = desc;
     shot.if_someone = someone;
+    shot.show_liveliness_ = show_liveliness;
 
     // Add any simple, client or server isolated information 
     // those have not make any callbacks if no subscriber or publisher

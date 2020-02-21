@@ -28,11 +28,11 @@
     </client>
   </clients>
 
-  <snapshots>
-    <snapshot time="1">Check the server has discovered the three clients</snapshot>
-    <snapshot time="10">Check unresponsive publisher is ignored</snapshot>
+  <snapshots file="test_9_server_snapshot.xml">
+    <snapshot show_liveliness="true" time="3">Check the server has discovered everybody and all subscribers mark the publisher as alive</snapshot>
+    <snapshot show_liveliness="true" time="7">Check publisher unresponsiveness is noticed by the publishers</snapshot>
   </snapshots>
-  
+
   <profiles>
     
     <participant profile_name="UDP client" >
@@ -81,15 +81,23 @@
     <subscriber profile_name="subscriber profile">
       <topic>
         <name>test_topic</name>
-        <dataType>sample_type</dataType>
+        <dataType>sample_type</dataType> 
       </topic>
       <qos>
-        <reliability>
-          <kind>RELIABLE</kind>
-        </reliability>
+        <liveliness>
+          <kind>AUTOMATIC</kind>
+          <lease_duration>
+            <sec>2</sec>
+            <nanosec>0</nanosec>
+          </lease_duration>
+          <announcement_period>
+            <sec>1</sec>
+            <nanosec>0</nanosec>
+          </announcement_period>
+        </liveliness>
       </qos>
     </subscriber>
-    
+
     <topic profile_name="test topic">
       <name>test_topic</name>
       <dataType>sample_type</dataType>

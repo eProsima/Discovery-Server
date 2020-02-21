@@ -96,7 +96,8 @@ bool SDI::operator==(
 std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const SDI& di)
 {
     return os << "Subscriber " << di.endpoint_guid << " TypeName: " << di.type_name
-        << " TopicName: " << di.topic_name;
+        << " TopicName: " << di.topic_name << "liveliness, alive_count: " << di.alive_count
+        << " not_alive_count: " << di.not_alive_count;
 }
 
 // participant discovery item operations
@@ -790,6 +791,16 @@ void Snapshot::to_xml(
                     sstream << sub.endpoint_guid.entityId;
                     pSub->SetAttribute(s_sGUID_entity.c_str(),sstream.str().c_str());
                 }
+
+                // Show liveliness callback info if requested, only makes sense to show
+                // liveliness on this participant endpoints
+                if(show_liveliness_ &&
+                    (sub.endpoint_guid.guidPrefix == ptdb.endpoint_guid.guidPrefix))
+                {
+                    pSub->SetAttribute(s_sAliveCount.c_str(), sub.alive_count);
+                    pSub->SetAttribute(s_sNotAliveCount.c_str(), sub.not_alive_count);
+                }
+
                 pPtdi->InsertEndChild(pSub);
             }
 
@@ -878,96 +889,107 @@ void Snapshot::from_xml(
                 ptdb_guid.guidPrefix = guidPrefix;
                 ptdb_guid.entityId = entityId;
             }
-PtDB ptdb(ptdb_guid);
 
-for(XMLElement* pPtdi = pPtdb->FirstChildElement(s_sPtDI.c_str());
-    pPtdi != nullptr;
-    pPtdi = pPtdi->NextSiblingElement(s_sPtDI.c_str()))
-{
-    GUID_t ptdi_guid;
-    {
-        GuidPrefix_t guidPrefix;
-        {
-            std::string guid = pPtdi->Attribute(s_sGUID_prefix.c_str());
-            std::stringstream sstream;
-            sstream << guid;
-            sstream >> guidPrefix;
-        }
-        EntityId_t entityId;
-        {
-            std::string guid = pPtdi->Attribute(s_sGUID_entity.c_str());
-            std::stringstream sstream;
-            sstream << guid;
-            sstream >> entityId;
-        }
-        ptdi_guid.guidPrefix = guidPrefix;
-        ptdi_guid.entityId = entityId;
-    }
-    PtDI ptdi(ptdi_guid);
+            PtDB ptdb(ptdb_guid);
 
-    pPtdi->QueryBoolAttribute(s_sServer.c_str(), &ptdi.is_server);
-    pPtdi->QueryBoolAttribute(s_sAlive.c_str(), &ptdi.is_alive);
-    ptdi.participant_name = pPtdi->Attribute(s_sName.c_str());
-    //std::cout << "PTDI: " << ptdi.id_ << std::endl;
-
-    for(XMLElement* pSub = pPtdi->FirstChildElement(s_sSubscriber.c_str());
-        pSub != nullptr;
-        pSub = pSub->NextSiblingElement(s_sSubscriber.c_str()))
-    {
-        GUID_t sub_guid;
-        {
-            GuidPrefix_t guidPrefix;
+            for(XMLElement* pPtdi = pPtdb->FirstChildElement(s_sPtDI.c_str());
+                pPtdi != nullptr;
+                pPtdi = pPtdi->NextSiblingElement(s_sPtDI.c_str()))
             {
-                std::string guid = pSub->Attribute(s_sGUID_prefix.c_str());
-                std::stringstream sstream;
-                sstream << guid;
-                sstream >> guidPrefix;
-            }
-            EntityId_t entityId;
-            {
-                std::string guid = pSub->Attribute(s_sGUID_entity.c_str());
-                std::stringstream sstream;
-                sstream << guid;
-                sstream >> entityId;
-            }
-            sub_guid.guidPrefix = guidPrefix;
-            sub_guid.entityId = entityId;
-        }
-        SDI sub(sub_guid, pSub->Attribute(s_sType.c_str()), pSub->Attribute(s_sTopic.c_str()));
-        ptdi.subscribers.insert(std::move(sub));
-    }
+                GUID_t ptdi_guid;
+                {
+                    GuidPrefix_t guidPrefix;
+                    {
+                        std::string guid = pPtdi->Attribute(s_sGUID_prefix.c_str());
+                        std::stringstream sstream;
+                        sstream << guid;
+                        sstream >> guidPrefix;
+                    }
+                    EntityId_t entityId;
+                    {
+                        std::string guid = pPtdi->Attribute(s_sGUID_entity.c_str());
+                        std::stringstream sstream;
+                        sstream << guid;
+                        sstream >> entityId;
+                    }
+                    ptdi_guid.guidPrefix = guidPrefix;
+                    ptdi_guid.entityId = entityId;
+                }
+                PtDI ptdi(ptdi_guid);
 
-    for(XMLElement* pPub = pPtdi->FirstChildElement(s_sPublisher.c_str());
-        pPub != nullptr;
-        pPub = pPub->NextSiblingElement(s_sPublisher.c_str()))
-    {
-        GUID_t pub_guid;
-        {
-            GuidPrefix_t guidPrefix;
-            {
-                std::string guid = pPub->Attribute(s_sGUID_prefix.c_str());
-                std::stringstream sstream;
-                sstream << guid;
-                sstream >> guidPrefix;
-            }
-            EntityId_t entityId;
-            {
-                std::string guid = pPub->Attribute(s_sGUID_entity.c_str());
-                std::stringstream sstream;
-                sstream << guid;
-                sstream >> entityId;
-            }
-            pub_guid.guidPrefix = guidPrefix;
-            pub_guid.entityId = entityId;
-        }
-        PDI pub(pub_guid, pPub->Attribute(s_sType.c_str()), pPub->Attribute(s_sTopic.c_str()));
-        ptdi.publishers.insert(std::move(pub));
-    }
+                pPtdi->QueryBoolAttribute(s_sServer.c_str(), &ptdi.is_server);
+                pPtdi->QueryBoolAttribute(s_sAlive.c_str(), &ptdi.is_alive);
+                ptdi.participant_name = pPtdi->Attribute(s_sName.c_str());
+                //std::cout << "PTDI: " << ptdi.id_ << std::endl;
 
-    ptdb.insert(std::move(ptdi));
-}
+                for(XMLElement* pSub = pPtdi->FirstChildElement(s_sSubscriber.c_str());
+                    pSub != nullptr;
+                    pSub = pSub->NextSiblingElement(s_sSubscriber.c_str()))
+                {
+                    GUID_t sub_guid;
+                    {
+                        GuidPrefix_t guidPrefix;
+                        {
+                            std::string guid = pSub->Attribute(s_sGUID_prefix.c_str());
+                            std::stringstream sstream;
+                            sstream << guid;
+                            sstream >> guidPrefix;
+                        }
+                        EntityId_t entityId;
+                        {
+                            std::string guid = pSub->Attribute(s_sGUID_entity.c_str());
+                            std::stringstream sstream;
+                            sstream << guid;
+                            sstream >> entityId;
+                        }
+                        sub_guid.guidPrefix = guidPrefix;
+                        sub_guid.entityId = entityId;
 
-this->insert(std::move(ptdb));
+                    }
+
+                    SDI sub(sub_guid, pSub->Attribute(s_sType.c_str()), pSub->Attribute(s_sTopic.c_str()));
+
+                    // retrieve liveliness values if any
+                    if((XML_NO_ATTRIBUTE != pSub->QueryAttribute(s_sAliveCount.c_str(), &sub.alive_count)) ||
+                        (XML_NO_ATTRIBUTE != pSub->QueryAttribute(s_sNotAliveCount.c_str(), &sub.not_alive_count)))
+                    {
+                        show_liveliness_ = true; // if present any attributes set liveliness
+                    }
+
+                    ptdi.subscribers.insert(std::move(sub));
+                }
+
+                for(XMLElement* pPub = pPtdi->FirstChildElement(s_sPublisher.c_str());
+                    pPub != nullptr;
+                    pPub = pPub->NextSiblingElement(s_sPublisher.c_str()))
+                {
+                    GUID_t pub_guid;
+                    {
+                        GuidPrefix_t guidPrefix;
+                        {
+                            std::string guid = pPub->Attribute(s_sGUID_prefix.c_str());
+                            std::stringstream sstream;
+                            sstream << guid;
+                            sstream >> guidPrefix;
+                        }
+                        EntityId_t entityId;
+                        {
+                            std::string guid = pPub->Attribute(s_sGUID_entity.c_str());
+                            std::stringstream sstream;
+                            sstream << guid;
+                            sstream >> entityId;
+                        }
+                        pub_guid.guidPrefix = guidPrefix;
+                        pub_guid.entityId = entityId;
+                    }
+                    PDI pub(pub_guid, pPub->Attribute(s_sType.c_str()), pPub->Attribute(s_sTopic.c_str()));
+                    ptdi.publishers.insert(std::move(pub));
+                }
+
+                ptdb.insert(std::move(ptdi));
+            }
+
+            this->insert(std::move(ptdb));
 
         }
     }
@@ -998,6 +1020,13 @@ Snapshot& Snapshot::operator+=(
     }
 
     insert(sh.begin(), sh.end());
+
+    // flag philosophy: a single non default value in a config drives all. 
+    // OR the liveliness, if any config file requires liveliness the global output shows it
+    show_liveliness_ |= sh.show_liveliness_;
+    // AND valid if empty, if any config file allows empty snapshots the global allows it
+    if_someone &= sh.if_someone;
+
     return *this;
 }
 

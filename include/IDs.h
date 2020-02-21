@@ -35,6 +35,7 @@ static const std::string s_sSL("ServersList");
 static const std::string s_sRServer("RServer");
 static const std::string s_sTime("time");
 static const std::string s_sSomeone("someone");
+static const std::string s_sShowLiveliness("show_liveliness");
 static const std::string s_sCreationTime("creation_time");
 static const std::string s_sRemovalTime("removal_time");
 static const std::string s_sSnapshot("snapshot");
@@ -62,6 +63,8 @@ static const std::string s_sAlive("alive");
 static const std::string s_sName("name");
 static const std::string s_sTopic("topic");
 static const std::string s_sType("type");
+static const std::string s_sAliveCount("alive_count");
+static const std::string s_sNotAliveCount("not_alive_count");
 
 } // fastrtps
 } // discovery_server

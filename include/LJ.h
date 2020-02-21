@@ -247,15 +247,18 @@ class DS
 {
     std::string description;
     bool if_someone;
+    bool show_liveliness_;
 
 public:
     DS(
         const std::chrono::steady_clock::time_point tp,
         const std::string& desc,
-        bool someone = true)
+        bool someone = true,
+        bool show_liveliness = false)
         : LJD(tp)
         , description(desc)
         , if_someone(someone)
+        , show_liveliness_(show_liveliness)
     {
     }
 

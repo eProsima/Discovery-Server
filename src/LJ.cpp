@@ -98,5 +98,5 @@ Subscriber * LJD_traits<Subscriber>::createEndpoint(
 void DS::operator()(
         DSManager & man) /*override*/
 {
-    man.takeSnapshot(std::chrono::steady_clock::now(), description, if_someone);
+    man.takeSnapshot(std::chrono::steady_clock::now(), description, if_someone, show_liveliness_);
 }

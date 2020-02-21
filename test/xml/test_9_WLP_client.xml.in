@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" >
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false" >
   
   <!-- 
   Basically we'll launch two discovery-servers instances:
@@ -22,6 +22,10 @@
     </client>
   </clients>
 
+  <snapshots file="test_9_client_snapshot.xml">
+    <snapshot show_liveliness="true" time="8">This process would be killed by the python script before this snapshot is
+taken</snapshot>
+  </snapshots>
   
   <profiles>
     <participant profile_name="UDP client" >
@@ -52,16 +56,15 @@
         <dataType>sample_type</dataType>
       </topic>
       <qos>
-        <reliability>
-          <kind>RELIABLE</kind>
-        </reliability>
         <liveliness>
           <kind>AUTOMATIC</kind>
           <lease_duration>
-            <sec>5</sec>
+            <sec>2</sec>
+            <nanosec>0</nanosec>
           </lease_duration>
           <announcement_period>
-            <sec>2</sec>
+            <sec>1</sec>
+            <nanosec>0</nanosec>
           </announcement_period>
         </liveliness>
       </qos>
