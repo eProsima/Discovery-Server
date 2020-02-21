@@ -45,6 +45,9 @@ taken</snapshot>
                         </metatrafficUnicastLocatorList>
                     </RemoteServer>
                 </discoveryServersList>
+                <leaseDuration>
+                    <sec>3600</sec>
+                </leaseDuration>
             </discovery_config>
         </builtin>
       </rtps>

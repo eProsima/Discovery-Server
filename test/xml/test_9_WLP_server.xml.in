@@ -52,6 +52,9 @@
                         </metatrafficUnicastLocatorList>
                     </RemoteServer>
                 </discoveryServersList>
+                <leaseDuration>
+                    <sec>3600</sec>
+                </leaseDuration>
             </discovery_config>
         </builtin>
       </rtps>
@@ -65,6 +68,9 @@
         <builtin>
             <discovery_config>
                 <discoveryProtocol>SERVER</discoveryProtocol>
+                <leaseDuration>
+                    <sec>3600</sec>
+                </leaseDuration>
             </discovery_config>
           <metatrafficUnicastLocatorList>
             <locator>

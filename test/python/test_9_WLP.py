@@ -50,7 +50,7 @@ if not os.path.exists(snapshot):
     sys.exit(1)
 
 # load the file
-tree = ET.parse('C:\\Users\\MIGUEL~1\\AppData\\Local\\Temp\\tmpi6nw2yie\\test_9_server_snapshot.xml')
+tree = ET.parse(snapshot)
 
 # query the alive_count attributes on the first DS_Snapshot to verify all subscribers detected the publisher 
 nodes1 = tree.findall('./DS_Snapshot[1]//subscriber[@alive_count="1"]') 

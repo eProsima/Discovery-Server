@@ -21,7 +21,7 @@
     <client name="client2" profile_name="UDP client" />
   </clients>
 
-  <snapshots>
+  <snapshots file="test_8_server_snapshot.xml" >
     <snapshot time="1">Check the server has discovered the three clients</snapshot>
     <snapshot time="10">Check server has kill the unresponsive client due lease duration and notify the remainder clients</snapshot>
   </snapshots>
