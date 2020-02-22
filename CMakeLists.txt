@@ -137,6 +137,9 @@ find_package(OpenSSL QUIET) # according to cmake docs on FindOpenSS is hinted de
 #some tests require python
 find_package(PythonInterp 3 REQUIRED)
 
+#install lxml module required for some tests
+execute_process(COMMAND ${Python3_EXECUTABLE} "-m pip install lxml")
+
 # OpenSSL isn't mandatory
 if(TARGET OpenSSL::SSL)
     set(OPENSSL_TARGET OpenSSL::SSL)
