@@ -314,7 +314,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr
 	${TINYXML2_LIBRARY}
 	${OPENSSL_TARGET}
 	)
-# note that future versions of tinyxml2 will define the target as tinyxml2::tinyxml2 
 
 # Properties that change bin names depending on current config.
 # This is convenient because on installation all bins share folder
@@ -329,6 +328,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX -${PROJECT_VERSIO
 enable_testing()
 include(CTest)  # shut up colcon's whining about .tcl files
 
+# To save time is adviceable to run ctest -j 10 to parallelized the test execution. Note that test doesn't interfere
+# with each other because independent random ports are generated for the servers.
+
 # testing enviromental variables
 # add_test(NAME envtest COMMAND powershell "[environment]::GetEnvironmentVariable('PATH') > output.txt")
 
@@ -339,12 +341,14 @@ include(${PROJECT_SOURCE_DIR}/cmake/common/random_ports.cmake)
 
 unset(${PROJECT_NAME}_transform_xml_tests)
 
-# files belonging to the same test must consecutive alphabetically
+# files belonging to the same test must be consecutive alphabetically
 list(SORT ${PROJECT_NAME}_xml_tests)
 
 unset(LAST_TEST_NUMBER )
 
 foreach(TEST_XML ${${PROJECT_NAME}_xml_tests})
+
+    # message(STATUS "Processing test ${TEST_XML}")
 
     # all test files must match the pattern test_\d+_
     if(NOT TEST_XML MATCHES "test_([0-9]+)_")
@@ -379,70 +383,68 @@ endforeach()
 unset(TEST_LIST)
 
 # add the several test, we begin for the basic discovery UDP scenario
-list(APPEND TEST_LIST test_1_PDP_UDP)
-add_test(NAME test_1_PDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_1_PDP_UDP.xml)
-set_tests_properties(test_1_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_1_PDP_UDP.xml)
+list(APPEND TEST_LIST test_01_PDP_UDP)
+add_test(NAME test_01_PDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_01_PDP_UDP.xml)
+set_tests_properties(test_01_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_01_PDP_UDP.xml)
 
 #! TCP transport wasn't operational in my original fastRTPS commit. Enable the test after rebasing ontop
 ## basic discovery TCP scenario
-list(APPEND TEST_LIST test_2_PDP_TCP)
-add_test(NAME test_2_PDP_TCP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_2_PDP_TCP.xml)
-set_tests_properties(test_2_PDP_TCP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_2_PDP_TCP.xml)
+list(APPEND TEST_LIST test_02_PDP_TCP)
+add_test(NAME test_02_PDP_TCP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_02_PDP_TCP.xml)
+set_tests_properties(test_02_PDP_TCP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_02_PDP_TCP.xml)
 
 # Testing late joiner detection and removal
-list(APPEND TEST_LIST test_3_PDP_UDP)
-add_test(NAME test_3_PDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_3_PDP_UDP.xml)
-set_tests_properties(test_3_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_3_PDP_UDP.xml)
+list(APPEND TEST_LIST test_03_PDP_UDP)
+add_test(NAME test_03_PDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_03_PDP_UDP.xml)
+set_tests_properties(test_03_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_03_PDP_UDP.xml)
 
 # Testing server inter communication 
-list(APPEND TEST_LIST test_4_PDP_UDP)
-add_test(NAME test_4_PDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_4_PDP_UDP.xml)
-set_tests_properties(test_4_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_4_PDP_UDP.xml)
+list(APPEND TEST_LIST test_04_PDP_UDP)
+add_test(NAME test_04_PDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_04_PDP_UDP.xml)
+set_tests_properties(test_04_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_04_PDP_UDP.xml)
 
 # Testing EDP discovery operation 
-list(APPEND TEST_LIST test_5_EDP_UDP)
-add_test(NAME test_5_EDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_5_EDP_UDP.xml)
-set_tests_properties(test_5_EDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_5_EDP_UDP.xml)
+list(APPEND TEST_LIST test_05_EDP_UDP)
+add_test(NAME test_05_EDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_05_EDP_UDP.xml)
+set_tests_properties(test_05_EDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_05_EDP_UDP.xml)
 
 # Testing EDP discovery operation over TCP transport
-list(APPEND TEST_LIST test_5_EDP_TCP)
-add_test(NAME test_5_EDP_TCP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_5_EDP_TCP.xml)
-set_tests_properties(test_5_EDP_TCP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_5_EDP_TCP.xml)
+list(APPEND TEST_LIST test_05_EDP_TCP)
+add_test(NAME test_05_EDP_TCP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_05_EDP_TCP.xml)
+set_tests_properties(test_05_EDP_TCP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_05_EDP_TCP.xml)
 
 # Testing EDP discovery operation with late joiner detection and removal
-list(APPEND TEST_LIST test_6_EDP_UDP)
-add_test(NAME test_6_EDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_6_EDP_UDP.xml)
-set_tests_properties(test_6_EDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_6_EDP_UDP.xml)
+list(APPEND TEST_LIST test_06_EDP_UDP)
+add_test(NAME test_06_EDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_06_EDP_UDP.xml)
+set_tests_properties(test_06_EDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_06_EDP_UDP.xml)
 
 # Testing server demise detection by clients
-list(APPEND TEST_LIST test_7_PDP_UDP)
-add_test(NAME test_7_PDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_7_PDP_UDP.xml)
-set_tests_properties(test_7_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_7_PDP_UDP.xml)
+list(APPEND TEST_LIST test_07_PDP_UDP)
+add_test(NAME test_07_PDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_07_PDP_UDP.xml)
+set_tests_properties(test_07_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_07_PDP_UDP.xml)
 
 # Testing new lease duration server-client strategy
-list(APPEND TEST_LIST test_8_lease_duration)
-add_test(NAME test_8_lease_duration
- COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_8_lease_duration.py
- $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_server.xml ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_client.xml)
-set_tests_properties(test_8_lease_duration PROPERTIES 
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_client.xml 
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_server.xml )
+list(APPEND TEST_LIST test_08_lease_duration)
+add_test(NAME test_08_lease_duration
+ COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_08_lease_duration.py
+ $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_BINARY_DIR}/test_08_lease_server.xml ${CMAKE_CURRENT_BINARY_DIR}/test_08_lease_client.xml)
+set_tests_properties(test_08_lease_duration PROPERTIES 
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_08_lease_client.xml 
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_08_lease_server.xml )
 
 #! WLP callbacks wasn't operational in my original fastRTPS commit. WLP testing will be disabled till rebasing.
-list(APPEND TEST_LIST test_9_WLP)
-add_test(NAME test_9_WLP
- COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_9_WLP.py
- $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_BINARY_DIR}/test_9_WLP_server.xml ${CMAKE_CURRENT_BINARY_DIR}/test_9_WLP_client.xml)
-set_tests_properties(test_9_WLP PROPERTIES 
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_client.xml 
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_8_lease_server.xml )
+list(APPEND TEST_LIST test_09_WLP)
+add_test(NAME test_09_WLP
+ COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_09_WLP.py
+ $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_BINARY_DIR}/test_09_WLP_server.xml ${CMAKE_CURRENT_BINARY_DIR}/test_09_WLP_client.xml)
+set_tests_properties(test_09_WLP PROPERTIES 
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_08_lease_client.xml 
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_08_lease_server.xml )
 
 # Testing server demise detection by clients
 list(APPEND TEST_LIST test_10_simple_PDP_EDP)
 add_test(NAME test_10_simple_PDP_EDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_10_simple_PDP_EDP.xml)
 set_tests_properties(test_10_simple_PDP_EDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_10_simple_PDP_EDP.xml)
-
-# add_test(NAME PubSubTest COMMAND  ${PROJECT_NAME} ${TEST_XML_FILES_DIR}pub_subs_creation.xml )
 
 # REQUIRED_FILES # associate an xml file for each test
 # RUN_SERIAL
@@ -550,11 +552,11 @@ install(TARGETS ${PROJECT_NAME}
     )
 
 # Install includes
-install(DIRECTORY include/
-    COMPONENT headers
-    DESTINATION ${INCLUDE_INSTALL_DIR}
-    FILES_MATCHING PATTERN "*.h"
-    )
+#install(DIRECTORY include/
+#    COMPONENT headers
+#    DESTINATION ${INCLUDE_INSTALL_DIR}
+#    FILES_MATCHING PATTERN "*.h"
+#    )
 
 # export library
 install(EXPORT ${PROJECT_NAME}_Targets
@@ -562,11 +564,11 @@ install(EXPORT ${PROJECT_NAME}_Targets
      )
 
 # Sources
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/
-    COMPONENT sources
-    DESTINATION ${INCLUDE_SOURCE_DIR}
-    FILES_MATCHING PATTERN "*.cpp"
-    )
+#install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/
+#    COMPONENT sources
+#    DESTINATION ${INCLUDE_SOURCE_DIR}
+#    FILES_MATCHING PATTERN "*.cpp"
+#    )
 
 # Install test
 install(FILES ${${PROJECT_NAME}_transform_xml_tests}
