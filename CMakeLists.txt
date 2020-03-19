@@ -211,6 +211,7 @@ if (WIN32)
     file(GLOB_RECURSE ALL_FAST_HEADERS
         "${FAST_INCLUDE_DIR}/**/*.h"
         "${FAST_INCLUDE_DIR}/**/*.hpp"
+        "${FAST_INCLUDE_DIR}/**/*.hxx"
         )
 endif(WIN32)
 
@@ -259,7 +260,7 @@ set(${PROJECT_NAME}_source_files
         src/LJ.cpp
     )
 
-# Executable and library
+# Executable 
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_source_files} ${${PROJECT_NAME}_header_files}
                 ${${PROJECT_NAME}_schema_files} ${${PROJECT_NAME}_xml_tests}
                 ${${PROJECT_NAME}_python_tests} ${${PROJECT_NAME}_static_types})
@@ -331,9 +332,6 @@ include(CTest)  # shut up colcon's whining about .tcl files
 # To save time is adviceable to run ctest -j 10 to parallelized the test execution. Note that test doesn't interfere
 # with each other because independent random ports are generated for the servers.
 
-# testing enviromental variables
-# add_test(NAME envtest COMMAND powershell "[environment]::GetEnvironmentVariable('PATH') > output.txt")
-
 # transform the xml.in files into actual xml with random port numbers
 # xml files are created into the current binary dir but installed into the test dir
 
@@ -387,7 +385,6 @@ list(APPEND TEST_LIST test_01_PDP_UDP)
 add_test(NAME test_01_PDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_01_PDP_UDP.xml)
 set_tests_properties(test_01_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_01_PDP_UDP.xml)
 
-#! TCP transport wasn't operational in my original fastRTPS commit. Enable the test after rebasing ontop
 ## basic discovery TCP scenario
 list(APPEND TEST_LIST test_02_PDP_TCP)
 add_test(NAME test_02_PDP_TCP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_02_PDP_TCP.xml)
@@ -432,22 +429,27 @@ set_tests_properties(test_08_lease_duration PROPERTIES
     REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_08_lease_client.xml 
     REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_08_lease_server.xml )
 
-#! WLP callbacks wasn't operational in my original fastRTPS commit. WLP testing will be disabled till rebasing.
+# Testing WLP callbacks
 list(APPEND TEST_LIST test_09_WLP)
 add_test(NAME test_09_WLP
  COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_09_WLP.py
  $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_BINARY_DIR}/test_09_WLP_server.xml ${CMAKE_CURRENT_BINARY_DIR}/test_09_WLP_client.xml)
 set_tests_properties(test_09_WLP PROPERTIES 
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_08_lease_client.xml 
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_08_lease_server.xml )
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_09_WLP_client.xml 
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_09_WLP_server.xml )
 
 # Testing server demise detection by clients
 list(APPEND TEST_LIST test_10_simple_PDP_EDP)
 add_test(NAME test_10_simple_PDP_EDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_10_simple_PDP_EDP.xml)
 set_tests_properties(test_10_simple_PDP_EDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_10_simple_PDP_EDP.xml)
 
-# REQUIRED_FILES # associate an xml file for each test
-# RUN_SERIAL
+# Testing BACKUP mechanism 
+list(APPEND TEST_LIST test_11_BACKUP)
+add_test(NAME test_11_BACKUP COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_11_BACKUP.py 
+ $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_BINARY_DIR}/test_11_BACKUP_server.xml ${CMAKE_CURRENT_BINARY_DIR}/test_11_BACKUP_client.xml)
+set_tests_properties( test_11_BACKUP PROPERTIES 
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_11_BACKUP_server.xml
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_11_BACKUP_client.xml)
 
 # specify a suitable timeout 
 set_tests_properties(${TEST_LIST} PROPERTIES TIMEOUT 25)
@@ -506,7 +508,6 @@ if(WIN32)
 
     #message(STATUS ${TEST_ENVIRONMENT_DEPENDENCIES})
 
-    #set_tests_properties(PubSubTest envtest PROPERTIES ENVIRONMENT "PATH=${WINDOWS_PATH_VARIABLE}\\;$<TARGET_FILE_DIR:fastrtps>\\;$<TARGET_FILE_DIR:fastcdr>" )
     set_tests_properties(${TEST_LIST} PROPERTIES ENVIRONMENT "PATH=${WINDOWS_PATH_VARIABLE}\\;${TEST_ENVIRONMENT_DEPENDENCIES}" )
 
 endif()
