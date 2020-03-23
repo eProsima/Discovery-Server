@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import subprocess, time, os, sys, tempfile
+import subprocess, time, os, sys, tempfile, shutil
 
 # compose the arguments
 discovery_path = sys.argv[1]     # '\\...\\discovery-server\\build64\\Debug\\discovery-server-1.1.0d.exe'
@@ -69,9 +69,10 @@ if result.returncode: # 0 if everything goes fine
 try:
     os.remove(snapshot_server)
     os.remove(snapshot_client)
-    os.rmdir(tmpdir)
+    shutil.rmtree(tmpdir)
 except:
-    print('Unable to remove the temporary files and dirs generated in the test.', file=sys.stderr)
+    print(f'Unable to remove the temporary files and dirs generated in the test. Files are located in {tmpdir}',
+        file=sys.stderr)
     sys.exit(2)
 
 # success
