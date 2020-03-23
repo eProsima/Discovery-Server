@@ -670,13 +670,16 @@ bool eprosima::discovery_server::operator==(
         {   // check if our own discovery data is interfering
             go = false;
 
-            if (lit++->endpoint_guid == r.endpoint_guid)
+            if (lit->endpoint_guid == r.endpoint_guid)
             {
                 go = true; // sweep over
+                ++lit;
             }
-            else if (rit++->endpoint_guid == l.endpoint_guid)
+            
+            if (rit->endpoint_guid == l.endpoint_guid)
             {
                 go = true; // sweep over
+                ++rit;
             }
         }
 
