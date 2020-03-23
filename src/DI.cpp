@@ -674,8 +674,7 @@ bool eprosima::discovery_server::operator==(
             {
                 go = true; // sweep over
             }
-
-            if (rit++->endpoint_guid == l.endpoint_guid)
+            else if (rit++->endpoint_guid == l.endpoint_guid)
             {
                 go = true; // sweep over
             }
