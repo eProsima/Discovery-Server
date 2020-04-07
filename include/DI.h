@@ -70,20 +70,24 @@ struct PDI : public DI
     PDI(
         const GUID_t& id,
         const std::string& type,
-        const std::string& topic)
+        const std::string& topic,
+        const std::chrono::steady_clock::time_point& discovered_timestamp)
         : DI(id)
         , type_name(type)
         , topic_name(topic)
+        , discovered_timestamp_(discovered_timestamp)
     {
     }
 
     PDI(
         GUID_t&& id,
         std::string&& type,
-        std::string&& topic)
+        std::string&& topic,
+        std::chrono::steady_clock::time_point&& discovered_timestamp)
         : DI(id)
         , type_name(std::move(type))
         , topic_name(std::move(topic))
+        , discovered_timestamp_(std::move(discovered_timestamp))
     {
     }
 
@@ -101,6 +105,9 @@ struct PDI : public DI
 
     //!Topic name
     std::string topic_name;
+
+    //!Discovered timestamp
+    std::chrono::steady_clock::time_point discovered_timestamp_;
 };
 
 std::ostream& operator<<(std::ostream&, const PDI&);
@@ -111,20 +118,24 @@ struct SDI : public DI
     SDI(
         const GUID_t& id,
         const std::string& type,
-        const std::string& topic)
+        const std::string& topic,
+        const std::chrono::steady_clock::time_point& discovered_timestamp)
         : DI(id)
         , type_name(type)
         , topic_name(topic)
+        , discovered_timestamp_(discovered_timestamp)
     {
     }
 
     SDI(
         GUID_t&& id,
         std::string&& type,
-        std::string&& topic)
-        : DI(id),
-        type_name(std::move(type)),
-        topic_name(std::move(topic))
+        std::string&& topic,
+        std::chrono::steady_clock::time_point&& discovered_timestamp)
+        : DI(id)
+        , type_name(std::move(type))
+        , topic_name(std::move(topic))
+        , discovered_timestamp_(std::move(discovered_timestamp))
     {
     }
 
@@ -139,6 +150,9 @@ struct SDI : public DI
 
     //!Topic name
     std::string topic_name;
+
+    //!Discovered timestamp
+    std::chrono::steady_clock::time_point discovered_timestamp_;
 
     //!Liveliness info
     int32_t alive_count{};
@@ -160,6 +174,7 @@ struct PtDI : public DI
     bool is_server; // false -> client
     bool is_alive; // false if death already reported but owned endpoints yet to be
     std::string participant_name;
+    std::chrono::steady_clock::time_point discovered_timestamp_;
 
     // local user entities
     publisher_set publishers;
@@ -168,21 +183,25 @@ struct PtDI : public DI
     PtDI(
         const GUID_t& id,
         const std::string& name = std::string(),
-        bool server = false)
+        bool server = false,
+        const std::chrono::steady_clock::time_point& discovered_timestamp = std::chrono::steady_clock::now())
         : DI(id),
         is_server(server),
         is_alive(true),
-        participant_name(name)
+        participant_name(name),
+        discovered_timestamp_(discovered_timestamp)
     {
     }
 
     PtDI(GUID_t&& id,
         std::string&& name = std::string(),
-        bool server = false)
+        bool server = false,
+        const std::chrono::steady_clock::time_point& discovered_timestamp = std::chrono::steady_clock::now())
         : DI(id),
         is_server(server),
         is_alive(true),
-        participant_name(name)
+        participant_name(name),
+        discovered_timestamp_(discovered_timestamp)
     {
     }
 
@@ -218,7 +237,7 @@ struct PtDI : public DI
 
     //! get publishers
     publisher_set& getPublishers() const
-    { 
+    {
         return const_cast<publisher_set &>(publishers);
     }
 
@@ -228,13 +247,17 @@ struct PtDI : public DI
         return const_cast<subscriber_set&>(subscribers);
     }
 
-    void setName(const std::string & name) const 
-    { 
+    void setName(const std::string & name) const
+    {
         const_cast<std::string&>(participant_name) = name;
     }
-    void setServer(bool & s) const 
-    { 
+    void setServer(bool & s) const
+    {
         const_cast<bool &>(is_server) = s;
+    }
+    void setDiscoveredTimestamp(const std::chrono::steady_clock::time_point & discovered_timestamp) const
+    {
+        const_cast<std::chrono::steady_clock::time_point&>(discovered_timestamp_) = discovered_timestamp;
     }
 
     //! Returns the number of endpoints owned
@@ -290,7 +313,7 @@ struct Snapshot : public std::set<PtDB>
     // last EDP callback time
     std::chrono::steady_clock::time_point last_EDP_callback_;
     // report test framework that if nobody is discovered it should fail
-    bool if_someone; 
+    bool if_someone;
     // show liveliness info
     bool show_liveliness_;
 
@@ -374,7 +397,8 @@ class DI_database
             const GUID_t & ptid,
             const GUID_t & sid,
             const std::string & _typename,
-            const std::string & topicname);
+            const std::string & topicname,
+            const std::chrono::steady_clock::time_point& discovered_timestamp);
 
     template<
         class T>
@@ -392,7 +416,7 @@ public:
 
     //! Get Snapshot time
     std::chrono::steady_clock::time_point getTime() const
-    { 
+    {
         return image._time;
     }
 
@@ -403,6 +427,7 @@ public:
     bool AddParticipant(const GUID_t& spokesman,
         const GUID_t & ptid,
         const std::string& name = std::string(),
+        const std::chrono::steady_clock::time_point& discovered_timestamp = std::chrono::steady_clock::now(),
         bool server = false);
 
     //! Removes a participant, returns false if no there
@@ -417,7 +442,8 @@ public:
         const GUID_t & ptid,
         const GUID_t & sid,
         const std::string& _typename,
-        const std::string & topicname);
+        const std::string & topicname,
+        const std::chrono::steady_clock::time_point& discovered_timestamp);
 
     bool RemoveSubscriber(const GUID_t& spokesman,
         const GUID_t & ptid,
@@ -428,7 +454,8 @@ public:
         const GUID_t & ptid,
         const GUID_t & pid,
         const std::string & _typename,
-        const std::string & topicname);
+        const std::string & topicname,
+        const std::chrono::steady_clock::time_point& discovered_timestamp);
 
     bool RemovePublisher(const GUID_t& spokesman,
         const GUID_t & ptid,

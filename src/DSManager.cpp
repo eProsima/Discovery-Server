@@ -323,7 +323,7 @@ Participant* DSManager::removeParticipant(
         publisher_map paux;
         std::remove_copy_if(publishers.begin(), publishers.end(), std::inserter(paux, paux.begin()),
             [&id](publisher_map::value_type it)
-            { 
+            {
                 return id.guidPrefix == it.first.guidPrefix;
             });
         publishers.swap(paux);
@@ -331,7 +331,7 @@ Participant* DSManager::removeParticipant(
         subscriber_map saux;
         std::remove_copy_if(subscribers.begin(), subscribers.end(), std::inserter(saux, saux.begin()),
             [&id](subscriber_map::value_type it)
-            { 
+            {
                 return id.guidPrefix == it.first.guidPrefix;
             });
         subscribers.swap(saux);
@@ -598,16 +598,16 @@ void DSManager::loadServer(
             LOG_INFO(msg.str());
         }
         else
-        {   
+        {
             LOG_ERROR(msg.str());
         }
-        
+
         return;
     }
 
     // retrieve profile attributes
     ParticipantAttributes atts;
-    if (xmlparser::XMLP_ret::XML_OK != 
+    if (xmlparser::XMLP_ret::XML_OK !=
         xmlparser::XMLProfileManager::fillParticipantAttributes(std::string(profile_name), atts))
     {
         LOG_ERROR("DSManager::loadServer couldn't load profile " << profile_name);
@@ -769,7 +769,7 @@ void DSManager::loadClient(
 
     // retrieve profile attributes
     ParticipantAttributes atts;
-    if (xmlparser::XMLP_ret::XML_OK != 
+    if (xmlparser::XMLP_ret::XML_OK !=
         xmlparser::XMLProfileManager::fillParticipantAttributes(std::string(profile_name), atts))
     {
         LOG_ERROR("DSManager::loadClient couldn't load profile " << profile_name);
@@ -797,7 +797,7 @@ void DSManager::loadClient(
         RemoteServerList_t::value_type srv;
         GuidPrefix_t & prefix = srv.guidPrefix;
 
-        if (!(std::istringstream(server) >> prefix) && 
+        if (!(std::istringstream(server) >> prefix) &&
             (prefix == c_GuidPrefix_Unknown))
         {
             LOG_ERROR("server attribute must provide a prefix"); // at least for now
@@ -865,7 +865,7 @@ void DSManager::loadClient(
         if (std::regex_match(lp, mr, ipv4_regular_expression))
         {
             listening_port = std::stol(mr[2].str());
-            
+
             // if address is empty ipv4_regular_expression matches a port number but we don't know the kind of transport
             address = mr[1].str();
         }
@@ -907,7 +907,7 @@ void DSManager::loadClient(
             // create a new tcp4 one
             p4 = std::make_shared<TCPv4TransportDescriptor>();
             pT = p4.get();
-            
+
             // update participant attributes
             atts.rtps.userTransports.push_back(p4);
         }
@@ -1017,7 +1017,7 @@ void DSManager::loadSimple(
     }
 
     // simple are created for debugging purposes
-    // profile name is not mandatory 
+    // profile name is not mandatory
     const char* profile_name = simple->Attribute(DSxmlparser::PROFILE_NAME);
 
     ParticipantAttributes atts;
@@ -1169,7 +1169,7 @@ void DSManager::loadSubscriber(
 
     if (topic_name != nullptr)
     {
-        if (xmlparser::XMLP_ret::XML_OK != 
+        if (xmlparser::XMLP_ret::XML_OK !=
             xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), subatts->topic))
         {
             LOG_ERROR("DSManager::loadSubscriber couldn't load topic profile " << profile_name);
@@ -1264,7 +1264,7 @@ void DSManager::loadPublisher(
     else
     {
         // try load from profile
-        if (xmlparser::XMLP_ret::XML_OK != 
+        if (xmlparser::XMLP_ret::XML_OK !=
             xmlparser::XMLProfileManager::fillPublisherAttributes(std::string(profile_name), *pubatts))
         {
             LOG_ERROR("DSManager::loadPublisher couldn't load profile " << profile_name);
@@ -1277,7 +1277,7 @@ void DSManager::loadPublisher(
 
     if (topic_name != nullptr)
     {
-        if (xmlparser::XMLP_ret::XML_OK != 
+        if (xmlparser::XMLP_ret::XML_OK !=
             xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), pubatts->topic))
         {
             LOG_ERROR("DSManager::loadPublisher couldn't load topic profile ");
@@ -1426,7 +1426,7 @@ void DSManager::MapServerInfo(
         if (!atts)
         {
             atts = std::make_shared<ParticipantAttributes>();
-            if (xmlparser::XMLP_ret::XML_OK != 
+            if (xmlparser::XMLP_ret::XML_OK !=
                 xmlparser::XMLProfileManager::fillParticipantAttributes(profile_name, *atts))
             {
                 LOG_ERROR("DSManager::loadServer couldn't load profile " << profile_name);
@@ -1452,11 +1452,12 @@ void DSManager::onParticipantDiscovery(
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a participant "
         << info.info.m_participantName << " is " << info.status << ". Prefix " << partid);
 
+    std::chrono::steady_clock::time_point callback_time = std::chrono::steady_clock::now();
     {
         std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
         // update last_callback time
-        last_PDP_callback_ = std::chrono::steady_clock::now();
+        last_PDP_callback_ = callback_time;
 
         if (!no_callbacks)
         {
@@ -1472,7 +1473,8 @@ void DSManager::onParticipantDiscovery(
     {
     case ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT:
     {
-        state.AddParticipant(participant->getGuid(), partid, info.info.m_participantName.to_string(), server);
+        state.AddParticipant(participant->getGuid(), partid, info.info.m_participantName.to_string(), callback_time,
+            server);
         break;
     }
     case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
@@ -1502,11 +1504,12 @@ void DSManager::onSubscriberDiscovery(
     // non reported info
     std::string part_name;
 
+    std::chrono::steady_clock::time_point callback_time = std::chrono::steady_clock::now();
     {
         std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
         // update last_callback time
-        last_EDP_callback_ = std::chrono::steady_clock::now();
+        last_EDP_callback_ = callback_time;
 
         participant_map::iterator it;
 
@@ -1541,7 +1544,7 @@ void DSManager::onSubscriberDiscovery(
     {
     case DS::DISCOVERED_READER:
         state.AddSubscriber(participant->getGuid(), partid, subsid, info.info.typeName().to_string(),
-            info.info.topicName().to_string());
+            info.info.topicName().to_string(), callback_time);
         break;
     case DS::REMOVED_READER:
     {
@@ -1575,11 +1578,12 @@ void  DSManager::onPublisherDiscovery(
     // non reported info
     std::string part_name;
 
+    std::chrono::steady_clock::time_point callback_time = std::chrono::steady_clock::now();
     {
         std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
         // update last_callback time
-        last_EDP_callback_ = std::chrono::steady_clock::now();
+        last_EDP_callback_ = callback_time;
 
         if (!no_callbacks)
         {
@@ -1616,7 +1620,8 @@ void  DSManager::onPublisherDiscovery(
         state.AddPublisher(participant->getGuid(),
             partid, pubsid,
             info.info.typeName().to_string(),
-            info.info.topicName().to_string());
+            info.info.topicName().to_string(),
+            callback_time);
         break;
     case DS::REMOVED_WRITER:
     {
@@ -1735,7 +1740,7 @@ Snapshot& DSManager::takeSnapshot(
     shot.if_someone = someone;
     shot.show_liveliness_ = show_liveliness;
 
-    // Add any simple, client or server isolated information 
+    // Add any simple, client or server isolated information
     // those have not make any callbacks if no subscriber or publisher
 
     participant_map temp(servers);
@@ -1839,7 +1844,7 @@ bool DSManager::loadSnapshots(
         LOG_ERROR("Couldn't parse the file: " << file);
         return false;
     }
-    
+
     XMLNode * pRoot = xmlDoc.FirstChild();
 
     snapshots_list::iterator it;
