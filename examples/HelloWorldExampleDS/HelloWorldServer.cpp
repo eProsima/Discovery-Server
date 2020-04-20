@@ -39,7 +39,6 @@ bool HelloWorldServer::init(Locator_t server_address)
     ParticipantAttributes PParam;
     PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::SERVER;
     PParam.rtps.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
-    PParam.rtps.builtin.domainId = 0;
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_server");
 
@@ -80,7 +79,7 @@ bool HelloWorldServer::init(Locator_t server_address)
         PParam.rtps.builtin.metatrafficUnicastLocatorList.push_back(server_address);
     }
 
-    mp_participant = Domain::createParticipant(PParam);
+    mp_participant = Domain::createParticipant(0,PParam);
     if (mp_participant==nullptr)
         return false;
 

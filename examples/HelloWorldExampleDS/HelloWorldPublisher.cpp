@@ -51,7 +51,6 @@ bool HelloWorldPublisher::init(Locator_t server_address)
 
     ParticipantAttributes PParam;
     PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::CLIENT;
-    PParam.rtps.builtin.domainId = 0;
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_pub");
 
@@ -97,7 +96,7 @@ bool HelloWorldPublisher::init(Locator_t server_address)
         PParam.rtps.builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
     }
 
-    mp_participant = Domain::createParticipant(PParam);
+    mp_participant = Domain::createParticipant(0,PParam);
 
     if (mp_participant == nullptr)
     {

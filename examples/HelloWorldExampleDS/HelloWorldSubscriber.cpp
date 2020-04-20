@@ -43,15 +43,14 @@ bool HelloWorldSubscriber::init(Locator_t server_address)
 
     RemoteServerAttributes ratt;
     ratt.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
- 
+
     ParticipantAttributes PParam;
     PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::CLIENT;
-    PParam.rtps.builtin.domainId = 0;
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_sub");
 
     uint16_t default_port = IPLocator::getPhysicalPort(server_address.port);
-   
+
     if(server_address.kind == LOCATOR_KIND_TCPv4 ||
         server_address.kind == LOCATOR_KIND_TCPv6)
     {
@@ -91,8 +90,8 @@ bool HelloWorldSubscriber::init(Locator_t server_address)
         ratt.metatrafficUnicastLocatorList.push_back(server_address);
         PParam.rtps.builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
     }
-    
-    mp_participant = Domain::createParticipant(PParam);
+
+    mp_participant = Domain::createParticipant(0,PParam);
 
     if (mp_participant == nullptr)
     {
@@ -123,7 +122,7 @@ bool HelloWorldSubscriber::init(Locator_t server_address)
     return true;
 }
 
-HelloWorldSubscriber::~HelloWorldSubscriber() 
+HelloWorldSubscriber::~HelloWorldSubscriber()
 {
     Domain::removeParticipant(mp_participant);
 }

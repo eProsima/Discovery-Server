@@ -263,7 +263,7 @@ int main(int argc, char** argv)
                 option::printUsage(fwrite, stdout, usage, columns);
                 return 0;
                 break;
-           
+
             }
         }
 
