@@ -762,6 +762,16 @@
         <xs:attribute name="is_default_profile" type="boolean" use="optional"/>
     </xs:complexType>
 
+    <xs:complexType name="topicProfileType">
+        <xs:complexContent>
+            <xs:extension base="topicAttributesType">
+                <xs:attribute name="profile_name" type="stringType" use="optional"/>
+                <!-- topic name should be enough but several participants may have a topic with the same name and different value-type.
+          For the sake of completion we must provide a mechanism to workaround this error. To be implemented in parser. -->
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
     <xs:complexType name="requesterProfileType">
         <xs:all>
             <xs:element name="request_topic_name" type="stringType" minOccurs="0"/>
@@ -864,7 +874,8 @@
             <xs:element name="participant" type="participantProfileType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="publisher" type="publisherProfileType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="subscriber" type="subscriberProfileType" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="topic" type="topicAttributesType" minOccurs="0" maxOccurs="unbounded"/>
+            <!-- There is not topicProfileType on Fast-RTPS schema but the parser works accordingly-->
+            <xs:element name="topic" type="topicProfileType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 

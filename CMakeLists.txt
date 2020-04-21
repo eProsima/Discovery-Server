@@ -508,7 +508,8 @@ if(WIN32)
 
     #message(STATUS ${TEST_ENVIRONMENT_DEPENDENCIES})
 
-    set_tests_properties(${TEST_LIST} PROPERTIES ENVIRONMENT "PATH=${WINDOWS_PATH_VARIABLE}\\;${TEST_ENVIRONMENT_DEPENDENCIES}" )
+    # make sure the target dependencies we found override others already installed when loading dlls 
+    set_tests_properties(${TEST_LIST} PROPERTIES ENVIRONMENT "PATH=${TEST_ENVIRONMENT_DEPENDENCIES}\\;${WINDOWS_PATH_VARIABLE}" )
 
 endif()
 

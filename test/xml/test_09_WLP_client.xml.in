@@ -77,7 +77,7 @@ taken</snapshot>
       </qos>
     </publisher>
 
-    <topic>
+    <topic profile_name="test topic">
       <name>test_topic</name>
       <dataType>sample_type</dataType>
     </topic>
