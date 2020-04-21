@@ -79,14 +79,14 @@ bool HelloWorldServer::init(Locator_t server_address)
         PParam.rtps.builtin.metatrafficUnicastLocatorList.push_back(server_address);
     }
 
-    mp_participant = Domain::createParticipant(0,PParam);
+    mp_participant = Domain::createParticipant(PParam);
     if (mp_participant==nullptr)
         return false;
 
     return true;
 }
 
-HelloWorldServer::~HelloWorldServer() 
+HelloWorldServer::~HelloWorldServer()
 {
     Domain::removeParticipant(mp_participant);
 }

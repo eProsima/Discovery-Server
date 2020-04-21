@@ -65,10 +65,8 @@
         </transport_descriptors>
 
         <participant profile_name="OtherDomain">
+            <domainId>${RANDOM_DOMAIN}</domainId>
             <rtps>
-                <builtin>
-                    <domainId>${RANDOM_DOMAIN}</domainId>
-                </builtin>
                 <userTransports>
                     <transport_id>wifi_only_transport</transport_id>
                 </userTransports>

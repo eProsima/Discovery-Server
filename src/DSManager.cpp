@@ -1148,21 +1148,8 @@ void DSManager::loadSubscriber(
 
     SubscriberAttributes * subatts = new SubscriberAttributes();
 
-    if (profile_name == nullptr)
-    {
-        // get default subscriber attributes
-        xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(*subatts);
-    }
-    else
-    {
-        // try load from profile
-        if (xmlparser::XMLP_ret::XML_OK !=
-            xmlparser::XMLProfileManager::fillSubscriberAttributes(std::string(profile_name), *subatts))
-        {
-            LOG_ERROR("DSManager::loadSubscriber couldn't load profile " << profile_name);
-            return;
-        }
-    }
+    // get default subscriber attributes
+    xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(*subatts);
 
     // see if topic is specified
     const char* topic_name = sub->Attribute(DSxmlparser::TOPIC);
@@ -1172,7 +1159,7 @@ void DSManager::loadSubscriber(
         if (xmlparser::XMLP_ret::XML_OK !=
             xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), subatts->topic))
         {
-            LOG_ERROR("DSManager::loadSubscriber couldn't load topic profile " << profile_name);
+            LOG_ERROR("DSManager::loadSubscriber couldn't load topic profile ");
             return;
         }
     }

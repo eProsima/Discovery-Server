@@ -109,12 +109,12 @@
       </topic>
     </subscriber>
 
-    <topic profile_name="topic 1">
+    <topic>
       <name>topic_1</name>
       <dataType>sample_type_1</dataType>
     </topic>
 
-    <topic profile_name="topic 2">
+    <topic>
       <name>topic_2</name>
       <dataType>sample_type_2</dataType>
     </topic>

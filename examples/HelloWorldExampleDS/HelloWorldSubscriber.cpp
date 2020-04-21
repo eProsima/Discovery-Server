@@ -91,7 +91,7 @@ bool HelloWorldSubscriber::init(Locator_t server_address)
         PParam.rtps.builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
     }
 
-    mp_participant = Domain::createParticipant(0,PParam);
+    mp_participant = Domain::createParticipant(PParam);
 
     if (mp_participant == nullptr)
     {
