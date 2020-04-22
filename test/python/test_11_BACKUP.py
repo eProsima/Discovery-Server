@@ -35,7 +35,7 @@ except subprocess.TimeoutExpired:
     proc_server.kill()
 
 # now we relaunch the server again and expect him to reload the data from the clients
-result = subprocess.run([discovery_path, xml_server_path], capture_output=True, text=True, cwd=tmpdir)
+result = subprocess.run([discovery_path, xml_server_path], cwd=tmpdir)
 
 if result.returncode: # 0 if everything goes fine 
     print(f'failure when running {xml_server_path}')
@@ -58,7 +58,7 @@ if not (os.path.exists(snapshot_server) and os.path.exists(snapshot_client)):
     sys.exit(1)
 
 # Validate the snapshots
-result = subprocess.run([discovery_path, snapshot_server, snapshot_client], capture_output=True, text=True, cwd=tmpdir)
+result = subprocess.run([discovery_path, snapshot_server, snapshot_client], cwd=tmpdir)
 
 if result.returncode: # 0 if everything goes fine 
     print(f'snapshot files validation failed. Files are located in {tmpdir}', file=sys.stderr)
