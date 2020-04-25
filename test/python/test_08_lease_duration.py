@@ -52,13 +52,13 @@ if not os.path.exists(snapshot):
 # load the file
 tree = ET.parse(snapshot)
 
-# query the number of times clien3 appears on the first snapshot. It should be 3 (one for each participant in the server
+# query the number of times client3 appears on the first snapshot. It should be 3 (one for each participant in the server
 # config file) 
-nodes1 = tree.findall('./DS_Snapshot[1]//*[@name="client3"]')
+nodes1 = tree.findall('./{http://www.eprosima.com/XMLSchemas/ds-snapshot}DS_Snapshot[1]//*[@name="client3"]')
 
-# query the number of times clien3 appears on the second snapshot. It should be none because the server should notify
+# query the number of times client3 appears on the second snapshot. It should be none because the server should notify
 # all clients of client3 demise 
-nodes2 = tree.findall('./DS_Snapshot[2]//*[@name="client3"]')
+nodes2 = tree.findall('./{http://www.eprosima.com/XMLSchemas/ds-snapshot}DS_Snapshot[2]//*[@name="client3"]')
 
 if not(len(nodes1) == 3 and len(nodes2) == 0): 
     print('Snapshots show that lease duration is not working properly', file=sys.stderr)

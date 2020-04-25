@@ -53,10 +53,10 @@ if not os.path.exists(snapshot):
 tree = ET.parse(snapshot)
 
 # query the alive_count attributes on the first DS_Snapshot to verify all subscribers detected the publisher 
-nodes1 = tree.findall('./DS_Snapshot[1]//subscriber[@alive_count="1"]') 
+nodes1 = tree.findall('./{http://www.eprosima.com/XMLSchemas/ds-snapshot}DS_Snapshot[1]//{http://www.eprosima.com/XMLSchemas/ds-snapshot}subscriber[@alive_count="1"]') 
 
 # query the alive_count attributes on the second DS_Snapshot to verify all subscriber notice the publisher dead
-nodes2 = tree.findall('./DS_Snapshot[2]//subscriber[@alive_count="0"]') 
+nodes2 = tree.findall('./{http://www.eprosima.com/XMLSchemas/ds-snapshot}DS_Snapshot[2]//{http://www.eprosima.com/XMLSchemas/ds-snapshot}subscriber[@alive_count="0"]') 
 
 if not(len(nodes1) == len(nodes2) == 2): 
     print('Snapshots show the liveliness is not working properly', file=sys.stderr)

@@ -37,6 +37,7 @@
         <xs:attribute name="topic" type="stringType" use="required"/>
         <xs:attribute name="alive_count" type="xs:integer" use ="optional"/>
         <xs:attribute name="not_alive_count" type="xs:integer" use="optional"/>
+        <xs:attribute name="discovered_timestamp" type="uint64Type" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="ptdi_type">
@@ -49,6 +50,7 @@
         <xs:attribute name="server" type="boolType" use="required"/>
         <xs:attribute name="alive" type="boolType" use="required"/>
         <xs:attribute name="name" type="stringType" use="required"/>
+        <xs:attribute name="discovered_timestamp" type="uint64Type" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="ptdb_type">

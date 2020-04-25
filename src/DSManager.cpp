@@ -1884,7 +1884,14 @@ void DSManager::saveSnapshots(
 {
     using namespace tinyxml2;
     XMLDocument xmlDoc;
-    XMLNode* pRoot = xmlDoc.NewElement(s_sDS_Snapshots.c_str());
+
+    // add default comment
+    xmlDoc.InsertFirstChild(xmlDoc.NewDeclaration(nullptr));
+
+    XMLElement* pRoot = xmlDoc.NewElement(s_sDS_Snapshots.c_str());
+    // add the specific schema
+    pRoot->SetAttribute("xmlns", "http://www.eprosima.com/XMLSchemas/ds-snapshot");
+
     for (const Snapshot& sh : snapshots)
     {
         LOG("Saving snapshot " << sh._des);
