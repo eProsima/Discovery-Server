@@ -1172,7 +1172,7 @@ void DSManager::loadSubscriber(
         if (xmlparser::XMLP_ret::XML_OK !=
             xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), subatts->topic))
         {
-            LOG_ERROR("DSManager::loadSubscriber couldn't load topic profile " << profile_name);
+            LOG_ERROR("DSManager::loadSubscriber couldn't load topic profile ");
             return;
         }
     }

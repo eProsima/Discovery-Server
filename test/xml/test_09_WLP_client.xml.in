@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false" >
   
-  <!--
-  
-    According to the RTPS standard the WLP (Writer Liveliness Protocol) defines the required information exchange
-    between two
+ <!-- 
 
-    Participants in order to assert the liveliness of Writers contained by the Participants. This test assess this
+    According to the RTPS standard the WLP (Writer Liveliness Protocol) defines the required information exchange
+    between two Participants in order to assert the liveliness of Writers contained by the Participants. This test assess this
     mechanism proper operation under client-server discovery. Basically two discovery-servers instances are launched:
 
     1 - A server with several clients that create subscribers of a common topic. This instances will take an snapshot at

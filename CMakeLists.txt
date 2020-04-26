@@ -131,7 +131,8 @@ endif()
 
 
 find_package(fastcdr REQUIRED )
-find_package(fastrtps REQUIRED)
+# new DDS API is required
+find_package(fastrtps 2 REQUIRED)
 find_package(OpenSSL QUIET) # according to cmake docs on FindOpenSS is hinted define OPENSSL_ROOT_DIR
 
 #some tests require python
@@ -508,7 +509,8 @@ if(WIN32)
 
     #message(STATUS ${TEST_ENVIRONMENT_DEPENDENCIES})
 
-    set_tests_properties(${TEST_LIST} PROPERTIES ENVIRONMENT "PATH=${WINDOWS_PATH_VARIABLE}\\;${TEST_ENVIRONMENT_DEPENDENCIES}" )
+    # make sure the target dependencies we found override others already installed when loading dlls 
+    set_tests_properties(${TEST_LIST} PROPERTIES ENVIRONMENT "PATH=${TEST_ENVIRONMENT_DEPENDENCIES}\\;${WINDOWS_PATH_VARIABLE}" )
 
 endif()
 

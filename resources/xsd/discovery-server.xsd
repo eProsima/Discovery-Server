@@ -48,6 +48,7 @@
             <xs:enumeration value="PREALLOCATED"/>
             <xs:enumeration value="PREALLOCATED_WITH_REALLOC"/>
             <xs:enumeration value="DYNAMIC"/>
+            <xs:enumeration value="DYNAMIC_REUSABLE"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -380,12 +381,13 @@
         <xs:all minOccurs="0">
             <xs:element name="discovery_config" type="discoverySettingsType" minOccurs="0"/>
             <xs:element name="use_WriterLivelinessProtocol" type="boolType" minOccurs="0"/>
-            <xs:element name="domainId" type="uint32Type" minOccurs="0"/>
             <xs:element name="metatrafficUnicastLocatorList" type="locatorListType" minOccurs="0"/>
             <xs:element name="metatrafficMulticastLocatorList" type="locatorListType" minOccurs="0"/>
             <xs:element name="initialPeersList" type="locatorListType" minOccurs="0"/>
             <xs:element name="readerHistoryMemoryPolicy" type="historyMemoryPolicyType" minOccurs="0"/>
             <xs:element name="writerHistoryMemoryPolicy" type="historyMemoryPolicyType" minOccurs="0"/>
+            <xs:element name="readerPayloadSize" type="uint32Type" minOccurs="0"/>
+            <xs:element name="writerPayloadSize" type="uint32Type" minOccurs="0"/>
             <xs:element name="mutation_tries" type="uint32Type" minOccurs="0"/>
             <xs:element name="avoid_builtin_multicast" type="boolType" minOccurs="0"/>
         </xs:all>
@@ -422,12 +424,23 @@
         </xs:all>
     </xs:complexType>
 
+    <xs:complexType name="sendBuffersAllocationConfigType">
+        <xs:all minOccurs="0">
+            <xs:element name="preallocated_number" type="uint32Type" minOccurs="0"/>
+            <xs:element name="dynamic" type="boolType" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+
     <xs:complexType name="rtpsParticipantAllocationAttributesType">
         <xs:all minOccurs="0">
             <xs:element name="remote_locators" type="remoteLocatorsAllocationConfigType" minOccurs="0"/>
             <xs:element name="total_participants" type="containerAllocationConfigType" minOccurs="0"/>
             <xs:element name="total_readers" type="containerAllocationConfigType" minOccurs="0"/>
             <xs:element name="total_writers" type="containerAllocationConfigType" minOccurs="0"/>
+            <xs:element name="send_buffers" type="sendBuffersAllocationConfigType" minOccurs="0"/>
+            <xs:element name="max_properties" type="uint32Type" minOccurs="0"/>
+            <xs:element name="max_user_data" type="uint32Type" minOccurs="0"/>
+            <xs:element name="max_partitions" type="uint32Type" minOccurs="0"/>
         </xs:all>
     </xs:complexType>
 
@@ -706,6 +719,7 @@
 
     <xs:complexType name="participantProfileType">
         <xs:sequence>
+            <xs:element name="domainId" type="uint32Type" minOccurs="0"/>
             <xs:element name="rtps" type="rtpsParticipantAttributesType"/>
         </xs:sequence>
         <xs:attribute name="profile_name" type="stringType" use="required"/>
@@ -758,16 +772,50 @@
         </xs:complexContent>
     </xs:complexType>
 
-    <xs:complexType name="StringSequenceType">
-        <xs:sequence>
-            <xs:element name="id" type="stringType"/>
-        </xs:sequence>
+    <xs:complexType name="requesterProfileType">
+        <xs:all>
+            <xs:element name="request_topic_name" type="stringType" minOccurs="0"/>
+            <xs:element name="reply_topic_name" type="stringType" minOccurs="0"/>
+            <xs:element name="publisher" type="publisherProfileType"/>
+            <xs:element name="subscriber" type="subscriberProfileType"/>
+        </xs:all>
+        <xs:attribute name="profile_name" type="stringType" use="required"/>
+        <xs:attribute name="service_name" type="stringType" use="required"/>
+        <xs:attribute name="request_type" type="stringType" use="required"/>
+        <xs:attribute name="reply_type" type="stringType" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="replierProfileType">
+        <xs:all>
+            <xs:element name="request_topic_name" type="stringType" minOccurs="0"/>
+            <xs:element name="reply_topic_name" type="stringType" minOccurs="0"/>
+            <xs:element name="publisher" type="publisherProfileType"/>
+            <xs:element name="subscriber" type="subscriberProfileType"/>
+        </xs:all>
+        <xs:attribute name="profile_name" type="stringType" use="required"/>
+        <xs:attribute name="service_name" type="stringType" use="required"/>
+        <xs:attribute name="request_type" type="stringType" use="required"/>
+        <xs:attribute name="reply_type" type="stringType" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="TransportDescriptorListType">
-        <xs:sequence>
-            <xs:element name="transport_descriptor" type="rtpsTransportDescriptorType" minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
+      <xs:sequence>
+        <xs:element name="transport_descriptor" type="rtpsTransportDescriptorType" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="IntraprocessDeliveryType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="OFF"/>
+            <xs:enumeration value="USER_DATA_ONLY"/>
+            <xs:enumeration value="FULL"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="LibrarySettingsType">
+        <xs:all minOccurs="0">
+            <xs:element name="intraprocess_delivery" type="IntraprocessDeliveryType"/>
+        </xs:all>
     </xs:complexType>
 
     <xs:complexType name="rtpsTransportDescriptorType">
@@ -777,6 +825,7 @@
             <xs:element name="sendBufferSize" type="int32Type" minOccurs="0" maxOccurs="1"/>
             <xs:element name="receiveBufferSize" type="int32Type" minOccurs="0" maxOccurs="1"/>
             <xs:element name="TTL" type="uint8Type" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="non_blocking_send" type="boolType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="maxMessageSize" type="uint32Type" minOccurs="0" maxOccurs="1"/>
             <xs:element name="maxInitialPeersRange" type="uint32Type" minOccurs="0" maxOccurs="1"/>
             <xs:element name="interfaceWhiteList" type="addressListType" minOccurs="0" maxOccurs="1"/>
@@ -793,6 +842,10 @@
             <xs:element name="check_crc" type="boolType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="enable_tcp_nodelay" type="boolType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="tls" type="tlsConfigType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="segment_size" type="uint32Type" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="port_queue_capacity" type="uint32Type" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="healthy_check_timeout_ms" type="uint32Type" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="rtps_dump_file" type="stringType" minOccurs="0" maxOccurs="1"/>
         </xs:all>
     </xs:complexType>
 
@@ -816,10 +869,12 @@
 
     <xs:complexType name="profileDescriptorType">
         <xs:sequence>
+            <xs:element name="library_settings" type="LibrarySettingsType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="transport_descriptors" type="TransportDescriptorListType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="participant" type="participantProfileType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="publisher" type="publisherProfileType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="subscriber" type="subscriberProfileType" minOccurs="0" maxOccurs="unbounded"/>
+            <!-- There is not topicProfileType on Fast-RTPS schema but the parser works accordingly-->
             <xs:element name="topic" type="topicProfileType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
@@ -1001,6 +1056,7 @@
             </xs:all>
             <xs:attribute name="user_shutdown" type="xs:boolean" default="true" use="optional" />
             <xs:attribute name="prefix_validation" type="xs:boolean" default="true" use="optional" />
+            <xs:attribute name="domainId" type="uint32Type" default="0" use="optional" />
         </xs:complexType>
     </xs:element>
 
