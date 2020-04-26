@@ -72,6 +72,12 @@ public:
      {
         std::this_thread::sleep_until(time);
     }
+
+    // return associated time_point
+    std::chrono::steady_clock::time_point executionTime() const
+    {
+        return time;
+    }
 };
 
 class DPC
@@ -143,14 +149,15 @@ template<> struct LJD_traits<Publisher>
     typedef PublisherAttributes Attributes;
     typedef void (DSManager::* AddEndpoint)(Publisher *);
     typedef Publisher * (DSManager::* GetEndpoint)(GUID_t &);
-    typedef Publisher * (*CreateEndpoint)(Participant* part, const PublisherAttributes&, PublisherListener*);
     typedef bool(*removeEndpoint)(Publisher*);
 
     static const std::string endpoint_type;
     static const AddEndpoint add_endpoint_function;
     static const GetEndpoint retrieve_endpoint_function;
-    static const CreateEndpoint create_endpoint_function;
     static const removeEndpoint remove_endpoint_function;
+
+    // we don't want yet to listen on publisher callbacks
+    static Publisher * createEndpoint(Participant* part, const PublisherAttributes&, void * = nullptr);
 };
 
 template<> struct LJD_traits<Subscriber>
@@ -158,14 +165,14 @@ template<> struct LJD_traits<Subscriber>
     typedef SubscriberAttributes Attributes;
     typedef void (DSManager::* AddEndpoint)(Subscriber *);
     typedef Subscriber * (DSManager::* GetEndpoint)(GUID_t &);
-    typedef Subscriber * (*CreateEndpoint)(Participant* part, const SubscriberAttributes&, SubscriberListener*);
     typedef bool(*removeEndpoint)(Subscriber*);
 
     static const std::string endpoint_type;
     static const AddEndpoint add_endpoint_function;
     static const GetEndpoint retrieve_endpoint_function;
-    static const CreateEndpoint create_endpoint_function;
     static const removeEndpoint remove_endpoint_function;
+
+    static Subscriber * createEndpoint(Participant* part, const SubscriberAttributes&, SubscriberListener * = nullptr);
 };
 
 template<class PS> class DED;
@@ -240,15 +247,18 @@ class DS
 {
     std::string description;
     bool if_someone;
+    bool show_liveliness_;
 
 public:
     DS(
         const std::chrono::steady_clock::time_point tp,
         const std::string& desc,
-        bool someone = true)
+        bool someone = true,
+        bool show_liveliness = false)
         : LJD(tp)
         , description(desc)
         , if_someone(someone)
+        , show_liveliness_(show_liveliness)
     {
     }
 
@@ -314,7 +324,7 @@ void DEC<PS>::operator()(
     }
 
     // Now we create the endpoint: Domain::createSubscriber or createPublisher
-    PS * pEp = (*LJD_traits<PS>::create_endpoint_function)(part, *participant_attributes, nullptr);
+    PS * pEp = LJD_traits<PS>::createEndpoint(part, *participant_attributes, &man);
 
     if (pEp)
     {

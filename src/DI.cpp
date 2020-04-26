@@ -15,6 +15,7 @@
 #include "log/DSLog.h"
 #include <cassert>
 #include <algorithm>
+#include <numeric>
 #include <iterator>
 #include <sstream>
 #include <iomanip>
@@ -27,6 +28,7 @@
     return a_eResult; }
 #endif
 
+using namespace eprosima::fastrtps;
 using namespace eprosima::discovery_server;
 
 // basic discovery items operations
@@ -94,7 +96,8 @@ bool SDI::operator==(
 std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const SDI& di)
 {
     return os << "Subscriber " << di.endpoint_guid << " TypeName: " << di.type_name
-        << " TopicName: " << di.topic_name;
+        << " TopicName: " << di.topic_name << "liveliness, alive_count: " << di.alive_count
+        << " not_alive_count: " << di.not_alive_count;
 }
 
 // participant discovery item operations
@@ -183,14 +186,50 @@ void PtDI::acknowledge(
     part.is_alive = alive;
 }
 
+PtDI::size_type PtDI::CountSubscribers() const
+{
+    return  subscribers.size();
+}
+
+PtDI::size_type PtDI::CountPublishers() const
+{
+    return  publishers.size();
+}
+
 PtDI::size_type PtDI::CountEndpoints() const
 {
     return  publishers.size() + subscribers.size();
 }
 
+PtDB::size_type PtDB::CountParticipants() const
+{
+    return size();
+}
+
+PtDB::size_type PtDB::CountSubscribers() const
+{
+    return std::accumulate(begin(),end(), size_type(0),
+        [](size_type subs, const PtDI & part)
+        {
+            return subs + part.CountSubscribers();
+        }
+    );
+}
+
+PtDB::size_type PtDB::CountPublishers() const
+{
+    return std::accumulate(begin(), end(), size_type(0),
+        [](size_type pubs, const PtDI & part)
+    {
+        return pubs + part.CountPublishers();
+    }
+    );
+}
+
 std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtDB& db)
 {
-    os << "Participant " << db.endpoint_guid << " discovered: " << std::endl;
+    os << "Participant " << db.endpoint_guid << " discovered " << db.CountParticipants() << " participants, ";
+    os << db.CountPublishers() << " publishers and " << db.CountSubscribers() << " subscribers:" << std::endl;
 
     for (const PtDI & pt : db)
     {
@@ -200,15 +239,31 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtD
     return os;
 }
 
+// acceptable snapshot missalignment in ms
+std::chrono::milliseconds Snapshot::aceptable_offset_ = std::chrono::milliseconds(400);
+
 // Time conversion auxiliary
 std::chrono::system_clock::time_point Snapshot::_sy_ck(std::chrono::system_clock::now());
 std::chrono::steady_clock::time_point Snapshot::_st_ck(std::chrono::steady_clock::now());
 
-std::time_t Snapshot::getSystemTime() const
+std::chrono::system_clock::time_point Snapshot::getSystemTime(std::chrono::steady_clock::time_point tp)
 {
     using namespace std::chrono;
 
-    return system_clock::to_time_t(_sy_ck + duration_cast<system_clock::duration>(_time - _st_ck));
+    return _sy_ck + duration_cast<system_clock::duration>(tp - _st_ck);
+}
+
+std::string Snapshot::getTimeStamp(std::chrono::steady_clock::time_point snap_time)
+{
+    std::chrono::system_clock::time_point tp = Snapshot::getSystemTime(snap_time);
+    std::time_t time = std::chrono::system_clock::to_time_t(tp);
+    std::chrono::milliseconds ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(tp - std::chrono::system_clock::from_time_t(time));
+
+    std::ostringstream stream;
+    stream << std::put_time(localtime(&time), "%F %T.") << std::setw(3) << std::setfill('0') << ms.count() << " ";
+
+    return stream.str();
 }
 
 // DI_database methods
@@ -239,6 +294,7 @@ bool DI_database::AddParticipant(
     const GUID_t& spokesman,
     const GUID_t& ptid,
     const std::string& name,
+    const std::chrono::steady_clock::time_point& discovered_timestamp,
     bool server/* = false*/)
 {
     std::lock_guard<std::mutex> lock(database_mutex);
@@ -259,6 +315,7 @@ bool DI_database::AddParticipant(
         it->setName(name);
         it->acknowledge(true);
         it->setServer(server);
+        it->setDiscoveredTimestamp(discovered_timestamp);
     }
 
     assert(it->is_server == server);
@@ -310,7 +367,8 @@ bool DI_database::AddEndPoint(
     const GUID_t& ptid,
     const GUID_t& id,
     const std::string& _typename,
-    const std::string& topicname)
+    const std::string& topicname,
+    const std::chrono::steady_clock::time_point& discovered_timestamp)
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
@@ -337,7 +395,7 @@ bool DI_database::AddEndPoint(
     if (sit == cont.end() || *sit != id )
     {
         // add endpoint
-        sit = cont.emplace_hint(sit, id, _typename, topicname);
+        sit = cont.emplace_hint(sit, id, _typename, topicname, discovered_timestamp);
     }
 
     assert(_typename == sit->type_name);
@@ -390,9 +448,10 @@ bool DI_database::AddSubscriber(
     const GUID_t& ptid,
     const GUID_t& sid,
     const std::string& _typename,
-    const std::string& topicname)
+    const std::string& topicname,
+    const std::chrono::steady_clock::time_point& discovered_timestamp)
 {
-    return AddEndPoint(&PtDI::getSubscribers, spokesman,ptid, sid, _typename, topicname);
+    return AddEndPoint(&PtDI::getSubscribers, spokesman,ptid, sid, _typename, topicname, discovered_timestamp);
 }
 
 bool DI_database::RemoveSubscriber(
@@ -408,9 +467,10 @@ bool DI_database::AddPublisher(
     const GUID_t& ptid,
     const GUID_t& pid,
     const std::string& _typename,
-    const std::string& topicname)
+    const std::string& topicname,
+    const std::chrono::steady_clock::time_point& discovered_timestamp)
 {
-    return AddEndPoint(&PtDI::getPublishers, spokesman, ptid, pid, _typename, topicname);
+    return AddEndPoint(&PtDI::getPublishers, spokesman, ptid, pid, _typename, topicname, discovered_timestamp);
 }
 
 bool DI_database::RemovePublisher(
@@ -419,6 +479,49 @@ bool DI_database::RemovePublisher(
     const GUID_t& pid)
 {
     return RemoveEndPoint(&PtDI::getPublishers, spokesman, ptid, pid);
+}
+
+void DI_database::UpdateSubLiveliness(const GUID_t & subs,
+    int32_t alive_count,
+    int32_t not_alive_count)
+{
+    std::lock_guard<std::mutex> lock(database_mutex);
+
+    // Retrieve the participant that owns this subscriber
+    GUID_t pguid(subs);
+    pguid.entityId = eprosima::fastrtps::rtps::c_EntityId_RTPSParticipant;
+
+    // Locate the PtDI associated with the subscriber
+    PtDB & database = image[pguid];
+    PtDB::iterator it = std::lower_bound(database.begin(), database.end(), pguid);
+
+    if(it == database.end() || *it != pguid)
+    {
+        // participant should be here because the subscriber should create it on its callback
+        LOG_ERROR("Non reported subscriber liveliness callback. Participant:" << pguid)
+        return;
+    }
+
+    // Locate the SDI associated with the subscriber
+    PtDI::subscriber_set & ss = it->getSubscribers();
+    PtDI::subscriber_set::iterator sit = std::lower_bound(ss.begin(), ss.end(), subs);
+
+    if(sit == ss.end() || *sit != subs)
+    {
+        // subscriber should be here because should be created on its callback
+        LOG_ERROR("Non reported subscriber liveliness callback. Subscriber: " << subs)
+            return;
+    }
+
+    // Update the liveliness info
+    SDI & sub = const_cast<SDI&>(*sit);
+
+    sub.alive_count = alive_count;
+    sub.not_alive_count = not_alive_count;
+
+    LOG_INFO("Subscriber " << subs << " liveliness callback reporting:"
+        " alive_count " << alive_count <<
+        " not_alive_count " << not_alive_count )
 }
 
 DI_database::size_type DI_database::CountParticipants(const GUID_t& spokesman) const
@@ -572,14 +675,16 @@ bool eprosima::discovery_server::operator==(
         {   // check if our own discovery data is interfering
             go = false;
 
-            if (lit++->endpoint_guid == r.endpoint_guid)
+            if (lit->endpoint_guid == r.endpoint_guid)
             {
                 go = true; // sweep over
+                ++lit;
             }
 
-            if (rit++->endpoint_guid == l.endpoint_guid)
+            if (rit->endpoint_guid == l.endpoint_guid)
             {
                 go = true; // sweep over
+                ++rit;
             }
         }
 
@@ -626,9 +731,20 @@ void Snapshot::to_xml(
 {
     using namespace tinyxml2;
 
-    // Snapshot time is recorded in ms from the process creation measured with the steady clock
+    // timestamp time is recorded in ms from the POSIX epoch
     pRoot->SetAttribute(s_sTimestamp.c_str(),
-        std::chrono::duration_cast<std::chrono::milliseconds>(_time-Snapshot::_st_ck).count());
+        std::chrono::duration_cast<std::chrono::milliseconds>(getSystemTime(_time).time_since_epoch()).count());
+
+    // process_time is recorded in ms from the process startup
+    pRoot->SetAttribute(s_sProcessTime.c_str(),
+        std::chrono::duration_cast<std::chrono::milliseconds>(_time - process_startup_).count());
+
+    // last_?dp_callback time is recorded in ms from the process startup
+    pRoot->SetAttribute(s_sLastPdpCallback.c_str(),
+        std::chrono::duration_cast<std::chrono::milliseconds>(last_PDP_callback_-process_startup_).count());
+    pRoot->SetAttribute(s_sLastEdpCallback.c_str(),
+        std::chrono::duration_cast<std::chrono::milliseconds>(last_EDP_callback_-process_startup_).count());
+
     pRoot->SetAttribute(s_sSomeone.c_str(), if_someone);
 
     XMLElement* pDescription = xmlDoc.NewElement(s_sDescription.c_str());
@@ -666,6 +782,9 @@ void Snapshot::to_xml(
             pPtdi->SetAttribute(s_sServer.c_str(), ptdi.is_server);
             pPtdi->SetAttribute(s_sAlive.c_str(), ptdi.is_alive);
             pPtdi->SetAttribute(s_sName.c_str(), ptdi.participant_name.c_str());
+            pPtdi->SetAttribute(s_sDiscovered_timestamp.c_str(),
+                std::chrono::duration_cast<std::chrono::milliseconds>(
+                    ptdi.discovered_timestamp_ - process_startup_).count());
 
             for (const SDI& sub : ptdi.subscribers)
             {
@@ -682,6 +801,19 @@ void Snapshot::to_xml(
                     sstream << sub.endpoint_guid.entityId;
                     pSub->SetAttribute(s_sGUID_entity.c_str(),sstream.str().c_str());
                 }
+                pSub->SetAttribute(s_sDiscovered_timestamp.c_str(),
+                    std::chrono::duration_cast<std::chrono::milliseconds>(
+                        sub.discovered_timestamp_ - process_startup_).count());
+
+                // Show liveliness callback info if requested, only makes sense to show
+                // liveliness on this participant endpoints
+                if(show_liveliness_ &&
+                    (sub.endpoint_guid.guidPrefix == ptdb.endpoint_guid.guidPrefix))
+                {
+                    pSub->SetAttribute(s_sAliveCount.c_str(), sub.alive_count);
+                    pSub->SetAttribute(s_sNotAliveCount.c_str(), sub.not_alive_count);
+                }
+
                 pPtdi->InsertEndChild(pSub);
             }
 
@@ -700,6 +832,9 @@ void Snapshot::to_xml(
                     sstream << pub.endpoint_guid.entityId;
                     pPub->SetAttribute(s_sGUID_entity.c_str(),sstream.str().c_str());
                 }
+                pPub->SetAttribute(s_sDiscovered_timestamp.c_str(),
+                    std::chrono::duration_cast<std::chrono::milliseconds>(
+                        pub.discovered_timestamp_ - process_startup_).count());
                 pPtdi->InsertEndChild(pPub);
             }
 
@@ -719,13 +854,23 @@ void Snapshot::from_xml(
 
     if (pRoot != nullptr)
     {
-        std::string timestamp = pRoot->Attribute(s_sTimestamp.c_str());
-        if (!timestamp.empty())
-        {
-            std::chrono::milliseconds time(std::stoull(timestamp));
-            
-            _time = std::chrono::steady_clock::time_point(time);
-            //std::cout << "Timestamp: " << timestamp << std::endl;
+        {   // load timestamps
+            using namespace std::chrono;
+
+            milliseconds dts(pRoot->Int64Attribute(s_sTimestamp.c_str()));
+            milliseconds dpt(pRoot->Int64Attribute(s_sProcessTime.c_str()));
+            milliseconds d_pdp_cb(pRoot->Int64Attribute(s_sLastPdpCallback.c_str()));
+            milliseconds d_edp_cb(pRoot->Int64Attribute(s_sLastEdpCallback.c_str()));
+
+            // recreate the steady_clock::time_point from the timestamp
+            _time = (system_clock::time_point() + dts) - _sy_ck + _st_ck;
+
+            // update the original process startup time for this snapshot
+            process_startup_ = _time - dpt;
+
+            // recreate the steady_clock__time_point from last_callback
+            last_PDP_callback_ = process_startup_ + d_pdp_cb;
+            last_EDP_callback_ = process_startup_ + d_edp_cb;
         }
 
         if_someone = pRoot->BoolAttribute(s_sSomeone.c_str(), true);
@@ -760,11 +905,12 @@ void Snapshot::from_xml(
                 ptdb_guid.guidPrefix = guidPrefix;
                 ptdb_guid.entityId = entityId;
             }
+
             PtDB ptdb(ptdb_guid);
 
-            for (XMLElement* pPtdi = pPtdb->FirstChildElement(s_sPtDI.c_str());
-                    pPtdi != nullptr;
-                    pPtdi = pPtdi->NextSiblingElement(s_sPtDI.c_str()))
+            for(XMLElement* pPtdi = pPtdb->FirstChildElement(s_sPtDI.c_str());
+                pPtdi != nullptr;
+                pPtdi = pPtdi->NextSiblingElement(s_sPtDI.c_str()))
             {
                 GUID_t ptdi_guid;
                 {
@@ -792,9 +938,9 @@ void Snapshot::from_xml(
                 ptdi.participant_name = pPtdi->Attribute(s_sName.c_str());
                 //std::cout << "PTDI: " << ptdi.id_ << std::endl;
 
-                for (XMLElement* pSub = pPtdi->FirstChildElement(s_sSubscriber.c_str());
-                        pSub != nullptr;
-                        pSub = pSub->NextSiblingElement(s_sSubscriber.c_str()))
+                for(XMLElement* pSub = pPtdi->FirstChildElement(s_sSubscriber.c_str());
+                    pSub != nullptr;
+                    pSub = pSub->NextSiblingElement(s_sSubscriber.c_str()))
                 {
                     GUID_t sub_guid;
                     {
@@ -814,14 +960,26 @@ void Snapshot::from_xml(
                         }
                         sub_guid.guidPrefix = guidPrefix;
                         sub_guid.entityId = entityId;
+
                     }
-                    SDI sub(sub_guid, pSub->Attribute(s_sType.c_str()), pSub->Attribute(s_sTopic.c_str()));
+
+                    std::chrono::milliseconds disc_t(pSub->Int64Attribute(s_sDiscovered_timestamp.c_str()));
+                    SDI sub(sub_guid, pSub->Attribute(s_sType.c_str()), pSub->Attribute(s_sTopic.c_str()),
+                        process_startup_ + disc_t);
+
+                    // retrieve liveliness values if any
+                    if((XML_NO_ATTRIBUTE != pSub->QueryAttribute(s_sAliveCount.c_str(), &sub.alive_count)) ||
+                        (XML_NO_ATTRIBUTE != pSub->QueryAttribute(s_sNotAliveCount.c_str(), &sub.not_alive_count)))
+                    {
+                        show_liveliness_ = true; // if present any attributes set liveliness
+                    }
+
                     ptdi.subscribers.insert(std::move(sub));
                 }
 
-                for (XMLElement* pPub = pPtdi->FirstChildElement(s_sPublisher.c_str());
-                        pPub != nullptr;
-                        pPub = pPub->NextSiblingElement(s_sPublisher.c_str()))
+                for(XMLElement* pPub = pPtdi->FirstChildElement(s_sPublisher.c_str());
+                    pPub != nullptr;
+                    pPub = pPub->NextSiblingElement(s_sPublisher.c_str()))
                 {
                     GUID_t pub_guid;
                     {
@@ -842,7 +1000,10 @@ void Snapshot::from_xml(
                         pub_guid.guidPrefix = guidPrefix;
                         pub_guid.entityId = entityId;
                     }
-                    PDI pub(pub_guid, pPub->Attribute(s_sType.c_str()), pPub->Attribute(s_sTopic.c_str()));
+
+                    std::chrono::milliseconds disc_t(pPub->Int64Attribute(s_sDiscovered_timestamp.c_str()));
+                    PDI pub(pub_guid, pPub->Attribute(s_sType.c_str()), pPub->Attribute(s_sTopic.c_str()),
+                        process_startup_ + disc_t);
                     ptdi.publishers.insert(std::move(pub));
                 }
 
@@ -852,17 +1013,41 @@ void Snapshot::from_xml(
             this->insert(std::move(ptdb));
 
         }
-    }/*
-    else
-    {
-        LOG_ERROR("Error loading XML file " << file);
-    }*/
+    }
 }
 
 Snapshot& Snapshot::operator+=(
-        const Snapshot& sh)
+    const Snapshot& sh)
 {
-    this->insert(sh.begin(), sh.end());
+    // Verify snapshot sync
+    std::chrono::milliseconds offset =
+        std::chrono::duration_cast<std::chrono::milliseconds>(_time - sh._time);
+
+    // if( abs(offset) > Snapshot::aceptable_offset_ ) // uses abs(duration< ...) which is a C++17 hack
+    if( abs(offset.count()) > Snapshot::aceptable_offset_.count() )
+    {
+        LOG_ERROR("Watch out Snapshot sync. They are " << abs(offset.count()) << " ms away.");
+    }
+
+    // We keep the later last call in the merging
+    if( (last_PDP_callback_- process_startup_) < (sh.last_PDP_callback_ - sh.process_startup_) )
+    {
+        last_PDP_callback_ = sh.last_PDP_callback_;
+    }
+
+    if( (last_EDP_callback_ - process_startup_) < (sh.last_EDP_callback_ -  sh.process_startup_) )
+    {
+        last_EDP_callback_ = sh.last_EDP_callback_;
+    }
+
+    insert(sh.begin(), sh.end());
+
+    // flag philosophy: a single non default value in a config drives all.
+    // OR the liveliness, if any config file requires liveliness the global output shows it
+    show_liveliness_ |= sh.show_liveliness_;
+    // AND valid if empty, if any config file allows empty snapshots the global allows it
+    if_someone &= sh.if_someone;
+
     return *this;
 }
 
@@ -870,28 +1055,28 @@ std::ostream& eprosima::discovery_server::operator<<(
         std::ostream& os,
         const Snapshot& shot)
 {
-    std::string timestamp;
+    using namespace std;
+    using namespace std::chrono;
 
-    {
-        std::time_t time = shot.getSystemTime();
-        std::ostringstream stream;
+    os << "Snapshot taken at " << Snapshot::getTimeStamp(shot._time) << "or ";
+    os << duration_cast<milliseconds>(shot._time - shot.process_startup_).count();
+    os << " ms since process startup." << " Description: " << shot._des << std::endl;
 
-#if defined(_WIN32)
-        struct tm timeinfo;
-        localtime_s(&timeinfo, &time);
-        stream << std::put_time(&timeinfo, "%F %T");
-#else
-        stream << std::put_time(localtime(&time), "%F %T");
-#endif
-        timestamp = stream.str();
-    }
+    os << "Snapshot process startup at " << Snapshot::getTimeStamp(shot.process_startup_) << endl;
 
-    os << "Snapshot taken at " << timestamp << " description: " << shot._des << std::endl;
-    os << shot.size() << " participants report the following discovery info:" << std::endl;
+    os << "Last PDP callback at " << Snapshot::getTimeStamp(shot.last_PDP_callback_) << "or ";
+    os << duration_cast<milliseconds>(shot.last_PDP_callback_ - shot.process_startup_).count();
+    os << " ms since process startup." << endl;
+
+    os << "Last EDP callback at " << Snapshot::getTimeStamp(shot.last_EDP_callback_) << "or ";
+    os << duration_cast<milliseconds>(shot.last_EDP_callback_ - shot.process_startup_).count();
+    os << " ms since process startup." << endl;
+
+    os << shot.size() << " participants report the following discovery info:" << endl;
 
     for (const PtDB& db : shot)
     {
-        os << db << std::endl;
+        os << db << endl;
     }
 
     return os;
