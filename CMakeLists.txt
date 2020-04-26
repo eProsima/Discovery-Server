@@ -131,7 +131,8 @@ endif()
 
 
 find_package(fastcdr REQUIRED )
-find_package(fastrtps REQUIRED)
+# new DDS API is required
+find_package(fastrtps 2 REQUIRED)
 find_package(OpenSSL QUIET) # according to cmake docs on FindOpenSS is hinted define OPENSSL_ROOT_DIR
 
 #some tests require python
