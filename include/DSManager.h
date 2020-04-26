@@ -26,6 +26,8 @@
 
 #include <fastrtps/participant/Participant.h>
 #include <fastrtps/participant/ParticipantListener.h>
+#include <fastrtps/subscriber/SubscriberListener.h>
+#include <fastrtps/publisher/PublisherListener.h>
 #include <fastrtps/xmlparser/XMLParser.h>
 
 #include "../resources/static_types/HelloWorldPubSubTypes.h"
@@ -55,10 +57,12 @@ namespace discovery_server
 
 class LJD;
 class DPC;
+class DPD;
 
 class DSManager
     : public xmlparser::XMLParser      // access to parsing protected functions
     , public eprosima::fastrtps::ParticipantListener  // receive discovery callback information
+    , public eprosima::fastrtps::SubscriberListener  // receive subscriber lifeliness information
 {
     typedef std::map<GUID_t, Participant*> participant_map;
     typedef std::map<GUID_t, Subscriber*> subscriber_map;
@@ -74,6 +78,7 @@ class DSManager
     // Participant maps
     participant_map servers;
     participant_map clients;
+    participant_map simples;
 
     // endpoints maps
     subscriber_map subscribers;
@@ -87,6 +92,7 @@ class DSManager
     std::chrono::steady_clock::time_point getTime() const;
 
     // Event list for late joiner creation, destruction and take snapshots
+    // only modified from the main thread (no synchronization required)
     event_list events;
 
     // Snapshops container
@@ -99,16 +105,19 @@ class DSManager
     void loadProfiles(tinyxml2::XMLElement *profiles);
     void loadServer(tinyxml2::XMLElement* server);
     void loadClient(tinyxml2::XMLElement* client);
+    void loadSimple(tinyxml2::XMLElement* simple);
 
     void loadSubscriber(
         GUID_t & part_guid,
         tinyxml2::XMLElement* subs,
-        DPC* pLJ = nullptr);
+        DPC* pPC = nullptr,
+        DPD* pPD = nullptr);
 
     void loadPublisher(
         GUID_t & part_guid,
         tinyxml2::XMLElement* pubs,
-        DPC* pLJ = nullptr);
+        DPC* pPC = nullptr,
+        DPD* pPD = nullptr);
 
     void loadSnapshot(tinyxml2::XMLElement* snapshot);
     void MapServerInfo(tinyxml2::XMLElement* server);
@@ -121,16 +130,24 @@ class DSManager
 
     // File where to save snapshots
     std::string snapshots_output_file;
+    // validation required
+    bool validate_{false};
+    // last callback recorded time
+    std::chrono::steady_clock::time_point last_PDP_callback_;
+    std::chrono::steady_clock::time_point last_EDP_callback_;
+    // last snapshot delay, needed for sync purposes
+    static const std::chrono::seconds last_snapshot_delay_;
 
 public:
     DSManager(const std::string& xml_file_path);
-    DSManager(const std::set<std::string>& xml_snapshot_files);
+    DSManager(const std::set<std::string>& xml_snapshot_files,
+        const std::string & output_file);
     ~DSManager();
 
     // testing database
     bool shouldValidate() const
     {
-        return snapshots_output_file.empty();
+        return validate_ && !snapshots.empty();
     }
 
     bool validateAllSnapshots() const;
@@ -140,7 +157,11 @@ public:
     Snapshot&  takeSnapshot(
         const std::chrono::steady_clock::time_point tp,
         const std::string& desc = std::string(),
-        bool someone = true);
+        bool someone = true,
+        bool show_liveliness = false);
+
+    // success message depends on run type
+    std::string successMessage();
 
     // processing events
     void runEvents(
@@ -150,6 +171,7 @@ public:
     // update entity state functions
     void addServer(Participant* b);
     void addClient(Participant* p);
+    void addSimple(Participant* s);
     void addSubscriber(Subscriber *);
     void addPublisher(Publisher *);
 
@@ -177,6 +199,11 @@ public:
         Participant* participant,
         rtps::WriterDiscoveryInfo&& info) override;
 
+    // callback liveliness functions
+    void on_liveliness_changed(
+        Subscriber* sub,
+        const LivelinessChangedStatus& status) override;
+
     void onTerminate();
 
     std::string getEndPointName(
@@ -191,7 +218,8 @@ public:
     static TopicAttributes builtin_defaultTopic;
 
     // parsing regex
-    static std::regex ipv4_regular_expression;
+    static const std::regex ipv4_regular_expression;
+
 };
 
 

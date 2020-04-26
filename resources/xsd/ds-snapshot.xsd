@@ -35,6 +35,9 @@
         <xs:attribute name="guid_entity" type="guid_entity" use="required"/>
         <xs:attribute name="type" type="stringType" use="required"/>
         <xs:attribute name="topic" type="stringType" use="required"/>
+        <xs:attribute name="alive_count" type="xs:integer" use ="optional"/>
+        <xs:attribute name="not_alive_count" type="xs:integer" use="optional"/>
+        <xs:attribute name="discovered_timestamp" type="uint64Type" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="ptdi_type">
@@ -47,6 +50,7 @@
         <xs:attribute name="server" type="boolType" use="required"/>
         <xs:attribute name="alive" type="boolType" use="required"/>
         <xs:attribute name="name" type="stringType" use="required"/>
+        <xs:attribute name="discovered_timestamp" type="uint64Type" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="ptdb_type">
@@ -63,6 +67,9 @@
             <xs:element name="ptdb" type="ptdb_type" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="timestamp" type="uint64Type" use="required"/>
+        <xs:attribute name="process_time" type="uint64Type" use="required"/>
+        <xs:attribute name="last_pdp_callback_time" type="uint64Type" use="required"/>
+        <xs:attribute name="last_edp_callback_time" type="uint64Type" use="required"/>
         <xs:attribute name="someone" type="xs:boolean" use="optional" default="true"/>
     </xs:complexType>
 

@@ -1,31 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" >
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false" >
   
-  <!-- 
-  Basically we'll launch two discovery-servers instances:
-    
-        1 - A server with several clients that create subscribers of a common topic. This instances will take an snapshot at the beginning and another at the end.
-        
-        2 - A client which references the server on the first instance and creates a publisher for the common topic. This process would be killed from python between the snapshots.
-        
-    The first snapshot must show how all clients (remote one included) known each other and the user publishers and subscribers.
-  After killing process 2 (and its client) the server must kill its Writer proxy by lease duration time out and report it to all subscribers.
-  The second snapshot must show how all participants have removed the publisher from the discovery database. 
+  <!--
   
-  This test is currently been disabled till and incoming rebase because WLP mechanism is undergoing a major refactoring.
-  
+    According to the RTPS standard the WLP (Writer Liveliness Protocol) defines the required information exchange
+    between two
+
+    Participants in order to assert the liveliness of Writers contained by the Participants. This test assess this
+    mechanism proper operation under client-server discovery. Basically two discovery-servers instances are launched:
+
+    1 - A server with several clients that create subscribers of a common topic. This instances will take an snapshot at
+    the beginning and another at the end.
+
+    2 - A client which references the server on the first instance and creates a publisher for the common topic. This
+    process would be killed from python between the snapshots. It's noteworthy that the lease-duration has been
+    increased int the profiles to prevent the server from noticing that the client has disappeared.
+
+    Both snapshots must show how all clients (remote one included) known each other and the user publishers and
+    subscribers. Subscribers though are notified by the WLP that the crashed publisher is not responsive. By parsing the
+    second snapshot we are able to verify that ``alive_count="0"`` there, that is, the subscribers were duly notified.
+
   -->
   
-  <servers>
-    <server profile_name="" />
-  </servers>
-
   <clients>
     <client name="client3" profile_name="UDP client">
       <publisher profile_name="publisher profile"  />
     </client>
   </clients>
 
+  <snapshots file="test_9_client_snapshot.xml">
+    <snapshot show_liveliness="true" time="8">This process would be killed by the python script before this snapshot is
+taken</snapshot>
+  </snapshots>
   
   <profiles>
     <participant profile_name="UDP client" >
@@ -45,6 +51,9 @@
                         </metatrafficUnicastLocatorList>
                     </RemoteServer>
                 </discoveryServersList>
+                <leaseDuration>
+                    <sec>3600</sec>
+                </leaseDuration>
             </discovery_config>
         </builtin>
       </rtps>
@@ -56,16 +65,15 @@
         <dataType>sample_type</dataType>
       </topic>
       <qos>
-        <reliability>
-          <kind>RELIABLE</kind>
-        </reliability>
         <liveliness>
           <kind>AUTOMATIC</kind>
           <lease_duration>
-            <sec>5</sec>
+            <sec>2</sec>
+            <nanosec>0</nanosec>
           </lease_duration>
           <announcement_period>
-            <sec>2</sec>
+            <sec>1</sec>
+            <nanosec>0</nanosec>
           </announcement_period>
         </liveliness>
       </qos>

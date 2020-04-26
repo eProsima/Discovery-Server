@@ -1,6 +1,6 @@
 # eProsima Discovery Server
 
-The [current standard](http://www.omg.org/spec/DDSI-RTPS/2.2) in section 8.5 specifies a non-centralized, distributed
+The [current standard](http://www.omg.org/spec/DDSI-RTPS/2.3) in section 8.5 specifies a non-centralized, distributed
 simple discovery mechanism for RTPS. This mechanism was devised to allow interoperability among independent  vendor-specific implementations but is not expected to be optimal in every environment. There are several scenarios were the simple discovery mechanism is unsuitable or plainly cannot be
 applied:
 
@@ -34,6 +34,10 @@ In order to cope with the above issues, the Fast-RTPS discovery mechanism was ex
 
 In order to use discovery server, its necessary have a compatible version of
  [Fast-RTPS](https://eprosima-fast-rtps.readthedocs.io/en/latest/) installed (over release 1.9.0).
+
+ Fast-RTPS v1.10 adoption of DDS API introduces xml and ABI incompatibilities with discovery server tests and examples
+ with version number below v1.2.
+
  Fast RTPS dependencies as tinyxml must be accessible, either because Fast RTPS was build-installed defining
  THIRDPARTY=ON or because those libraries have been specifically installed.
 
@@ -64,12 +68,13 @@ on the **[SOURCES]** directory where the user wants to keep the repositories.
 In order to avoid using vcstool the following repositories should be downloaded from github into **[SOURCES]**:
 
 
-|            PACKAGE               |                              URL                   |    BRANCH   |
-|:---------------------------------|:---------------------------------------------------|:-----------:|
-| eProsima/Fast-CDR:               | https://github.com/eProsima/Fast-CDR.git           |    master   |
-| eProsima/Fast-RTPS:              | https://github.com/eProsima/Fast-RTPS.git          |    master   |
-| eProsima/Discovery-Server:       | https://github.com/eProsima/Discovery-Server.git   |    master   |
-| leethomason/tinyxml2:            | https://github.com/leethomason/tinyxml2.git        |    master   |
+|            PACKAGE                 |                              URL                        |    BRANCH   |
+|:-----------------------------------|:--------------------------------------------------------|:-----------:|
+| eProsima/Fast-CDR:                 | https://github.com/eProsima/Fast-CDR.git                |    master   |
+| eProsima/Fast-RTPS:                | https://github.com/eProsima/Fast-RTPS.git               |    master   |
+| eProsima/Discovery-Server:         | https://github.com/eProsima/Discovery-Server.git        |    master   |
+| eProsima/foonathan_memory_vendor:  | https://github.com/eProsima/foonathan_memory_vendor.git |    master   |
+| leethomason/tinyxml2:              | https://github.com/leethomason/tinyxml2.git             |    master   |
 
 
 We also assume that the user wants to keep the build, log and installation files in a separate directory called
@@ -79,18 +84,17 @@ We also assume that the user wants to keep the build, log and installation files
 
 Valid placeholders for the Linux example may be:
 
-| PLACEHOLDER    |             EXAMPLE PATHS                 |
-|:--------------|:---------------------------------------|
-|[SOURCES]          | /home/username/Documents/colcon_sources|
-|[BUILD]           | /home/username/Documents/colcon_build  |
-
+| PLACEHOLDER    |             EXAMPLE PATHS              |
+|:---------------|:---------------------------------------|
+|[SOURCES]       | /home/username/Documents/colcon_sources|
+|[BUILD]         | /home/username/Documents/colcon_build  |
 
 1. Create directory **[BUILD]** where we want to keep the build, install and log compilation results.
 
 2. Compile using the colcon tool. Choose the build configuration by declaring CMAKE_BUILD_TYPE as Debug or Release. In
    this example we've chosen Debug which would be the choice of advance users for debugging purposes:
 ```bash
-[BUILD]$ colcon build --base-paths [SOURCES] --packages-up-to discovery-server --cmake-args -DTHIRDPARTY=ON -DLOG_LEVEL_INFO=ON -DCOMPILE_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Debug
+[BUILD]$ colcon build --base-paths [SOURCES] --packages-up-to discovery-server --cmake-args -DTHIRDPARTY=ON -DLOG_LEVEL_INFO=ON -DCOMPILE_EXAMPLES=ON -DINTERNALDEBUG=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
 3. In order to run the tests use the following command:
@@ -117,10 +121,10 @@ Valid placeholders for the Linux example may be:
 
 Valid placeholders for the Windows example may be:
 
-| PLACEHOLDER    |             EXAMPLE PATHS                     |
-|:--------------|:-----------------------------------------:|
-|[SOURCES]          | C:\Users\username\Documents\colcon_sources|
-|[BUILD]           | C:\Users\username\Documents\colcon_build  |
+| PLACEHOLDER    |             EXAMPLE PATHS                 |
+|:---------------|:-----------------------------------------:|
+|[SOURCES]       | C:\Users\username\Documents\colcon_sources|
+|[BUILD]         | C:\Users\username\Documents\colcon_build  |
 
 1. Create directory **[BUILD]** where you want to keep the build, install and log compilation results.
 
@@ -131,7 +135,7 @@ Valid placeholders for the Windows example may be:
 3. Compile using the colcon tool. If using a multi-configuration generator like Visual Studio we recommend to
  build both in debug and release modes:
 ```bat
-[BUILD]> colcon build --base-paths [SOURCES] --packages-up-to discovery-server --cmake-args -DTHIRDPARTY=ON -DLOG_LEVEL_INFO=ON -DCOMPILE_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Debug
+[BUILD]> colcon build --base-paths [SOURCES] --packages-up-to discovery-server --cmake-args -DTHIRDPARTY=ON -DLOG_LEVEL_INFO=ON -DCOMPILE_EXAMPLES=ON -DINTERNALDEBUG=ON -DCMAKE_BUILD_TYPE=Debug
 [BUILD]> colcon build --base-paths [SOURCES] --packages-up-to discovery-server --cmake-args -DTHIRDPARTY=ON -DCOMPILE_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release
 ```
     If you are using a single configuration tool just make above call with your configuration of choice.
@@ -289,6 +293,73 @@ Below we provide an example XML participant profile using these new *tags*:
 </participant>
 ```
 
+### **Directions for use**
+
+The discovery server binary (named after the pattern `discovery-server-X.X.X(d)` where X.X.X is the version
+number and the optional *d* denotes a debug builds) is set up from one or several XML config files passed as command-line
+arguments. There are two modes of execution:
+
++ *Processing* mode. In this mode a single config file answering to the
+  [discovery-server.xsd](./resources/xsd/discovery-server.xsd) schema. This schema is basically an extension of the
+  Fast-RTPS one that simplifies the creation of custom servers and provides tools for easily testing specific
+  discovery scenarios.
+
+  When using the discovery server with testing purposes one may:
+
+ - immediately validate when test execution is finished. This is the usual case when testing a single process scenario.
+
+ - not validate the test results and generate an XML file with the test results. This results file follows a
+   specific [ds-snapshot.xsd](./resources/xsd/ds-snapshot.xsd) schema. This mode is activated by passing a filename
+   in the input config XML. It's the usual case when testing a multiprocess or multimachine scenario. Each process or
+   machine will generate a snapshot XML file (with each one's discovery information record) and all of them would be
+   validated later by running the discovery server binary in *validation* mode.
+
+```bash
+   > discovery-server-X.X.X(d).exe config_file.xml
+```
+
++ *Validation* mode. Only for testing purposes. In this mode one or more XML snapshot files generated on *Processing* mode
+  must be passed as arguments.
+
+  Those files would be compared to each other in other to assess if all discovery information was properly
+  propagated by the server or servers involved in the testing.
+
+```bash
+   > discovery-server-X.X.X(d).exe results_file_1.xml results_file_2.xml results_file_3.xml ...
+```
+
++ *Merging* mode. Only for testing purposes. In this mode one or more XML snapshot files generated on *Processing* mode,
+  together, with an output file, sign out using an *-out* flag, must be passed as arguments.
+
+  Those files would be merged in a single snapshot file. This single snapshot file it's easier to review that several
+  ones and can be validated using the *validation mode* above described.
+
+```bash
+   > discovery-server-X.X.X(d).exe -out aggregate_file.xml results_file_1.xml results_file_2.xml results_file_3.xml ...
+```
+
+Note that if the colcon deployment strategy described in section [Installation](#installation) was followed, before
+using the binary we must setup the appropriate environmental variables using colcon generated scripts:
+
+Linux:
+
+```bash
+    [BUILD]/install/discovery-server/bin$ . ../../local_setup.bash
+```
+
+Windows:
+
+```bash
+    [BUILD]\install\discovery-server\bin>..\..\local_setup.bat
+```
+
+where:
+
+- the `local_setup` batch sets up the environment variables for the binary execution.
+- the discovery-server binary name depends on build configuration (debug introduces `d` postfix) and version number.
+- the *config_file.xml* is a placeholder for any XML config file that follows
+  the [discovery-server.xsd](./resources/xsd/discovery-server.xsd).
+
 ### **Example application**
 
 The Fast-RTPS **HelloWorldExample** has been updated to illustrate the client-server functionality. Its installation
@@ -312,7 +383,6 @@ In order to use UDP, we can rely on the default transport where the locators are
 
     ParticipantAttributes PParam;
     PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::CLIENT;
-    PParam.rtps.builtin.domainId = 0;
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_pub");
 
@@ -337,7 +407,6 @@ Note that according to [former attributes explanation](#rtpsparticipantattribute
     ParticipantAttributes PParam;
     PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::SERVER;
     PParam.rtps.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
-    PParam.rtps.builtin.domainId = 0;
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_server");
     
@@ -352,7 +421,7 @@ Note that according to [former attributes explanation](#rtpsparticipantattribute
 Note that according with [former attributes explanation](#rtpsparticipantattributes) we must populate the
  **DiscoverySettings discovery_config** specifying we want to create a **DiscoveryProtocol_t::SERVER** and adding a new
  listening locator to any **BuiltinAttributes** metatraffic lists (this locator or locators must be known by the
- clients). In this case the UDP port 64863 is hardcoded as is the server prefix.
+ clients). In this case the UDP port 64863 is hard-coded as is the server prefix.
 
 #### TCP transport attribute settings
 
@@ -368,7 +437,6 @@ For TCP transport is mandatory to disable the default transport setting the
 
     ParticipantAttributes PParam;
     PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::CLIENT;
-    PParam.rtps.builtin.domainId = 0;
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_pub");
     
@@ -414,7 +482,6 @@ A new TCPv4TransportDescriptor must be created and a physical listening port sel
     ParticipantAttributes PParam;
     PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::SERVER;
     PParam.rtps.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
-    PParam.rtps.builtin.domainId = 0;
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
     PParam.rtps.setName("Participant_server");
 
@@ -497,7 +564,7 @@ Assuming the current directory is the example binary one, the execution steps wo
 #### Testing over a network 
 
 We need to now the server address and physical port. In our example it would be 192.186.1.113:64863. Defaults to UDP if we want
-to use TCP add the `--tcp` flag to the following commands.
+to use TCP add the `--tcp` (or the abbreviated `-t`) flag to the following commands.
 
 + Windows:
 
@@ -524,10 +591,10 @@ to use TCP add the `--tcp` flag to the following commands.
  > HelloWorldExampleDS server --ip=0.0.0.0:64863
  ```
 
- Note that by using 0.0.0.0 we are hinting the server to publish all the local interfaces as metatraffic (192.168.1.133
+ Note that by using `0.0.0.0` we are hinting the server to publish all the local interfaces as metatraffic (192.168.1.133
 would be one of them in this example). The clients once received the server metadata would choose the faster among the server
-interfaces. Of course we can force the use of a single interface by doing --ip=192.168.1.133:64863. If we specify
-localhost as the interface (by doing --ip=127.0.0.1:64863) only local clients would be able to reach the server (we
+interfaces. Of course we can force the use of a single interface by doing `--ip=192.168.1.133:64863`. If we specify
+localhost as the interface (by doing `--ip=127.0.0.1:64863`) only local clients would be able to reach the server (we
 strongly discourage this).
 
  Note also that if not port number is provided a default one is used.   
@@ -558,9 +625,9 @@ strongly discourage this).
 
 ### **Testing**
 
-Discovery testing is done resorting to discover-server config files. Each test uses a specific XML file that tests a
- single or several discovery features. To automatically launch the tests using colcon, please check section
- [Installation](#installation). To manually launch a test, use the following procedure:
+Discovery testing is done resorting to discover-server configuration files. Each test uses a specific XML file that
+tests a single or several discovery features. To automatically launch the tests using colcon, please check section
+[Installation](#installation). To manually launch a test, use the following procedure:
 
 Linux:
 ```bash
@@ -578,7 +645,7 @@ To view the full discovery information messages and snapshots in debug configura
 A brief description of each test is given below. Note that a detailed explanation of the XML syntax is given in section
  [Documentation](#documentation).
 
-#### test_1_PDP_UDP.xml
+#### test_01_PDP_UDP.xml
 
 This is the most simple scenario: a single server manages the discovery information of four clients. The server prefix
 and listening ports are given in the profiles **UDP server** and **UDP client**. A snapshot is taken after 3 seconds to
@@ -601,38 +668,42 @@ and listening ports are given in the profiles **UDP server** and **UDP client**.
 ```
 The snapshot information output would be something like:
 ```
-2019-04-24 12:58:36.936 [DISCOVERY_SERVER Info] Snapshot taken at 2019-04-24 12:58:36 description: Check all clients met
- the server and know each other
+2020-04-24 15:52:58.162 [DISCOVERY_SERVER Info] Snapshot taken at 2020-04-24 15:52:58.157 or 3003 ms since process startup. Description: Check all clients met the server and know each other
+Snapshot process startup at 2020-04-24 15:52:55.153 
+Last PDP callback at 2020-04-24 15:52:55.834 or 680 ms since process startup.
+Last EDP callback at 2020-04-24 15:52:55.153 or 0 ms since process startup.
 5 participants report the following discovery info:
-Participant 1.f.1.30.ac.12.0.0.2.0.0.0|0.0.1.c1 discovered:
-         Participant client2 1.f.1.30.ac.12.0.0.3.0.0.0|0.0.1.c1
-         Participant client3 1.f.1.30.ac.12.0.0.4.0.0.0|0.0.1.c1
-         Participant client4 1.f.1.30.ac.12.0.0.5.0.0.0|0.0.1.c1
-         Participant server 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1
+Participant 1.f.26.69.a0.4e.0.0.2.0.0.0|0.0.1.c1 discovered 4 participants, 0 publishers and 0 subscribers:
+	 Participant client2 1.f.26.69.a0.4e.0.0.3.0.0.0|0.0.1.c1
+	 Participant client3 1.f.26.69.a0.4e.0.0.4.0.0.0|0.0.1.c1
+	 Participant client4 1.f.26.69.a0.4e.0.0.5.0.0.0|0.0.1.c1
+	 Participant server 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1
 
-Participant 1.f.1.30.ac.12.0.0.3.0.0.0|0.0.1.c1 discovered:
-         Participant client1 1.f.1.30.ac.12.0.0.2.0.0.0|0.0.1.c1
-         Participant client3 1.f.1.30.ac.12.0.0.4.0.0.0|0.0.1.c1
-         Participant client4 1.f.1.30.ac.12.0.0.5.0.0.0|0.0.1.c1
-         Participant server 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1
+Participant 1.f.26.69.a0.4e.0.0.3.0.0.0|0.0.1.c1 discovered 4 participants, 0 publishers and 0 subscribers:
+	 Participant client1 1.f.26.69.a0.4e.0.0.2.0.0.0|0.0.1.c1
+	 Participant client3 1.f.26.69.a0.4e.0.0.4.0.0.0|0.0.1.c1
+	 Participant client4 1.f.26.69.a0.4e.0.0.5.0.0.0|0.0.1.c1
+	 Participant server 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1
 
-Participant 1.f.1.30.ac.12.0.0.4.0.0.0|0.0.1.c1 discovered:
-         Participant client1 1.f.1.30.ac.12.0.0.2.0.0.0|0.0.1.c1
-         Participant client2 1.f.1.30.ac.12.0.0.3.0.0.0|0.0.1.c1
-         Participant client4 1.f.1.30.ac.12.0.0.5.0.0.0|0.0.1.c1
-         Participant server 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1
+Participant 1.f.26.69.a0.4e.0.0.4.0.0.0|0.0.1.c1 discovered 4 participants, 0 publishers and 0 subscribers:
+	 Participant client1 1.f.26.69.a0.4e.0.0.2.0.0.0|0.0.1.c1
+	 Participant client2 1.f.26.69.a0.4e.0.0.3.0.0.0|0.0.1.c1
+	 Participant client4 1.f.26.69.a0.4e.0.0.5.0.0.0|0.0.1.c1
+	 Participant server 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1
 
-Participant 1.f.1.30.ac.12.0.0.5.0.0.0|0.0.1.c1 discovered:
-         Participant client1 1.f.1.30.ac.12.0.0.2.0.0.0|0.0.1.c1
-         Participant client2 1.f.1.30.ac.12.0.0.3.0.0.0|0.0.1.c1
-         Participant client3 1.f.1.30.ac.12.0.0.4.0.0.0|0.0.1.c1
-         Participant server 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1
+Participant 1.f.26.69.a0.4e.0.0.5.0.0.0|0.0.1.c1 discovered 4 participants, 0 publishers and 0 subscribers:
+	 Participant client1 1.f.26.69.a0.4e.0.0.2.0.0.0|0.0.1.c1
+	 Participant client2 1.f.26.69.a0.4e.0.0.3.0.0.0|0.0.1.c1
+	 Participant client3 1.f.26.69.a0.4e.0.0.4.0.0.0|0.0.1.c1
+	 Participant server 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1
 
-Participant 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1 discovered:
-         Participant client1 1.f.1.30.ac.12.0.0.2.0.0.0|0.0.1.c1
-         Participant client2 1.f.1.30.ac.12.0.0.3.0.0.0|0.0.1.c1
-         Participant client3 1.f.1.30.ac.12.0.0.4.0.0.0|0.0.1.c1
-         Participant client4 1.f.1.30.ac.12.0.0.5.0.0.0|0.0.1.c1
+Participant 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1 discovered 4 participants, 0 publishers and 0 subscribers:
+	 Participant client1 1.f.26.69.a0.4e.0.0.2.0.0.0|0.0.1.c1
+	 Participant client2 1.f.26.69.a0.4e.0.0.3.0.0.0|0.0.1.c1
+	 Participant client3 1.f.26.69.a0.4e.0.0.4.0.0.0|0.0.1.c1
+	 Participant client4 1.f.26.69.a0.4e.0.0.5.0.0.0|0.0.1.c1
+
+ -> Function eprosima::discovery_server::DSManager::validateAllSnapshots
 ```
 
 We'll only get this with the *Debug* binary. On *Release* mode, we can resort to provide a filename to the **snapshots**
@@ -641,39 +712,39 @@ We'll only get this with the *Debug* binary. On *Release* mode, we can resort to
 
 ```xml
 <DS_Snapshots>
- <DS_Snapshot timestamp="11684334716598" someone="true">
-  <description>Check all clients met the server and know each other</description>
-  <ptdb guid_prefix="1.f.74.42.80.35.0.0.2.0.0.0" guid_entity="0.0.1.c1">
-   <ptdi guid_prefix="1.f.74.42.80.35.0.0.3.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client2"/>
-   <ptdi guid_prefix="1.f.74.42.80.35.0.0.4.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client3"/>
-   <ptdi guid_prefix="1.f.74.42.80.35.0.0.5.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client4"/>
-   <ptdi guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1" server="true" alive="true" name="server"/>
-  </ptdb>
-  <ptdb guid_prefix="1.f.74.42.80.35.0.0.3.0.0.0" guid_entity="0.0.1.c1">
-   <ptdi guid_prefix="1.f.74.42.80.35.0.0.2.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client1"/>
-   <ptdi guid_prefix="1.f.74.42.80.35.0.0.4.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client3"/>
-   <ptdi guid_prefix="1.f.74.42.80.35.0.0.5.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client4"/>
-   <ptdi guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1" server="true" alive="true" name="server"/>
-  </ptdb>
-  <ptdb guid_prefix="1.f.74.42.80.35.0.0.4.0.0.0" guid_entity="0.0.1.c1">
-   <ptdi guid_prefix="1.f.74.42.80.35.0.0.2.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client1"/>
-   <ptdi guid_prefix="1.f.74.42.80.35.0.0.3.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client2"/>
-   <ptdi guid_prefix="1.f.74.42.80.35.0.0.5.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client4"/>
-   <ptdi guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1" server="true" alive="true" name="server"/>
-  </ptdb>
-  <ptdb guid_prefix="1.f.74.42.80.35.0.0.5.0.0.0" guid_entity="0.0.1.c1">
-   <ptdi guid_prefix="1.f.74.42.80.35.0.0.2.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client1"/>
-   <ptdi guid_prefix="1.f.74.42.80.35.0.0.3.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client2"/>
-   <ptdi guid_prefix="1.f.74.42.80.35.0.0.4.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client3"/>
-   <ptdi guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1" server="true" alive="true" name="server"/>
-  </ptdb>
-  <ptdb guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1">
-   <ptdi guid_prefix="1.f.74.42.80.35.0.0.2.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client1"/>
-   <ptdi guid_prefix="1.f.74.42.80.35.0.0.3.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client2"/>
-   <ptdi guid_prefix="1.f.74.42.80.35.0.0.4.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client3"/>
-   <ptdi guid_prefix="1.f.74.42.80.35.0.0.5.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client4"/>
-</ptdb>
- </DS_Snapshot>
+    <DS_Snapshot timestamp="1587739729185" process_time="3001" last_pdp_callback_time="667" last_edp_callback_time="0" someone="true">
+        <description>Check all clients met the server and know each other</description>
+        <ptdb guid_prefix="1.f.26.69.1c.36.0.0.2.0.0.0" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="1.f.26.69.1c.36.0.0.3.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client2" discovered_timestamp="659"/>
+            <ptdi guid_prefix="1.f.26.69.1c.36.0.0.4.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client3" discovered_timestamp="667"/>
+            <ptdi guid_prefix="1.f.26.69.1c.36.0.0.5.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client4" discovered_timestamp="663"/>
+            <ptdi guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1" server="true" alive="true" name="server" discovered_timestamp="619"/>
+        </ptdb>
+        <ptdb guid_prefix="1.f.26.69.1c.36.0.0.3.0.0.0" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="1.f.26.69.1c.36.0.0.2.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client1" discovered_timestamp="662"/>
+            <ptdi guid_prefix="1.f.26.69.1c.36.0.0.4.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client3" discovered_timestamp="665"/>
+            <ptdi guid_prefix="1.f.26.69.1c.36.0.0.5.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client4" discovered_timestamp="659"/>
+            <ptdi guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1" server="true" alive="true" name="server" discovered_timestamp="618"/>
+        </ptdb>
+        <ptdb guid_prefix="1.f.26.69.1c.36.0.0.4.0.0.0" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="1.f.26.69.1c.36.0.0.2.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client1" discovered_timestamp="667"/>
+            <ptdi guid_prefix="1.f.26.69.1c.36.0.0.3.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client2" discovered_timestamp="659"/>
+            <ptdi guid_prefix="1.f.26.69.1c.36.0.0.5.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client4" discovered_timestamp="663"/>
+            <ptdi guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1" server="true" alive="true" name="server" discovered_timestamp="619"/>
+        </ptdb>
+        <ptdb guid_prefix="1.f.26.69.1c.36.0.0.5.0.0.0" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="1.f.26.69.1c.36.0.0.2.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client1" discovered_timestamp="663"/>
+            <ptdi guid_prefix="1.f.26.69.1c.36.0.0.3.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client2" discovered_timestamp="659"/>
+            <ptdi guid_prefix="1.f.26.69.1c.36.0.0.4.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client3" discovered_timestamp="666"/>
+            <ptdi guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1" server="true" alive="true" name="server" discovered_timestamp="618"/>
+        </ptdb>
+        <ptdb guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="1.f.26.69.1c.36.0.0.2.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client1" discovered_timestamp="571"/>
+            <ptdi guid_prefix="1.f.26.69.1c.36.0.0.3.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client2" discovered_timestamp="529"/>
+            <ptdi guid_prefix="1.f.26.69.1c.36.0.0.4.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client3" discovered_timestamp="588"/>
+            <ptdi guid_prefix="1.f.26.69.1c.36.0.0.5.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client4" discovered_timestamp="556"/>
+        </ptdb>
+    </DS_Snapshot>
 </DS_Snapshots>
 ```
 
@@ -682,7 +753,7 @@ Here we see how all participants reported the discovery of all the others. Note 
  taken into account when a snapshot is checked. Note, however, that participants do discover themselves when they create
  a publisher or subscriber because there are callbacks associated with those cases.
 
-### test_2_PDP_TCP.xml
+### test_02_PDP_TCP.xml
 
 Resembles the previous scenario but uses TCP transport instead of the default UDP one. A single server manages the
  discovery info of four clients. The server prefix and listening ports are given in the profiles **TCP server** and
@@ -691,26 +762,22 @@ Resembles the previous scenario but uses TCP transport instead of the default UD
 Specific transport descriptor must be created for server and clients:
 
 ```xml
-<transport_descriptors>
+      <transport_descriptor>
+        <transport_id>TCPv4_SERVER</transport_id>
+        <type>TCPv4</type>
+        <listening_ports>
+          <port>48661</port>
+        </listening_ports>
+        <calculate_crc>false</calculate_crc>
+        <check_crc>false</check_crc>
+      </transport_descriptor>
 
-  <transport_descriptor>
-    <transport_id>TCPv4_SERVER</transport_id>
-    <type>TCPv4</type>
-    <listening_ports>
-      <port>65215</port>
-    </listening_ports>
-    <calculate_crc>false</calculate_crc>
-    <check_crc>false</check_crc>
-  </transport_descriptor>
-
-  <transport_descriptor>
-    <transport_id>TCPv4_CLIENT</transport_id>
-    <type>TCPv4</type>
-    <calculate_crc>false</calculate_crc>
-    <check_crc>false</check_crc>
-  </transport_descriptor>
-
-</transport_descriptors>
+      <transport_descriptor>
+        <transport_id>TCPv4_CLIENT</transport_id>
+        <type>TCPv4</type>
+        <calculate_crc>false</calculate_crc>
+        <check_crc>false</check_crc>
+      </transport_descriptor>
 ```
 
 Client and server participant profiles must reference this transport and discard builtin ones.
@@ -738,7 +805,7 @@ Client and server participant profiles must reference this transport and discard
 </participant>
 ```
 
-#### test_3_PDP_UDP.xml
+#### test_03_PDP_UDP.xml
 
 Here we test the discovery capacity of handling late joiners. A single server is created, which manages the discovery
 information of four clients with different lifespans. The server prefix and listening ports are given in the profiles
@@ -769,7 +836,7 @@ information of four clients with different lifespans. The server prefix and list
   </snapshots>
 ```
 
-#### test_4_PDP_UDP.xml
+#### test_04_PDP_UDP.xml
 
 Here we test the capability of one server to exchange information with another one. Two servers are created and each one
  has two associated clients. We take a snapshot to assess all clients are aware of the other server's clients existence.
@@ -814,7 +881,7 @@ specific server profiles.
   </snapshots>
 ```
 
-#### test_5_EDP_UDP.xml & test_5_EDP_TCP.xml
+#### test_05_EDP_UDP.xml & test_05_EDP_TCP.xml
 
 These tests introduce dummy publishers and subscribers to assess proper EDP discovery operation over UDP and TCP
 transport. A server and two clients are created, and each participant (server included) creates publishers and
@@ -853,81 +920,87 @@ topics specified in profiles.
 Snapshots with EDP information are more verbose:
 
 ```
-2019-04-24 14:52:44.300 [DISCOVERY_SERVER Info] Snapshot taken at 2019-04-24 14:52:44 description: Check all publishers and subscribers are properly discovered by everybody
+2020-04-24 17:20:46.820 [DISCOVERY_SERVER Info] Snapshot taken at 2020-04-24 17:20:46.816 or 3014 ms since process startup. Description: Check all publishers and subscribers are properly discovered by everybody
+Snapshot process startup at 2020-04-24 17:20:43.801 
+Last PDP callback at 2020-04-24 17:20:44.548 or 746 ms since process startup.
+Last EDP callback at 2020-04-24 17:20:45.030 or 1229 ms since process startup.
 3 participants report the following discovery info:
-Participant 1.f.1.30.64.47.0.0.2.0.0.0|0.0.1.c1 discovered:
-     Participant 1.f.1.30.64.47.0.0.2.0.0.0|0.0.1.c1 has:
-        1 publishers:
-            Publisher 1.f.1.30.64.47.0.0.2.0.0.0|0.0.1.3 TypeName: sample_type_2 TopicName: topic_2
-        3 subscribers:
-            Subscriber 1.f.1.30.64.47.0.0.2.0.0.0|0.0.2.4 TypeName: HelloWorld TopicName: HelloWorldTopic
-            Subscriber 1.f.1.30.64.47.0.0.2.0.0.0|0.0.3.4 TypeName: sample_type_2 TopicName: topic_2
-            Subscriber 1.f.1.30.64.47.0.0.2.0.0.0|0.0.4.4 TypeName: sample_type_1 TopicName: topic_1
+Participant 1.f.26.69.58.1f.0.0.2.0.0.0|0.0.1.c1 discovered 3 participants, 5 publishers and 5 subscribers:
+	 Participant 1.f.26.69.58.1f.0.0.2.0.0.0|0.0.1.c1 has:
+		1 publishers:
+			Publisher 1.f.26.69.58.1f.0.0.2.0.0.0|0.0.1.3 TypeName: sample_type_2 TopicName: topic_2
+		3 subscribers:
+			Subscriber 1.f.26.69.58.1f.0.0.2.0.0.0|0.0.2.4 TypeName: HelloWorld TopicName: HelloWorldTopicliveliness, alive_count: 0 not_alive_count: 0
+			Subscriber 1.f.26.69.58.1f.0.0.2.0.0.0|0.0.3.4 TypeName: sample_type_2 TopicName: topic_2liveliness, alive_count: 0 not_alive_count: 0
+			Subscriber 1.f.26.69.58.1f.0.0.2.0.0.0|0.0.4.4 TypeName: sample_type_1 TopicName: topic_1liveliness, alive_count: 0 not_alive_count: 0
 
-     Participant client2 1.f.1.30.64.47.0.0.3.0.0.0|0.0.1.c1 has:
-        3 publishers:
-            Publisher 1.f.1.30.64.47.0.0.3.0.0.0|0.0.1.3 TypeName: HelloWorld TopicName: HelloWorldTopic
-            Publisher 1.f.1.30.64.47.0.0.3.0.0.0|0.0.2.3 TypeName: sample_type_1 TopicName: topic_1
-            Publisher 1.f.1.30.64.47.0.0.3.0.0.0|0.0.3.3 TypeName: sample_type_1 TopicName: topic_1
-        1 subscribers:
-            Subscriber 1.f.1.30.64.47.0.0.3.0.0.0|0.0.4.4 TypeName: sample_type_2 TopicName: topic_2
+	 Participant client2 1.f.26.69.58.1f.0.0.3.0.0.0|0.0.1.c1 has:
+		3 publishers:
+			Publisher 1.f.26.69.58.1f.0.0.3.0.0.0|0.0.1.3 TypeName: HelloWorld TopicName: HelloWorldTopic
+			Publisher 1.f.26.69.58.1f.0.0.3.0.0.0|0.0.2.3 TypeName: sample_type_1 TopicName: topic_1
+			Publisher 1.f.26.69.58.1f.0.0.3.0.0.0|0.0.3.3 TypeName: sample_type_1 TopicName: topic_1
+		1 subscribers:
+			Subscriber 1.f.26.69.58.1f.0.0.3.0.0.0|0.0.4.4 TypeName: sample_type_2 TopicName: topic_2liveliness, alive_count: 0 not_alive_count: 0
 
-     Participant server 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1 has:
-        1 publishers:
-            Publisher 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.3 TypeName: sample_type_2 TopicName: topic_2
-        1 subscribers:
-            Subscriber 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.2.4 TypeName: sample_type_1 TopicName: topic_1
-
-
-Participant 1.f.1.30.64.47.0.0.3.0.0.0|0.0.1.c1 discovered:
-     Participant client1 1.f.1.30.64.47.0.0.2.0.0.0|0.0.1.c1 has:
-        1 publishers:
-            Publisher 1.f.1.30.64.47.0.0.2.0.0.0|0.0.1.3 TypeName: sample_type_2 TopicName: topic_2
-        3 subscribers:
-            Subscriber 1.f.1.30.64.47.0.0.2.0.0.0|0.0.2.4 TypeName: HelloWorld TopicName: HelloWorldTopic
-            Subscriber 1.f.1.30.64.47.0.0.2.0.0.0|0.0.3.4 TypeName: sample_type_2 TopicName: topic_2
-            Subscriber 1.f.1.30.64.47.0.0.2.0.0.0|0.0.4.4 TypeName: sample_type_1 TopicName: topic_1
-
-     Participant 1.f.1.30.64.47.0.0.3.0.0.0|0.0.1.c1 has:
-        3 publishers:
-            Publisher 1.f.1.30.64.47.0.0.3.0.0.0|0.0.1.3 TypeName: HelloWorld TopicName: HelloWorldTopic
-            Publisher 1.f.1.30.64.47.0.0.3.0.0.0|0.0.2.3 TypeName: sample_type_1 TopicName: topic_1
-            Publisher 1.f.1.30.64.47.0.0.3.0.0.0|0.0.3.3 TypeName: sample_type_1 TopicName: topic_1
-        1 subscribers:
-            Subscriber 1.f.1.30.64.47.0.0.3.0.0.0|0.0.4.4 TypeName: sample_type_2 TopicName: topic_2
-
-     Participant server 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1 has:
-        1 publishers:
-            Publisher 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.3 TypeName: sample_type_2 TopicName: topic_2
-        1 subscribers:
-            Subscriber 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.2.4 TypeName: sample_type_1 TopicName: topic_1
+	 Participant server 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1 has:
+		1 publishers:
+			Publisher 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.3 TypeName: sample_type_2 TopicName: topic_2
+		1 subscribers:
+			Subscriber 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.2.4 TypeName: sample_type_1 TopicName: topic_1liveliness, alive_count: 0 not_alive_count: 0
 
 
-Participant 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1 discovered:
-     Participant client1 1.f.1.30.64.47.0.0.2.0.0.0|0.0.1.c1 has:
-        1 publishers:
-            Publisher 1.f.1.30.64.47.0.0.2.0.0.0|0.0.1.3 TypeName: sample_type_2 TopicName: topic_2
-        3 subscribers:
-            Subscriber 1.f.1.30.64.47.0.0.2.0.0.0|0.0.2.4 TypeName: HelloWorld TopicName: HelloWorldTopic
-            Subscriber 1.f.1.30.64.47.0.0.2.0.0.0|0.0.3.4 TypeName: sample_type_2 TopicName: topic_2
-            Subscriber 1.f.1.30.64.47.0.0.2.0.0.0|0.0.4.4 TypeName: sample_type_1 TopicName: topic_1
+Participant 1.f.26.69.58.1f.0.0.3.0.0.0|0.0.1.c1 discovered 3 participants, 5 publishers and 5 subscribers:
+	 Participant client1 1.f.26.69.58.1f.0.0.2.0.0.0|0.0.1.c1 has:
+		1 publishers:
+			Publisher 1.f.26.69.58.1f.0.0.2.0.0.0|0.0.1.3 TypeName: sample_type_2 TopicName: topic_2
+		3 subscribers:
+			Subscriber 1.f.26.69.58.1f.0.0.2.0.0.0|0.0.2.4 TypeName: HelloWorld TopicName: HelloWorldTopicliveliness, alive_count: 0 not_alive_count: 0
+			Subscriber 1.f.26.69.58.1f.0.0.2.0.0.0|0.0.3.4 TypeName: sample_type_2 TopicName: topic_2liveliness, alive_count: 0 not_alive_count: 0
+			Subscriber 1.f.26.69.58.1f.0.0.2.0.0.0|0.0.4.4 TypeName: sample_type_1 TopicName: topic_1liveliness, alive_count: 0 not_alive_count: 0
 
-     Participant client2 1.f.1.30.64.47.0.0.3.0.0.0|0.0.1.c1 has:
-        3 publishers:
-            Publisher 1.f.1.30.64.47.0.0.3.0.0.0|0.0.1.3 TypeName: HelloWorld TopicName: HelloWorldTopic
-            Publisher 1.f.1.30.64.47.0.0.3.0.0.0|0.0.2.3 TypeName: sample_type_1 TopicName: topic_1
-            Publisher 1.f.1.30.64.47.0.0.3.0.0.0|0.0.3.3 TypeName: sample_type_1 TopicName: topic_1
-        1 subscribers:
-            Subscriber 1.f.1.30.64.47.0.0.3.0.0.0|0.0.4.4 TypeName: sample_type_2 TopicName: topic_2
+	 Participant 1.f.26.69.58.1f.0.0.3.0.0.0|0.0.1.c1 has:
+		3 publishers:
+			Publisher 1.f.26.69.58.1f.0.0.3.0.0.0|0.0.1.3 TypeName: HelloWorld TopicName: HelloWorldTopic
+			Publisher 1.f.26.69.58.1f.0.0.3.0.0.0|0.0.2.3 TypeName: sample_type_1 TopicName: topic_1
+			Publisher 1.f.26.69.58.1f.0.0.3.0.0.0|0.0.3.3 TypeName: sample_type_1 TopicName: topic_1
+		1 subscribers:
+			Subscriber 1.f.26.69.58.1f.0.0.3.0.0.0|0.0.4.4 TypeName: sample_type_2 TopicName: topic_2liveliness, alive_count: 0 not_alive_count: 0
 
-     Participant 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1 has:
-        1 publishers:
-            Publisher 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.3 TypeName: sample_type_2 TopicName: topic_2
-        1 subscribers:
-            Subscriber 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.2.4 TypeName: sample_type_1 TopicName: topic_1
+	 Participant server 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1 has:
+		1 publishers:
+			Publisher 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.3 TypeName: sample_type_2 TopicName: topic_2
+		1 subscribers:
+			Subscriber 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.2.4 TypeName: sample_type_1 TopicName: topic_1liveliness, alive_count: 0 not_alive_count: 0
+
+
+Participant 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1 discovered 3 participants, 5 publishers and 5 subscribers:
+	 Participant client1 1.f.26.69.58.1f.0.0.2.0.0.0|0.0.1.c1 has:
+		1 publishers:
+			Publisher 1.f.26.69.58.1f.0.0.2.0.0.0|0.0.1.3 TypeName: sample_type_2 TopicName: topic_2
+		3 subscribers:
+			Subscriber 1.f.26.69.58.1f.0.0.2.0.0.0|0.0.2.4 TypeName: HelloWorld TopicName: HelloWorldTopicliveliness, alive_count: 0 not_alive_count: 0
+			Subscriber 1.f.26.69.58.1f.0.0.2.0.0.0|0.0.3.4 TypeName: sample_type_2 TopicName: topic_2liveliness, alive_count: 0 not_alive_count: 0
+			Subscriber 1.f.26.69.58.1f.0.0.2.0.0.0|0.0.4.4 TypeName: sample_type_1 TopicName: topic_1liveliness, alive_count: 0 not_alive_count: 0
+
+	 Participant client2 1.f.26.69.58.1f.0.0.3.0.0.0|0.0.1.c1 has:
+		3 publishers:
+			Publisher 1.f.26.69.58.1f.0.0.3.0.0.0|0.0.1.3 TypeName: HelloWorld TopicName: HelloWorldTopic
+			Publisher 1.f.26.69.58.1f.0.0.3.0.0.0|0.0.2.3 TypeName: sample_type_1 TopicName: topic_1
+			Publisher 1.f.26.69.58.1f.0.0.3.0.0.0|0.0.3.3 TypeName: sample_type_1 TopicName: topic_1
+		1 subscribers:
+			Subscriber 1.f.26.69.58.1f.0.0.3.0.0.0|0.0.4.4 TypeName: sample_type_2 TopicName: topic_2liveliness, alive_count: 0 not_alive_count: 0
+
+	 Participant 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.c1 has:
+		1 publishers:
+			Publisher 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.1.3 TypeName: sample_type_2 TopicName: topic_2
+		1 subscribers:
+			Subscriber 4d.49.47.55.45.4c.5f.42.41.52.52.4f|0.0.2.4 TypeName: sample_type_1 TopicName: topic_1liveliness, alive_count: 0 not_alive_count: 0
+
+
+ -> Function eprosima::discovery_server::DSManager::validateAllSnapshots
 ```
 
-#### test_6_EDP_UDP.xml
+#### test_06_EDP_UDP.xml
 
 Here we test how the discovery handles EDP late joiners. It's the same scenario with a server and two clients with
  different lifespans. Each participant (server included) creates publishers and subscribers with different lifespans,
@@ -969,7 +1042,7 @@ Here we test how the discovery handles EDP late joiners. It's the same scenario 
   </snapshots>
 ```
 
-#### test_7_PDP_UDP.xml
+#### test_07_PDP_UDP.xml
 
 Here we test how the discovery handles server shutdown and reboot. This is a clean shutdown made from the Fast-RTPS API
  :code:`Domain::removeParticipant`. Each time the server dies it notifies this fact to all its clients which
@@ -1000,7 +1073,7 @@ Here we test how the discovery handles server shutdown and reboot. This is a cle
   </snapshots>
 ```
 
-#### test_8_lease_client.xml & test_8_lease_server.xml
+#### test_08_lease_client.xml & test_08_lease_server.xml
 
 Standard lease duration mechanism no longer makes sense on the client-server architecture. Clients no longer multicast
  `DATA(p)` messages in order to make all other clients aware of its presence as in PDP standard mechanism, thus,
@@ -1022,6 +1095,90 @@ The first snapshot must show how all clients (remote one included) known each ot
  (and its client) the server must kill its proxy by lease duration time out and report it to all other clients. The
  second snapshot must show how all participants have removed the remote client from its discovery database.
 
+#### test_09_WLP_client.xml & test_09_WLP_server.xml
+
+According to the RTPS standard the WLP (Writer Liveliness Protocol) defines the required information exchange between two
+Participants in order to assert the liveliness of Writers contained by the Participants. This test assess this
+mechanism proper operation under client-server discovery. Basically two discovery-servers instances are launched:
+
+1 - A server with several clients that create subscribers of a common topic. This instances will take an snapshot at the beginning and another at the end.
+
+2 - A client which references the server on the first instance and creates a publisher for the common topic. This
+process would be killed from python between the snapshots. It's noteworthy that the lease-duration has been increased
+int the profiles to prevent the server from noticing that the client has disappeared.
+
+Both snapshots must show how all clients (remote one included) known each other and the user publishers and
+subscribers. Subscribers though are notified by the WLP that the crashed publisher is not responsive. By parsing the
+second snapshot we are able to verify that ``alive_count="0"`` there, that is, the subscribers were duly notified.
+
+#### test_10_simple_PDP_EDP.xml
+
+This test assess simple discovery proper operation by creating several `simple` participants with several endpoints each.
+These participants and its endpoints are not created simultaneously and several snapshots are taken in order to validate
+that all participants share the same info at the different test stages.
+
+The syntax resembles the client-server participants. A `simples` collection of `simple` objects.
+
+```xml
+    <simples>
+        <simple name="simple1" removal_time="10" profile_name="OtherDomain">
+            <subscriber />
+            ...
+        </simple>
+        <simple name="simple2" removal_time="10" profile_name="OtherDomain">
+            <subscriber />
+            ... 
+        </simple>
+        ...
+    </simples>
+```
+
+It's noteworthy that:
+
+- The builtin transport is disabled in order to add whitelisting. The whitelist allows to restrict traffic to the given
+  interfaces. In our case to avoid polluting the network and restrict the UDP messages to *localhost*.
+
+- Domain is modified to one randomly generated on CMake generator stage. This way interference with another tests is
+  further downgraded.
+
+The other tests only possible collision with each other was try to reserve the very same ports on the TCP and UDP
+protocols. Those ports were also randomly generated on CMake generator stage over the IANA ephemeral range, thus,
+collision is improbable.
+
+```xml
+        <transport_descriptors>
+            <transport_descriptor>
+                <transport_id>wifi_only_transport</transport_id>
+                <type>UDPv4</type>
+                <interfaceWhiteList>
+                    <address>127.0.0.1</address>
+                </interfaceWhiteList>
+            </transport_descriptor>
+        </transport_descriptors>
+
+        <participant profile_name="OtherDomain">
+            <domainId>27</domainId>
+            <rtps>
+                <userTransports>
+                    <transport_id>wifi_only_transport</transport_id>
+                </userTransports>
+                <useBuiltinTransports>false</useBuiltinTransports>
+            </rtps>
+        </participant>
+```
+
+#### test_11_BACKUP_client.xml & test_11_BACKUP_server.xml
+
+This test verifies that the discovery info is properly serialized and deserialized by a backup server. The server is
+created twice by running twice the test_11_BACKUP_server.xml file:
+
+- The first time the discovery data is serialized to a backup file.
+- Then this server crashes but the backup file prevails.
+- The second time the discovery data is deserialized from the backup file because the leaseDuration doesn't allow the
+  clients to detect server's demise.
+
+By comparing the client and last server snapshot it can be verified that the server's discovery info was properly stored
+and retrieved.
 
 ### **Documentation**
 
@@ -1081,7 +1238,6 @@ The outermost XML tag is **DS**. It admits an optional boolean attribute called 
 	- **creation_time** introduced for testing purposes specifies in seconds when a server must be created.
 	- **removal_time** introduced for testing purposes specifies in seconds when a server must be destroyed.
 
-
 	Each server element admits the following tags:
 	- **ListeningPorts** contains lists of locators where this server will listen for incoming client metatraffic.
 	- **ServersList** contains at least one **RServer** tag that references the servers this one wants to link to.
@@ -1092,11 +1248,10 @@ The outermost XML tag is **DS**. It admits an optional boolean attribute called 
 	- **subscriber** introduced for testing purposes. Creates a dummy publisher characterized by *profile_name*,
     *topic*, *creation_time*, and *removal_time*.
 
-
 + **clients** introduced for testing purposes. It's a list of dummy clients that the discovery-server must create and
  setup. Must contain at least a **client** tag. Each client admits the following attributes:
     - **name** non-mandatory but advisable for debugging purposes.
-    - **profile_name** identifies the profile associated with this server is a mandatory one.
+    - **profile_name** identifies the profile associated with this client is a mandatory one.
     - **server** specifies the prefix of the server we want to link to. This optional attribute saves us the nuisance of
     creating a **ServerList** (only if this client references a single server). Based on this prefix the discover-server
     parser would search for the corresponding server locators within the config file.
@@ -1115,6 +1270,19 @@ The outermost XML tag is **DS**. It admits an optional boolean attribute called 
     *creation_time* and *removal_time*.
 	- **subscriber** introduced for testing purposes. Creates a publisher characterized by *profile_name*, *topic*,
     *creation_time* and *removal_time*.
+
++ **simples** introduced for testing purposes. It's a list of dummy participants using simple discovery that the
+  discovery-server must create set up. Must contain at least a **simple** tag. Each simple admits the following attributes:
+    -  **name** non-mandatory but advisable for debugging purposes.
+    -  **profile_name** identifies the profile associated with this participant is a mandatory one.
+    -  **creation_time** introduced for testing purposes specifies in seconds when a client must be created.
+    -  **removal_time** introduced for testing purposes specifies in seconds when a client must be destroyed.
+
+    Each simple element admits the following tags:
+    - **publisher** introduced for testing purposes. Creates a publisher characterized by *profile_name*, *topic*,
+    *creation_time*, and *removal_time*.
+    - **subscriber** introduced for testing purposes. Creates a publisher characterized by *profile_name*, *topic*,
+    *creation_time*, and *removal_time*.
 
 + **types** is plainly the Fast-RTPS types. It's introduced here for testing purposes to check how topic and type
  discovery info is handled by EDP. The associated documentation can be found

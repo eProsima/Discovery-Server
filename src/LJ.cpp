@@ -70,17 +70,33 @@ void DPD::SetGuid(
 const std::string LJD_traits<Publisher>::endpoint_type("Publisher");
 const LJD_traits<Publisher>::AddEndpoint LJD_traits<Publisher>::add_endpoint_function = &DSManager::addPublisher;
 const LJD_traits<Publisher>::GetEndpoint LJD_traits<Publisher>::retrieve_endpoint_function = &DSManager::removePublisher;
-const LJD_traits<Publisher>::CreateEndpoint LJD_traits<Publisher>::create_endpoint_function = &Domain::createPublisher;
 const LJD_traits<Publisher>::removeEndpoint LJD_traits<Publisher>::remove_endpoint_function = &Domain::removePublisher;
+
+/*static*/ 
+Publisher * LJD_traits<Publisher>::createEndpoint(
+    Participant* part,
+    const PublisherAttributes& pa,
+    void *)
+{
+    return Domain::createPublisher(part, pa);
+}
 
 const std::string LJD_traits<Subscriber>::endpoint_type("Subscriber");
 const LJD_traits<Subscriber>::AddEndpoint LJD_traits<Subscriber>::add_endpoint_function = &DSManager::addSubscriber;
 const LJD_traits<Subscriber>::GetEndpoint LJD_traits<Subscriber>::retrieve_endpoint_function = &DSManager::removeSubscriber;
-const LJD_traits<Subscriber>::CreateEndpoint LJD_traits<Subscriber>::create_endpoint_function = &Domain::createSubscriber;
 const LJD_traits<Subscriber>::removeEndpoint LJD_traits<Subscriber>::remove_endpoint_function = &Domain::removeSubscriber;
+
+/*static*/
+Subscriber * LJD_traits<Subscriber>::createEndpoint(
+    Participant* part,
+    const SubscriberAttributes& sa,
+    SubscriberListener * list/* = nullptr*/)
+{
+    return Domain::createSubscriber(part, sa, list);
+}
 
 void DS::operator()(
         DSManager & man) /*override*/
 {
-    man.takeSnapshot(std::chrono::steady_clock::now(), description, if_someone);
+    man.takeSnapshot(std::chrono::steady_clock::now(), description, if_someone, show_liveliness_);
 }
