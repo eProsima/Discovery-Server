@@ -53,7 +53,7 @@ int main(int argc, char * argv[])
                 }
                 else
                 {
-                    std::cout << manager.successMessage() << endl;
+                    std::cout << manager.successMessage() << std::endl;
                 }
             }
         }
@@ -73,7 +73,7 @@ int main(int argc, char * argv[])
             }
             else
             {
-                std::cout << manager.successMessage() << endl;
+                std::cout << manager.successMessage() << std::endl;
             }
         }
     }
