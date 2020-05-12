@@ -1498,6 +1498,14 @@ void DSManager::onSubscriberDiscovery(
 {
     typedef ReaderDiscoveryInfo::DISCOVERY_STATUS DS;
 
+    // if the callback origin was removed ignore
+    GUID_t srcGuid = participant->getGuid();
+    if( nullptr == getParticipant(srcGuid))
+    {
+        LOG_INFO("Received SubscriberDiscovery callback from unknown participant: " << srcGuid);
+        return;
+    }
+
     const GUID_t & subsid = info.info.guid();
     GUID_t partid = iHandle2GUID(info.info.RTPSParticipantKey());
 
@@ -1543,7 +1551,7 @@ void DSManager::onSubscriberDiscovery(
     switch (info.status)
     {
     case DS::DISCOVERED_READER:
-        state.AddSubscriber(participant->getGuid(), partid, subsid, info.info.typeName().to_string(),
+        state.AddSubscriber(srcGuid, partid, subsid, info.info.typeName().to_string(),
             info.info.topicName().to_string(), callback_time);
         break;
     case DS::REMOVED_READER:
@@ -1553,7 +1561,7 @@ void DSManager::onSubscriberDiscovery(
         iHandle2GUID(guid, info.info.RTPSParticipantKey());
         if (getParticipant(guid))
         {
-            state.RemoveSubscriber(participant->getGuid(), partid, subsid);
+            state.RemoveSubscriber(srcGuid, partid, subsid);
         }
     }
         break;
@@ -1571,6 +1579,14 @@ void  DSManager::onPublisherDiscovery(
         rtps::WriterDiscoveryInfo&& info)
 {
     typedef WriterDiscoveryInfo::DISCOVERY_STATUS DS;
+
+    // if the callback origin was removed ignore
+    GUID_t srcGuid = participant->getGuid();
+    if( nullptr == getParticipant(srcGuid))
+    {
+        LOG_INFO("Received PublisherDiscovery callback from unknown participant: " << srcGuid);
+        return;
+    }
 
     const GUID_t& pubsid = info.info.guid();
     GUID_t partid = iHandle2GUID(info.info.RTPSParticipantKey());
@@ -1617,8 +1633,9 @@ void  DSManager::onPublisherDiscovery(
     switch (info.status)
     {
     case DS::DISCOVERED_WRITER:
-        state.AddPublisher(participant->getGuid(),
-            partid, pubsid,
+        state.AddPublisher(srcGuid,
+            partid,
+            pubsid,
             info.info.typeName().to_string(),
             info.info.topicName().to_string(),
             callback_time);
@@ -1630,7 +1647,7 @@ void  DSManager::onPublisherDiscovery(
         iHandle2GUID(guid, info.info.RTPSParticipantKey());
         if (getParticipant(guid))
         {
-            state.RemovePublisher(participant->getGuid(), partid, pubsid);
+            state.RemovePublisher(srcGuid, partid, pubsid);
         }
     }
         break;

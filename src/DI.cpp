@@ -96,7 +96,7 @@ bool SDI::operator==(
 std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const SDI& di)
 {
     return os << "Subscriber " << di.endpoint_guid << " TypeName: " << di.type_name
-        << " TopicName: " << di.topic_name << "liveliness, alive_count: " << di.alive_count
+        << " TopicName: " << di.topic_name << " liveliness, alive_count: " << di.alive_count
         << " not_alive_count: " << di.not_alive_count;
 }
 
