@@ -184,7 +184,7 @@ class DEC
     typedef typename LJD_traits<PS>::Attributes Attributes;
     Attributes * participant_attributes;
     GUID_t participant_guid;
-    DED<PS> * linked_destruction_event; 
+    DED<PS> * linked_destruction_event;
     DPC * owner_event; // associated participant event
 
 public:
