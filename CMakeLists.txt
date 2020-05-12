@@ -1,8 +1,17 @@
-cmake_minimum_required(VERSION 3.10.0)
-
 ###############################################################################
 # Project and Version information											  #
 ###############################################################################
+
+cmake_minimum_required(VERSION 3.10.0)
+
+# Set CMAKE_BUILD_TYPE to Release by default if generator is single config.
+if(NOT GENERATOR_IS_MULTI_CONFIG AND NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "Setting build type to 'Release' as none was specified.")
+    set(CMAKE_BUILD_TYPE Release CACHE STRING
+        "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+        FORCE)
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
 
 # PROJECT_SOURCE_DIR is the source directory of the most recent project() command.
 # If it exists already then this file has been added and IS_TOP_LEVEL should be FALSE.
