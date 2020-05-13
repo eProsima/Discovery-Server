@@ -1628,8 +1628,8 @@ bool DSManager::loadSnapshots(
         LOG_ERROR("Couldn't parse the file: " << file);
         return false;
     }
-    
-    XMLNode * pRoot = xmlDoc.FirstChild();
+
+    XMLNode * pRoot = xmlDoc.FirstChildElement(s_sDS_Snapshots.c_str());
 
     snapshots_list::iterator it;
     bool inserter = snapshots.empty();
