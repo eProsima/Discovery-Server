@@ -631,9 +631,14 @@ DI_database::size_type DI_database::CountPublishers(
 }
 
 bool eprosima::discovery_server::operator==(
-        const PtDB& l,
-        const PtDB& r)
+        const PtDB& cl,
+        const PtDB& cr)
 {
+    // In order to optimize the algorithm we make l < r. Note that the collections are ordered.
+    bool swap = cr.endpoint_guid < cl.endpoint_guid;
+    const PtDB& l = swap ? cr : cl;
+    const PtDB& r = swap ? cl : cr;
+
     // Note that each participant doesn't keep its own discovery info
     // The only acceptable difference between participants discovery information is their own
     // I cannot use direct == on these sets
@@ -675,19 +680,19 @@ bool eprosima::discovery_server::operator==(
         {   // check if our own discovery data is interfering
             go = false;
 
-            if (lit->endpoint_guid == r.endpoint_guid)
-            {
-                go = true; // sweep over
-                ++lit;
-            }
-
             if (rit->endpoint_guid == l.endpoint_guid)
             {
                 go = true; // sweep over
                 ++rit;
             }
-        }
 
+            if (lit->endpoint_guid == r.endpoint_guid
+               && (r.size() == l.size() || !go ))
+            {
+                go = true; // sweep over
+                ++lit;
+            }
+        }
     };
 
     // one or several unknown participants within
