@@ -1789,7 +1789,7 @@ bool DSManager::allKnowEachOther(
         const Snapshot & shot)
 {
     // nobody discovered is bad?
-    if (shot.if_someone && shot.empty())
+    if (shot.if_someone && (shot.empty() || shot.begin()->empty()))
     {
         return false; // nobody out there
     }

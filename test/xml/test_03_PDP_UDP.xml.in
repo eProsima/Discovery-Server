@@ -22,7 +22,7 @@
       <snapshot time="9">Check client1 removal is acknowledge by all remaining</snapshot>
       <snapshot time="11">Check client2 removal is acknowledge by all remaining</snapshot>
       <snapshot time="13">Check client3 removal is acknowledge by all remaining</snapshot>
-      <snapshot time="15">Check client4 removal is acknowledge by all remaining</snapshot>
+      <snapshot someone="false" time="15">Check client4 removal is acknowledge by all remaining</snapshot>
   </snapshots>
   
   <profiles>
