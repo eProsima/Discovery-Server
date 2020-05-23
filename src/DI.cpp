@@ -126,7 +126,7 @@ bool PtDI::operator!=(
 
 std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtDI& di)
 {
-    os << "\t Participant ";
+    os << (di.is_alive ? "\t" : "\t Zombie" ) << " Participant ";
 
     if (!di.participant_name.empty())
     {
@@ -375,13 +375,13 @@ bool DI_database::AddEndPoint(
     PtDB & _database = image[spokesman];
     PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
-    if (it == _database.end() || *it != ptid )
+    if (it == _database.end() || ptid == spokesman )
     {
         // participant is no there, add a zombie participant
         it = _database.emplace_hint(it,ptid);
 
         // participant death acknowledge but not their owned endpoints
-        it->acknowledge(false);
+        it->acknowledge(ptid == spokesman);
     }
 
     // STL makes iterator const to prevent that any key changing unsorts the container
@@ -643,26 +643,29 @@ bool eprosima::discovery_server::operator==(
     // The only acceptable difference between participants discovery information is their own
     // I cannot use direct == on these sets
 
-    PtDB::const_iterator lit = l.begin(), rit = r.begin();
+    // Note that we must ignore the zombie participants (those reported dead but whose endpoints dead is not reported)
+    // Thus, we use and special iteration for convenience:
+
+    PtDB::smart_iterator lit = l.sbegin(), rit = r.sbegin();
     bool go = true;
 
     while(go)
     {
         // one of the list reach an end
-        if (lit == l.end())
+        if (lit == l.send())
         {
             // finish simultaneously or differ only in
             // each other discovery data
-            return (rit == r.end()
-                || ((rit->endpoint_guid == l.endpoint_guid || rit->endpoint_guid == r.endpoint_guid) && r.end() == ++rit));
+            return (rit == r.send()
+                || ((rit->endpoint_guid == l.endpoint_guid || rit->endpoint_guid == r.endpoint_guid) && r.send() == ++rit));
         }
 
-        if (rit == r.end())
+        if (rit == r.send())
         {
             // finish simultaneously or differ only in
             // each other discovery data
-            return (lit == l.end()
-                || ((lit->endpoint_guid == r.endpoint_guid || lit->endpoint_guid == l.endpoint_guid) && l.end() == ++lit));
+            return (lit == l.send()
+                || ((lit->endpoint_guid == r.endpoint_guid || lit->endpoint_guid == l.endpoint_guid) && l.send() == ++lit));
         }
 
         // comparing elements
@@ -687,7 +690,7 @@ bool eprosima::discovery_server::operator==(
             }
 
             if (lit->endpoint_guid == r.endpoint_guid
-               && (r.size() == l.size() || !go ))
+               && (r.real_size() == l.real_size() || !go ))
             {
                 go = true; // sweep over
                 ++lit;

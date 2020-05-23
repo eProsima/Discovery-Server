@@ -273,6 +273,83 @@ std::ostream& operator<<(std::ostream&, const PtDI&);
 struct PtDB : public DI, public std::set<PtDI>
 {
     typedef std::set<PtDI>::size_type size_type;
+    typedef PtDB::iterator iterator;
+
+    // we need a special iterator that ignores zombie members
+    struct smart_iterator
+        : std::iterator<
+            std::forward_iterator_tag,
+            iterator::value_type,
+            iterator::difference_type,
+            iterator::pointer,
+            iterator::reference>
+    {
+        typedef PtDB::iterator wrapped_iterator;
+
+        smart_iterator(const PtDB& cont) : ref_cont_(cont), wrap_it_(cont.begin())
+        {
+            // ignore zombies
+            while( wrap_it_ != cont.end() && !wrap_it_->is_alive )
+            {
+                ++wrap_it_;
+            }
+        }
+
+        smart_iterator(const smart_iterator & it) : ref_cont_(it.ref_cont_), wrap_it_(it.wrap_it_) {}
+
+        smart_iterator operator++()
+        {
+            do
+            {
+                ++wrap_it_;
+            }
+            while( wrap_it_ != ref_cont_.end() && !wrap_it_->is_alive );
+
+            return *this;
+        }
+
+        smart_iterator operator++(int)
+        {
+            smart_iterator tmp(*this);
+
+            operator++();
+
+            return tmp;
+        }
+
+        reference operator*() const
+		{
+            return (reference)*wrap_it_;
+		}
+
+	    pointer operator->() const
+		{
+            return &(**this);
+		}
+
+        bool operator==(const smart_iterator& it) const
+        {
+           // note that zombies are skip, that simplifies comparison
+           return wrap_it_ == it.wrap_it_;
+        }
+
+        bool operator!=(const smart_iterator& it) const
+        {
+           // note that zombies are skip, that simplifies comparison
+           return !(*this == it);
+        }
+
+        smart_iterator end() const
+        {
+            // the end iterator matches the wrapped iterator one
+            smart_iterator tmp(ref_cont_);
+            tmp.wrap_it_ = ref_cont_.end();
+            return tmp;
+        }
+
+        const PtDB& ref_cont_;
+        wrapped_iterator wrap_it_;
+    };
 
     PtDB(
         const GUID_t& id )
@@ -291,6 +368,21 @@ struct PtDB : public DI, public std::set<PtDI>
     PtDB(PtDB&&) = default;
     PtDB& operator=(const PtDB&) = default;
     PtDB& operator=(PtDB&&) = default;
+
+    smart_iterator sbegin() const
+    {
+        return smart_iterator(*this);
+    }
+
+    smart_iterator send() const
+    {
+        return smart_iterator(*this).end();
+    }
+
+    size_type real_size() const
+    {
+        return std::distance(sbegin(),send());
+    }
 
     size_type CountParticipants() const;
     size_type CountSubscribers() const;
