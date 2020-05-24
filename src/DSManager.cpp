@@ -1480,16 +1480,12 @@ void DSManager::onParticipantDiscovery(
     case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
     case ParticipantDiscoveryInfo::DROPPED_PARTICIPANT:
     {
-        // only update the database if alive
         state.RemoveParticipant(participant->getGuid(), partid);
         break;
     }
     default:
         break;
     }
-
-    // note that I ignore DROPPED_PARTICIPANT because it deals with liveliness
-    // and not with discovery messages
 }
 
 void DSManager::onSubscriberDiscovery(

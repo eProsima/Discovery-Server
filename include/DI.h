@@ -273,6 +273,36 @@ std::ostream& operator<<(std::ostream&, const PtDI&);
 struct PtDB : public DI, public std::set<PtDI>
 {
     typedef std::set<PtDI>::size_type size_type;
+    typedef PtDB::iterator iterator;
+
+    // we need a special iterator that ignores zombie members
+    struct smart_iterator
+        : std::iterator<
+            std::forward_iterator_tag,
+            iterator::value_type,
+            iterator::difference_type,
+            iterator::pointer,
+            iterator::reference>
+    {
+        typedef PtDB::iterator wrapped_iterator;
+
+        smart_iterator(const PtDB& cont);
+        smart_iterator(const smart_iterator & it) : ref_cont_(it.ref_cont_), wrap_it_(it.wrap_it_) {}
+
+        smart_iterator operator++();
+        smart_iterator operator++(int);
+
+        reference operator*() const;
+
+	    pointer operator->() const;
+        bool operator==(const smart_iterator& it) const;
+        bool operator!=(const smart_iterator& it) const;
+
+        smart_iterator end() const;
+
+        const PtDB& ref_cont_;
+        wrapped_iterator wrap_it_;
+    };
 
     PtDB(
         const GUID_t& id )
@@ -291,6 +321,10 @@ struct PtDB : public DI, public std::set<PtDI>
     PtDB(PtDB&&) = default;
     PtDB& operator=(const PtDB&) = default;
     PtDB& operator=(PtDB&&) = default;
+
+    smart_iterator sbegin() const;
+    smart_iterator send() const;
+    size_type real_size() const;
 
     size_type CountParticipants() const;
     size_type CountSubscribers() const;
