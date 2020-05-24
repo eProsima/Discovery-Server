@@ -239,6 +239,83 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtD
     return os;
 }
 
+// wrap_iterator implementation
+
+PtDB::smart_iterator PtDB::sbegin() const
+{
+    return smart_iterator(*this);
+}
+
+PtDB::smart_iterator PtDB::send() const
+{
+    return smart_iterator(*this).end();
+}
+
+PtDB::size_type PtDB::real_size() const
+{
+    return std::distance(sbegin(),send());
+}
+
+PtDB::smart_iterator::smart_iterator(const PtDB& cont) : ref_cont_(cont), wrap_it_(cont.begin())
+{
+    // ignore zombies
+    while( wrap_it_ != cont.end() && !wrap_it_->is_alive )
+    {
+        ++wrap_it_;
+    }
+}
+
+PtDB::smart_iterator PtDB::smart_iterator::operator++()
+{
+    do
+    {
+        ++wrap_it_;
+    }
+    while( wrap_it_ != ref_cont_.end() && !wrap_it_->is_alive );
+
+    return *this;
+}
+
+PtDB::smart_iterator PtDB::smart_iterator::operator++(int)
+{
+    smart_iterator tmp(*this);
+
+    operator++();
+
+    return tmp;
+}
+
+PtDB::smart_iterator::reference PtDB::smart_iterator::operator*() const
+{
+    return (reference)*wrap_it_;
+}
+
+PtDB::smart_iterator::pointer PtDB::smart_iterator::operator->() const
+{
+    return &(**this);
+}
+
+bool PtDB::smart_iterator::operator==(const smart_iterator& it) const
+{
+   // note that zombies are skip, that simplifies comparison
+   return wrap_it_ == it.wrap_it_;
+}
+
+bool PtDB::smart_iterator::operator!=(const smart_iterator& it) const
+{
+   // note that zombies are skip, that simplifies comparison
+   return !(*this == it);
+}
+
+PtDB::smart_iterator PtDB::smart_iterator::end() const
+{
+    // the end iterator matches the wrapped iterator one
+    smart_iterator tmp(ref_cont_);
+    tmp.wrap_it_ = ref_cont_.end();
+    return tmp;
+}
+
+
 // acceptable snapshot missalignment in ms
 std::chrono::milliseconds Snapshot::aceptable_offset_ = std::chrono::milliseconds(400);
 

@@ -4,36 +4,36 @@
   <!-- This test extends test_5_EDP_UDP.xml by introducing or removing the different entities at different times-->
   
   <servers>
-    <server name="server" profile_name="UDP server" creation_time="1" >
-      <subscriber topic="topic 1" creation_time="3" />
-      <publisher topic="topic 2" creation_time="5" />
+    <server name="server" profile_name="UDP server" creation_time="2" >
+      <subscriber topic="topic 1" creation_time="4" />
+      <publisher topic="topic 2" creation_time="6" />
     </server>
   </servers>
 
   <clients>
-    <client name="client1" profile_name="UDP client" removal_time="16">
-      <subscriber creation_time="7" removal_time="14" /> <!-- defaults to helloworld type -->
-      <subscriber topic="topic 2" creation_time="7" removal_time="14" />
-      <subscriber profile_name="Sub 1" creation_time="7" removal_time="14" />
-      <publisher profile_name="Pub 2" creation_time="12" />    
+    <client name="client1" profile_name="UDP client" removal_time="17">
+      <subscriber creation_time="8" removal_time="15" /> <!-- defaults to helloworld type -->
+      <subscriber topic="topic 2" creation_time="8" removal_time="15" />
+      <subscriber profile_name="Sub 1" creation_time="8" removal_time="15" />
+      <publisher profile_name="Pub 2" creation_time="13" />    
     </client>
-  <client name="client2" profile_name="UDP client" creation_time="9">
-      <publisher creation_time="10" />  <!-- defaults to helloworld type -->
-      <publisher topic="topic 1" creation_time="10" />
-      <publisher profile_name="Pub 1" creation_time="10" />
-      <subscriber profile_name="Sub 2" creation_time="10" />
+  <client name="client2" profile_name="UDP client" creation_time="10">
+      <publisher creation_time="11" />  <!-- defaults to helloworld type -->
+      <publisher topic="topic 1" creation_time="11" />
+      <publisher profile_name="Pub 1" creation_time="11" />
+      <subscriber profile_name="Sub 2" creation_time="11" />
     </client>
   </clients>
 
   <snapshots>
-      <snapshot time="2">Check client1 detects the server</snapshot>
-      <snapshot time="4">Check client1 detects server's subscriber</snapshot>
-      <snapshot time="6">Check client1 detects server's publisher</snapshot>
-      <snapshot time="8">Check server detects client1's subscribers</snapshot>
-      <snapshot time="11">Check server and client1 detects client2's and its entities</snapshot>
-      <snapshot time="13">Check everybody detects new client1's publisher</snapshot>
-      <snapshot time="15">Check everybody detects client1's subscribers' removal</snapshot>
-      <snapshot time="17" someone="false">Check server and client2 detects client1 removal</snapshot>
+      <snapshot time="3">Check client1 detects the server</snapshot>
+      <snapshot time="5">Check client1 detects server's subscriber</snapshot>
+      <snapshot time="7">Check client1 detects server's publisher</snapshot>
+      <snapshot time="9">Check server detects client1's subscribers</snapshot>
+      <snapshot time="12">Check server and client1 detects client2's and its entities</snapshot>
+      <snapshot time="14">Check everybody detects new client1's publisher</snapshot>
+      <snapshot time="16">Check everybody detects client1's subscribers' removal</snapshot>
+      <snapshot time="18" someone="false">Check server and client2 detects client1 removal</snapshot>
   </snapshots>
   
   <profiles>

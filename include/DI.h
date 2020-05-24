@@ -286,66 +286,19 @@ struct PtDB : public DI, public std::set<PtDI>
     {
         typedef PtDB::iterator wrapped_iterator;
 
-        smart_iterator(const PtDB& cont) : ref_cont_(cont), wrap_it_(cont.begin())
-        {
-            // ignore zombies
-            while( wrap_it_ != cont.end() && !wrap_it_->is_alive )
-            {
-                ++wrap_it_;
-            }
-        }
-
+        smart_iterator(const PtDB& cont);
         smart_iterator(const smart_iterator & it) : ref_cont_(it.ref_cont_), wrap_it_(it.wrap_it_) {}
 
-        smart_iterator operator++()
-        {
-            do
-            {
-                ++wrap_it_;
-            }
-            while( wrap_it_ != ref_cont_.end() && !wrap_it_->is_alive );
+        smart_iterator operator++();
+        smart_iterator operator++(int);
 
-            return *this;
-        }
+        reference operator*() const;
 
-        smart_iterator operator++(int)
-        {
-            smart_iterator tmp(*this);
+	    pointer operator->() const;
+        bool operator==(const smart_iterator& it) const;
+        bool operator!=(const smart_iterator& it) const;
 
-            operator++();
-
-            return tmp;
-        }
-
-        reference operator*() const
-		{
-            return (reference)*wrap_it_;
-		}
-
-	    pointer operator->() const
-		{
-            return &(**this);
-		}
-
-        bool operator==(const smart_iterator& it) const
-        {
-           // note that zombies are skip, that simplifies comparison
-           return wrap_it_ == it.wrap_it_;
-        }
-
-        bool operator!=(const smart_iterator& it) const
-        {
-           // note that zombies are skip, that simplifies comparison
-           return !(*this == it);
-        }
-
-        smart_iterator end() const
-        {
-            // the end iterator matches the wrapped iterator one
-            smart_iterator tmp(ref_cont_);
-            tmp.wrap_it_ = ref_cont_.end();
-            return tmp;
-        }
+        smart_iterator end() const;
 
         const PtDB& ref_cont_;
         wrapped_iterator wrap_it_;
@@ -369,20 +322,9 @@ struct PtDB : public DI, public std::set<PtDI>
     PtDB& operator=(const PtDB&) = default;
     PtDB& operator=(PtDB&&) = default;
 
-    smart_iterator sbegin() const
-    {
-        return smart_iterator(*this);
-    }
-
-    smart_iterator send() const
-    {
-        return smart_iterator(*this).end();
-    }
-
-    size_type real_size() const
-    {
-        return std::distance(sbegin(),send());
-    }
+    smart_iterator sbegin() const;
+    smart_iterator send() const;
+    size_type real_size() const;
 
     size_type CountParticipants() const;
     size_type CountSubscribers() const;
