@@ -126,7 +126,7 @@ bool PtDI::operator!=(
 
 std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtDI& di)
 {
-    os << "\t Participant ";
+    os << (di.is_alive ? "\t" : "\t Zombie" ) << " Participant ";
 
     if (!di.participant_name.empty())
     {
@@ -238,6 +238,83 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtD
 
     return os;
 }
+
+// wrap_iterator implementation
+
+PtDB::smart_iterator PtDB::sbegin() const
+{
+    return smart_iterator(*this);
+}
+
+PtDB::smart_iterator PtDB::send() const
+{
+    return smart_iterator(*this).end();
+}
+
+PtDB::size_type PtDB::real_size() const
+{
+    return std::distance(sbegin(),send());
+}
+
+PtDB::smart_iterator::smart_iterator(const PtDB& cont) : ref_cont_(cont), wrap_it_(cont.begin())
+{
+    // ignore zombies
+    while( wrap_it_ != cont.end() && !wrap_it_->is_alive )
+    {
+        ++wrap_it_;
+    }
+}
+
+PtDB::smart_iterator PtDB::smart_iterator::operator++()
+{
+    do
+    {
+        ++wrap_it_;
+    }
+    while( wrap_it_ != ref_cont_.end() && !wrap_it_->is_alive );
+
+    return *this;
+}
+
+PtDB::smart_iterator PtDB::smart_iterator::operator++(int)
+{
+    smart_iterator tmp(*this);
+
+    operator++();
+
+    return tmp;
+}
+
+PtDB::smart_iterator::reference PtDB::smart_iterator::operator*() const
+{
+    return (reference)*wrap_it_;
+}
+
+PtDB::smart_iterator::pointer PtDB::smart_iterator::operator->() const
+{
+    return &(**this);
+}
+
+bool PtDB::smart_iterator::operator==(const smart_iterator& it) const
+{
+   // note that zombies are skip, that simplifies comparison
+   return wrap_it_ == it.wrap_it_;
+}
+
+bool PtDB::smart_iterator::operator!=(const smart_iterator& it) const
+{
+   // note that zombies are skip, that simplifies comparison
+   return !(*this == it);
+}
+
+PtDB::smart_iterator PtDB::smart_iterator::end() const
+{
+    // the end iterator matches the wrapped iterator one
+    smart_iterator tmp(ref_cont_);
+    tmp.wrap_it_ = ref_cont_.end();
+    return tmp;
+}
+
 
 // acceptable snapshot missalignment in ms
 std::chrono::milliseconds Snapshot::aceptable_offset_ = std::chrono::milliseconds(400);
@@ -375,13 +452,13 @@ bool DI_database::AddEndPoint(
     PtDB & _database = image[spokesman];
     PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
-    if (it == _database.end() || *it != ptid )
+    if (it == _database.end() || ptid == spokesman )
     {
         // participant is no there, add a zombie participant
         it = _database.emplace_hint(it,ptid);
 
         // participant death acknowledge but not their owned endpoints
-        it->acknowledge(false);
+        it->acknowledge(ptid == spokesman);
     }
 
     // STL makes iterator const to prevent that any key changing unsorts the container
@@ -643,26 +720,29 @@ bool eprosima::discovery_server::operator==(
     // The only acceptable difference between participants discovery information is their own
     // I cannot use direct == on these sets
 
-    PtDB::const_iterator lit = l.begin(), rit = r.begin();
+    // Note that we must ignore the zombie participants (those reported dead but whose endpoints dead is not reported)
+    // Thus, we use and special iteration for convenience:
+
+    PtDB::smart_iterator lit = l.sbegin(), rit = r.sbegin();
     bool go = true;
 
     while(go)
     {
         // one of the list reach an end
-        if (lit == l.end())
+        if (lit == l.send())
         {
             // finish simultaneously or differ only in
             // each other discovery data
-            return (rit == r.end()
-                || ((rit->endpoint_guid == l.endpoint_guid || rit->endpoint_guid == r.endpoint_guid) && r.end() == ++rit));
+            return (rit == r.send()
+                || ((rit->endpoint_guid == l.endpoint_guid || rit->endpoint_guid == r.endpoint_guid) && r.send() == ++rit));
         }
 
-        if (rit == r.end())
+        if (rit == r.send())
         {
             // finish simultaneously or differ only in
             // each other discovery data
-            return (lit == l.end()
-                || ((lit->endpoint_guid == r.endpoint_guid || lit->endpoint_guid == l.endpoint_guid) && l.end() == ++lit));
+            return (lit == l.send()
+                || ((lit->endpoint_guid == r.endpoint_guid || lit->endpoint_guid == l.endpoint_guid) && l.send() == ++lit));
         }
 
         // comparing elements
@@ -687,7 +767,7 @@ bool eprosima::discovery_server::operator==(
             }
 
             if (lit->endpoint_guid == r.endpoint_guid
-               && (r.size() == l.size() || !go ))
+               && (r.real_size() == l.real_size() || !go ))
             {
                 go = true; // sweep over
                 ++lit;
