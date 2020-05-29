@@ -461,8 +461,22 @@ set_tests_properties( test_11_BACKUP PROPERTIES
     REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_11_BACKUP_server.xml
     REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_11_BACKUP_client.xml)
 
+# Testing discovery among participants in different processes & snapshot aggregation. 
+list(APPEND TEST_LIST test_12_interprocess)
+add_test(NAME test_12_interprocess COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_12_interprocess.py
+    $<TARGET_FILE:${PROJECT_NAME}>
+    ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_server.xml 
+    ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_client1.xml 
+    ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_client2.xml 
+    ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_client3.xml)
+set_tests_properties(test_12_interprocess PROPERTIES
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_server.xml
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_client1.xml
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_client2.xml
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_client3.xml)
+
 # specify a suitable timeout 
-set_tests_properties(${TEST_LIST} PROPERTIES TIMEOUT 25)
+set_tests_properties(${TEST_LIST} PROPERTIES TIMEOUT 40)
 
 # Windows requires an special treatment of environmental variables
 if(WIN32)

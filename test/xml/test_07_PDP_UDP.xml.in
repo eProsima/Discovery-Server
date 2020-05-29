@@ -5,9 +5,9 @@
   properly reconnect with the server when it's restored-->
   
   <servers>
-    <server name="server" profile_name="UDP server" removal_time="2" />
-    <server name="server" profile_name="UDP server" creation_time="4" removal_time="6" />
-    <server name="server" profile_name="UDP server" creation_time="8" removal_time="10" />
+    <server name="server" profile_name="UDP server" removal_time="3" />
+    <server name="server" profile_name="UDP server" creation_time="6" removal_time="9" />
+    <server name="server" profile_name="UDP server" creation_time="12" removal_time="15" />
   </servers>
 
   <clients>
@@ -18,12 +18,12 @@
   </clients>
 
   <snapshots>
-    <snapshot time="1">Check server-clients awareness</snapshot>
-    <snapshot time="3">Check server demise has been reported to all clients</snapshot>
-    <snapshot time="5">Check server-clients awareness has been recovered</snapshot>
-    <snapshot time="7">Check server demise has been reported to all clients</snapshot>
-    <snapshot time="9">Check server-clients awareness has been recovered</snapshot>
+    <snapshot time="2">Check server-clients awareness</snapshot>
+    <snapshot time="5">Check server demise has been reported to all clients</snapshot>
+    <snapshot time="8">Check server-clients awareness has been recovered</snapshot>
     <snapshot time="11">Check server demise has been reported to all clients</snapshot>
+    <snapshot time="14">Check server-clients awareness has been recovered</snapshot>
+    <snapshot time="17">Check server demise has been reported to all clients</snapshot>
   </snapshots>
   
   <profiles>

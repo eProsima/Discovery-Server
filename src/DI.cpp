@@ -1016,11 +1016,15 @@ void Snapshot::from_xml(
                     ptdi_guid.guidPrefix = guidPrefix;
                     ptdi_guid.entityId = entityId;
                 }
-                PtDI ptdi(ptdi_guid);
 
-                pPtdi->QueryBoolAttribute(s_sServer.c_str(), &ptdi.is_server);
+                PtDI ptdi(
+                    ptdi_guid,
+                    pPtdi->Attribute(s_sName.c_str()),
+                    pPtdi->BoolAttribute(s_sServer.c_str()),
+                    process_startup_ + std::chrono::milliseconds(pPtdi->Int64Attribute(s_sDiscovered_timestamp.c_str()))
+                    );
+
                 pPtdi->QueryBoolAttribute(s_sAlive.c_str(), &ptdi.is_alive);
-                ptdi.participant_name = pPtdi->Attribute(s_sName.c_str());
                 //std::cout << "PTDI: " << ptdi.id_ << std::endl;
 
                 for(XMLElement* pSub = pPtdi->FirstChildElement(s_sSubscriber.c_str());
