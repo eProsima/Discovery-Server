@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+  
+  <clients>
+    <client name="client1" profile_name="UDP client">
+      <publisher removal_time="28" />
+      <subscriber profile_name="Sub 1" creation_time="7" removal_time="28"/>
+      <subscriber profile_name="Sub 2" creation_time="13" removal_time="31"/>
+    </client>
+  </clients>
+ 
+  <snapshots file="snapshot_client1.xml">
+    <snapshot time="3">2 clients (1 and 2) with a publisher each</snapshot>
+    <snapshot time="6">a new subscriber on client 2</snapshot>
+    <snapshot time="9">a new subscriber on client 1</snapshot>
+    <snapshot time="12">a new subscriber on client 2</snapshot>
+    <snapshot time="15">a new subscriber on client 1</snapshot>
+    <snapshot time="18">a client 3 with a new subscriber</snapshot>
+    <snapshot time="21">subscriber and publisher removal on client 2 and a new publisher on client 3</snapshot>
+    <snapshot time="24">client 2 removal a new subscriber on client 3</snapshot>
+    <snapshot time="27">subscriber removal on client 3</snapshot>
+    <snapshot time="30">publisher and subscriber removal on client 1</snapshot>
+    <snapshot time="33">a subscriber removal on client 1</snapshot>
+    <snapshot time="36">a publisher and subscriber removal on client 3</snapshot>
+  </snapshots>
+
+  <profiles>
+    
+    <participant profile_name="UDP client" >
+      <rtps>
+        <builtin>
+            <discovery_config>
+                <discoveryProtocol>CLIENT</discoveryProtocol>
+                <discoveryServersList>
+                    <RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
+                        <metatrafficUnicastLocatorList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>${RANDOM_PORT}</port>
+                                </udpv4>
+                            </locator>
+                        </metatrafficUnicastLocatorList>
+                    </RemoteServer>
+                </discoveryServersList>
+            </discovery_config>
+        </builtin>
+      </rtps>
+    </participant>
+    
+    <publisher profile_name="Pub 1">
+      <topic>
+        <name>topic_1</name>
+        <dataType>sample_type_1</dataType>
+      </topic>
+    </publisher>
+
+    <publisher profile_name="Pub 2">
+      <topic>
+        <name>topic_2</name>
+        <dataType>sample_type_2</dataType>
+      </topic>
+    </publisher>
+
+    <subscriber profile_name="Sub 1">
+      <topic>
+        <name>topic_1</name>
+        <dataType>sample_type_1</dataType> 
+      </topic>
+    </subscriber>
+
+    <subscriber profile_name="Sub 2">
+      <topic>
+        <name>topic_2</name>
+        <dataType>sample_type_2</dataType>
+      </topic>
+    </subscriber>
+
+    <topic profile_name="topic 1">
+      <name>topic_1</name>
+      <dataType>sample_type_1</dataType>
+    </topic>
+
+    <topic profile_name="topic 2">
+      <name>topic_2</name>
+      <dataType>sample_type_2</dataType>
+    </topic>
+ 
+  </profiles>
+
+  <types>
+    <type>
+      <struct name="sample_type_1">
+        <member name="index" type="uint32" />
+        <member name="message" type="string" />
+      </struct>
+    </type>
+
+    <type>
+      <union name="sample_type_2">
+        <discriminator type="byte" />
+        <case>
+          <caseDiscriminator value="0" />
+          <member name="index" type="uint32" />
+        </case>
+        <case>
+          <caseDiscriminator value="1" />
+          <member name="message" type="string" />
+        </case>
+      </union>
+    </type>
+  
+  </types>
+  
+</DS>

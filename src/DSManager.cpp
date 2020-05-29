@@ -1551,15 +1551,7 @@ void DSManager::onSubscriberDiscovery(
             info.info.topicName().to_string(), callback_time);
         break;
     case DS::REMOVED_READER:
-    {
-        // only notify if participant is alive
-        GUID_t guid;
-        iHandle2GUID(guid, info.info.RTPSParticipantKey());
-        if (getParticipant(guid))
-        {
-            state.RemoveSubscriber(srcGuid, partid, subsid);
-        }
-    }
+        state.RemoveSubscriber(srcGuid, partid, subsid);
         break;
     default:
         break;
@@ -1637,15 +1629,7 @@ void  DSManager::onPublisherDiscovery(
             callback_time);
         break;
     case DS::REMOVED_WRITER:
-    {
-        // only notify if participant is alive
-        GUID_t guid;
-        iHandle2GUID(guid, info.info.RTPSParticipantKey());
-        if (getParticipant(guid))
-        {
-            state.RemovePublisher(srcGuid, partid, pubsid);
-        }
-    }
+        state.RemovePublisher(srcGuid, partid, pubsid);
         break;
     default:
         break;
@@ -1859,6 +1843,12 @@ bool DSManager::loadSnapshots(
     }
 
     XMLNode * pRoot = xmlDoc.FirstChildElement(s_sDS_Snapshots.c_str());
+
+    if(nullptr == pRoot)
+    {
+        LOG_ERROR("Not a valid Snapshot file wrong root element: " << file);
+        return false;
+    }
 
     snapshots_list::iterator it;
     bool inserter = snapshots.empty();
