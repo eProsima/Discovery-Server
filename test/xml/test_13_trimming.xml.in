@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="true">
+  
+  <!-- This test verifies that:
+    - the clients info is removed from the server PDP writer once they are removed 
+    - the subscribers info is removed from the server EDP subscribers writer once they are removed 
+    - the publishers info is removed from the server EDP publishers writer once they are removed 
+    - the server is killed at 12s when only client2 with one publisher and one subscriber are present.
+    -->
+  
+  <servers>
+    <server name="server" profile_name="UDP server" />
+  </servers>
+
+  <clients>
+    <client name="client1" profile_name="UDP client" removal_time="10" >
+        <subscriber topic="topic 2" removal_time="6" />
+        <subscriber profile_name="Sub 1" creation_time="2" removal_time="8" />
+        <publisher profile_name="Pub 2" creation_time="4" />    
+    </client>
+    <client name="client2" profile_name="UDP client" creation_time="5" >
+      <publisher topic="topic 1" removal_time="8" />
+      <publisher profile_name="Pub 1" creation_time="7" />
+      <subscriber profile_name="Sub 2" creation_time="9" />
+    </client>
+  </clients>
+
+  <profiles>
+    
+    <participant profile_name="UDP client" >
+      <rtps>
+        <builtin>
+            <discovery_config>
+                <discoveryProtocol>CLIENT</discoveryProtocol>
+                <discoveryServersList>
+                    <RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
+                        <metatrafficUnicastLocatorList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>${RANDOM_PORT}</port>
+                                </udpv4>
+                            </locator>
+                        </metatrafficUnicastLocatorList>
+                    </RemoteServer>
+                </discoveryServersList>
+            </discovery_config>
+        </builtin>
+      </rtps>
+    </participant>
+    
+    <participant profile_name="UDP server">
+      <rtps>
+        <prefix>
+          4D.49.47.55.45.4c.5f.42.41.52.52.4f
+        </prefix>
+        <builtin>
+            <discovery_config>
+                <discoveryProtocol>BACKUP</discoveryProtocol>
+            </discovery_config>
+          <metatrafficUnicastLocatorList>
+            <locator>
+              <udpv4>
+                <address>127.0.0.1</address>
+                <port>${RANDOM_PORT}</port>
+              </udpv4>
+            </locator>
+          </metatrafficUnicastLocatorList>
+        </builtin>        
+      </rtps>
+    </participant>
+    
+    <publisher profile_name="Pub 1">
+      <topic>
+        <name>topic_1</name>
+        <dataType>sample_type_1</dataType>
+      </topic>
+    </publisher>
+
+    <publisher profile_name="Pub 2">
+      <topic>
+        <name>topic_2</name>
+        <dataType>sample_type_2</dataType>
+      </topic>
+    </publisher>
+
+    <subscriber profile_name="Sub 1">
+      <topic>
+        <name>topic_1</name>
+        <dataType>sample_type_1</dataType> 
+      </topic>
+    </subscriber>
+
+    <subscriber profile_name="Sub 2">
+      <topic>
+        <name>topic_2</name>
+        <dataType>sample_type_2</dataType>
+      </topic>
+    </subscriber>
+
+    <topic profile_name="topic 1">
+      <name>topic_1</name>
+      <dataType>sample_type_1</dataType>
+    </topic>
+
+    <topic profile_name="topic 2">
+      <name>topic_2</name>
+      <dataType>sample_type_2</dataType>
+    </topic>
+ 
+  </profiles>
+
+  <types>
+    <type>
+      <struct name="sample_type_1">
+        <member name="index" type="uint32" />
+        <member name="message" type="string" />
+      </struct>
+    </type>
+
+    <type>
+      <union name="sample_type_2">
+        <discriminator type="byte" />
+        <case>
+          <caseDiscriminator value="0" />
+          <member name="index" type="uint32" />
+        </case>
+        <case>
+          <caseDiscriminator value="1" />
+          <member name="message" type="string" />
+        </case>
+      </union>
+    </type>
+  
+  </types>
+  
+</DS>

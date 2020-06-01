@@ -475,6 +475,14 @@ set_tests_properties(test_12_interprocess PROPERTIES
     REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_client2.xml
     REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_client3.xml)
 
+# Testing trimming mechanism in PDP and EDP 
+list(APPEND TEST_LIST test_13_trimming)
+add_test(NAME test_13_trimming COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_13_trimming.py
+    $<TARGET_FILE:${PROJECT_NAME}>
+    ${CMAKE_CURRENT_BINARY_DIR}/test_13_trimming.xml)
+set_tests_properties(test_13_trimming PROPERTIES
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_13_trimming.xml)
+
 # specify a suitable timeout 
 set_tests_properties(${TEST_LIST} PROPERTIES TIMEOUT 40)
 
