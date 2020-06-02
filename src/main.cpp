@@ -24,7 +24,9 @@ int main(int argc, char * argv[])
         Log::SetVerbosity(Log::Kind::Error);
     #endif
 
-    Log::SetCategoryFilter(std::regex("(RTPS_PARTICIPANT)|(DISCOVERY_SERVER)|(SERVER_PDP_THREAD)|(CLIENT_PDP_THREAD)"));
+    Log::SetCategoryFilter(
+        std::regex("(RTPS_PDPSERVER_TRIM)|(RTPS_PARTICIPANT)|(DISCOVERY_SERVER)"
+                   "|(SERVER_PDP_THREAD)|(CLIENT_PDP_THREAD)"));
 
     int return_code = 0;
 

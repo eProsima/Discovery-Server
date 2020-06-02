@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="true">
-  
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
   <!-- This test verifies that:
-    - the clients info is removed from the server PDP writer once they are removed 
+    - the clients info is removed from the server PDP writer once they are removed:
+        + on local clients destroyed properly to check disposal case.
+        + on remote clients kill by the system to check drop case.
+        Note lease duration has been reduced to 6 seconds in order to allow the server to drop the client.
     - the subscribers info is removed from the server EDP subscribers writer once they are removed 
     - the publishers info is removed from the server EDP publishers writer once they are removed 
     - the server is killed at 12s when only client2 with one publisher and one subscriber are present.
     -->
-  
+
   <servers>
     <server name="server" profile_name="UDP server" />
   </servers>
@@ -16,7 +19,7 @@
     <client name="client1" profile_name="UDP client" removal_time="10" >
         <subscriber topic="topic 2" removal_time="6" />
         <subscriber profile_name="Sub 1" creation_time="2" removal_time="8" />
-        <publisher profile_name="Pub 2" creation_time="4" />    
+        <publisher profile_name="Pub 2" creation_time="4" />
     </client>
     <client name="client2" profile_name="UDP client" creation_time="5" >
       <publisher topic="topic 1" removal_time="8" />
@@ -25,9 +28,13 @@
     </client>
   </clients>
 
+  <snapshots>
+    <snapshot time="20">Dummy snapshot will never be taken</snapshot>
+  </snapshots>
+
   <profiles>
-    
-    <participant profile_name="UDP client" >
+
+     <participant profile_name="UDP client" >
       <rtps>
         <builtin>
             <discovery_config>
@@ -44,11 +51,17 @@
                         </metatrafficUnicastLocatorList>
                     </RemoteServer>
                 </discoveryServersList>
+                <leaseAnnouncement>
+                    <sec>2</sec>
+                </leaseAnnouncement>
+                <leaseDuration>
+                    <sec>6</sec>
+                </leaseDuration>
             </discovery_config>
         </builtin>
       </rtps>
     </participant>
-    
+
     <participant profile_name="UDP server">
       <rtps>
         <prefix>
@@ -57,6 +70,12 @@
         <builtin>
             <discovery_config>
                 <discoveryProtocol>BACKUP</discoveryProtocol>
+                <leaseAnnouncement>
+                    <sec>2</sec>
+                </leaseAnnouncement>
+                <leaseDuration>
+                    <sec>6</sec>
+                </leaseDuration>
             </discovery_config>
           <metatrafficUnicastLocatorList>
             <locator>
@@ -69,7 +88,7 @@
         </builtin>        
       </rtps>
     </participant>
-    
+
     <publisher profile_name="Pub 1">
       <topic>
         <name>topic_1</name>
@@ -107,7 +126,7 @@
       <name>topic_2</name>
       <dataType>sample_type_2</dataType>
     </topic>
- 
+
   </profiles>
 
   <types>
@@ -131,7 +150,7 @@
         </case>
       </union>
     </type>
-  
+
   </types>
-  
+
 </DS>
