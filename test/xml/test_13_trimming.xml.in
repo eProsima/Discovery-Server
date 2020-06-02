@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="true">
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
   
   <!-- This test verifies that:
     - the clients info is removed from the server PDP writer once they are removed 
@@ -25,6 +25,10 @@
     </client>
   </clients>
 
+  <snapshots>
+    <snapshot time="20">Dummy snapshot will never be taken</snapshot>
+  </snapshots>
+ 
   <profiles>
     
     <participant profile_name="UDP client" >
