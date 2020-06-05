@@ -56,7 +56,7 @@
     <profiles>
         <transport_descriptors>
             <transport_descriptor>
-                <transport_id>wifi_only_transport</transport_id>
+                <transport_id>loopback_only_transport</transport_id>
                 <type>UDPv4</type>
                 <interfaceWhiteList>
                     <address>127.0.0.1</address>
@@ -68,7 +68,7 @@
             <domainId>${RANDOM_DOMAIN}</domainId>
             <rtps>
                 <userTransports>
-                    <transport_id>wifi_only_transport</transport_id>
+                    <transport_id>loopback_only_transport</transport_id>
                 </userTransports>
                 <useBuiltinTransports>false</useBuiltinTransports>
             </rtps>
