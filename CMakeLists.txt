@@ -379,6 +379,9 @@ foreach(TEST_XML ${${PROJECT_NAME}_xml_tests})
         # making up domain number
         random_port(1 120 RANDOM_DOMAIN)
         math(EXPR RANDOM_DOMAIN ${RANDOM_DOMAIN}) # removing leading 0s
+        # keep in a specific list the values for each test for later use
+        set(DS_TEST_${NEW_TEST_NUMBER}_PORTS
+                ${RANDOM_PORT} ${RANDOM_PORT_2} ${RANDOM_PORT_3} ${RANDOM_PORT_4} ${RANDOM_PORT_5} ${RANDOM_DOMAI})
     endif()
 
     set(LAST_TEST_NUMBER ${NEW_TEST_NUMBER})
@@ -488,6 +491,27 @@ set_tests_properties(test_13_trimming PROPERTIES
     REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_13_trimming_client.xml
     )
 
+# Testing setup using the ROS_DISCOVERY_SERVER environment variable
+list(APPEND TEST_LIST test_14_environment_variable_setup)
+add_test(NAME test_14_environment_variable_setup
+        COMMAND ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_14_environment_variable_setup.xml)
+list(GET DS_TEST_14_PORTS 0 CHOSEN_PORT)
+set_tests_properties(test_14_environment_variable_setup PROPERTIES
+        ENVIRONMENT ROS_DISCOVERY_SERVER=127.0.0.1:${CHOSEN_PORT}
+        REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_14_environment_variable_setup.xml)
+
+# Testing fast-discovery-server tool capacity of launching servers
+list(APPEND TEST_LIST test_15_server_creation_tool)
+list(GET DS_TEST_15_PORTS 0 CHOSEN_PORT)
+add_test(NAME test_15_server_creation_tool COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_15_fds.py
+    $<$<TARGET_EXISTS:fastdds::fast-discovery-server>:$<TARGET_FILE:fastdds::fast-discovery-server>>
+    ${CHOSEN_PORT}
+    $<TARGET_FILE:${PROJECT_NAME}>
+    ${CMAKE_CURRENT_BINARY_DIR}/test_15_fds.xml)
+set_tests_properties(test_15_server_creation_tool PROPERTIES
+        REQUIRED_FILES "${CMAKE_CURRENT_BINARY_DIR}/test_15_fds.xml;${TEST_PYTHON_FILES_DIR}test_15_fds.py"
+        DISABLED $<NOT:$<TARGET_EXISTS:fastdds::fast-discovery-server>>)
+
 # specify a suitable timeout 
 set_tests_properties(${TEST_LIST} PROPERTIES TIMEOUT 40)
 
@@ -546,7 +570,7 @@ if(WIN32)
     #message(STATUS ${TEST_ENVIRONMENT_DEPENDENCIES})
 
     # make sure the target dependencies we found override others already installed when loading dlls 
-    set_tests_properties(${TEST_LIST} PROPERTIES ENVIRONMENT "PATH=${TEST_ENVIRONMENT_DEPENDENCIES}\\;${WINDOWS_PATH_VARIABLE}" )
+    set_property(TEST ${TEST_LIST} APPEND PROPERTY ENVIRONMENT "PATH=${TEST_ENVIRONMENT_DEPENDENCIES}\\;${WINDOWS_PATH_VARIABLE}" )
 
 endif()
 
