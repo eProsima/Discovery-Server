@@ -500,6 +500,16 @@ set_tests_properties(test_14_environment_variable_setup PROPERTIES
         ENVIRONMENT ROS_DISCOVERY_SERVER=127.0.0.1:${CHOSEN_PORT}
         REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_14_environment_variable_setup.xml)
 
+# Testing fast-discovery-server tool capacity of launching servers
+list(APPEND TEST_LIST test_15_server_creation_tool)
+add_test(NAME test_15_server_creation_tool COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_15_fds.py
+    $<TARGET_FILE:fastdds::fast-discovery-server>
+#   $<$<TARGET_EXISTS:fastdds::fast-discovery-server>:$<TARGET_FILE:fastdds::fast-discovery-server>>
+    ${CMAKE_CURRENT_BINARY_DIR}/test_15_fds.xml)
+set_tests_properties(test_15_server_creation_tool PROPERTIES
+        REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_15_fds.xml
+        DISABLED $<NOT:$<TARGET_EXISTS:fastdds::fast-discovery-server>>)
+
 # specify a suitable timeout 
 set_tests_properties(${TEST_LIST} PROPERTIES TIMEOUT 40)
 
