@@ -4,7 +4,7 @@
   <!-- This test extends test_5_EDP_UDP.xml by introducing or removing the different entities at different times-->
   
   <servers>
-    <server name="server" profile_name="UDP server" creation_time="2" >
+    <server name="server" profile_name="UDP server" creation_time="1" >
       <subscriber topic="topic 1" creation_time="4" />
       <publisher topic="topic 2" creation_time="6" />
     </server>

@@ -502,12 +502,14 @@ set_tests_properties(test_14_environment_variable_setup PROPERTIES
 
 # Testing fast-discovery-server tool capacity of launching servers
 list(APPEND TEST_LIST test_15_server_creation_tool)
+list(GET DS_TEST_15_PORTS 0 CHOSEN_PORT)
 add_test(NAME test_15_server_creation_tool COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_15_fds.py
-    $<TARGET_FILE:fastdds::fast-discovery-server>
-#   $<$<TARGET_EXISTS:fastdds::fast-discovery-server>:$<TARGET_FILE:fastdds::fast-discovery-server>>
+    $<$<TARGET_EXISTS:fastdds::fast-discovery-server>:$<TARGET_FILE:fastdds::fast-discovery-server>>
+    ${CHOSEN_PORT}
+    $<TARGET_FILE:${PROJECT_NAME}>
     ${CMAKE_CURRENT_BINARY_DIR}/test_15_fds.xml)
 set_tests_properties(test_15_server_creation_tool PROPERTIES
-        REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_15_fds.xml
+        REQUIRED_FILES "${CMAKE_CURRENT_BINARY_DIR}/test_15_fds.xml;${TEST_PYTHON_FILES_DIR}test_15_fds.py"
         DISABLED $<NOT:$<TARGET_EXISTS:fastdds::fast-discovery-server>>)
 
 # specify a suitable timeout 
