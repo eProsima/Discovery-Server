@@ -330,7 +330,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr
 # This is convenient because on installation all bins share folder
 set_target_properties(${PROJECT_NAME} PROPERTIES RELEASE_POSTFIX -${PROJECT_VERSION})
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX -${PROJECT_VERSION}d)
-	
+set_target_properties(${PROJECT_NAME} PROPERTIES MINSIZEREL_POSTFIX -${PROJECT_VERSION}m)
+set_target_properties(${PROJECT_NAME} PROPERTIES RELWITHDEBINFO_POSTFIX -${PROJECT_VERSION}rd)
 
 ###############################################################################
 # Testing 
@@ -479,9 +480,13 @@ set_tests_properties(test_12_interprocess PROPERTIES
 list(APPEND TEST_LIST test_13_trimming)
 add_test(NAME test_13_trimming COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_13_trimming.py
     $<TARGET_FILE:${PROJECT_NAME}>
-    ${CMAKE_CURRENT_BINARY_DIR}/test_13_trimming.xml)
+    ${CMAKE_CURRENT_BINARY_DIR}/test_13_trimming_server.xml
+    ${CMAKE_CURRENT_BINARY_DIR}/test_13_trimming_client.xml
+    )
 set_tests_properties(test_13_trimming PROPERTIES
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_13_trimming.xml)
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_13_trimming_server.xml
+    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_13_trimming_client.xml
+    )
 
 # specify a suitable timeout 
 set_tests_properties(${TEST_LIST} PROPERTIES TIMEOUT 40)
