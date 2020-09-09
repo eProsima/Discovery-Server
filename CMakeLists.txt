@@ -510,7 +510,8 @@ add_test(NAME test_15_server_creation_tool COMMAND ${PYTHON_EXECUTABLE} ${TEST_P
     ${CMAKE_CURRENT_BINARY_DIR}/test_15_fds.xml)
 set_tests_properties(test_15_server_creation_tool PROPERTIES
         REQUIRED_FILES "${CMAKE_CURRENT_BINARY_DIR}/test_15_fds.xml;${TEST_PYTHON_FILES_DIR}test_15_fds.py"
-        DISABLED $<NOT:$<TARGET_EXISTS:fastdds::fast-discovery-server>>)
+        # DISABLED $<NOT:$<TARGET_EXISTS:fastdds::fast-discovery-server>>)
+        DISABLED True) # this test is disabled while ci server issues are solved
 
 # specify a suitable timeout 
 set_tests_properties(${TEST_LIST} PROPERTIES TIMEOUT 40)
