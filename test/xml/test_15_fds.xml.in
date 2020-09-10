@@ -11,7 +11,7 @@
   </clients>
 
   <snapshots>
-    <snapshot time="3">Check all clients met the server and know each other</snapshot>
+    <snapshot time="5">Check all clients met the server and know each other</snapshot>
   </snapshots>
   
   <profiles>

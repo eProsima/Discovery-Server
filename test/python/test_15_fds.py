@@ -24,6 +24,7 @@ xml_config_path = sys.argv[4]           # '\\...\\discovery-server\\build64\\Deb
 
 # launch server and clients
 server = subprocess.Popen([fastserver_path, '-i',  '5', '-l', '127.0.0.1', '-p', f'{server_listening_port}'])
+server.wait(1) 
 clients = subprocess.Popen([discovery_path, xml_config_path])
 
 # wait till clients test is finished, then kill the server 
