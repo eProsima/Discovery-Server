@@ -452,7 +452,7 @@ set_tests_properties(test_09_WLP PROPERTIES
     REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_09_WLP_client.xml 
     REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_09_WLP_server.xml )
 
-# Testing server demise detection by clients
+# Testing discovery server tool delay creation capability using simple discovery to avoid false positives 
 list(APPEND TEST_LIST test_10_simple_PDP_EDP)
 add_test(NAME test_10_simple_PDP_EDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_10_simple_PDP_EDP.xml)
 set_tests_properties(test_10_simple_PDP_EDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_10_simple_PDP_EDP.xml)

@@ -2,55 +2,55 @@
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
 
     <simples>
-        <simple name="simple1" removal_time="10" profile_name="OtherDomain">
+        <simple name="simple1" removal_time="20" profile_name="OtherDomain">
             <subscriber />
-            <subscriber removal_time="8" />
-            <subscriber creation_time="2" />
-            <subscriber creation_time="2" />
+            <subscriber removal_time="16" />
+            <subscriber creation_time="4" />
+            <subscriber creation_time="4" />
             <publisher />
-            <publisher removal_time="8" />
-            <publisher creation_time="2" />
-            <publisher creation_time="2" />
+            <publisher removal_time="16" />
+            <publisher creation_time="4" />
+            <publisher creation_time="4" />
         </simple>
-        <simple name="simple2" removal_time="10" profile_name="OtherDomain">
+        <simple name="simple2" removal_time="20" profile_name="OtherDomain">
             <subscriber />
-            <subscriber removal_time="8" />
-            <subscriber creation_time="2" />
-            <subscriber creation_time="2" />
+            <subscriber removal_time="16" />
+            <subscriber creation_time="4" />
+            <subscriber creation_time="4" />
             <publisher />
-            <publisher removal_time="8" />
-            <publisher creation_time="2" />
-            <publisher creation_time="2" />
+            <publisher removal_time="16" />
+            <publisher creation_time="4" />
+            <publisher creation_time="4" />
         </simple>
-        <simple name="simple3" creation_time="4" profile_name="OtherDomain">
+        <simple name="simple3" creation_time="8" profile_name="OtherDomain">
             <subscriber />
-            <subscriber removal_time="8" />
-            <subscriber creation_time="6" />
-            <subscriber creation_time="6" />
+            <subscriber removal_time="16" />
+            <subscriber creation_time="12" />
+            <subscriber creation_time="12" />
             <publisher />
-            <publisher removal_time="8" />
-            <publisher creation_time="6" />
-            <publisher creation_time="6" />
+            <publisher removal_time="16" />
+            <publisher creation_time="12" />
+            <publisher creation_time="12" />
         </simple>
-        <simple name="simple4" creation_time="4" profile_name="OtherDomain">
+        <simple name="simple4" creation_time="8" profile_name="OtherDomain">
             <subscriber />
-            <subscriber removal_time="8" />
-            <subscriber creation_time="6" />
-            <subscriber creation_time="6" />
+            <subscriber removal_time="16" />
+            <subscriber creation_time="12" />
+            <subscriber creation_time="12" />
             <publisher />
-            <publisher removal_time="8" />
-            <publisher creation_time="6" />
-            <publisher creation_time="6" />
+            <publisher removal_time="16" />
+            <publisher creation_time="12" />
+            <publisher creation_time="12" />
         </simple>
     </simples>
 
     <snapshots>
-        <snapshot time="1">Check simple1 and simple2 know each other and its endpoints</snapshot>
-        <snapshot time="3">Check simple1 and simple2 detect the late created endpoints</snapshot>
-        <snapshot time="5">Check simple1..4 detect the late created simple3..4 and its endpoints</snapshot>
-        <snapshot time="7">Check simple1..4 detect the late created simple3..4 endpoints</snapshot>
-        <snapshot time="9">Check simple1..4 detect the late removal of simple1..4 endpoints</snapshot>
-        <snapshot time="11">Check simple3..4 detect the late removal of simple1..2 and its endpoints</snapshot>
+        <snapshot time="2">Check simple1 and simple2 know each other and its endpoints</snapshot>
+        <snapshot time="6">Check simple1 and simple2 detect the late created endpoints</snapshot>
+        <snapshot time="10">Check simple1..4 detect the late created simple3..4 and its endpoints</snapshot>
+        <snapshot time="14">Check simple1..4 detect the late created simple3..4 endpoints</snapshot>
+        <snapshot time="18">Check simple1..4 detect the late removal of simple1..4 endpoints</snapshot>
+        <snapshot time="22">Check simple3..4 detect the late removal of simple1..2 and its endpoints</snapshot>
     </snapshots>
 
     <profiles>
@@ -65,7 +65,7 @@
         </transport_descriptors>
 
         <participant profile_name="OtherDomain">
-            <domainId>${RANDOM_DOMAIN}</domainId>
+            <domainId>34</domainId>
             <rtps>
                 <userTransports>
                     <transport_id>loopback_only_transport</transport_id>
