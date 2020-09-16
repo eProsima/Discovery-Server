@@ -661,14 +661,14 @@ void DSManager::loadServer(
 
     if (server_list != nullptr)
     {
-        RemoteServerList_t& list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
+        fastdds::rtps::RemoteServerList_t& list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
         list.clear(); // server elements take precedence over profile ones
 
         tinyxml2::XMLElement * rserver = server_list->FirstChildElement(s_sRServer.c_str());
 
         while (rserver != nullptr)
         {
-            RemoteServerList_t::value_type srv;
+            fastdds::rtps::RemoteServerList_t::value_type srv;
             GuidPrefix_t& prefix = srv.guidPrefix;
 
             // load the prefix
@@ -794,7 +794,7 @@ void DSManager::loadClient(
     const char* server = client->Attribute(s_sServer.c_str());
     if (server != nullptr)
     {
-        RemoteServerList_t::value_type srv;
+        fastdds::rtps::RemoteServerList_t::value_type srv;
         GuidPrefix_t & prefix = srv.guidPrefix;
 
         if (!(std::istringstream(server) >> prefix) &&
@@ -804,7 +804,7 @@ void DSManager::loadClient(
             return;
         }
 
-        RemoteServerList_t & list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
+        fastdds::rtps::RemoteServerList_t & list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
         list.clear(); // server elements take precedence over profile ones
 
         // load the locator lists
@@ -821,14 +821,14 @@ void DSManager::loadClient(
 
         if (server_list != nullptr)
         {
-            RemoteServerList_t & list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
+            fastdds::rtps::RemoteServerList_t & list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
             list.clear(); // server elements take precedence over profile ones
 
             tinyxml2::XMLElement * rserver = server_list->FirstChildElement(s_sRServer.c_str());
 
             while (rserver != nullptr)
             {
-                RemoteServerList_t::value_type srv;
+                fastdds::rtps::RemoteServerList_t::value_type srv;
                 GuidPrefix_t & prefix = srv.guidPrefix;
 
                 // load the prefix
