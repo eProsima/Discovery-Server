@@ -41,7 +41,7 @@ HelloWorldSubscriber::HelloWorldSubscriber()
 bool HelloWorldSubscriber::init(Locator_t server_address)
 {
 
-    RemoteServerAttributes ratt;
+    eprosima::fastdds::rtps::RemoteServerAttributes ratt;
     ratt.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
 
     ParticipantAttributes PParam;

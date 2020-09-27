@@ -46,7 +46,7 @@ bool HelloWorldPublisher::init(Locator_t server_address)
     m_hello.index(0);
     m_hello.message("HelloWorld");
 
-    RemoteServerAttributes ratt;
+    eprosima::fastdds::rtps::RemoteServerAttributes ratt;
     ratt.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
 
     ParticipantAttributes PParam;
