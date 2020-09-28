@@ -34,6 +34,7 @@
 #include <sstream>
 
 using namespace eprosima::fastrtps;
+using namespace eprosima::fastdds::rtps;
 using namespace eprosima::discovery_server;
 
 // non exported from fast-RTPS (watch out they may be updated)
