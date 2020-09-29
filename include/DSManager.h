@@ -35,7 +35,9 @@
 #include "DI.h"
 
 using namespace eprosima::fastrtps;
+using namespace eprosima::fastdds;
 using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds::rtps;
 
 namespace tinyxml2
 {
@@ -189,15 +191,15 @@ public:
     // callback discovery functions
     void onParticipantDiscovery(
         Participant* participant,
-        rtps::ParticipantDiscoveryInfo&& info) override;
+        ParticipantDiscoveryInfo&& info) override;
 
     void onSubscriberDiscovery(
         Participant* participant,
-        rtps::ReaderDiscoveryInfo&& info) override;
+        ReaderDiscoveryInfo&& info) override;
 
     void onPublisherDiscovery(
         Participant* participant,
-        rtps::WriterDiscoveryInfo&& info) override;
+        WriterDiscoveryInfo&& info) override;
 
     // callback liveliness functions
     void on_liveliness_changed(

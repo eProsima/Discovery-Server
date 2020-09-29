@@ -30,7 +30,9 @@
 #include <random>
 
 using namespace eprosima::fastrtps;
+using namespace eprosima::fastdds;
 using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds::rtps;
 
 HelloWorldSubscriber::HelloWorldSubscriber()
     : mp_participant(nullptr)
@@ -41,7 +43,7 @@ HelloWorldSubscriber::HelloWorldSubscriber()
 bool HelloWorldSubscriber::init(Locator_t server_address)
 {
 
-    eprosima::fastdds::rtps::RemoteServerAttributes ratt;
+    RemoteServerAttributes ratt;
     ratt.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
 
     ParticipantAttributes PParam;

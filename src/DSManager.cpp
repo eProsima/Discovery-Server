@@ -34,6 +34,9 @@
 #include <sstream>
 
 using namespace eprosima::fastrtps;
+using namespace eprosima::fastdds;
+using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds::rtps;
 using namespace eprosima::discovery_server;
 
 // non exported from fast-RTPS (watch out they may be updated)
@@ -476,6 +479,10 @@ types::DynamicPubSubType* DSManager::setType(
 void DSManager::loadProfiles(
         tinyxml2::XMLElement* profiles)
 {
+    LibrarySettingsAttributes lib_setting;
+    lib_setting.intraprocess_delivery = IntraprocessDeliveryType::INTRAPROCESS_OFF;
+    xmlparser::XMLProfileManager::library_settings(lib_setting);
+
     xmlparser::XMLP_ret ret = xmlparser::XMLProfileManager::loadXMLProfiles(*profiles);
 
     if (ret == xmlparser::XMLP_ret::XML_OK)
@@ -661,14 +668,14 @@ void DSManager::loadServer(
 
     if (server_list != nullptr)
     {
-        fastdds::rtps::RemoteServerList_t& list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
+        RemoteServerList_t& list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
         list.clear(); // server elements take precedence over profile ones
 
         tinyxml2::XMLElement * rserver = server_list->FirstChildElement(s_sRServer.c_str());
 
         while (rserver != nullptr)
         {
-            fastdds::rtps::RemoteServerList_t::value_type srv;
+            RemoteServerList_t::value_type srv;
             GuidPrefix_t& prefix = srv.guidPrefix;
 
             // load the prefix
@@ -777,7 +784,7 @@ void DSManager::loadClient(
     }
 
     // we must assert that DiscoveryProtocol is CLIENT
-    if (atts.rtps.builtin.discovery_config.discoveryProtocol != rtps::DiscoveryProtocol_t::CLIENT)
+    if (atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::CLIENT)
     {
         LOG_ERROR("DSManager::loadClient try to create a client with an incompatible profile: " << profile_name);
         return;
@@ -794,7 +801,7 @@ void DSManager::loadClient(
     const char* server = client->Attribute(s_sServer.c_str());
     if (server != nullptr)
     {
-        fastdds::rtps::RemoteServerList_t::value_type srv;
+        RemoteServerList_t::value_type srv;
         GuidPrefix_t & prefix = srv.guidPrefix;
 
         if (!(std::istringstream(server) >> prefix) &&
@@ -804,7 +811,7 @@ void DSManager::loadClient(
             return;
         }
 
-        fastdds::rtps::RemoteServerList_t & list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
+        RemoteServerList_t & list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
         list.clear(); // server elements take precedence over profile ones
 
         // load the locator lists
@@ -821,14 +828,14 @@ void DSManager::loadClient(
 
         if (server_list != nullptr)
         {
-            fastdds::rtps::RemoteServerList_t & list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
+            RemoteServerList_t & list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
             list.clear(); // server elements take precedence over profile ones
 
             tinyxml2::XMLElement * rserver = server_list->FirstChildElement(s_sRServer.c_str());
 
             while (rserver != nullptr)
             {
-                fastdds::rtps::RemoteServerList_t::value_type srv;
+                RemoteServerList_t::value_type srv;
                 GuidPrefix_t & prefix = srv.guidPrefix;
 
                 // load the prefix
@@ -1033,7 +1040,7 @@ void DSManager::loadSimple(
         }
 
         // we must assert that DiscoveryProtocol is CLIENT
-        if(atts.rtps.builtin.discovery_config.discoveryProtocol != rtps::DiscoveryProtocol_t::SIMPLE)
+        if(atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::SIMPLE)
         {
             LOG_ERROR("DSManager::loadSimple try to create a simple participant with an incompatible profile: " << profile_name);
             return;
@@ -1444,7 +1451,7 @@ void DSManager::MapServerInfo(
 
 void DSManager::onParticipantDiscovery(
         Participant* participant,
-        rtps::ParticipantDiscoveryInfo&& info)
+        ParticipantDiscoveryInfo&& info)
 {
     bool server = false;
     const GUID_t& partid = info.info.m_guid;
@@ -1490,7 +1497,7 @@ void DSManager::onParticipantDiscovery(
 
 void DSManager::onSubscriberDiscovery(
         Participant* participant,
-        rtps::ReaderDiscoveryInfo&& info)
+        ReaderDiscoveryInfo&& info)
 {
     typedef ReaderDiscoveryInfo::DISCOVERY_STATUS DS;
 
@@ -1564,7 +1571,7 @@ void DSManager::onSubscriberDiscovery(
 
 void  DSManager::onPublisherDiscovery(
         Participant* participant,
-        rtps::WriterDiscoveryInfo&& info)
+        WriterDiscoveryInfo&& info)
 {
     typedef WriterDiscoveryInfo::DISCOVERY_STATUS DS;
 

@@ -8,7 +8,9 @@
 
 using namespace eprosima;
 using namespace fastrtps;
-using namespace rtps;
+using namespace fastdds;
+using namespace fastrtps::rtps;
+using namespace fastdds::rtps;
 using namespace discovery_server;
 
 std::pair<std::set<std::string>, std::string> validationCommandLineParser(int argc, char * argv[]);
@@ -26,7 +28,8 @@ int main(int argc, char * argv[])
 
     Log::SetCategoryFilter(
         std::regex("(RTPS_PDPSERVER_TRIM)|(RTPS_PARTICIPANT)|(DISCOVERY_SERVER)"
-                   "|(SERVER_PDP_THREAD)|(CLIENT_PDP_THREAD)"));
+                   "|(SERVER_PDP_THREAD)|(CLIENT_PDP_THREAD)|(RTPS_HISTORY)|(RTPS_PDP)"
+                   "|(DISCOVERY_DATABASE)|(RTPS_PDP_LISTENER)"));
 
     int return_code = 0;
 
@@ -82,7 +85,7 @@ int main(int argc, char * argv[])
 
     Log::Flush();
     Domain::stopAll();
-    
+
     return return_code;
 
 }
