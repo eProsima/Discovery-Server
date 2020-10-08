@@ -88,9 +88,10 @@ if __name__ == '__main__':
     val = validation.Validation(args.snapshot)
 
     if val.validate():
-        print('The test results are correct.')
+        print(
+            f'Test result: {shared.bcolors.OK}PASS{shared.bcolors.ENDC}')
     else:
-        print('The test results are NOT correct.')
+        print(f'Test result: {shared.bcolors.RED}FAIL{shared.bcolors.ENDC}')
 
     if args.save_dicts:
         val.save_generated_json_files(

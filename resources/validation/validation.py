@@ -13,6 +13,7 @@
 # limitations under the License.
 """Script to validate an snapshot resulting from a Discovery-Server test."""
 import json
+import logging
 from pathlib import Path
 
 import jsondiff
@@ -27,13 +28,24 @@ class Validation(object):
 
     def __init__(
         self,
-        snapshot
+        snapshot,
+        debug=False,
+        logger=None
     ):
         """
         Build a validation object.
 
         Constructor of the validation class.
+
+        :param snapshot: Path to the snapshot xml file containing the
+            Discovery-Server test output.
+        :param logger: The logging object. VALIDATION if None logger is
+            provided.
+        :param debug: True/False to activate/deactivate debug logger.
         """
+        self.set_logger(logger, debug)
+        self.logger.debug('Creating an instance of {}'.format(type(self)))
+
         self.parse_xml_snapshot(snapshot)
         self.copy_dict = {'DS_Snapshots': {}}
         self.validate_dict = {'DS_Snapshots': {}}
@@ -75,20 +87,46 @@ class Validation(object):
         :param xml_file_path: The path to the xml snapshot.
         """
         if shared.get_file_extension(xml_file_path) != '.snapshot':
-            print(
+            raise ValueError(
                 f'The snapshot file \"{xml_file_path}\" '
                 'is not an .snapshot file')
-            return False
         xml_file_path = Path(xml_file_path).resolve()
         valid_path, xml_file = shared.is_valid_path(xml_file_path)
         if not valid_path:
-            print(f'NOT valid snapshot path: {xml_file}')
-            return False
+            raise ValueError(f'NOT valid snapshot path: {xml_file}')
 
         with open(xml_file_path) as xml_file:
             self.snapshot_dict = xmltodict.parse(xml_file.read())
 
         return self.snapshot_dict
+
+    def set_logger(self, logger, debug):
+        """
+        Instance the class logger.
+
+        :param logger: The logging object. VALIDATION if None logger is
+            provided.
+        :param debug: True/False to activate/deactivate debug logger.
+        """
+        if isinstance(logger, logging.Logger):
+            self.logger = logger
+        else:
+            l_handler = logging.StreamHandler()
+            l_format = '[%(asctime)s][%(name)s][%(levelname)s] %(message)s'
+            l_format = logging.Formatter(l_format)
+            l_handler.setFormatter(l_format)
+
+            if isinstance(logger, str):
+                self.logger = logging.getLogger(logger)
+                self.logger.addHandler(l_handler)
+            else:
+                self.logger = logging.getLogger('VALIDATION')
+                self.logger.addHandler(l_handler)
+
+        if debug:
+            self.logger.setLevel(logging.DEBUG)
+        else:
+            self.logger.setLevel(logging.INFO)
 
     def __create_copy_and_validate_dict(self):
         """
@@ -350,7 +388,6 @@ class Validation(object):
         data_dict_str = json.dumps(data_dict, indent=4)
         with open(json_file_path, 'w') as cp_file:
             cp_file.write(data_dict_str)
-
 
     def __dict_equal(self, dict_a, dict_b):
         """
