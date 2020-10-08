@@ -20,6 +20,23 @@ import jsondiff
 import xmltodict
 
 
+def str2bool(arg):
+    """
+    Convert a string argument to boolean.
+
+    :param arg: The string argument.
+    :raise: argparse.ArgumentTypeError if the argument is not valid.
+    """
+    if isinstance(arg, bool):
+        return arg
+    if arg.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif arg.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
 def dict2list(d):
     """
     Cast an item from a dictionary to a list if it is not already one.
@@ -337,6 +354,14 @@ def parse_options():
         help='Path to the xml file containing the snapshot data.'
     )
     parser.add_argument(
+        '--save-dicts',
+        type=str2bool,
+        nargs='?',
+        const=True,
+        default=False,
+        help='Save the generated dictionaries in json files.'
+    )
+    parser.add_argument(
         '-c',
         '--copy-dict',
         default='./copy_dict.json',
@@ -376,8 +401,6 @@ if __name__ == '__main__':
     else:
         print('The test results are NOT correct.')
 
-    write_json_file(copy_dict, args.copy_dict)
-    write_json_file(validate_dict, args.val_dict)
-
-    # print(json.dumps(copy_dict, indent=4))
-    # print(json.dumps(validate_dict, indent=4))
+    if (args.save_dicts):
+        write_json_file(copy_dict, args.copy_dict)
+        write_json_file(validate_dict, args.val_dict)
