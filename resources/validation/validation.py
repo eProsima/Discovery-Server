@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Script to validate an snapshot resulting from a Discovery-Server test."""
+import itertools
 import json
 import logging
 from pathlib import Path
@@ -214,7 +215,7 @@ class Validation(object):
                                 f"DS_Snapshot_{snapshot['@timestamp']}"][
                                 f"ptdb_{ptdb['@guid_prefix']}"][
                                 f"ptdi_{ptdi['@guid_prefix']}"][
-                                f'subcriber_{subscriber_guid}'] = {
+                                f'subscriber_{subscriber_guid}'] = {
                                     'topic': sub['@topic'],
                                     'guid': subscriber_guid
                                 }
@@ -224,7 +225,7 @@ class Validation(object):
                                     f"DS_Snapshot_{snapshot['@timestamp']}"][
                                     f"ptdb_{ptdb['@guid_prefix']}"][
                                     f"ptdi_{ptdi['@guid_prefix']}"][
-                                    f'subcriber_{subscriber_guid}'] = {
+                                    f'subscriber_{subscriber_guid}'] = {
                                         'topic': sub['@topic'],
                                         'guid': subscriber_guid
                                     }
@@ -284,33 +285,35 @@ class Validation(object):
                 gen_ptdi = (
                     ptdi for ptdi in self.__dict2list(ptdb['ptdi'])
                     if 'subscriber' in (x.lower() for x in ptdi.keys()))
-                for sub in self.__dict2list(next(gen_ptdi)['subscriber']):
-                    if topic == sub['@topic']:
-                        v_ptdb = self.validate_dict[
-                                'DS_Snapshots'][
-                                ('DS_Snapshot_'
-                                    f"{snapshot['@timestamp']}")][
-                                f"ptdb_{ptdb['@guid_prefix']}"]
-                        if (f'ptdi_{ptdi_guid_prefix}'
-                                not in v_ptdb.keys()):
+                gen_ptdi = self.__has_next(gen_ptdi)
+                if gen_ptdi is not None:
+                    for sub in self.__dict2list(next(gen_ptdi)['subscriber']):
+                        if topic == sub['@topic']:
+                            v_ptdb = self.validate_dict[
+                                    'DS_Snapshots'][
+                                    ('DS_Snapshot_'
+                                        f"{snapshot['@timestamp']}")][
+                                    f"ptdb_{ptdb['@guid_prefix']}"]
+                            if (f'ptdi_{ptdi_guid_prefix}'
+                                    not in v_ptdb.keys()):
+                                self.validate_dict[
+                                    'DS_Snapshots'][
+                                    ('DS_Snapshot_'
+                                        f"{snapshot['@timestamp']}")][
+                                    f"ptdb_{ptdb['@guid_prefix']}"][
+                                    f'ptdi_{ptdi_guid_prefix}'] = {
+                                        'guid_prefix': ptdi_guid_prefix
+                                    }
+
                             self.validate_dict[
                                 'DS_Snapshots'][
-                                ('DS_Snapshot_'
-                                    f"{snapshot['@timestamp']}")][
+                                f"DS_Snapshot_{snapshot['@timestamp']}"][
                                 f"ptdb_{ptdb['@guid_prefix']}"][
-                                f'ptdi_{ptdi_guid_prefix}'] = {
-                                    'guid_prefix': ptdi_guid_prefix
+                                f'ptdi_{ptdi_guid_prefix}'][
+                                f'publisher_{publisher_guid}'] = {
+                                        'topic': topic,
+                                        'guid': publisher_guid
                                 }
-
-                        self.validate_dict[
-                            'DS_Snapshots'][
-                            f"DS_Snapshot_{snapshot['@timestamp']}"][
-                            f"ptdb_{ptdb['@guid_prefix']}"][
-                            f'ptdi_{ptdi_guid_prefix}'][
-                            f'publisher_{publisher_guid}'] = {
-                                    'topic': topic,
-                                    'guid': publisher_guid
-                            }
 
     def __fill_matching_subscriber_data(
         self,
@@ -340,31 +343,33 @@ class Validation(object):
                 gen_ptdi = (
                     ptdi for ptdi in self.__dict2list(ptdb['ptdi'])
                     if 'publisher' in (x.lower() for x in ptdi.keys()))
-                for pub in self.__dict2list(next(gen_ptdi)['publisher']):
-                    if topic == pub['@topic']:
-                        v_ptdb = self.validate_dict[
-                                'DS_Snapshots'][
-                                f"DS_Snapshot_{snapshot['@timestamp']}"][
-                                f"ptdb_{ptdb['@guid_prefix']}"]
-                        if (f'ptdi_{ptdi_guid_prefix}'
-                                not in v_ptdb.keys()):
+                gen_ptdi = self.__has_next(gen_ptdi)
+                if gen_ptdi is not None:
+                    for pub in self.__dict2list(next(gen_ptdi)['publisher']):
+                        if topic == pub['@topic']:
+                            v_ptdb = self.validate_dict[
+                                    'DS_Snapshots'][
+                                    f"DS_Snapshot_{snapshot['@timestamp']}"][
+                                    f"ptdb_{ptdb['@guid_prefix']}"]
+                            if (f'ptdi_{ptdi_guid_prefix}'
+                                    not in v_ptdb.keys()):
+                                self.validate_dict[
+                                    'DS_Snapshots'][
+                                    f"DS_Snapshot_{snapshot['@timestamp']}"][
+                                    f"ptdb_{ptdb['@guid_prefix']}"][
+                                    f'ptdi_{ptdi_guid_prefix}'] = {
+                                        'guid_prefix': ptdi_guid_prefix
+                                    }
+
                             self.validate_dict[
                                 'DS_Snapshots'][
                                 f"DS_Snapshot_{snapshot['@timestamp']}"][
                                 f"ptdb_{ptdb['@guid_prefix']}"][
-                                f'ptdi_{ptdi_guid_prefix}'] = {
-                                    'guid_prefix': ptdi_guid_prefix
+                                f'ptdi_{ptdi_guid_prefix}'][
+                                f'subscriber_{subscriber_guid}'] = {
+                                        'topic': topic,
+                                        'guid': subscriber_guid
                                 }
-
-                        self.validate_dict[
-                            'DS_Snapshots'][
-                            f"DS_Snapshot_{snapshot['@timestamp']}"][
-                            f"ptdb_{ptdb['@guid_prefix']}"][
-                            f'ptdi_{ptdi_guid_prefix}'][
-                            f'subscriber_{subscriber_guid}'] = {
-                                    'topic': topic,
-                                    'guid': subscriber_guid
-                            }
 
     def __dict2list(self, d):
         """
@@ -376,6 +381,7 @@ class Validation(object):
         return d if isinstance(d, list) else [d]
 
     def __write_json_file(
+        self,
         data_dict,
         json_file_path
     ):
@@ -400,4 +406,11 @@ class Validation(object):
         json_a = json.dumps(dict_a, sort_keys=True)
         json_b = json.dumps(dict_b, sort_keys=True)
 
-        return jsondiff.diff(json_a, json_b)
+        return not jsondiff.diff(json_a, json_b)
+
+    def __has_next(self, iterable):
+        try:
+            content = next(iterable)
+        except StopIteration:
+            return None
+        return itertools.chain([content], iterable)

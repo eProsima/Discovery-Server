@@ -47,10 +47,7 @@ def parse_options():
     )
     parser.add_argument(
         '--save-dicts',
-        type=shared.str2bool,
-        nargs='?',
-        const=True,
-        default=False,
+        action='store_true',
         help='Save the generated dictionaries in json files.'
     )
     parser.add_argument(
@@ -91,7 +88,7 @@ if __name__ == '__main__':
         print(
             f'Test result: {shared.bcolors.OK}PASS{shared.bcolors.ENDC}')
     else:
-        print(f'Test result: {shared.bcolors.RED}FAIL{shared.bcolors.ENDC}')
+        print(f'Test result: {shared.bcolors.FAIL}FAIL{shared.bcolors.ENDC}')
 
     if args.save_dicts:
         val.save_generated_json_files(
