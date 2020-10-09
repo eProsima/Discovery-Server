@@ -50,6 +50,7 @@ class Validation(object):
         self.parse_xml_snapshot(snapshot)
         self.copy_dict = {'DS_Snapshots': {}}
         self.validate_dict = {'DS_Snapshots': {}}
+        self.process_servers()
 
     def validate(self):
         """Validate the snapshot resulting from a Discovery-Server test."""
@@ -129,6 +130,20 @@ class Validation(object):
         else:
             self.logger.setLevel(logging.INFO)
 
+    def process_servers(self):
+        """Generate a list with the servers guid_prefix from the snapshot."""
+        self.servers = []
+        for snapshot in self.__dict2list(
+                self.snapshot_dict['DS_Snapshots']['DS_Snapshot']):
+            for ptdb in self.__dict2list(snapshot['ptdb']):
+                [self.servers.append(ptdi['@guid_prefix'])
+                    for ptdi in self.__dict2list(ptdb['ptdi'])
+                    if (ptdi['@server'] == 'true' and
+                    ptdi['@guid_prefix'] not in self.servers)]
+                # self.servers.append(ptdi['@guid_prefix']) if ptdi['@guid_prefix'] not in self.servers
+
+        return self.servers
+
     def __create_copy_and_validate_dict(self):
         """
         Create the copy and validation dicts parsing the original snapshot.
@@ -152,6 +167,9 @@ class Validation(object):
                 'DS_Snapshots'][
                 f"DS_Snapshot_{snapshot['@timestamp']}"] = {}
             for ptdb in snapshot['ptdb']:
+                if ptdb['@guid_prefix'] in self.servers:
+                    continue
+
                 self.copy_dict[
                     'DS_Snapshots'][
                     f"DS_Snapshot_{snapshot['@timestamp']}"][
@@ -280,7 +298,8 @@ class Validation(object):
                 self.snapshot_dict['DS_Snapshots']['DS_Snapshot']):
             gen_ptdb = (
                 ptdb for ptdb in self.__dict2list(snapshot['ptdb'])
-                if ptdi_guid_prefix != ptdb['@guid_prefix'])
+                if ptdi_guid_prefix != ptdb['@guid_prefix'] and
+                ptdb['@guid_prefix'] not in self.servers)
             for ptdb in gen_ptdb:
                 gen_ptdi = (
                     ptdi for ptdi in self.__dict2list(ptdb['ptdi'])
@@ -338,7 +357,8 @@ class Validation(object):
                 self.snapshot_dict['DS_Snapshots']['DS_Snapshot']):
             gen_ptdb = (
                 ptdb for ptdb in self.__dict2list(snapshot['ptdb'])
-                if ptdi_guid_prefix != ptdb['@guid_prefix'])
+                if ptdi_guid_prefix != ptdb['@guid_prefix'] and
+                ptdb['@guid_prefix'] not in self.servers)
             for ptdb in gen_ptdb:
                 gen_ptdi = (
                     ptdi for ptdi in self.__dict2list(ptdb['ptdi'])
