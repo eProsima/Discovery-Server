@@ -54,8 +54,11 @@ class Validation(object):
 
     def validate(self):
         """Validate the snapshot resulting from a Discovery-Server test."""
-        self.__create_copy_and_validate_dict()
-        self.__process_validation_dict()
+        try:
+            self.__create_copy_and_validate_dict()
+            self.__process_validation_dict()
+        except KeyError as e:
+            logging.debug(e)
 
         if self.__dict_equal(self.copy_dict, self.validate_dict):
             return True
@@ -133,14 +136,16 @@ class Validation(object):
     def process_servers(self):
         """Generate a list with the servers guid_prefix from the snapshot."""
         self.servers = []
-        for snapshot in self.__dict2list(
-                self.snapshot_dict['DS_Snapshots']['DS_Snapshot']):
-            for ptdb in self.__dict2list(snapshot['ptdb']):
-                [self.servers.append(ptdi['@guid_prefix'])
-                    for ptdi in self.__dict2list(ptdb['ptdi'])
-                    if (ptdi['@server'] == 'true' and
-                    ptdi['@guid_prefix'] not in self.servers)]
-                # self.servers.append(ptdi['@guid_prefix']) if ptdi['@guid_prefix'] not in self.servers
+        try:
+            for snapshot in self.__dict2list(
+                    self.snapshot_dict['DS_Snapshots']['DS_Snapshot']):
+                for ptdb in self.__dict2list(snapshot['ptdb']):
+                    [self.servers.append(ptdi['@guid_prefix'])
+                        for ptdi in self.__dict2list(ptdb['ptdi'])
+                        if (ptdi['@server'] == 'true' and
+                            ptdi['@guid_prefix'] not in self.servers)]
+        except KeyError as e:
+            logging.debug(e)
 
         return self.servers
 
@@ -166,7 +171,7 @@ class Validation(object):
             self.validate_dict[
                 'DS_Snapshots'][
                 f"DS_Snapshot_{snapshot['@timestamp']}"] = {}
-            for ptdb in snapshot['ptdb']:
+            for ptdb in self.__dict2list(snapshot['ptdb']):
                 if ptdb['@guid_prefix'] in self.servers:
                     continue
 
@@ -181,7 +186,7 @@ class Validation(object):
                     f"ptdb_{ptdb['@guid_prefix']}"] = {
                         'guid_prefix': ptdb['@guid_prefix']}
 
-                for ptdi in ptdb['ptdi']:
+                for ptdi in self.__dict2list(ptdb['ptdi']):
                     if ptdi['@server'] == 'true':
                         continue
 
@@ -256,8 +261,8 @@ class Validation(object):
         """
         for snapshot in self.__dict2list(
                 self.snapshot_dict['DS_Snapshots']['DS_Snapshot']):
-            for ptdb in snapshot['ptdb']:
-                for ptdi in ptdb['ptdi']:
+            for ptdb in self.__dict2list(snapshot['ptdb']):
+                for ptdi in self.__dict2list(ptdb['ptdi']):
                     if ptdi['@server'] == 'true':
                         continue
 
