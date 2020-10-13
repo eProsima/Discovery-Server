@@ -1456,6 +1456,14 @@ void DSManager::onParticipantDiscovery(
     bool server = false;
     const GUID_t& partid = info.info.m_guid;
 
+    // if the callback origin was removed ignore
+    GUID_t srcGuid = participant->getGuid();
+    if( nullptr == getParticipant(srcGuid))
+    {
+        LOG_INFO("Received onParticipantDiscovery callback from unknown participant: " << srcGuid);
+        return;
+    }
+
     LOG_INFO("Participant " << participant->getAttributes().rtps.getName() << " reports a participant "
         << info.info.m_participantName << " is " << info.status << ". Prefix " << partid);
 
@@ -1480,14 +1488,14 @@ void DSManager::onParticipantDiscovery(
     {
     case ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT:
     {
-        state.AddParticipant(participant->getGuid(), partid, info.info.m_participantName.to_string(), callback_time,
+        state.AddParticipant(srcGuid, partid, info.info.m_participantName.to_string(), callback_time,
             server);
         break;
     }
     case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
     case ParticipantDiscoveryInfo::DROPPED_PARTICIPANT:
     {
-        state.RemoveParticipant(participant->getGuid(), partid);
+        state.RemoveParticipant(srcGuid, partid);
         break;
     }
     default:
