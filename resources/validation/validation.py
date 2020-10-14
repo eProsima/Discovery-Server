@@ -53,12 +53,33 @@ class Validation(object):
         self.process_servers()
 
     def validate(self):
-        """Validate the snapshot resulting from a Discovery-Server test."""
+        """Validate the snapshots resulting from a Discovery-Server test."""
         try:
             self.__create_copy_and_validate_dict()
             self.__process_validation_dict()
+
+            for snapshot in self.__dict2list(
+                    self.snapshot_dict['DS_Snapshots']['DS_Snapshot']):
+                val = self.__dict_equal(
+                    self.copy_dict[
+                        'DS_Snapshots'][
+                        f"DS_Snapshot_{snapshot['@timestamp']}"],
+                    self.validate_dict[
+                        'DS_Snapshots'][
+                        f"DS_Snapshot_{snapshot['@timestamp']}"])
+                if val:
+                    self.logger.info(
+                        f'Validation result of Snapshot '
+                        f"{snapshot['@timestamp']}: "
+                        f'{shared.bcolors.OK}PASS{shared.bcolors.ENDC}')
+                else:
+                    self.logger.info(
+                        f'Validation result of Snapshot '
+                        f"{snapshot['@timestamp']}: "
+                        f'{shared.bcolors.FAIL}FAIL{shared.bcolors.ENDC}')
+
         except KeyError as e:
-            logging.debug(e)
+            self.logger.error(e)
 
         if self.__dict_equal(self.copy_dict, self.validate_dict):
             return True
@@ -269,6 +290,7 @@ class Validation(object):
                     if 'publisher' in (x.lower() for x in ptdi.keys()):
                         for pub in self.__dict2list(ptdi['publisher']):
                             self.__fill_matching_publisher_data(
+                                    snapshot,
                                     ptdi['@guid_prefix'],
                                     pub['@guid_entity'],
                                     pub['@topic'])
@@ -276,12 +298,14 @@ class Validation(object):
                     if 'subscriber' in (x.lower() for x in ptdi.keys()):
                         for sub in self.__dict2list(ptdi['subscriber']):
                             self.__fill_matching_subscriber_data(
+                                    snapshot,
                                     ptdi['@guid_prefix'],
                                     sub['@guid_entity'],
                                     sub['@topic'])
 
     def __fill_matching_publisher_data(
         self,
+        snapshot,
         ptdi_guid_prefix,
         publisher_guid_entity,
         topic
@@ -299,48 +323,47 @@ class Validation(object):
         """
         publisher_guid = f'{ptdi_guid_prefix}.{publisher_guid_entity}'
 
-        for snapshot in self.__dict2list(
-                self.snapshot_dict['DS_Snapshots']['DS_Snapshot']):
-            gen_ptdb = (
-                ptdb for ptdb in self.__dict2list(snapshot['ptdb'])
-                if ptdi_guid_prefix != ptdb['@guid_prefix'] and
-                ptdb['@guid_prefix'] not in self.servers)
-            for ptdb in gen_ptdb:
-                gen_ptdi = (
-                    ptdi for ptdi in self.__dict2list(ptdb['ptdi'])
-                    if 'subscriber' in (x.lower() for x in ptdi.keys()))
-                gen_ptdi = self.__has_next(gen_ptdi)
-                if gen_ptdi is not None:
-                    for sub in self.__dict2list(next(gen_ptdi)['subscriber']):
-                        if topic == sub['@topic']:
-                            v_ptdb = self.validate_dict[
-                                    'DS_Snapshots'][
-                                    ('DS_Snapshot_'
-                                        f"{snapshot['@timestamp']}")][
-                                    f"ptdb_{ptdb['@guid_prefix']}"]
-                            if (f'ptdi_{ptdi_guid_prefix}'
-                                    not in v_ptdb.keys()):
-                                self.validate_dict[
-                                    'DS_Snapshots'][
-                                    ('DS_Snapshot_'
-                                        f"{snapshot['@timestamp']}")][
-                                    f"ptdb_{ptdb['@guid_prefix']}"][
-                                    f'ptdi_{ptdi_guid_prefix}'] = {
-                                        'guid_prefix': ptdi_guid_prefix
-                                    }
-
+        gen_ptdb = (
+            ptdb for ptdb in self.__dict2list(snapshot['ptdb'])
+            if ptdi_guid_prefix != ptdb['@guid_prefix'] and
+            ptdb['@guid_prefix'] not in self.servers)
+        for ptdb in gen_ptdb:
+            gen_ptdi = (
+                ptdi for ptdi in self.__dict2list(ptdb['ptdi'])
+                if 'subscriber' in (x.lower() for x in ptdi.keys()))
+            gen_ptdi = self.__has_next(gen_ptdi)
+            if gen_ptdi is not None:
+                for sub in self.__dict2list(next(gen_ptdi)['subscriber']):
+                    if topic == sub['@topic']:
+                        v_ptdb = self.validate_dict[
+                                'DS_Snapshots'][
+                                ('DS_Snapshot_'
+                                    f"{snapshot['@timestamp']}")][
+                                f"ptdb_{ptdb['@guid_prefix']}"]
+                        if (f'ptdi_{ptdi_guid_prefix}'
+                                not in v_ptdb.keys()):
                             self.validate_dict[
                                 'DS_Snapshots'][
-                                f"DS_Snapshot_{snapshot['@timestamp']}"][
+                                ('DS_Snapshot_'
+                                    f"{snapshot['@timestamp']}")][
                                 f"ptdb_{ptdb['@guid_prefix']}"][
-                                f'ptdi_{ptdi_guid_prefix}'][
-                                f'publisher_{publisher_guid}'] = {
-                                        'topic': topic,
-                                        'guid': publisher_guid
+                                f'ptdi_{ptdi_guid_prefix}'] = {
+                                    'guid_prefix': ptdi_guid_prefix
                                 }
+
+                        self.validate_dict[
+                            'DS_Snapshots'][
+                            f"DS_Snapshot_{snapshot['@timestamp']}"][
+                            f"ptdb_{ptdb['@guid_prefix']}"][
+                            f'ptdi_{ptdi_guid_prefix}'][
+                            f'publisher_{publisher_guid}'] = {
+                                    'topic': topic,
+                                    'guid': publisher_guid
+                            }
 
     def __fill_matching_subscriber_data(
         self,
+        snapshot,
         ptdi_guid_prefix,
         subscriber_guid_entity,
         topic
@@ -358,43 +381,41 @@ class Validation(object):
         """
         subscriber_guid = f'{ptdi_guid_prefix}.{subscriber_guid_entity}'
 
-        for snapshot in self.__dict2list(
-                self.snapshot_dict['DS_Snapshots']['DS_Snapshot']):
-            gen_ptdb = (
-                ptdb for ptdb in self.__dict2list(snapshot['ptdb'])
-                if ptdi_guid_prefix != ptdb['@guid_prefix'] and
-                ptdb['@guid_prefix'] not in self.servers)
-            for ptdb in gen_ptdb:
-                gen_ptdi = (
-                    ptdi for ptdi in self.__dict2list(ptdb['ptdi'])
-                    if 'publisher' in (x.lower() for x in ptdi.keys()))
-                gen_ptdi = self.__has_next(gen_ptdi)
-                if gen_ptdi is not None:
-                    for pub in self.__dict2list(next(gen_ptdi)['publisher']):
-                        if topic == pub['@topic']:
-                            v_ptdb = self.validate_dict[
-                                    'DS_Snapshots'][
-                                    f"DS_Snapshot_{snapshot['@timestamp']}"][
-                                    f"ptdb_{ptdb['@guid_prefix']}"]
-                            if (f'ptdi_{ptdi_guid_prefix}'
-                                    not in v_ptdb.keys()):
-                                self.validate_dict[
-                                    'DS_Snapshots'][
-                                    f"DS_Snapshot_{snapshot['@timestamp']}"][
-                                    f"ptdb_{ptdb['@guid_prefix']}"][
-                                    f'ptdi_{ptdi_guid_prefix}'] = {
-                                        'guid_prefix': ptdi_guid_prefix
-                                    }
-
+        gen_ptdb = (
+            ptdb for ptdb in self.__dict2list(snapshot['ptdb'])
+            if ptdi_guid_prefix != ptdb['@guid_prefix'] and
+            ptdb['@guid_prefix'] not in self.servers)
+        for ptdb in gen_ptdb:
+            gen_ptdi = (
+                ptdi for ptdi in self.__dict2list(ptdb['ptdi'])
+                if 'publisher' in (x.lower() for x in ptdi.keys()))
+            gen_ptdi = self.__has_next(gen_ptdi)
+            if gen_ptdi is not None:
+                for pub in self.__dict2list(next(gen_ptdi)['publisher']):
+                    if topic == pub['@topic']:
+                        v_ptdb = self.validate_dict[
+                                'DS_Snapshots'][
+                                f"DS_Snapshot_{snapshot['@timestamp']}"][
+                                f"ptdb_{ptdb['@guid_prefix']}"]
+                        if (f'ptdi_{ptdi_guid_prefix}'
+                                not in v_ptdb.keys()):
                             self.validate_dict[
                                 'DS_Snapshots'][
                                 f"DS_Snapshot_{snapshot['@timestamp']}"][
                                 f"ptdb_{ptdb['@guid_prefix']}"][
-                                f'ptdi_{ptdi_guid_prefix}'][
-                                f'subscriber_{subscriber_guid}'] = {
-                                        'topic': topic,
-                                        'guid': subscriber_guid
+                                f'ptdi_{ptdi_guid_prefix}'] = {
+                                    'guid_prefix': ptdi_guid_prefix
                                 }
+
+                        self.validate_dict[
+                            'DS_Snapshots'][
+                            f"DS_Snapshot_{snapshot['@timestamp']}"][
+                            f"ptdb_{ptdb['@guid_prefix']}"][
+                            f'ptdi_{ptdi_guid_prefix}'][
+                            f'subscriber_{subscriber_guid}'] = {
+                                    'topic': topic,
+                                    'guid': subscriber_guid
+                            }
 
     def __dict2list(self, d):
         """
