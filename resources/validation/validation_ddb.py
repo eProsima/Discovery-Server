@@ -22,7 +22,12 @@ def validate_state(state, debug=False, run_all=False):
     v = Validation(state, debug=debug, run_all=run_all)
     if debug:
         print(v)
-    return v.validate()
+    res = v.validate()
+    if not res:
+        print ("ERRORS")
+        for e in v.errors:
+            print(" " + e)
+    return res
 
 
 class Validation:
@@ -44,6 +49,11 @@ class Validation:
             self.check_to_dispose,
             self.check_disposed
         ]
+        self.errors = []
+        self._initialize_null()
+
+    def _initialize_null(self):
+        return Validation._initialize_dic_null(self.state_)        
 
     def validate(self):
         res = True
@@ -60,7 +70,7 @@ class Validation:
 
 
     def __str__ (self):
-        return json.dumps(self.state_, indent=2)
+        return json.dumps(self.state_, indent=4)
 
 
     ############################
@@ -72,7 +82,7 @@ class Validation:
 
     # return a dictionary of the participants
     def participants(self):
-        return Validation.get_vector(self.state_, "participants")
+        return self.state_["participants"]
 
     # return a dict of the alive participants in the state
     def participants_alive(self):
@@ -82,27 +92,42 @@ class Validation:
                 p_dic[p] = info
         return p_dic
 
+    # return all the entities
+    def entities(self):
+        ent = self.participants()
+        ent.update(self.readers())
+        ent.update(self.writers())
+        return ent
+
+    # return a dict of the alive entities in the state
+    def entities_alive(self):
+        p_dic = {}
+        for p, info in self.entities().items():
+            if Validation.change_is_alive(info["change"]):
+                p_dic[p] = info
+        return p_dic
+
     # return the dict of the writers
     def writers(self):
-        return Validation.get_vector(self.state_, "writers")
+        return self.state_["writers"]
 
     # return the dict of the readers
     def readers(self):
-        return Validation.get_vector(self.state_, "readers")
+        return self.state_["readers"]
 
     # return the dict of writers by topic
     def writers_by_topic(self):
-        return Validation.get_vector(self.state_, "writers_by_topic")
+        return self.state_["writers_by_topic"]
 
     # return the dict of readers by topic
     def readers_by_topic(self):
-        return Validation.get_vector(self.state_, "readers_by_topic")
+        return self.state_["readers_by_topic"]
 
     # return the relevant participant map for the <participant>
     def relevant_participants_map(self, participant):
         if participant not in self.participants().keys():
             return {} # ERROR
-        return Validation.get_vector(self.participants()[participant], "relevant_participants_map")
+        return self.participants()[participant]["relevant_participants_map"]
 
     # return true if <relevant_participant_guid> is relevant to <participant_guid>
     def is_relevant(self, participant_guid, relevant_participant_guid):
@@ -125,7 +150,10 @@ class Validation:
     
     # it exist a participant that is this server
     def check_is_server_participant(self):
-        return self.server_guid() in self.participants().keys()
+        if not self.server_guid() in self.participants().keys():
+            self.errors.append("Server guid does not exist in Participants")
+            return False
+        return True
         
     # the server is acked by all value only true when every participant knows it
     def check_is_server_acked_by_all(self):
@@ -135,27 +163,78 @@ class Validation:
             if not self.ack_status(server_guid, p):
                 acked_by_all = False
                 break
-        return acked_by_all == self.state_["server_acked_by_all"]
+        if not acked_by_all == self.state_["server_acked_by_all"]:
+            return False
+        return True
 
     # every entity must be acked by the server and its writer
     def check_every_entity_acked_by_server_and_writer(self):
         server_guid = self.server_guid()
-        for p, info in self.participants_alive().items():
-            if not (self.ack_status(p, server_guid) or self.ack_status(p, Validation.change_writer(info["change"]))):
+        for p, info in self.entities_alive().items():
+            if not (self.ack_status(p, server_guid)):
+                self.errors.append("Participant " + p + " has not server as acked")
+                return False
+
+            if not self.ack_status(p, Validation.getGuidPrefix(Validation.change_writer(info["change"]))):
+                self.errors.append("Participant <" + p + "> has not its writer <" + 
+                    Validation.getGuidPrefix(Validation.change_writer(info["change"])) + "> as acked")
                 return False
         return True
 
     # every endpoint must be in its participant
     def check_entities_in_participants(self):
-        return True # TODO
+
+        # check all writers
+        for endpoint_guid in self.writers():
+            endpoint_prefix = Validation.getGuidPrefix(endpoint_guid)
+            if endpoint_prefix not in self.participants_alive().keys():
+                return False
+            else:
+                if endpoint_guid not in self.participants()[endpoint_prefix]["writers"].values():
+                    return False
+        
+        # check all readers
+        for endpoint_guid in self.readers():
+            endpoint_prefix = Validation.getGuidPrefix(endpoint_guid)
+            if endpoint_prefix not in self.participants_alive().keys():
+                return False
+            else:
+                if endpoint_guid not in self.participants()[endpoint_prefix]["readers"].values():
+                    return False
+                    
+        return True
+
 
     # every entity in a participant must have its GuidPrefix and be in endpoints list
     def check_entities_in_its_own_participants(self):
-        return True # TODO
+        
+        # for every participant
+        for participant_guid, participant_info in self.participants().items():
+
+            # for every endpoint writer
+            for writer_guid in participant_info["writers"].values():
+                if Validation.getGuidPrefix(writer_guid) != participant_guid:
+                    return False
+                if writer_guid not in self.writers().keys():
+                    return False
+
+            # for every endpoint reader
+            for reader_guid in participant_info["readers"].values():
+                if Validation.getGuidPrefix(reader_guid) != participant_guid:
+                    return False
+                if reader_guid not in self.readers().keys():
+                    return False
+
+        return True
+
     
     # every change to release must not be the change in any entity
     def check_not_release_valid_change(self):
-        return True # TODO
+        for change in self.state_["changes_to_release"]:
+            for entity, info in self.entities().items():
+                if Validation.change_is_equal(change, info["change"]):
+                    return False
+        return True
 
     # every endpoint (ALIVE) must be in its wr_by_topic
     def check_topics(self):
@@ -198,24 +277,46 @@ class Validation:
     def getGuidPrefix(guid):
         if guid == "|GUID UNKNOWN|":
             return "0"
-        return "".join(guid.split(".")[:12])
+        return guid.split("|")[0]
 
     # return true if the guid is from a participant
     def isParticipant(guid):
         # be aware that the string of 0x00 is 0
-        return "".join(guid.split(".")[12:]) == "001c1"  
+        return "".join(guid.split("|")[1]) == "001c1"  
 
     # return true if the guid is from a reader
     def isReader(guid):
-        return guid.split(".")[12] in ["2", "3", "c2", "c3"]
+        return guid.split("|")[1].split(".")[0] in ["2", "3", "c2", "c3"]
 
     # return true if the guid is from a writer
     def isWriter(guid):
-        return guid.split(".")[12] in ["4", "7", "c4", "c7"]
+        return guid.split("|")[1].split(".")[0] in ["4", "7", "c4", "c7"]
 
-    # return the dictionary of this name in the state or an empty one if it does not exist
-    def get_vector(state, name):
-        if name in state.keys():
-            return state[name]
-        else:
-            return {}
+    # # return the dictionary of this name in the state or an empty one if it does not exist
+    # def get_vector(state, name):
+    #     if name in state.keys():
+    #         return state[name]
+    #     else:
+    #         return {}
+
+    def _initialize_dic_null(dic):
+        for v, i in dic.items():
+            if i is None:
+                dic[v] = {}
+            elif isinstance(i, dict):
+                Validation._initialize_dic_null(i)      
+
+    def dic_subset(dic1, dic2):
+        for k, v in dic1.items():
+            if k not in dic2.keys():
+                return False
+            if isinstance(v, dict):
+                if not isinstance(dic2[k], dict):
+                    return False
+                else:
+                    if not dic_subset(v, dic2[k]):
+                        return False
+            else:
+                if v != dic2[k]:
+                    return False
+        return True

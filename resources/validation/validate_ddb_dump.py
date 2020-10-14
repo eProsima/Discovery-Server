@@ -82,7 +82,7 @@ def load_file(path):
 def validate_all(json_list, debug=False, skip=True):
     index = -1
     for i, d in enumerate(json_list):
-        print (" Checking state " + str(i) + ".\n")
+        print ("\n Checking state " + str(i) + ".\n")
         if not validate_state(d, debug = debug, run_all = not skip):
             if skip:
                 return False, i
