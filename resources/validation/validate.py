@@ -51,6 +51,11 @@ def parse_options():
         help='Save the generated dictionaries in json files.'
     )
     parser.add_argument(
+        '--disposals',
+        action='store_true',
+        help='Validate a snapshot resulting from a disposals test.'
+    )
+    parser.add_argument(
         '--snapshot-json',
         default='./parsed_snapshot.json',
         type=str,
@@ -82,7 +87,7 @@ if __name__ == '__main__':
     # Parse arguments
     args = parse_options()
 
-    val = validation.Validation(args.snapshot)
+    val = validation.Validation(args.snapshot, disposals=args.disposals)
 
     if val.validate():
         print(

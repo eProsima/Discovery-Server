@@ -30,6 +30,7 @@ class Validation(object):
     def __init__(
         self,
         snapshot,
+        disposals=False,
         debug=False,
         logger=None
     ):
@@ -40,6 +41,7 @@ class Validation(object):
 
         :param snapshot: Path to the snapshot xml file containing the
             Discovery-Server test output.
+        :param disposals: True if it is a disposals test (Default: False).
         :param logger: The logging object. VALIDATION if None logger is
             provided.
         :param debug: True/False to activate/deactivate debug logger.
@@ -48,9 +50,13 @@ class Validation(object):
         self.logger.debug('Creating an instance of {}'.format(type(self)))
 
         self.parse_xml_snapshot(snapshot)
+        self.disposals = disposals
         self.copy_dict = {'DS_Snapshots': {}}
         self.validate_dict = {'DS_Snapshots': {}}
         self.process_servers()
+
+        if disposals:
+            self.logger.debug('Validation for disposals test snapshot.')
 
     def validate(self):
         """Validate the snapshots resulting from a Discovery-Server test."""
@@ -60,13 +66,24 @@ class Validation(object):
 
             for snapshot in self.__dict2list(
                     self.snapshot_dict['DS_Snapshots']['DS_Snapshot']):
-                val = self.__dict_equal(
-                    self.copy_dict[
-                        'DS_Snapshots'][
-                        f"DS_Snapshot_{snapshot['@timestamp']}"],
-                    self.validate_dict[
-                        'DS_Snapshots'][
-                        f"DS_Snapshot_{snapshot['@timestamp']}"])
+
+                if not self.disposals:
+                    val = self.__dict_equal(
+                        self.copy_dict[
+                            'DS_Snapshots'][
+                            f"DS_Snapshot_{snapshot['@timestamp']}"],
+                        self.validate_dict[
+                            'DS_Snapshots'][
+                            f"DS_Snapshot_{snapshot['@timestamp']}"])
+                else:
+                    val = self.__dict_subset(
+                        self.validate_dict[
+                            'DS_Snapshots'][
+                            f"DS_Snapshot_{snapshot['@timestamp']}"],
+                        self.copy_dict[
+                            'DS_Snapshots'][
+                            f"DS_Snapshot_{snapshot['@timestamp']}"])
+
                 if val:
                     self.logger.info(
                         f'Validation result of Snapshot '
@@ -192,7 +209,16 @@ class Validation(object):
             self.validate_dict[
                 'DS_Snapshots'][
                 f"DS_Snapshot_{snapshot['@timestamp']}"] = {}
-            for ptdb in self.__dict2list(snapshot['ptdb']):
+
+            try:
+                ptdb_l = self.__dict2list(snapshot['ptdb'])
+            except KeyError:
+                self.logger.debug(
+                    f"Snapshot {snapshot['@timestamp']} does not "
+                    'contain any participant.')
+                continue
+
+            for ptdb in ptdb_l:
                 if ptdb['@guid_prefix'] in self.servers:
                     continue
 
@@ -207,7 +233,15 @@ class Validation(object):
                     f"ptdb_{ptdb['@guid_prefix']}"] = {
                         'guid_prefix': ptdb['@guid_prefix']}
 
-                for ptdi in self.__dict2list(ptdb['ptdi']):
+                try:
+                    ptdi_l = self.__dict2list(ptdb['ptdi'])
+                except KeyError:
+                    self.logger.debug(
+                        f"Participant {ptdb['@guid_prefix']} does not "
+                        'match any remote participant.')
+                    continue
+
+                for ptdi in ptdi_l:
                     if ptdi['@server'] == 'true':
                         continue
 
@@ -283,8 +317,18 @@ class Validation(object):
         for snapshot in self.__dict2list(
                 self.snapshot_dict['DS_Snapshots']['DS_Snapshot']):
             for ptdb in self.__dict2list(snapshot['ptdb']):
-                for ptdi in self.__dict2list(ptdb['ptdi']):
-                    if ptdi['@server'] == 'true':
+
+                try:
+                    ptdi_l = self.__dict2list(ptdb['ptdi'])
+                except KeyError:
+                    self.logger.debug(
+                        f"Participant {ptdb['@guid_prefix']} does not "
+                        'match any remote participant.')
+                    continue
+
+                for ptdi in ptdi_l:
+                    if (ptdi['@server'] == 'true' or
+                            ptdb['@guid_prefix'] != ptdi['@guid_prefix']):
                         continue
 
                     if 'publisher' in (x.lower() for x in ptdi.keys()):
@@ -325,9 +369,17 @@ class Validation(object):
 
         gen_ptdb = (
             ptdb for ptdb in self.__dict2list(snapshot['ptdb'])
-            if ptdi_guid_prefix != ptdb['@guid_prefix'] and
-            ptdb['@guid_prefix'] not in self.servers)
+            if (ptdi_guid_prefix == ptdb['@guid_prefix'] and
+                ptdb['@guid_prefix'] not in self.servers))
         for ptdb in gen_ptdb:
+            try:
+                self.__dict2list(ptdb['ptdi'])
+            except KeyError:
+                self.logger.debug(
+                    f"Participant {ptdb['@guid_prefix']} does not "
+                    'match any remote participant.')
+                continue
+
             gen_ptdi = (
                 ptdi for ptdi in self.__dict2list(ptdb['ptdi'])
                 if 'subscriber' in (x.lower() for x in ptdi.keys()))
@@ -383,9 +435,17 @@ class Validation(object):
 
         gen_ptdb = (
             ptdb for ptdb in self.__dict2list(snapshot['ptdb'])
-            if ptdi_guid_prefix != ptdb['@guid_prefix'] and
+            if ptdi_guid_prefix == ptdb['@guid_prefix'] and
             ptdb['@guid_prefix'] not in self.servers)
         for ptdb in gen_ptdb:
+            try:
+                self.__dict2list(ptdb['ptdi'])
+            except KeyError:
+                self.logger.debug(
+                    f"Participant {ptdb['@guid_prefix']} does not "
+                    'match any remote participant.')
+                continue
+
             gen_ptdi = (
                 ptdi for ptdi in self.__dict2list(ptdb['ptdi'])
                 if 'publisher' in (x.lower() for x in ptdi.keys()))
@@ -453,6 +513,28 @@ class Validation(object):
         json_b = json.dumps(dict_b, sort_keys=True)
 
         return not jsondiff.diff(json_a, json_b)
+
+    def __dict_subset(self, dict_a, dict_b):
+        """
+        Check if a dictionary dict_a in a subset of a dictionary dict_b.
+
+        :param dict_a: The subset dictionary.
+        :param dict_b: The complete dictionary.
+        :return: True if dict_a is included in dict_b.
+        """
+        for k, v in dict_a.items():
+            if k not in dict_b.keys():
+                return False
+            if isinstance(v, dict):
+                if not isinstance(dict_b[k], dict):
+                    return False
+                else:
+                    if not self.__dict_subset(v, dict_b[k]):
+                        return False
+            else:
+                if v != dict_b[k]:
+                    return False
+        return True
 
     def __has_next(self, iterable):
         try:
