@@ -369,7 +369,7 @@ class Validation(object):
 
         gen_ptdb = (
             ptdb for ptdb in self.__dict2list(snapshot['ptdb'])
-            if (ptdi_guid_prefix == ptdb['@guid_prefix'] and
+            if (ptdi_guid_prefix != ptdb['@guid_prefix'] and
                 ptdb['@guid_prefix'] not in self.servers))
         for ptdb in gen_ptdb:
             try:
@@ -382,7 +382,8 @@ class Validation(object):
 
             gen_ptdi = (
                 ptdi for ptdi in self.__dict2list(ptdb['ptdi'])
-                if 'subscriber' in (x.lower() for x in ptdi.keys()))
+                if (ptdb['@guid_prefix'] == ptdi['@guid_prefix'] and
+                    'subscriber' in (x.lower() for x in ptdi.keys())))
             gen_ptdi = self.__has_next(gen_ptdi)
             if gen_ptdi is not None:
                 for sub in self.__dict2list(next(gen_ptdi)['subscriber']):
@@ -435,7 +436,7 @@ class Validation(object):
 
         gen_ptdb = (
             ptdb for ptdb in self.__dict2list(snapshot['ptdb'])
-            if ptdi_guid_prefix == ptdb['@guid_prefix'] and
+            if ptdi_guid_prefix != ptdb['@guid_prefix'] and
             ptdb['@guid_prefix'] not in self.servers)
         for ptdb in gen_ptdb:
             try:
@@ -448,7 +449,8 @@ class Validation(object):
 
             gen_ptdi = (
                 ptdi for ptdi in self.__dict2list(ptdb['ptdi'])
-                if 'publisher' in (x.lower() for x in ptdi.keys()))
+                if (ptdb['@guid_prefix'] == ptdi['@guid_prefix'] and
+                    'publisher' in (x.lower() for x in ptdi.keys())))
             gen_ptdi = self.__has_next(gen_ptdi)
             if gen_ptdi is not None:
                 for pub in self.__dict2list(next(gen_ptdi)['publisher']):
