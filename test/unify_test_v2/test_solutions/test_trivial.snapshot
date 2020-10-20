@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DS_Snapshots xmlns="http://www.eprosima.com/XMLSchemas/ds-snapshot">
+    <DS_Snapshot timestamp="1603201665406" process_time="5000" last_pdp_callback_time="1470" last_edp_callback_time="2916" someone="true">
+        <description>Check all clients met the server and know each other</description>
+        <ptdb guid_prefix="1.f.ee.55.bf.c2.1.0.2.0.0.0" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="1.f.ee.55.bf.c2.1.0.2.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <publisher type="sample_type_1" topic="topic_1" guid_prefix="1.f.ee.55.bf.c2.1.0.2.0.0.0" guid_entity="0.0.1.3" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="1.f.ee.55.bf.c2.1.0.3.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client2" discovered_timestamp="1469">
+                <subscriber type="sample_type_1" topic="topic_1" guid_prefix="1.f.ee.55.bf.c2.1.0.3.0.0.0" guid_entity="0.0.1.4" discovered_timestamp="2916"/>
+            </ptdi>
+            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.30" guid_entity="0.0.1.c1" server="true" alive="true" name="server" discovered_timestamp="129"/>
+        </ptdb>
+        <ptdb guid_prefix="1.f.ee.55.bf.c2.1.0.3.0.0.0" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="1.f.ee.55.bf.c2.1.0.2.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client1" discovered_timestamp="1470">
+                <publisher type="sample_type_1" topic="topic_1" guid_prefix="1.f.ee.55.bf.c2.1.0.2.0.0.0" guid_entity="0.0.1.3" discovered_timestamp="2916"/>
+            </ptdi>
+            <ptdi guid_prefix="1.f.ee.55.bf.c2.1.0.3.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="17">
+                <subscriber type="sample_type_1" topic="topic_1" guid_prefix="1.f.ee.55.bf.c2.1.0.3.0.0.0" guid_entity="0.0.1.4" discovered_timestamp="17"/>
+            </ptdi>
+            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.30" guid_entity="0.0.1.c1" server="true" alive="true" name="server" discovered_timestamp="129"/>
+        </ptdb>
+        <ptdb guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.30" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="1.f.ee.55.bf.c2.1.0.2.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client1" discovered_timestamp="15">
+                <publisher type="sample_type_1" topic="topic_1" guid_prefix="1.f.ee.55.bf.c2.1.0.2.0.0.0" guid_entity="0.0.1.3" discovered_timestamp="1465"/>
+            </ptdi>
+            <ptdi guid_prefix="1.f.ee.55.bf.c2.1.0.3.0.0.0" guid_entity="0.0.1.c1" server="false" alive="true" name="client2" discovered_timestamp="17">
+                <subscriber type="sample_type_1" topic="topic_1" guid_prefix="1.f.ee.55.bf.c2.1.0.3.0.0.0" guid_entity="0.0.1.4" discovered_timestamp="470"/>
+            </ptdi>
+        </ptdb>
+    </DS_Snapshot>
+</DS_Snapshots>
