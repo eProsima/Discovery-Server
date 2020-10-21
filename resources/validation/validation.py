@@ -64,6 +64,10 @@ class Validation(object):
             self.__create_copy_and_validate_dict()
             self.__process_validation_dict()
 
+            n_tests = 0
+            failed_tests = []
+            errors = 0
+
             for snapshot in self.__dict2list(
                     self.snapshot_dict['DS_Snapshots']['DS_Snapshot']):
 
@@ -84,6 +88,8 @@ class Validation(object):
                             'DS_Snapshots'][
                             f"DS_Snapshot_{snapshot['@timestamp']}"])
 
+                n_tests += 1
+
                 if val:
                     self.logger.info(
                         f'Validation result of Snapshot '
@@ -94,12 +100,15 @@ class Validation(object):
                         f'Validation result of Snapshot '
                         f"{snapshot['@timestamp']}: "
                         f'{shared.bcolors.FAIL}FAIL{shared.bcolors.ENDC}')
+                    failed_tests.append(f"Snapshot_{snapshot['@timestamp']}")
 
         except KeyError as e:
             self.logger.error(e)
+            errors += 1
 
-        if self.__dict_equal(self.copy_dict, self.validate_dict):
-            return True
+        self.logger.info(
+            f'Summary: {n_tests} tests, {errors} errors, '
+            f'{len(failed_tests)} failures')
 
         return False
 

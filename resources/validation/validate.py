@@ -90,8 +90,7 @@ if __name__ == '__main__':
     val = validation.Validation(args.snapshot, disposals=args.disposals)
 
     if val.validate():
-        print(
-            f'Test result: {shared.bcolors.OK}PASS{shared.bcolors.ENDC}')
+        print(f'Test result: {shared.bcolors.OK}PASS{shared.bcolors.ENDC}')
     else:
         print(f'Test result: {shared.bcolors.FAIL}FAIL{shared.bcolors.ENDC}')
 
