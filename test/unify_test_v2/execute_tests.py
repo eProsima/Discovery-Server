@@ -57,14 +57,18 @@ def parent_dir_path():
 # return a list of tuples <name of test, path>
 # return every test in test_cases if empty argument
 def path_to_test(test=None):
-    
+
     p_dir_path = parent_dir_path()
     test_cases_path = os.path.join(p_dir_path, "test_cases")
 
-    tests = [f for f in os.listdir(test_cases_path) if os.path.isfile(os.path.join(test_cases_path, f))]
+    tests = [f for f in os.listdir(test_cases_path) if (
+        os.path.isfile(os.path.join(test_cases_path, f))
+        and not f.startswith('_'))]
 
     # prevent to try to run a test that does not exist
-    tests = [(".".join(t.split(".")[:-1]), os.path.join(test_cases_path, t)) for t in tests]
+    tests = [
+        (".".join(t.split(".")[:-1]), os.path.join(test_cases_path, t))
+        for t in tests]
 
     if test is not None:
         tests = [f for f in tests if f[0] in test]
@@ -72,12 +76,40 @@ def path_to_test(test=None):
     return tests
 
 # execute test
-def execute_test(path, discovery_server_tool_path, debug=False):
-    command = [discovery_server_tool_path, path]
-    if not debug:
-        subprocess.call(command, stdout=subprocess.DEVNULL)
+def execute_test(test, path, discovery_server_tool_path, debug=False):
+    if 'lease_duration' in test:
+        aux_test_path = (
+            f"{'/'.join(path.split('/')[:-1])}/_{path.split('/')[-1]}")
+        if not debug:
+            # Launch
+            proc_server = subprocess.Popen(
+                [discovery_server_tool_path, path],
+                stdout=subprocess.DEVNULL)
+            proc_client = subprocess.Popen(
+                [discovery_server_tool_path, aux_test_path],
+                stdout=subprocess.DEVNULL)
+        else:
+            # Launch
+            proc_server = subprocess.Popen(
+                [discovery_server_tool_path, path])
+            proc_client = subprocess.Popen(
+                [discovery_server_tool_path, aux_test_path])
+
+        # Wait 5 seconds before killing the external client
+        try:
+            proc_client.wait(5)
+        except subprocess.TimeoutExpired:
+            proc_client.kill()
+
+        # Wait for server completion
+        proc_server.communicate()
     else:
-        subprocess.call(command)
+        command = [discovery_server_tool_path, path]
+
+        if not debug:
+            subprocess.call(command, stdout=subprocess.DEVNULL)
+        else:
+            subprocess.call(command)
 
 # TODO implement a validator that does not count lines but analyze the internal info
 # validate the result test with the a priori solution
@@ -91,7 +123,7 @@ def check_test(test):
 
 # execute the thread and validate the result
 def validate_test(test, test_path, discovery_server_tool_path, debug=False):
-    execute_test(test_path, discovery_server_tool_path, debug)
+    execute_test(test, test_path, discovery_server_tool_path, debug)
     return check_test(test)
 
 
