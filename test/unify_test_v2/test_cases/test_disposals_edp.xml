@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
+    <servers>
+        <server name="server" profile_name="UDP server" />
+    </servers>
+
+    <!--
+        Separate tests to probe every possibility in disposals
+        PDP is probed from one step to the other
+
+        time 0: start new test / creation
+        time 6: original snapshot
+        time 8: create / remove entities
+        time 14: result snapshot
+        time 16: remove all
+
+    -->
+
+    <clients>
+        <!-- standar test 
+                1.P1 - 2.S1 --> 
+        <client removal_time="16" name="client1" profile_name="UDP client">
+            <publisher topic="topic1"/>
+        </client>
+        <client removal_time="16" name="client2" profile_name="UDP client">
+            <subscriber topic="topic1"/>
+        </client>
+
+        <!-- test remove publisher
+                1.P1 - 2.S1 : 1 - 2.S1 --> 
+        <client creation_time="20" removal_time="36" name="client3" profile_name="UDP client">
+            <publisher removal_time="28" topic="topic1"/>
+        </client>
+        <client creation_time="20" removal_time="36" name="client4" profile_name="UDP client">
+            <subscriber topic="topic1"/>
+        </client> 
+
+        <!-- test remove subscriber
+                1.P1 - 2.S1 : 1.P1 - 2 --> 
+        <client creation_time="40" removal_time="56" name="client5" profile_name="UDP client">
+            <publisher topic="topic1"/>
+        </client>
+        <client creation_time="40" removal_time="56" name="client6" profile_name="UDP client">
+            <subscriber removal_time="48" topic="topic1"/>
+        </client>     
+
+        <!-- test remove repeated
+                1.[P1.P2] - 2.[S1.S2] : 1.P2 - 2.S2 -->
+        <client creation_time="60" removal_time="76" name="client7" profile_name="UDP client">
+            <publisher removal_time="68" topic="topic1"/>
+            <publisher topic="topic1"/>
+        </client>
+        <client creation_time="60" removal_time="76" name="client8" profile_name="UDP client">
+            <subscriber removal_time="68" topic="topic1"/>
+            <subscriber topic="topic1"/>
+        </client>  
+
+        <!-- test remove both one after another
+                1.P1 - 2.S1 : 1 - 2 -->
+        <client creation_time="80" removal_time="96" name="client9" profile_name="UDP client">
+            <publisher removal_time="88" topic="topic1"/>
+        </client>
+        <client creation_time="80" removal_time="96" name="client10" profile_name="UDP client">
+            <subscriber removal_time="88" topic="topic1"/>
+        </client>
+
+        <!-- test remove then create twice
+                1.S1 - 2.P1 : 1 - 2.P1 - 3.S1 : 2 - 3.S1 - 4.P1 -->
+        <client creation_time="100" removal_time="116" name="client11" profile_name="UDP client">
+            <subscriber removal_time="108" topic="topic1"/>
+        </client>
+        <client creation_time="100" removal_time="136" name="client12" profile_name="UDP client">
+            <publisher removal_time="116" topic="topic1"/>
+        </client>
+        <client creation_time="110" removal_time="136" name="client13" profile_name="UDP client">
+            <subscriber topic="topic1"/>
+        </client>
+        <client creation_time="120" removal_time="136" name="client14" profile_name="UDP client">
+            <publisher topic="topic1"/>
+        </client> 
+
+        
+    </clients>
+
+    <snapshots file="./test_disposals_edp.snapshot~">
+
+        <snapshot time="14">Check: 2.P1 - 3.S1</snapshot>
+
+        <snapshot time="26">Check: 4.P1 - 5.S1</snapshot>
+        <snapshot time="34">Check: 4 - 5.S1</snapshot>
+
+        <snapshot time="46">Check: 6.P1 - 7.S1</snapshot>
+        <snapshot time="54">Check: 6.P1 - 7</snapshot>
+
+        <snapshot time="66">Check: 8.[P1,P2] - 9.[S1,S2]</snapshot>
+        <snapshot time="74">Check: 8.P2 - 9.S2</snapshot>
+
+        <snapshot time="86">Check: a.P1 - b.S1</snapshot>
+        <snapshot time="94">Check: a - b</snapshot>
+
+        <snapshot time="106">Check: c.S1 - d.P1</snapshot>
+        <snapshot time="114">Check: c - d.P1 - e.S1</snapshot>
+        <snapshot time="126">Check: d - e.S1 - f.P1</snapshot>
+        
+        <snapshot time="140">Check: </snapshot>
+        
+    </snapshots>
+
+    <profiles>
+        <participant profile_name="UDP client" >
+        <rtps>
+            <builtin>
+                <discovery_config>
+                    <discoveryProtocol>CLIENT</discoveryProtocol>
+                    <discoveryServersList>
+                        <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.30">
+                            <metatrafficUnicastLocatorList>
+                                <locator>
+                                    <udpv4>
+                                        <address>127.0.0.1</address>
+                                        <port>11811</port>
+                                    </udpv4>
+                                </locator>
+                            </metatrafficUnicastLocatorList>
+                        </RemoteServer>
+                    </discoveryServersList>
+                    <initialAnnouncements>
+                        <count>0</count>
+                    </initialAnnouncements>
+                    <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                    <leaseDuration>DURATION_INFINITY</leaseDuration>
+                </discovery_config>
+            </builtin>
+        </rtps>
+        </participant>
+
+        <participant profile_name="UDP server">
+        <rtps>
+            <prefix>44.49.53.43.53.45.52.56.45.52.5F.30</prefix>
+            <builtin>
+                <discovery_config>
+                    <discoveryProtocol>SERVER</discoveryProtocol>
+                    <initialAnnouncements>
+                        <count>0</count>
+                    </initialAnnouncements>
+                    <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                    <leaseDuration>DURATION_INFINITY</leaseDuration>
+                </discovery_config>
+                <metatrafficUnicastLocatorList>
+                    <locator>
+                        <udpv4>
+                            <address>127.0.0.1</address>
+                            <port>11811</port>
+                        </udpv4>
+                    </locator>
+                </metatrafficUnicastLocatorList>
+            </builtin>
+        </rtps>
+        </participant>
+
+        <topic profile_name="topic1">
+            <name>topic_1</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <types>
+            <type>
+              <struct name="sample_type_1">
+                <member name="index" type="uint32" />
+                <member name="message" type="string" />
+              </struct>
+            </type>
+        </types>
+
+     </profiles>
+</DS>
