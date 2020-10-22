@@ -259,4 +259,4 @@ if __name__ == '__main__':
         else:
             logger.info(
                 f'Overall test result for {test}: '
-                f'{shared.bcolors.OK}PASS{shared.bcolors.ENDC}')
+                f'{shared.bcolors.FAIL}FAIL{shared.bcolors.ENDC}')

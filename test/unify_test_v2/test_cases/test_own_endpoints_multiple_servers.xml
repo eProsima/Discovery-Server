@@ -54,7 +54,7 @@
     </servers>
 
     <snapshots file="./test_own_endpoints_multiple_servers.snapshot~">
-        <snapshot time="8">4 servers in row with endpoints in both in limits</snapshot>
+        <snapshot time="8">test_own_endpoints_multiple_servers_snapshot_1</snapshot>
     </snapshots>
 
     <profiles>
