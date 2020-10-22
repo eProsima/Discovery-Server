@@ -11,21 +11,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+"""Script to execute Discovery Server v2 tests."""
 import argparse
+import logging
 import os
 import subprocess
 
-description = """Script to execute every test in 'test_cases' subfolder and check it is working correctly."""
+import validation.CountLinesValidation as clv
+import validation.GroundTruthValidation as gtv
+import validation.shared as shared
+
 
 def parse_options():
     """
     Parse arguments.
+
     :return: The arguments parsed.
     """
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        description=description
+        description="""
+        Script to execute every test in 'test_cases' subfolder and check it
+        is working correctly."""
     )
     parser.add_argument(
         '-e',
@@ -36,10 +43,12 @@ def parse_options():
     )
     parser.add_argument(
         '-t',
-        '--ntest',
+        '--test',
         nargs='*',
         type=str,
-        help='List of names of test case to execute (only name without xml). No set to test all.'
+        help=(
+            'List of names of test case to execute (only name without xml).'
+            'No set to test all.')
     )
     parser.add_argument(
         '-d',
@@ -47,27 +56,58 @@ def parse_options():
         action='store_true',
         help='Print test execution.'
     )
+    parser.add_argument(
+        '-s',
+        '--snapshot',
+        type=str,
+        help='Path to the xml file containing the test result snapshot.'
+    )
+    parser.add_argument(
+        '-g',
+        '--ground-truth',
+        type=str,
+        help='Path to the xml file containing the ground-truth snapshot.'
+    )
+    parser.add_argument(
+        '--save-dicts',
+        action='store_true',
+        help='Save the generated dictionaries in json files.'
+    )
+    parser.add_argument(
+        '-c',
+        '--input-json',
+        default=os.path.join(os.path.curdir, './input_snapshot.json'),
+        required=False,
+        help='Path to the generated json file containing the snapshot data.'
+    )
+    parser.add_argument(
+        '-v',
+        '--ground-truth-json',
+        default=os.path.join(os.path.curdir, './ground_truth_snapshot.json'),
+        required=False,
+        help='Path to the validation json file containing the snapshot data.'
+    )
 
     return parser.parse_args()
 
-# get the direction of the upper folder where this tests and subfolders are
-def parent_dir_path():
-    return os.path.dirname(os.path.join(os.getcwd(), __file__))
 
-# return a list of tuples <name of test, path>
-# return every test in test_cases if empty argument
 def path_to_test(test=None):
+    """
+    Create a list of tuples (test name, path to test).
 
-    p_dir_path = parent_dir_path()
-    test_cases_path = os.path.join(p_dir_path, "test_cases")
+    :param test: List or name of the test to include in the list of tuples.
+        If None, all test are included.
+    """
+    p_dir_path = os.getcwd()
+    test_cases_path = os.path.join(p_dir_path, 'test_cases')
 
     tests = [f for f in os.listdir(test_cases_path) if (
         os.path.isfile(os.path.join(test_cases_path, f))
         and not f.startswith('_'))]
 
-    # prevent to try to run a test that does not exist
+    # Prevent to try to run a test that does not exist
     tests = [
-        (".".join(t.split(".")[:-1]), os.path.join(test_cases_path, t))
+        ('.'.join(t.split('.')[:-1]), os.path.join(test_cases_path, t))
         for t in tests]
 
     if test is not None:
@@ -75,8 +115,16 @@ def path_to_test(test=None):
 
     return tests
 
-# execute test
+
 def execute_test(test, path, discovery_server_tool_path, debug=False):
+    """
+    Run the Discovery Server v2 tests.
+
+    :param test: The test to execute.
+    :param path: The path of the xml configuration file of the test.
+    :param discovery_server_tool: The path to the discovery server executable.
+    :param debug: Debug flag (Default: False).
+    """
     if 'lease_duration' in test:
         aux_test_path = (
             f"{'/'.join(path.split('/')[:-1])}/_{path.split('/')[-1]}")
@@ -111,20 +159,73 @@ def execute_test(test, path, discovery_server_tool_path, debug=False):
         else:
             subprocess.call(command)
 
-# TODO implement a validator that does not count lines but analyze the internal info
-# validate the result test with the a priori solution
-def check_test(test):
-    result_file_path = os.path.join(os.getcwd(), test + ".snapshot~")
-    lines_get = int(subprocess.check_output(["wc", "-l", result_file_path]).split()[0])
-    expected_file_path = os.path.join(parent_dir_path(), "test_solutions/" + test + ".snapshot")
-    lines_expected = int(subprocess.check_output(["wc", "-l", expected_file_path]).split()[0])
-    os.system ("rm " + result_file_path)
-    return lines_get == lines_expected
 
-# execute the thread and validate the result
+def get_result_and_expected_paths(test):
+    """
+    Get the paths of the test output and the expected output.
+
+    :param test: The name of the test to validate.
+    """
+    result_file_path = os.path.join(os.getcwd(), f'{test}.snapshot~')
+    expected_file_path = os.path.join(
+        os.getcwd(), 'test_solutions', f'{test}.snapshot')
+
+    return result_file_path, expected_file_path
+
+
+def count_lines_check(test_snapshot, ground_truth_snapshot):
+    """
+    Validate the test counting counting the number of lines.
+
+    The output snapshot resulting from the test execution is compared with an
+    a priori well knonw output.
+
+    :param test_snapshot: The path to the test output.
+    :param ground_truth_snapshot: The path to the a priori calculated test
+        output.
+    """
+    val = clv.CountLinesValidation(test_snapshot, ground_truth_snapshot)
+
+    return val.validate()
+
+
+def ground_truth_check(test_snapshot, ground_truth_snapshot):
+    """
+    Validate the test snapshot output with a ground-truth snapshot.
+
+    The output snapshot resulting from the test execution is compared with an
+    a priori well knonw output.
+
+    :param test_snapshot: The path to the test output.
+    :param ground_truth_snapshot: The path to the a priori calculated test
+        output.
+    """
+    val = gtv.GroundTruthValidation(test_snapshot, ground_truth_snapshot)
+
+    return val.validate()
+
+
 def validate_test(test, test_path, discovery_server_tool_path, debug=False):
+    """
+    Execute the tests and validate the output.
+
+    :param test: The test to execute.
+    :param path: The path of the xml configuration file of the test.
+    :param discovery_server_tool: The path to the discovery server executable.
+    :param debug: Debug flag (Default: False).
+    """
+    logger.info('------------------------------------------------------------')
+    logger.info(f'Running {test}')
     execute_test(test, test_path, discovery_server_tool_path, debug)
-    return check_test(test)
+
+    test_snapshot, ground_truth_snapshot = get_result_and_expected_paths(test)
+
+    lines_count_ret = count_lines_check(test_snapshot, ground_truth_snapshot)
+    gt_ret = ground_truth_check(test_snapshot, ground_truth_snapshot)
+
+    # os.system('rm ' + result_file_path)
+
+    return lines_count_ret and gt_ret
 
 
 if __name__ == '__main__':
@@ -132,10 +233,30 @@ if __name__ == '__main__':
     # Parse arguments
     args = parse_options()
 
-    tests = path_to_test(args.ntest)
+    # Create a custom logger
+    logger = logging.getLogger('VALIDATION')
+    # Create handlers
+    l_handler = logging.StreamHandler()
+    # Create formatters and add it to handlers
+    l_format = '[%(asctime)s][%(name)s][%(levelname)s] %(message)s'
+    l_format = logging.Formatter(l_format)
+    l_handler.setFormatter(l_format)
+    # Add handlers to the logger
+    logger.addHandler(l_handler)
+    # Set log level
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
+
+    tests = path_to_test(args.test)
 
     for test, test_path in tests:
         if validate_test(test, test_path, args.exe, debug=args.debug):
-            print ("Test " + test + " >> " + '\033[92m' + "OK" + '\033[0m')
+            logger.info(
+                f'Overall test result for {test}: '
+                f'{shared.bcolors.OK}PASS{shared.bcolors.ENDC}')
         else:
-            print ("Test " + test + " >> " + '\033[91m' + "FAIL" + '\033[0m')
+            logger.info(
+                f'Overall test result for {test}: '
+                f'{shared.bcolors.OK}PASS{shared.bcolors.ENDC}')
