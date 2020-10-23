@@ -18,6 +18,7 @@ import os
 import subprocess
 
 import validation.CountLinesValidation as clv
+import validation.GenerateValidation as genv
 import validation.GroundTruthValidation as gtv
 import validation.shared as shared
 
@@ -205,6 +206,33 @@ def ground_truth_check(test_snapshot, ground_truth_snapshot):
     return val.validate()
 
 
+def generate_check(test, test_snapshot):
+    """
+    Validate the test snapshot output with a generated snapshot.
+
+    The output snapshot resulting from the test execution is validated by
+    generating the expected output. The generated output is built by matching
+    the clients endpoints.
+
+    :param test_snapshot: The path to the test output.
+    """
+    server_endpoints_tests = [
+        'test_own_endpoints_multiple_servers_trivial',
+        'test_own_endpoints_multiple_servers',
+        'test_own_endpoints',
+        'test_virtual_topics_large',
+        'test_virtual_topics_medium']
+
+    disposals_tests = ['test_disposals_edp']
+
+    val = genv.GenerateValidation(
+        test_snapshot,
+        disposals=(test in disposals_tests),
+        server_endpoints=(test in server_endpoints_tests))
+
+    return val.validate()
+
+
 def validate_test(test, test_path, discovery_server_tool_path, debug=False):
     """
     Execute the tests and validate the output.
@@ -217,15 +245,18 @@ def validate_test(test, test_path, discovery_server_tool_path, debug=False):
     logger.info('------------------------------------------------------------')
     logger.info(f'Running {test}')
     execute_test(test, test_path, discovery_server_tool_path, debug)
+    logger.info('------------------------------------------------------------')
 
     test_snapshot, ground_truth_snapshot = get_result_and_expected_paths(test)
 
     lines_count_ret = count_lines_check(test_snapshot, ground_truth_snapshot)
     gt_ret = ground_truth_check(test_snapshot, ground_truth_snapshot)
 
-    # os.system('rm ' + result_file_path)
+    gen_ret = generate_check(test, test_snapshot)
 
-    return lines_count_ret and gt_ret
+    os.system('rm ' + test_snapshot)
+
+    return lines_count_ret and gt_ret and gen_ret
 
 
 if __name__ == '__main__':
