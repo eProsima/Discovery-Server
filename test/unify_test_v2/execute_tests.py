@@ -223,7 +223,9 @@ def generate_check(test, test_snapshot):
         'test_virtual_topics_large',
         'test_virtual_topics_medium']
 
-    disposals_tests = ['test_disposals_edp']
+    disposals_tests = [
+        'test_disposals_edp',
+        'test_lease_duration']
 
     val = genv.GenerateValidation(
         test_snapshot,

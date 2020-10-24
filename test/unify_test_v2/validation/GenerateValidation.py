@@ -183,16 +183,16 @@ class GenerateValidation(object):
         if isinstance(logger, logging.Logger):
             self.logger = logger
         else:
-            l_handler = logging.StreamHandler()
-            l_format = '[%(asctime)s][%(name)s][%(levelname)s] %(message)s'
-            l_format = logging.Formatter(l_format)
-            l_handler.setFormatter(l_format)
-
             if isinstance(logger, str):
                 self.logger = logging.getLogger(logger)
-                self.logger.addHandler(l_handler)
             else:
                 self.logger = logging.getLogger('GENERATE_VALIDATION')
+
+            if not self.logger.hasHandlers():
+                l_handler = logging.StreamHandler()
+                l_format = '[%(asctime)s][%(name)s][%(levelname)s] %(message)s'
+                l_format = logging.Formatter(l_format)
+                l_handler.setFormatter(l_format)
                 self.logger.addHandler(l_handler)
 
         if debug:
