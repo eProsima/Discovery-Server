@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false" >
+    <clients>
+        <client name="client3" profile_name="UDP_client3_server1">
+            <subscriber topic="topic2" />
+        </client>
+    </clients>
+
+    <snapshots>
+        <snapshot time="20">test_lease_duration_snapshot_3</snapshot>
+    </snapshots>
+    
+    <profiles>
+        
+        <participant profile_name="UDP_client3_server1" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.33.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>16811</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <leaseDuration>
+                            <sec>5</sec>
+                        </leaseDuration>
+                        <leaseAnnouncement>
+                            <sec>2</sec>
+                        </leaseAnnouncement>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <topic profile_name="topic1">
+            <name>topic_1</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <topic profile_name="topic2">
+            <name>topic_2</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <types>
+            <type>
+            <struct name="sample_type_1">
+                <member name="index" type="uint32" />
+                <member name="message" type="string" />
+            </struct>
+            </type>
+        </types>
+        
+    </profiles>
+</DS>

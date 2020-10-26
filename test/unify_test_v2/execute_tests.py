@@ -126,23 +126,14 @@ def execute_test(test, path, discovery_server_tool_path, debug=False):
     :param discovery_server_tool: The path to the discovery server executable.
     :param debug: Debug flag (Default: False).
     """
-    if 'lease_duration' in test:
+    if test == 'test_16_lease_duration_single_client':
         aux_test_path = (
-            f"{'/'.join(path.split('/')[:-1])}/_{path.split('/')[-1]}")
-        if not debug:
-            # Launch
-            proc_server = subprocess.Popen(
-                [discovery_server_tool_path, path],
-                stdout=subprocess.DEVNULL)
-            proc_client = subprocess.Popen(
-                [discovery_server_tool_path, aux_test_path],
-                stdout=subprocess.DEVNULL)
-        else:
-            # Launch
-            proc_server = subprocess.Popen(
-                [discovery_server_tool_path, path])
-            proc_client = subprocess.Popen(
-                [discovery_server_tool_path, aux_test_path])
+            f"{'/'.join(path.split('/')[:-1])}/{path.split('/')[-1]}_1")
+        # Launch
+        proc_server = subprocess.Popen(
+            [discovery_server_tool_path, path])
+        proc_client = subprocess.Popen(
+            [discovery_server_tool_path, aux_test_path])
 
         # Wait 5 seconds before killing the external client
         try:
@@ -152,6 +143,43 @@ def execute_test(test, path, discovery_server_tool_path, debug=False):
 
         # Wait for server completion
         proc_server.communicate()
+
+    elif test == 'test_17_lease_duration_remove_client_server':
+        aux_test_path = (
+            f"{'/'.join(path.split('/')[:-1])}/{path.split('/')[-1]}_1")
+        # Launch
+        proc_main = subprocess.Popen(
+            [discovery_server_tool_path, path])
+        proc_sec = subprocess.Popen(
+            [discovery_server_tool_path, aux_test_path])
+
+        # Wait 5 seconds before killing the external client
+        try:
+            proc_sec.wait(5)
+        except subprocess.TimeoutExpired:
+            proc_sec.kill()
+
+        # Wait for server completion
+        proc_main.communicate()
+
+    elif test == 'test_20_break_builtin_connections':
+        aux_test_path = (
+            f"{'/'.join(path.split('/')[:-1])}/{path.split('/')[-1]}_1")
+        # Launch
+        proc_main = subprocess.Popen(
+            [discovery_server_tool_path, path])
+        proc_sec = subprocess.Popen(
+            [discovery_server_tool_path, aux_test_path])
+
+        # Wait 5 seconds before killing the external client
+        try:
+            proc_sec.wait(20)
+        except subprocess.TimeoutExpired:
+            proc_sec.kill()
+
+        # Wait for server completion
+        proc_main.communicate()
+
     else:
         command = [discovery_server_tool_path, path]
 
