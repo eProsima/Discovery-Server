@@ -64,7 +64,8 @@ class GenerateValidation(object):
         """Validate the snapshots resulting from a Discovery-Server test."""
         if self.server_endpoints:
             logging.warning(
-                'Not supported validation for servers with endpoints')
+                'Not supported validation for servers with endpoints: '
+                f'{shared.bcolors.WARNING}SKIP{shared.bcolors.ENDC}')
             return True
 
         try:

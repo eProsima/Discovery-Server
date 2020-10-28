@@ -75,17 +75,17 @@ endif()
 # Load external dependencies
 ###############################################################################
 
-# tinyxml2 
+# tinyxml2
 # first we search for the new config files
-find_package(tinyxml2 CONFIG) 
+find_package(tinyxml2 CONFIG)
 
 # according to docs and sources the above call searching for tinyxml2 would focus on:
 #   tinyxml2Config.cmake
 #   tinyxml2-config.cmake
 # but this is only true for unix like OS. CMake windows APIs rely on non-case-sensitive
 # APIs like GetFileAttributes thus the above call will on windows find:
-#   TinyXML2Config.cmake 
-# as a match for tinyxml2Config.cmake. That forces us to use the tinyxml2 target as a 
+#   TinyXML2Config.cmake
+# as a match for tinyxml2Config.cmake. That forces us to use the tinyxml2 target as a
 # decision variable (old TinyXML2Config.cmake doesn't create any target).
 
 # There are two versions of the tinyxml2Config.cmake:
@@ -93,11 +93,11 @@ find_package(tinyxml2 CONFIG)
 #   with all config info.
 # - new one: generated with the cmake install(TARGET ... EXPORT ...) and install(EXPORT ..)
 #   cmake commands. This one deprecates the above one in per-target installation. Tinyxml2
-#   CMakelists uses the install(EXPORT) namespace option, thus, the target is actually call 
+#   CMakelists uses the install(EXPORT) namespace option, thus, the target is actually call
 #   tinyxml2::tinyxml2.
 # The tinyxml2 CMakelists.txt uses export() together with install(...) generating two independent
 # tinyxml2Config.cmake files. Fortunately only installs one. We must be able to handle the existence
-# of tinyxml2 and tinyxml2::tinyxml2 targets because we don't know which one is gonna find. 
+# of tinyxml2 and tinyxml2::tinyxml2 targets because we don't know which one is gonna find.
 
 if(TARGET tinyxml2::tinyxml2)
 
@@ -116,22 +116,22 @@ else()
     else()
 
         # redundant on Windows because matches find_package(tinyxml2 CONFIG) behaviour
-        find_package(TinyXML2 CONFIG) 
+        find_package(TinyXML2 CONFIG)
 
         if(NOT TinyXML2_FOUND)
             # we try find the binaries directly
 
             include(FindPackageHandleStandardArgs)
 
-            find_path(TINYXML2_INCLUDE_DIR NAMES tinyxml2.h) 
+            find_path(TINYXML2_INCLUDE_DIR NAMES tinyxml2.h)
             find_library(TINYXML2_LIBRARY tinyxml2)
-       
+
             find_package_handle_standard_args(tinyxml2 DEFAULT_MSG TINYXML2_LIBRARY TINYXML2_INCLUDE_DIR)
 
             if(NOT tinyxml2_FOUND)
                 message(FATAL_ERROR "Unable to load tinyxml2 dependency. ${TINYXML2_INCLUDE_DIR}")
             endif()
-     
+
         endif()
 
     endif()
@@ -225,13 +225,8 @@ if (WIN32)
         )
 endif(WIN32)
 
-# xml test files
-file(GLOB ${PROJECT_NAME}_xml_tests
-    test/xml/*.xml.in)
-
-# python test files
-file(GLOB ${PROJECT_NAME}_python_tests
-    test/python/*.py)
+# Test path
+set(TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test CACHE PATH "Source directory for test")
 
 # xml schema file
 set(${PROJECT_NAME}_schema_files
@@ -270,26 +265,29 @@ set(${PROJECT_NAME}_source_files
         src/LJ.cpp
     )
 
-# Executable 
+# Executable
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_source_files} ${${PROJECT_NAME}_header_files}
                 ${${PROJECT_NAME}_schema_files} ${${PROJECT_NAME}_xml_tests}
                 ${${PROJECT_NAME}_python_tests} ${${PROJECT_NAME}_static_types})
 
 # schema, types and auxiliary xmls
 source_group(resources\\xsd FILES ${${PROJECT_NAME}_schema_files} )
-source_group(resources\\xml FILES ${${PROJECT_NAME}_xml_tests} )
-source_group(resources\\python FILES ${${PROJECT_NAME}_python_tests} )
 source_group(resources\\static_types FILES ${${PROJECT_NAME}_static_types} )
 
-# path to xml test TEST_XML_FILES_DIR
-list(GET ${PROJECT_NAME}_xml_tests 0 TEST_XML_FILES_DIR)
-get_filename_component(TEST_XML_FILES_DIR "${TEST_XML_FILES_DIR}" DIRECTORY )
-file(TO_NATIVE_PATH "${TEST_XML_FILES_DIR}/" TEST_XML_FILES_DIR)
+# path to xml test TEST_FILES_DIR
+list(GET ${PROJECT_NAME}_tests 0 TEST_FILES_DIR)
+get_filename_component(TEST_FILES_DIR "${TEST_FILES_DIR}" DIRECTORY )
+file(TO_NATIVE_PATH "${TEST_FILES_DIR}/" TEST_FILES_DIR)
 
-# path to python test TEST_PYTHON_FILES_DIR
-list(GET ${PROJECT_NAME}_python_tests 0 TEST_PYTHON_FILES_DIR)
-get_filename_component(TEST_PYTHON_FILES_DIR "${TEST_PYTHON_FILES_DIR}" DIRECTORY )
-file(TO_NATIVE_PATH "${TEST_PYTHON_FILES_DIR}/" TEST_PYTHON_FILES_DIR)
+# path to test solution snapshots SNAPSHOT_FILES_DIR
+list(GET ${PROJECT_NAME}_tests 0 SNAPSHOT_FILES_DIR)
+get_filename_component(SNAPSHOT_FILES_DIR "${SNAPSHOT_FILES_DIR}" DIRECTORY )
+file(TO_NATIVE_PATH "${SNAPSHOT_FILES_DIR}/" SNAPSHOT_FILES_DIR)
+
+# path to python validation files VALIDATION_FILES_DIR
+list(GET ${PROJECT_NAME}_tests 0 VALIDATION_FILES_DIR)
+get_filename_component(VALIDATION_FILES_DIR "${VALIDATION_FILES_DIR}" DIRECTORY )
+file(TO_NATIVE_PATH "${VALIDATION_FILES_DIR}/" VALIDATION_FILES_DIR)
 
 # avoid visual studio from trying to compile .idl files with midl
 set_source_files_properties(${${PROJECT_NAME}_idl} PROPERTIES HEADER_FILE_ONLY TRUE)
@@ -321,7 +319,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 #endif()
 
 # we link dynamically to tinyxml2
-target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr 
+target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr
 	${TINYXML2_LIBRARY}
 	${OPENSSL_TARGET}
 	)
@@ -334,11 +332,24 @@ set_target_properties(${PROJECT_NAME} PROPERTIES MINSIZEREL_POSTFIX -${PROJECT_V
 set_target_properties(${PROJECT_NAME} PROPERTIES RELWITHDEBINFO_POSTFIX -${PROJECT_VERSION}rd)
 
 ###############################################################################
-# Testing 
+# Testing
 ###############################################################################
 
 enable_testing()
 include(CTest)  # shut up colcon's whining about .tcl files
+
+file(COPY ${TEST_DIR} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+set(BINARY_TEST_DIR ${CMAKE_CURRENT_BINARY_DIR}/test)
+file(TO_NATIVE_PATH "${BINARY_TEST_DIR}/" BINARY_TEST_DIR)
+
+set(BINARY_TEST_CASES_DIR ${BINARY_TEST_DIR}/test_cases)
+file(TO_NATIVE_PATH "${BINARY_TEST_CASES_DIR}/" BINARY_TEST_CASES_DIR)
+
+set(BINARY_SNAPSHOTS_DIR ${BINARY_TEST_DIR}/test_solutions)
+file(TO_NATIVE_PATH "${BINARY_SNAPSHOTS_DIR}/" BINARY_SNAPSHOTS_DIR)
+
+set(RUN_TEST ${BINARY_TEST_DIR}run_test.py)
 
 # To save time is adviceable to run ctest -j 10 to parallelized the test execution. Note that test doesn't interfere
 # with each other because independent random ports are generated for the servers.
@@ -346,233 +357,275 @@ include(CTest)  # shut up colcon's whining about .tcl files
 # transform the xml.in files into actual xml with random port numbers
 # xml files are created into the current binary dir but installed into the test dir
 
-include(${PROJECT_SOURCE_DIR}/cmake/common/random_ports.cmake)
-
-unset(${PROJECT_NAME}_transform_xml_tests)
-
 # files belonging to the same test must be consecutive alphabetically
-list(SORT ${PROJECT_NAME}_xml_tests)
-
-unset(LAST_TEST_NUMBER )
-
-foreach(TEST_XML ${${PROJECT_NAME}_xml_tests})
-
-    # message(STATUS "Processing test ${TEST_XML}")
-
-    # all test files must match the pattern test_\d+_
-    if(NOT TEST_XML MATCHES "test_([0-9]+)_")
-       message(FATAL_ERROR " all test files must match the pattern test_\\d+_" )
-    endif()
-
-    string(REGEX MATCH "test_([0-9]+)_" NEW_TEST_NUMBER "${TEST_XML}" )
-    # NEW_TEST_NUMBER is not the capture group by the whole expresion
-    set(NEW_TEST_NUMBER ${CMAKE_MATCH_1})
-
-    # update only if are files from different tests
-    if(NOT NEW_TEST_NUMBER EQUAL LAST_TEST_NUMBER)
-        # making up port numbers
-        random_port(1024 65531 RANDOM_PORT)
-        math(EXPR RANDOM_PORT_2 ${RANDOM_PORT}+1)
-        math(EXPR RANDOM_PORT_3 ${RANDOM_PORT}+2)
-        math(EXPR RANDOM_PORT_4 ${RANDOM_PORT}+3)
-        math(EXPR RANDOM_PORT_5 ${RANDOM_PORT}+4)
-        # making up domain number
-        random_port(1 120 RANDOM_DOMAIN)
-        math(EXPR RANDOM_DOMAIN ${RANDOM_DOMAIN}) # removing leading 0s
-        # keep in a specific list the values for each test for later use
-        set(DS_TEST_${NEW_TEST_NUMBER}_PORTS
-                ${RANDOM_PORT} ${RANDOM_PORT_2} ${RANDOM_PORT_3} ${RANDOM_PORT_4} ${RANDOM_PORT_5} ${RANDOM_DOMAI})
-    endif()
-
-    set(LAST_TEST_NUMBER ${NEW_TEST_NUMBER})
-	
-    get_filename_component(OUTPUT_NAME ${TEST_XML} NAME_WE)
-    configure_file(${TEST_XML} ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_NAME}.xml)
-    list(APPEND ${PROJECT_NAME}_transform_xml_tests ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_NAME}.xml)
-
-endforeach()
+list(SORT ${PROJECT_NAME}_tests)
 
 unset(TEST_LIST)
 
-# add the several test, we begin for the basic discovery UDP scenario
-list(APPEND TEST_LIST test_01_PDP_UDP)
-add_test(NAME test_01_PDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_01_PDP_UDP.xml)
-set_tests_properties(test_01_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_01_PDP_UDP.xml)
+# Test 01
+list(APPEND TEST_LIST test_01_trivial)
+add_test(NAME test_01_trivial
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_01_trivial -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_01_trivial PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_01_trivial.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_01_trivial.snapshot )
 
-## basic discovery TCP scenario
-list(APPEND TEST_LIST test_02_PDP_TCP)
-add_test(NAME test_02_PDP_TCP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_02_PDP_TCP.xml)
-set_tests_properties(test_02_PDP_TCP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_02_PDP_TCP.xml)
+# Test 02
+list(APPEND TEST_LIST test_02_single_server_medium)
+add_test(NAME test_02_single_server_medium
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_02_single_server_medium -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_02_single_server_medium PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_02_single_server_medium.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_02_single_server_medium.snapshot )
 
-# Testing late joiner detection and removal
-list(APPEND TEST_LIST test_03_PDP_UDP)
-add_test(NAME test_03_PDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_03_PDP_UDP.xml)
-set_tests_properties(test_03_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_03_PDP_UDP.xml)
+# Test 03
+list(APPEND TEST_LIST test_03_single_server_large)
+add_test(NAME test_03_single_server_large
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_03_single_server_large -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_03_single_server_large PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_03_single_server_large.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_03_single_server_large.snapshot )
 
-# Testing server inter communication 
-list(APPEND TEST_LIST test_04_PDP_UDP)
-add_test(NAME test_04_PDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_04_PDP_UDP.xml)
-set_tests_properties(test_04_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_04_PDP_UDP.xml)
+# Test 04
+list(APPEND TEST_LIST test_04_server_ping)
+add_test(NAME test_04_server_ping
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_04_server_ping -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_04_server_ping PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_04_server_ping.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_04_server_ping.snapshot )
 
-# Testing EDP discovery operation 
-list(APPEND TEST_LIST test_05_EDP_UDP)
-add_test(NAME test_05_EDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_05_EDP_UDP.xml)
-set_tests_properties(test_05_EDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_05_EDP_UDP.xml)
+# Test 05
+list(APPEND TEST_LIST test_05_server_double_ping)
+add_test(NAME test_05_server_double_ping
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_05_server_double_ping -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_05_server_double_ping PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_05_server_double_ping.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_05_server_double_ping.snapshot )
 
-# Testing EDP discovery operation over TCP transport
-list(APPEND TEST_LIST test_05_EDP_TCP)
-add_test(NAME test_05_EDP_TCP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_05_EDP_TCP.xml)
-set_tests_properties(test_05_EDP_TCP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_05_EDP_TCP.xml)
+# Test 06
+list(APPEND TEST_LIST test_06_diamond_servers)
+add_test(NAME test_06_diamond_servers
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_06_diamond_servers -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_06_diamond_servers PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_06_diamond_servers.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_06_diamond_servers.snapshot )
 
-# Testing EDP discovery operation with late joiner detection and removal
-list(APPEND TEST_LIST test_06_EDP_UDP)
-add_test(NAME test_06_EDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_06_EDP_UDP.xml)
-set_tests_properties(test_06_EDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_06_EDP_UDP.xml)
+# Test 07
+list(APPEND TEST_LIST test_07_server_endpoints_two_servers)
+add_test(NAME test_07_server_endpoints_two_servers
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_07_server_endpoints_two_servers -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_07_server_endpoints_two_servers PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_07_server_endpoints_two_servers.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_07_server_endpoints_two_servers.snapshot )
 
-# Testing server demise detection by clients
-list(APPEND TEST_LIST test_07_PDP_UDP)
-add_test(NAME test_07_PDP_UDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_07_PDP_UDP.xml)
-set_tests_properties(test_07_PDP_UDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_07_PDP_UDP.xml)
+# Test 08
+list(APPEND TEST_LIST test_08_server_endpoints_four_clients)
+add_test(NAME test_08_server_endpoints_four_clients
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_08_server_endpoints_four_clients -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_08_server_endpoints_four_clients PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_08_server_endpoints_four_clients.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_08_server_endpoints_four_clients.snapshot )
 
-# Testing new lease duration server-client strategy
-list(APPEND TEST_LIST test_08_lease_duration)
-add_test(NAME test_08_lease_duration
- COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_08_lease_duration.py
- $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_BINARY_DIR}/test_08_lease_server.xml ${CMAKE_CURRENT_BINARY_DIR}/test_08_lease_client.xml)
-set_tests_properties(test_08_lease_duration PROPERTIES 
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_08_lease_client.xml 
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_08_lease_server.xml )
+# Test 09
+list(APPEND TEST_LIST test_09_servers_serial)
+add_test(NAME test_09_servers_serial
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_09_servers_serial -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_09_servers_serial PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_09_servers_serial.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_09_servers_serial.snapshot )
 
-# Testing WLP callbacks
-list(APPEND TEST_LIST test_09_WLP)
-add_test(NAME test_09_WLP
- COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_09_WLP.py
- $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_BINARY_DIR}/test_09_WLP_server.xml ${CMAKE_CURRENT_BINARY_DIR}/test_09_WLP_client.xml)
-set_tests_properties(test_09_WLP PROPERTIES 
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_09_WLP_client.xml 
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_09_WLP_server.xml )
+# Test 10
+list(APPEND TEST_LIST test_10_server_redundancy)
+add_test(NAME test_10_server_redundancy
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_10_server_redundancy -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_10_server_redundancy PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_10_server_redundancy.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_10_server_redundancy.snapshot )
 
-# Testing server demise detection by clients
-list(APPEND TEST_LIST test_10_simple_PDP_EDP)
-add_test(NAME test_10_simple_PDP_EDP COMMAND  ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_10_simple_PDP_EDP.xml)
-set_tests_properties(test_10_simple_PDP_EDP PROPERTIES REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_10_simple_PDP_EDP.xml)
+# Test 11
+list(APPEND TEST_LIST test_11_remote_servers)
+add_test(NAME test_11_remote_servers
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_11_remote_servers -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_11_remote_servers PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_11_remote_servers.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_11_remote_servers.snapshot )
 
-# Testing BACKUP mechanism 
-list(APPEND TEST_LIST test_11_BACKUP)
-add_test(NAME test_11_BACKUP COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_11_BACKUP.py 
- $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_BINARY_DIR}/test_11_BACKUP_server.xml ${CMAKE_CURRENT_BINARY_DIR}/test_11_BACKUP_client.xml)
-set_tests_properties( test_11_BACKUP PROPERTIES 
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_11_BACKUP_server.xml
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_11_BACKUP_client.xml)
+# Test 12
+list(APPEND TEST_LIST test_12_virtual_topics)
+add_test(NAME test_12_virtual_topics
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_12_virtual_topics -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_12_virtual_topics PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_12_virtual_topics.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_12_virtual_topics.snapshot )
 
-# Testing discovery among participants in different processes & snapshot aggregation. 
-list(APPEND TEST_LIST test_12_interprocess)
-add_test(NAME test_12_interprocess COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_12_interprocess.py
-    $<TARGET_FILE:${PROJECT_NAME}>
-    ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_server.xml 
-    ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_client1.xml 
-    ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_client2.xml 
-    ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_client3.xml)
-set_tests_properties(test_12_interprocess PROPERTIES
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_server.xml
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_client1.xml
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_client2.xml
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_12_interprocess_client3.xml)
+# Test 13
+list(APPEND TEST_LIST test_13_disposals_single_server)
+add_test(NAME test_13_disposals_single_server
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_13_disposals_single_server -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_13_disposals_single_server PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_13_disposals_single_server.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_13_disposals_single_server.snapshot )
 
-# Testing trimming mechanism in PDP and EDP 
-list(APPEND TEST_LIST test_13_trimming)
-add_test(NAME test_13_trimming COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_13_trimming.py
-    $<TARGET_FILE:${PROJECT_NAME}>
-    ${CMAKE_CURRENT_BINARY_DIR}/test_13_trimming_server.xml
-    ${CMAKE_CURRENT_BINARY_DIR}/test_13_trimming_client.xml
-    )
-set_tests_properties(test_13_trimming PROPERTIES
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_13_trimming_server.xml
-    REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_13_trimming_client.xml
-    )
+# Test 14
+list(APPEND TEST_LIST test_14_disposals_remote_servers)
+add_test(NAME test_14_disposals_remote_servers
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_14_disposals_remote_servers -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_14_disposals_remote_servers PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_14_disposals_remote_servers.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_14_disposals_remote_servers.snapshot )
 
-# Testing setup using the ROS_DISCOVERY_SERVER environment variable
-list(APPEND TEST_LIST test_14_environment_variable_setup)
-add_test(NAME test_14_environment_variable_setup
-        COMMAND ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_14_environment_variable_setup.xml)
-list(GET DS_TEST_14_PORTS 0 CHOSEN_PORT)
-set_tests_properties(test_14_environment_variable_setup PROPERTIES
-        ENVIRONMENT ROS_DISCOVERY_SERVER=127.0.0.1:${CHOSEN_PORT}
-        REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_14_environment_variable_setup.xml)
+# Test 15
+list(APPEND TEST_LIST test_15_disposals_client_servers)
+add_test(NAME test_15_disposals_client_servers
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_15_disposals_client_servers -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_15_disposals_client_servers PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_15_disposals_client_servers.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_15_disposals_client_servers.snapshot )
 
-# Testing fast-discovery-server tool capacity of launching servers
-list(APPEND TEST_LIST test_15_server_creation_tool)
-list(GET DS_TEST_15_PORTS 0 CHOSEN_PORT)
-add_test(NAME test_15_server_creation_tool COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_15_fds.py
-    $<$<TARGET_EXISTS:fastdds::fast-discovery-server>:$<TARGET_FILE:fastdds::fast-discovery-server>>
-    ${CHOSEN_PORT}
-    $<TARGET_FILE:${PROJECT_NAME}>
-    ${CMAKE_CURRENT_BINARY_DIR}/test_15_fds.xml)
-set_tests_properties(test_15_server_creation_tool PROPERTIES
-        REQUIRED_FILES "${CMAKE_CURRENT_BINARY_DIR}/test_15_fds.xml;${TEST_PYTHON_FILES_DIR}test_15_fds.py"
-        DISABLED $<NOT:$<TARGET_EXISTS:fastdds::fast-discovery-server>>)
+# Test 16
+list(APPEND TEST_LIST test_16_lease_duration_single_client)
+add_test(NAME test_16_lease_duration_single_client
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_16_lease_duration_single_client -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_16_lease_duration_single_client PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_16_lease_duration_single_client.xml
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_16_lease_duration_single_client_1.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_16_lease_duration_single_client.snapshot )
 
-# specify a suitable timeout 
-set_tests_properties(${TEST_LIST} PROPERTIES TIMEOUT 40)
+# Test 17
+list(APPEND TEST_LIST test_17_lease_duration_remove_client_server)
+add_test(NAME test_17_lease_duration_remove_client_server
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_17_lease_duration_remove_client_server -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_17_lease_duration_remove_client_server PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_17_lease_duration_remove_client_server.xml
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_17_lease_duration_remove_client_server_1.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_17_lease_duration_remove_client_server.snapshot )
 
-# Windows requires an special treatment of environmental variables
-if(WIN32)
+# Test 18
+list(APPEND TEST_LIST test_18_disposals_remote_servers_multiprocess)
+add_test(NAME test_18_disposals_remote_servers_multiprocess
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_18_disposals_remote_servers_multiprocess -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_18_disposals_remote_servers_multiprocess PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_18_disposals_remote_servers_multiprocess.xml
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_18_disposals_remote_servers_multiprocess_1.xml
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_18_disposals_remote_servers_multiprocess_2.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_18_disposals_remote_servers_multiprocess.snapshot )
 
-    # set the environment variables to detect fast binaries
-    string(REGEX MATCHALL  "[A-Z]:[^;:]+;" PATH_VARIABLE "$ENV{PATH}" )
-    foreach (itvar ${PATH_VARIABLE})
-            string(REPLACE ";" "" itvar ${itvar})
-            set(WINDOWS_PATH_VARIABLE "${WINDOWS_PATH_VARIABLE}\\;${itvar}" )
-    endforeach( itvar ) 
+# Test 19
+list(APPEND TEST_LIST test_19_disposals_break_builtin_connections)
+add_test(NAME test_19_disposals_break_builtin_connections
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_19_disposals_break_builtin_connections -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_19_disposals_break_builtin_connections PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_19_disposals_break_builtin_connections.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_19_disposals_break_builtin_connections.snapshot )
 
-    # Generate a dll path property for each target-configuration
-    get_target_property(DEPENDENCIES ${PROJECT_NAME} INTERFACE_LINK_LIBRARIES)
-    unset(TEST_ENVIRONMENT_DEPENDENCIES)
+# Test 20
+list(APPEND TEST_LIST test_20_break_builtin_connections)
+add_test(NAME test_20_break_builtin_connections
+ COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+ -e $<TARGET_FILE:${PROJECT_NAME}> -t test_20_break_builtin_connections -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_20_break_builtin_connections PROPERTIES
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_20_break_builtin_connections.xml
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_20_break_builtin_connections_1.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_20_break_builtin_connections.snapshot )
 
-    foreach( _target ${DEPENDENCIES})
-        #message(STATUS "DEPENDENT TARGET ${_target}")
+# # Testing setup using the ROS_DISCOVERY_SERVER environment variable
+# list(APPEND TEST_LIST test_14_environment_variable_setup)
+# add_test(NAME test_14_environment_variable_setup
+#         COMMAND ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/test_14_environment_variable_setup.xml)
+# list(GET DS_TEST_14_PORTS 0 CHOSEN_PORT)
+# set_tests_properties(test_14_environment_variable_setup PROPERTIES
+#         ENVIRONMENT ROS_DISCOVERY_SERVER=127.0.0.1:${CHOSEN_PORT}
+#         REQUIRED_FILES ${CMAKE_CURRENT_BINARY_DIR}/test_14_environment_variable_setup.xml)
 
-        if(TARGET ${_target} )
+# # Testing fast-discovery-server tool capacity of launching servers
+# list(APPEND TEST_LIST test_15_server_creation_tool)
+# list(GET DS_TEST_15_PORTS 0 CHOSEN_PORT)
+# add_test(NAME test_15_server_creation_tool COMMAND ${PYTHON_EXECUTABLE} ${TEST_PYTHON_FILES_DIR}test_15_fds.py
+#     $<$<TARGET_EXISTS:fastdds::fast-discovery-server>:$<TARGET_FILE:fastdds::fast-discovery-server>>
+#     ${CHOSEN_PORT}
+#     $<TARGET_FILE:${PROJECT_NAME}>
+#     ${CMAKE_CURRENT_BINARY_DIR}/test_15_fds.xml)
+# set_tests_properties(test_15_server_creation_tool PROPERTIES
+#         REQUIRED_FILES "${CMAKE_CURRENT_BINARY_DIR}/test_15_fds.xml;${TEST_PYTHON_FILES_DIR}test_15_fds.py"
+#         DISABLED $<NOT:$<TARGET_EXISTS:fastdds::fast-discovery-server>>)
 
-        #message(STATUS "Configurations available in ${_target} are ${CMAKE_CONFIGURATION_TYPES}\n")
+# # Windows requires an special treatment of environmental variables
+# if(WIN32)
 
-        foreach( _config ${CMAKE_CONFIGURATION_TYPES} )
+#     # set the environment variables to detect fast binaries
+#     string(REGEX MATCHALL  "[A-Z]:[^;:]+;" PATH_VARIABLE "$ENV{PATH}" )
+#     foreach (itvar ${PATH_VARIABLE})
+#             string(REPLACE ";" "" itvar ${itvar})
+#             set(WINDOWS_PATH_VARIABLE "${WINDOWS_PATH_VARIABLE}\\;${itvar}" )
+#     endforeach( itvar )
 
-            string(TOUPPER  ${_config} _config) # CMake is fiercely case-sensitive
-            #message(STATUS "Current config in ${_target} is ${_config}\n")
+#     # Generate a dll path property for each target-configuration
+#     get_target_property(DEPENDENCIES ${PROJECT_NAME} INTERFACE_LINK_LIBRARIES)
+#     unset(TEST_ENVIRONMENT_DEPENDENCIES)
 
-            #retrieve binary path
-            get_target_property(IMPORTED_LOCATION ${_target} IMPORTED_LOCATION_${_config} )
+#     foreach( _target ${DEPENDENCIES})
+#         #message(STATUS "DEPENDENT TARGET ${_target}")
 
-            #message(STATUS "IMPORTED_LOCATION_${_config} = ${IMPORTED_LOCATION}")
+#         if(TARGET ${_target} )
 
-            if(IMPORTED_LOCATION) #ignore if this configuration doesn't exist
+#         #message(STATUS "Configurations available in ${_target} are ${CMAKE_CONFIGURATION_TYPES}\n")
 
-                get_filename_component(DIR_PATH "${IMPORTED_LOCATION}" DIRECTORY )
-                file(TO_NATIVE_PATH ${DIR_PATH} DIR_NATIVE_PATH)
-                set_target_properties(${_target} PROPERTIES NATIVE_LOCATION_DIR_${_config} ${DIR_NATIVE_PATH} )
+#         foreach( _config ${CMAKE_CONFIGURATION_TYPES} )
 
-                #message(STATUS "Created target: ${_target} property: NATIVE_LOCATION_DIR_${_config} = ${DIR_NATIVE_PATH}")
+#             string(TOUPPER  ${_config} _config) # CMake is fiercely case-sensitive
+#             #message(STATUS "Current config in ${_target} is ${_config}\n")
 
-            endif(IMPORTED_LOCATION)
+#             #retrieve binary path
+#             get_target_property(IMPORTED_LOCATION ${_target} IMPORTED_LOCATION_${_config} )
 
-        endforeach()
+#             #message(STATUS "IMPORTED_LOCATION_${_config} = ${IMPORTED_LOCATION}")
 
-        if(TEST_ENVIRONMENT_DEPENDENCIES)
-            set(TEST_ENVIRONMENT_DEPENDENCIES "${TEST_ENVIRONMENT_DEPENDENCIES}\\;$<TARGET_PROPERTY:${_target},NATIVE_LOCATION_DIR_$<UPPER_CASE:$<CONFIG>>>")
-        else()
-            set(TEST_ENVIRONMENT_DEPENDENCIES "$<TARGET_PROPERTY:${_target},NATIVE_LOCATION_DIR_$<UPPER_CASE:$<CONFIG>>>")
-        endif()
+#             if(IMPORTED_LOCATION) #ignore if this configuration doesn't exist
 
-        endif()
-    endforeach()
+#                 get_filename_component(DIR_PATH "${IMPORTED_LOCATION}" DIRECTORY )
+#                 file(TO_NATIVE_PATH ${DIR_PATH} DIR_NATIVE_PATH)
+#                 set_target_properties(${_target} PROPERTIES NATIVE_LOCATION_DIR_${_config} ${DIR_NATIVE_PATH} )
 
-    #message(STATUS ${TEST_ENVIRONMENT_DEPENDENCIES})
+#                 #message(STATUS "Created target: ${_target} property: NATIVE_LOCATION_DIR_${_config} = ${DIR_NATIVE_PATH}")
 
-    # make sure the target dependencies we found override others already installed when loading dlls 
-    set_property(TEST ${TEST_LIST} APPEND PROPERTY ENVIRONMENT "PATH=${TEST_ENVIRONMENT_DEPENDENCIES}\\;${WINDOWS_PATH_VARIABLE}" )
+#             endif(IMPORTED_LOCATION)
 
-endif()
+#         endforeach()
+
+#         if(TEST_ENVIRONMENT_DEPENDENCIES)
+#             set(TEST_ENVIRONMENT_DEPENDENCIES "${TEST_ENVIRONMENT_DEPENDENCIES}\\;$<TARGET_PROPERTY:${_target},NATIVE_LOCATION_DIR_$<UPPER_CASE:$<CONFIG>>>")
+#         else()
+#             set(TEST_ENVIRONMENT_DEPENDENCIES "$<TARGET_PROPERTY:${_target},NATIVE_LOCATION_DIR_$<UPPER_CASE:$<CONFIG>>>")
+#         endif()
+
+#         endif()
+#     endforeach()
+
+#     #message(STATUS ${TEST_ENVIRONMENT_DEPENDENCIES})
+
+#     # make sure the target dependencies we found override others already installed when loading dlls
+#     set_property(TEST ${TEST_LIST} APPEND PROPERTY ENVIRONMENT "PATH=${TEST_ENVIRONMENT_DEPENDENCIES}\\;${WINDOWS_PATH_VARIABLE}" )
+
+# endif()
 
 ###############################################################################
 # Examples
@@ -584,7 +637,7 @@ if(COMPILE_EXAMPLES)
 endif()
 
 ###############################################################################
-# Installation 
+# Installation
 ###############################################################################
 
 if(WIN32)
@@ -600,7 +653,7 @@ set(BIN_INSTALL_DIR bin/ CACHE PATH "Installation directory for binaries")
 set(INCLUDE_INSTALL_DIR include/ CACHE PATH "Installation directory for C++ headers")
 set(INCLUDE_SOURCE_DIR src/ CACHE PATH "Installation directory for C++ sources")
 set(EXAMPLES_INSTALL_DIR examples/ CACHE PATH "Installation directory for examples")
-set(TESTS_INSTALL_DIR test/ CACHE PATH "Installation directory for tests")
+set(TESTS_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/test/ CACHE PATH "Installation directory for tests")
 set(LIB_INSTALL_DIR lib/ CACHE PATH "Installation directory for libraries")
 set(LICENSE_INSTALL_DIR license/ CACHE PATH "Installation directory for licenses")
 set(EXPORT_INSTALL_DIR export/ CACHE PATH "Installation directory for cmake exports")
@@ -633,12 +686,6 @@ install(EXPORT ${PROJECT_NAME}_Targets
 #    FILES_MATCHING PATTERN "*.cpp"
 #    )
 
-# Install test
-install(FILES ${${PROJECT_NAME}_transform_xml_tests}
-    ${${PROJECT_NAME}_python_tests}
-    COMPONENT tests
-    DESTINATION ${TESTS_INSTALL_DIR}
-    )
 
 # Install licenses
 install(FILES ${PROJECT_SOURCE_DIR}/license/LICENSE
