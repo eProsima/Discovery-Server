@@ -607,11 +607,11 @@ set(EXPORT_INSTALL_DIR export/ CACHE PATH "Installation directory for cmake expo
 
 # install binaries
 install(TARGETS ${PROJECT_NAME}
+    COMPONENT bin
     EXPORT ${PROJECT_NAME}_Targets
     RUNTIME DESTINATION ${BIN_INSTALL_DIR}
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
-    COMPONENT bin
     )
 
 # Install includes
@@ -623,6 +623,7 @@ install(TARGETS ${PROJECT_NAME}
 
 # export library
 install(EXPORT ${PROJECT_NAME}_Targets
+     COMPONENT bin
      DESTINATION ${EXPORT_INSTALL_DIR}
      )
 
