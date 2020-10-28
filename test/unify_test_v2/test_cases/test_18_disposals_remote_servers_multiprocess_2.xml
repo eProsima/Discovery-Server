@@ -2,13 +2,13 @@
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
 
     <servers>
-        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server" removal_time="25"> 
+        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server3" removal_time="15"> 
             <subscriber topic="topic1"/>
         </server>
     </servers>
 
-    <snapshots>
-        <snapshot time="40">test_18_disposals_remote_servers_multiprocess_snapshot_3</snapshot>
+    <snapshots file="./test_18_disposals_remote_servers_multiprocess_2.snapshot~">
+        <snapshot time="40">test_18_disposals_remote_servers_multiprocess_snapshot_1</snapshot>
     </snapshots>
 
     <profiles>

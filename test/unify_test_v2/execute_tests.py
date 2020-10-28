@@ -128,7 +128,7 @@ def execute_test(test, path, discovery_server_tool_path, debug=False):
     """
     if test == 'test_16_lease_duration_single_client':
         aux_test_path = (
-            f"{'/'.join(path.split('/')[:-1])}/{path.split('/')[-1]}_1")
+            f"{'/'.join(path.split('/')[:-1])}/{test}_1.xml")
         # Launch
         proc_server = subprocess.Popen(
             [discovery_server_tool_path, path])
@@ -146,38 +146,56 @@ def execute_test(test, path, discovery_server_tool_path, debug=False):
 
     elif test == 'test_17_lease_duration_remove_client_server':
         aux_test_path = (
-            f"{'/'.join(path.split('/')[:-1])}/{path.split('/')[-1]}_1")
+            f"{'/'.join(path.split('/')[:-1])}/{test}_1.xml")
         # Launch
         proc_main = subprocess.Popen(
             [discovery_server_tool_path, path])
         proc_sec = subprocess.Popen(
             [discovery_server_tool_path, aux_test_path])
 
-        # Wait 5 seconds before killing the external client
+        # Wait 5 seconds before killing the client server
         try:
-            proc_sec.wait(5)
+            proc_sec.wait(15)
         except subprocess.TimeoutExpired:
             proc_sec.kill()
 
         # Wait for server completion
         proc_main.communicate()
 
+    elif test == 'test_18_disposals_remote_servers_multiprocess':
+        aux_test_path_1 = (
+            f"{'/'.join(path.split('/')[:-1])}/{test}_1.xml")
+        aux_test_path_2 = (
+            f"{'/'.join(path.split('/')[:-1])}/{test}_2.xml")
+        # Launch
+        proc_main = subprocess.Popen(
+            [discovery_server_tool_path, path])
+        proc_sec_1 = subprocess.Popen(
+            [discovery_server_tool_path, aux_test_path_1])
+        proc_sec_2 = subprocess.Popen(
+            [discovery_server_tool_path, aux_test_path_2])
+
+        # Wait for completion
+        proc_main.communicate()
+        proc_sec_1.communicate()
+        proc_sec_2.communicate()
+
     elif test == 'test_20_break_builtin_connections':
         aux_test_path = (
-            f"{'/'.join(path.split('/')[:-1])}/{path.split('/')[-1]}_1")
+            f"{'/'.join(path.split('/')[:-1])}/{test}_1.xml")
         # Launch
         proc_main = subprocess.Popen(
             [discovery_server_tool_path, path])
         proc_sec = subprocess.Popen(
             [discovery_server_tool_path, aux_test_path])
 
-        # Wait 5 seconds before killing the external client
+        # Wait 5 seconds before killing the server in the middle
         try:
             proc_sec.wait(20)
         except subprocess.TimeoutExpired:
             proc_sec.kill()
 
-        # Wait for server completion
+        # Wait for completion
         proc_main.communicate()
 
     else:
@@ -284,7 +302,7 @@ def validate_test(test, test_path, discovery_server_tool_path, debug=False):
 
     gen_ret = generate_check(test, test_snapshot)
 
-    os.system('rm ' + test_snapshot)
+    # os.system('rm ' + test_snapshot)
 
     return lines_count_ret and gt_ret and gen_ret
 

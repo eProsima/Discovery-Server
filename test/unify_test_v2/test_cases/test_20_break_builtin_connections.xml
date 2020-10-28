@@ -12,7 +12,7 @@
         <client name="client1_server1" profile_name="UDP_client1_server1">
             <publisher topic="topic1"/>
         </client>
-        <client name="client2_server1" profile_name="UDP_client1_server1" creation_time="45">
+        <client name="client2_server1" profile_name="UDP_client2_server1" creation_time="45">
             <publisher topic="topic1" creation_time="45"/>
         </client>
     </clients>

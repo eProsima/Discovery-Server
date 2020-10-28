@@ -23,13 +23,12 @@
         </client>
         <client name="client2" profile_name="UDP_client2_server1">
             <subscriber topic="topic1" />
-            <publisher topic="topic2" />    
         </client>
     </clients>
 
     <snapshots file="./test_17_lease_duration_remove_client_server.snapshot~" >
-        <snapshot time="3">test_17_lease_duration_remove_client_server_snapshot_1</snapshot>
-        <snapshot time="15">test_17_lease_duration_remove_client_server_snapshot_2</snapshot>
+        <snapshot time="10">test_17_lease_duration_remove_client_server_snapshot_1</snapshot>
+        <snapshot time="30">test_17_lease_duration_remove_client_server_snapshot_2</snapshot>
     </snapshots>
   
     <profiles>

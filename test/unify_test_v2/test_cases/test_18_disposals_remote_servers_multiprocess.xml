@@ -12,12 +12,10 @@
     </clients>
 
     <snapshots file="./test_18_disposals_remote_servers_multiprocess.snapshot~">
-
         <!-- Starting point -->
-        <snapshot time="20">test_18_disposals_remote_servers_multiprocess_snapshot_1</snapshot>
+        <snapshot time="10">test_18_disposals_remote_servers_multiprocess_snapshot_1</snapshot>
         <!-- Remove server3 -->
         <snapshot time="40">test_18_disposals_remote_servers_multiprocess_snapshot_2</snapshot>
-
     </snapshots>
 
     <profiles>
