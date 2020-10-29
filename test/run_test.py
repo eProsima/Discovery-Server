@@ -13,6 +13,7 @@
 # limitations under the License.
 """Script to execute a single Discovery Server v2 test."""
 import argparse
+import glob
 import logging
 import os
 import subprocess
@@ -289,13 +290,27 @@ def validate_test(
     logger.info('------------------------------------------------------------')
 
     lines_count_ret = count_lines_check(test_snapshot, ground_truth_snapshot)
+
     gt_ret = ground_truth_check(test_snapshot, ground_truth_snapshot)
 
     gen_ret = generate_check(test, test_snapshot)
 
-    os.system('rm ' + test_snapshot)
+    validation_result = lines_count_ret and gt_ret and gen_ret
 
-    return lines_count_ret and gt_ret and gen_ret
+    os.chdir('/home/raul/Fast-DDS_workspace_dev/build/discovery-server')
+    snapshots = glob.glob(
+        os.path.join(os.path.dirname(test_snapshot), f'{test}*.snapshot~'))
+
+    # Only remove the generated snapshots for valid tests, keeping the failing
+    # test results for debuging purposes.
+    if validation_result:
+        for s in snapshots:
+            try:
+                os.remove(s)
+            except OSError:
+                logger.error(f'Error while deleting file: {s}')
+
+    return validation_result
 
 
 def supported_test(test):
