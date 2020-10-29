@@ -174,7 +174,7 @@ class GroundTruthValidation(object):
                         if (ptdi['@server'] == 'true' and
                             ptdi['@guid_prefix'] not in self.servers)]
         except KeyError as e:
-            logging.debug(e)
+            self.logger.debug(e)
 
         return self.servers
 

@@ -46,7 +46,13 @@ def parse_options():
         '-t',
         '--test',
         type=str,
-        help=('Name of the test case to execute (without xml extension).')
+        help=('Name of the test case to execute (without xml extension.')
+    )
+    parser.add_argument(
+        '-f',
+        '--fds',
+        type=str,
+        help=('Path to fast-discovery-server tool.')
     )
     parser.add_argument(
         '-d',
@@ -72,7 +78,13 @@ def parse_options():
     return parser.parse_args()
 
 
-def execute_test(test, path, discovery_server_tool_path, debug=False):
+def execute_test(
+    test,
+    path,
+    discovery_server_tool_path,
+    fds_path=None,
+    debug=False
+):
     """
     Run the Discovery Server v2 tests.
 
@@ -153,10 +165,28 @@ def execute_test(test, path, discovery_server_tool_path, debug=False):
         # Wait for completion
         proc_main.communicate()
 
-    else:
-        logger.info(f'{discovery_server_tool_path} {path}')
-        command = [discovery_server_tool_path, path]
+    elif test == 'test_23_fast_discovery_server_tool':
+        logger.info(f'fds_path: {fds_path}')
+        if not fds_path:
+            logger.error('Not provided path to fast-discovery-server tool.')
+            exit(1)
+        # Launch server and clients
+        server = subprocess.Popen(
+            [fds_path, '-i',  '1', '-l', '127.0.0.1', '-p', '23811'])
+        clients = subprocess.Popen([discovery_server_tool_path, path])
 
+        # Wait till clients test is finished, then kill the server
+        clients.communicate()
+        server.kill()
+
+        if clients.returncode:
+            logger.error(
+                f'{test} process fault on clients: '
+                f'returncode {clients.returncode}')
+            exit(clients.returncode)
+
+    else:
+        command = [discovery_server_tool_path, path]
         subprocess.call(command)
 
 
@@ -202,20 +232,20 @@ def generate_check(test, test_snapshot):
 
     :param test_snapshot: The path to the test output.
     """
-    not_supported_tests =[
+    not_supported_tests = [
         'test_18_disposals_remote_servers_multiprocess',
-        'test_20_break_builtin_connections']
+        'test_20_break_builtin_connections',
+        'test_23_fast_discovery_server_tool']
 
     if test in not_supported_tests:
-        logging.warning(
+        logger.warning(
             f'Not supported validation of {test}: '
             f'{shared.bcolors.WARNING}SKIP{shared.bcolors.ENDC}')
         return True
 
     disposals_tests = [
         'test_13_disposals_single_server',
-        'test_16_lease_duration_single_client',
-        'test_own_endpoints']
+        'test_16_lease_duration_single_client']
 
     server_endpoints_tests = [
         'test_07_server_endpoints_two_servers',
@@ -224,7 +254,8 @@ def generate_check(test, test_snapshot):
         'test_12_virtual_topics',
         'test_14_disposals_remote_servers',
         'test_15_disposals_client_servers',
-        'test_17_lease_duration_remove_client_server']
+        'test_17_lease_duration_remove_client_server',
+        'test_19_disposals_break_builtin_connections']
 
     val = genv.GenerateValidation(
         test_snapshot,
@@ -240,6 +271,7 @@ def validate_test(
     test_snapshot,
     ground_truth_snapshot,
     discovery_server_tool_path,
+    fds_path=None,
     debug=False
 ):
     """
@@ -253,7 +285,7 @@ def validate_test(
     logger.info('------------------------------------------------------------')
     logger.info(f'Running {test}')
     execute_test(
-        test, test_path, discovery_server_tool_path, debug)
+        test, test_path, discovery_server_tool_path, fds_path, debug)
     logger.info('------------------------------------------------------------')
 
     lines_count_ret = count_lines_check(test_snapshot, ground_truth_snapshot)
@@ -288,7 +320,10 @@ def supported_test(test):
         'test_17_lease_duration_remove_client_server',
         'test_18_disposals_remote_servers_multiprocess',
         'test_19_disposals_break_builtin_connections',
-        'test_20_break_builtin_connections']
+        'test_20_break_builtin_connections',
+        'test_21_disposals_remote_server_trivial',
+        'test_22_environment_variable_setup',
+        'test_23_fast_discovery_server_tool']
 
     return test in tests
 
@@ -324,6 +359,7 @@ if __name__ == '__main__':
         os.path.join(os.getcwd(), f'{args.test}.snapshot~'),
         os.path.join(args.ground_truth, f'{args.test}.snapshot'),
         args.exe,
+        fds_path=(args.fds if args.fds else None),
         debug=args.debug
     ):
         logger.info(

@@ -63,7 +63,7 @@ class GenerateValidation(object):
     def validate(self):
         """Validate the snapshots resulting from a Discovery-Server test."""
         if self.server_endpoints:
-            logging.warning(
+            self.logger.warning(
                 'Not supported validation for servers with endpoints: '
                 f'{shared.bcolors.WARNING}SKIP{shared.bcolors.ENDC}')
             return True
@@ -213,7 +213,7 @@ class GenerateValidation(object):
                         if (ptdi['@server'] == 'true' and
                             ptdi['@guid_prefix'] not in self.servers)]
         except KeyError as e:
-            logging.debug(e)
+            self.logger.debug(e)
 
         return self.servers
 

@@ -2,47 +2,21 @@
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
 
     <servers>
-        <server name="server1" profile_name="UDP_server1" />
-        <server name="server2" prefix="44.49.53.43.53.45.52.56.45.52.5f.32" profile_name="UDP_server2">
-            <subscriber topic="topic1" removal_time="20"/>
+        <server name="server1" profile_name="UDP_server1" >
+            <publisher removal_time="30" topic="topic1"/>
         </server>
-        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server3" removal_time="60"> 
-            <subscriber topic="topic1" removal_time="10"/>
-            <subscriber topic="topic1" creation_time="20"/>
+        <server name="server2" prefix="44.49.53.43.53.45.52.56.45.52.5f.32" profile_name="UDP_server2"/>
+        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server3" removal_time="10"> 
+            <subscriber topic="topic1"/>
         </server>
     </servers>
 
-    <clients>
-        <client removal_time="40" name="client1_server1" profile_name="UDP_client1_server1">
-            <publisher removal_time="30" topic="topic1"/>
-        </client>
-        <client creation_time="50" name="client2_server1" profile_name="UDP_client2_server1">
-            <publisher creation_time="50" topic="topic1"/>
-        </client>
-    </clients>
-
-    <snapshots file="./test_14_disposals_remote_servers.snapshot~">
+    <snapshots file="./test_21_disposals_remote_server_trivial.snapshot~">
 
         <!-- Starting point -->
-        <snapshot time="8">test_14_disposals_remote_servers_snapshot_1</snapshot>
-        <!-- Remove subscriber1 from server3 -->
-        <snapshot time="15">test_14_disposals_remote_servers_snapshot_2</snapshot>
-        <!-- 
-            Remove subscriber1 from server2
-            Create subscriber2 in server3
-         -->
-        <snapshot time="25">test_14_disposals_remote_servers_snapshot_3</snapshot>
-        <!-- Remove publisher 1 from client1_server1 -->
-        <snapshot time="35">test_14_disposals_remote_servers_snapshot_4</snapshot>
-        <!-- Remove client1_server1 -->
-        <snapshot time="45">test_14_disposals_remote_servers_snapshot_5</snapshot>
-        <!-- 
-            Create client2_server1
-            Create a publisher in client2_server1
-         -->
-        <snapshot time="55">test_14_disposals_remote_servers_snapshot_6</snapshot>
+        <snapshot time="8">test_21_disposals_remote_server_trivial_snapshot_1</snapshot>
         <!-- Remove server3 -->
-        <snapshot time="65">test_14_disposals_remote_servers_snapshot_7</snapshot>
+        <snapshot time="15">test_21_disposals_remote_server_trivial_snapshot_2</snapshot>
 
     </snapshots>
 
@@ -59,7 +33,7 @@
                                     <locator>
                                         <udpv4>
                                             <address>127.0.0.1</address>
-                                            <port>14811</port>
+                                            <port>21811</port>
                                         </udpv4>
                                     </locator>
                                 </metatrafficUnicastLocatorList>
@@ -82,7 +56,7 @@
                                     <locator>
                                         <udpv4>
                                             <address>127.0.0.1</address>
-                                            <port>14811</port>
+                                            <port>21811</port>
                                         </udpv4>
                                     </locator>
                                 </metatrafficUnicastLocatorList>
@@ -107,7 +81,7 @@
                         <locator>
                             <udpv4>
                                 <address>127.0.0.1</address>
-                                <port>14811</port>
+                                <port>21811</port>
                             </udpv4>
                         </locator>
                     </metatrafficUnicastLocatorList>
@@ -126,7 +100,7 @@
                                     <locator>
                                         <udpv4>
                                             <address>127.0.0.1</address>
-                                            <port>14811</port>
+                                            <port>21811</port>
                                         </udpv4>
                                     </locator>
                                 </metatrafficUnicastLocatorList>
@@ -141,7 +115,7 @@
                         <locator>
                             <udpv4>
                                 <address>127.0.0.1</address>
-                                <port>14812</port>
+                                <port>21812</port>
                             </udpv4>
                         </locator>
                     </metatrafficUnicastLocatorList>
@@ -160,7 +134,7 @@
                                     <locator>
                                         <udpv4>
                                             <address>127.0.0.1</address>
-                                            <port>14812</port>
+                                            <port>21812</port>
                                         </udpv4>
                                     </locator>
                                 </metatrafficUnicastLocatorList>
@@ -175,7 +149,7 @@
                         <locator>
                             <udpv4>
                                 <address>127.0.0.1</address>
-                                <port>14813</port>
+                                <port>21813</port>
                             </udpv4>
                         </locator>
                     </metatrafficUnicastLocatorList>
