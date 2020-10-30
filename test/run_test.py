@@ -95,8 +95,7 @@ def execute_test(
     :param debug: Debug flag (Default: False).
     """
     if test == 'test_16_lease_duration_single_client':
-        aux_test_path = (
-            f"{'/'.join(path.split('/')[:-1])}/{test}_1.xml")
+        aux_test_path = os.path.join(os.path.dirname(path), f'{test}_1.xml')
         # Launch
         proc_server = subprocess.Popen(
             [discovery_server_tool_path, path])
@@ -113,8 +112,7 @@ def execute_test(
         proc_server.communicate()
 
     elif test == 'test_17_lease_duration_remove_client_server':
-        aux_test_path = (
-            f"{'/'.join(path.split('/')[:-1])}/{test}_1.xml")
+        aux_test_path = os.path.join(os.path.dirname(path), f'{test}_1.xml')
         # Launch
         proc_main = subprocess.Popen(
             [discovery_server_tool_path, path])
@@ -131,10 +129,8 @@ def execute_test(
         proc_main.communicate()
 
     elif test == 'test_18_disposals_remote_servers_multiprocess':
-        aux_test_path_1 = (
-            f"{'/'.join(path.split('/')[:-1])}/{test}_1.xml")
-        aux_test_path_2 = (
-            f"{'/'.join(path.split('/')[:-1])}/{test}_2.xml")
+        aux_test_path_1 = os.path.join(os.path.dirname(path), f'{test}_1.xml')
+        aux_test_path_2 = os.path.join(os.path.dirname(path), f'{test}_2.xml')
         # Launch
         proc_main = subprocess.Popen(
             [discovery_server_tool_path, path])
@@ -149,8 +145,7 @@ def execute_test(
         proc_sec_2.communicate()
 
     elif test == 'test_20_break_builtin_connections':
-        aux_test_path = (
-            f"{'/'.join(path.split('/')[:-1])}/{test}_1.xml")
+        aux_test_path = os.path.join(os.path.dirname(path), f'{test}_1.xml')
         # Launch
         proc_main = subprocess.Popen(
             [discovery_server_tool_path, path])
@@ -167,7 +162,6 @@ def execute_test(
         proc_main.communicate()
 
     elif test == 'test_23_fast_discovery_server_tool':
-        logger.info(f'fds_path: {fds_path}')
         if not fds_path:
             logger.error('Not provided path to fast-discovery-server tool.')
             exit(1)
@@ -185,6 +179,37 @@ def execute_test(
                 f'{test} process fault on clients: '
                 f'returncode {clients.returncode}')
             exit(clients.returncode)
+
+    elif test == 'test_24_backup':
+        aux_test_path = os.path.join(os.path.dirname(path), f'{test}_1.xml')
+
+        # Launch server and clients.
+        proc_server = subprocess.Popen([discovery_server_tool_path, path])
+        proc_client = subprocess.Popen(
+            [discovery_server_tool_path, aux_test_path])
+
+        # Wait 5 seconds before killing the server, time enought to have all
+        # clients info recorded in the backup file
+        try:
+            proc_server.wait(5)
+        except subprocess.TimeoutExpired:
+            proc_server.kill()
+
+        # Relaunch the server again and expect it reloads the backup data.
+        result = subprocess.run([discovery_server_tool_path, path])
+
+        if result.returncode:
+            logger.error(f'Failure while running the backup server for {test}')
+            logger.error(result.stderr)
+            exit(result.returncode)
+
+        # Wait for client completion
+        proc_client.communicate()
+
+        if proc_client.returncode:
+            logger.error(f'Failure when running clients for {test}')
+            logger.error(result.stderr)
+            exit(proc_client.returncode)
 
     else:
         command = [discovery_server_tool_path, path]
@@ -236,7 +261,8 @@ def generate_check(test, test_snapshot):
     not_supported_tests = [
         'test_18_disposals_remote_servers_multiprocess',
         'test_20_break_builtin_connections',
-        'test_23_fast_discovery_server_tool']
+        'test_23_fast_discovery_server_tool',
+        'test_24_backup']
 
     if test in not_supported_tests:
         logger.warning(
@@ -297,6 +323,25 @@ def validate_test(
 
     validation_result = lines_count_ret and gt_ret and gen_ret
 
+    # Backup test needs to validate 2 snapshots, the snapshot from the server
+    # process and the snapshot from the clients process.
+    if test == 'test_24_backup':
+        aux_test_snapshot = os.path.join(
+            os.path.dirname(test_snapshot), f'{test}_1.snapshot')
+        aux_ground_truth_snapshot = os.path.join(
+            os.path.dirname(ground_truth_snapshot), f'{test}_1.snapshot')
+
+        lines_count_ret = count_lines_check(
+            aux_test_snapshot, aux_ground_truth_snapshot)
+
+        gt_ret = ground_truth_check(
+            aux_test_snapshot, aux_ground_truth_snapshot)
+
+        gen_ret = generate_check(test, aux_test_snapshot)
+
+        validation_result = (
+            validation_result and lines_count_ret and gt_ret and gen_ret)
+
     os.chdir('/home/raul/Fast-DDS_workspace_dev/build/discovery-server')
     snapshots = glob.glob(
         os.path.join(os.path.dirname(test_snapshot), f'{test}*.snapshot~'))
@@ -338,7 +383,8 @@ def supported_test(test):
         'test_20_break_builtin_connections',
         'test_21_disposals_remote_server_trivial',
         'test_22_environment_variable_setup',
-        'test_23_fast_discovery_server_tool']
+        'test_23_fast_discovery_server_tool',
+        'test_24_backup']
 
     return test in tests
 

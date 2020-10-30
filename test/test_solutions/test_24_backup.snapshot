@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DS_Snapshots xmlns="http://www.eprosima.com/XMLSchemas/ds-snapshot">
+    <DS_Snapshot timestamp="1603379347889" process_time="10000" last_pdp_callback_time="" last_edp_callback_time="" someone="false">
+        <description>test_24_backup_snapshot_server</description>
+    </DS_Snapshot>
+</DS_Snapshots>

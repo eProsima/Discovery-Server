@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+  
+  <!--
+  
+  This test verifies that the discovery info is properly serialized and deserialized by a backup server.
+  This server is created twice by running twice the test_11_BACKUP_server.xml file:
+    - The first time the discovery data is serialized to a backup file.
+    - Then this server crashes but the backup file prevails.
+    - The second time the discovery data is deserialized from the backup file because the leaseDuration
+    doesn't allow the clients to detect server's demise.
+  -->
+  
+    <servers>
+        <server name="server" profile_name="UDP_server"/>
+    </servers>
+
+    <snapshots file="./test_24_backup.snapshot~">
+        <snapshot time="10">test_24_backup_snapshot_server</snapshot>
+    </snapshots>
+  
+    <profiles>
+        
+        <participant profile_name="UDP_server">
+            <rtps>
+                <prefix>44.49.53.43.53.45.52.56.45.52.5F.31</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>BACKUP</discoveryProtocol>
+                    </discovery_config>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                                <port>24811</port>
+                            </udpv4>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+    </profiles>
+    
+</DS>

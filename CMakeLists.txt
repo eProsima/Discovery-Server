@@ -622,6 +622,18 @@ set_tests_properties(test_23_fast_discovery_server_tool PROPERTIES
     REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_23_fast_discovery_server_tool.xml
     DISABLED $<NOT:$<TARGET_EXISTS:fastdds::fast-discovery-server>>)
 
+# Test 24: Backup server
+list(APPEND TEST_LIST test_24_backup)
+add_test(NAME test_24_backup
+    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_24_backup
+    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_24_backup PROPERTIES
+    REQUIRED_FILES ${RUN_TEST}
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_24_backup.xml
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_24_backup_1.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_24_backup.snapshot )
+
 # Windows requires an special treatment of environmental variables
 if(WIN32)
 
