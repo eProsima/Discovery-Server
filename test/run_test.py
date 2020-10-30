@@ -342,7 +342,6 @@ def validate_test(
         validation_result = (
             validation_result and lines_count_ret and gt_ret and gen_ret)
 
-    os.chdir('/home/raul/Fast-DDS_workspace_dev/build/discovery-server')
     snapshots = glob.glob(
         os.path.join(os.path.dirname(test_snapshot), f'{test}*.snapshot~'))
 
