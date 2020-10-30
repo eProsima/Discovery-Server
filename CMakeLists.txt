@@ -632,7 +632,19 @@ set_tests_properties(test_24_backup PROPERTIES
     REQUIRED_FILES ${RUN_TEST}
     REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_24_backup.xml
     REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_24_backup_1.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_24_backup.snapshot )
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_24_backup.snapshot
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_24_backup_1.snapshot )
+
+# Test 25
+list(APPEND TEST_LIST test_25_backup_compatibility)
+add_test(NAME test_25_backup_compatibility
+    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_25_backup_compatibility
+    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_25_backup_compatibility PROPERTIES
+    REQUIRED_FILES ${RUN_TEST}
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_25_backup_compatibility.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_25_backup_compatibility.snapshot )
 
 # Windows requires an special treatment of environmental variables
 if(WIN32)

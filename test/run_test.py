@@ -327,7 +327,7 @@ def validate_test(
     # process and the snapshot from the clients process.
     if test == 'test_24_backup':
         aux_test_snapshot = os.path.join(
-            os.path.dirname(test_snapshot), f'{test}_1.snapshot')
+            os.path.dirname(test_snapshot), f'{test}_1.snapshot~')
         aux_ground_truth_snapshot = os.path.join(
             os.path.dirname(ground_truth_snapshot), f'{test}_1.snapshot')
 
@@ -384,7 +384,8 @@ def supported_test(test):
         'test_21_disposals_remote_server_trivial',
         'test_22_environment_variable_setup',
         'test_23_fast_discovery_server_tool',
-        'test_24_backup']
+        'test_24_backup',
+        'test_25_backup_compatibility']
 
     return test in tests
 
