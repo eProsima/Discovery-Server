@@ -134,7 +134,7 @@
                                 </metatrafficUnicastLocatorList>
                             </RemoteServer>
                         </discoveryServersList>
-                        <discoveryProtocol>SERVER</discoveryProtocol>
+                        <discoveryProtocol>BACKUP</discoveryProtocol>
                     </discovery_config>
                     <metatrafficUnicastLocatorList>
                         <locator>

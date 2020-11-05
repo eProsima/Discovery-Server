@@ -348,7 +348,8 @@ def validate_test(
 
     # Backup test needs to validate 2 snapshots, the snapshot from the server
     # process and the snapshot from the clients process.
-    if test == 'test_24_backup':
+    # TODO create an array with the number of the tests that reuires more than one snapshot
+    if test == 'test_24_backup' or test == 'test_26_backup_restore':
         aux_test_snapshot = os.path.join(
             os.path.dirname(test_snapshot), f'{test}_1.snapshot~')
         aux_ground_truth_snapshot = os.path.join(
@@ -362,7 +363,7 @@ def validate_test(
 
         gen_ret = generate_check(test, aux_test_snapshot)
 
-        validation_result = (
+        validation_result = validation_result and (
             validation_result and lines_count_ret and gt_ret and gen_ret)
 
     clear(test, validation_result, os.path.dirname(test_snapshot))

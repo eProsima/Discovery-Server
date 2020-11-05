@@ -5,9 +5,11 @@
         <server name="server" profile_name="UDP_server"/>
     </servers>
 
-    <client name="client1_server1" profile_name="UDP_client1_server1">
-        <publisher topic="topic1"/>
-    </client>
+    <clients>
+        <client name="client1_server1" profile_name="UDP_client1_server1">
+            <publisher topic="topic1"/>
+        </client>
+    </clients>
     
     <snapshots file="./test_26_backup_restore.snapshot~">
         <snapshot time="7">test_26_backup_restore_snapshot_server</snapshot>

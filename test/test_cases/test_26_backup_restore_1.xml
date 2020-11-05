@@ -5,10 +5,12 @@
         <server name="server" profile_name="UDP_server"/>
     </servers>
 
-    <client name="client2_server1" profile_name="UDP_client2_server1">
-        <subscriber topic="topic1"/>
-    </client>
-    
+    <clients>
+        <client name="client2_server1" profile_name="UDP_client2_server1">
+            <subscriber topic="topic1"/>
+        </client>
+    </clients>
+
     <snapshots file="./test_26_backup_restore_1.snapshot~">
         <snapshot time="10">test_26_backup_restore_1_snapshot_server</snapshot>
     </snapshots>
