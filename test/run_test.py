@@ -200,6 +200,7 @@ def execute_test(
 
         if result.returncode:
             logger.error(f'Failure while running the backup server for {test}')
+            logger.error(result.stdout)
             logger.error(result.stderr)
             exit(result.returncode)
 
@@ -210,6 +211,26 @@ def execute_test(
             logger.error(f'Failure when running clients for {test}')
             logger.error(result.stderr)
             exit(proc_client.returncode)
+
+    elif test == 'test_26_backup_restore':
+        aux_test_path = os.path.join(os.path.dirname(path), f'{test}_1.xml')
+        # Launch and wait for completion
+        proc_main = subprocess.run(
+            [discovery_server_tool_path, path])
+        if proc_main.returncode:
+            logger.error(
+                f'{test} process ha failed to launch the backup server: '
+                f'returncode {proc_main.returncode}')
+            exit(proc_main.returncode)
+
+        proc_restore = subprocess.run(
+            [discovery_server_tool_path, aux_test_path])
+
+        if proc_restore.returncode:
+            logger.error(
+                f'{test} process has failed to restore the backup server: '
+                f'returncode {proc_restore.returncode}')
+            exit(proc_restore.returncode)
 
     else:
         command = [discovery_server_tool_path, path]
@@ -262,7 +283,8 @@ def generate_check(test, test_snapshot):
         'test_18_disposals_remote_servers_multiprocess',
         'test_20_break_builtin_connections',
         'test_23_fast_discovery_server_tool',
-        'test_24_backup']
+        'test_24_backup',
+        'test_26_backup_restore']
 
     if test in not_supported_tests:
         logger.warning(
@@ -282,7 +304,8 @@ def generate_check(test, test_snapshot):
         'test_14_disposals_remote_servers',
         'test_15_disposals_client_servers',
         'test_17_lease_duration_remove_client_server',
-        'test_19_disposals_break_builtin_connections']
+        'test_19_disposals_break_builtin_connections',
+        'test_25_backup_compatibility']
 
     val = genv.GenerateValidation(
         test_snapshot,
@@ -342,19 +365,41 @@ def validate_test(
         validation_result = (
             validation_result and lines_count_ret and gt_ret and gen_ret)
 
+    clear(test, validation_result, os.path.dirname(test_snapshot))
+
+    return validation_result
+
+
+def clear(test, validation, wd):
+    """
+    Clear the working directory removing the generated files.
+
+    :param test: The test to execute.
+    :param validation: The validation result.
+    :param wd: The working directory where clear the generated files.
+    """
     snapshots = glob.glob(
-        os.path.join(os.path.dirname(test_snapshot), f'{test}*.snapshot~'))
+        os.path.join(wd, f'{test}*.snapshot~'))
 
     # Only remove the generated snapshots for valid tests, keeping the failing
     # test results for debuging purposes.
-    if validation_result:
+    if validation:
         for s in snapshots:
             try:
                 os.remove(s)
             except OSError:
                 logger.error(f'Error while deleting file: {s}')
 
-    return validation_result
+    db_files = glob.glob(
+        os.path.join(wd, '*.json'))
+    db_files.extend(glob.glob(
+        os.path.join(wd, '*.db')))
+
+    for f in db_files:
+        try:
+            os.remove(f)
+        except OSError:
+            logger.error(f'Error while deleting file: {f}')
 
 
 def supported_test(test):
@@ -384,7 +429,8 @@ def supported_test(test):
         'test_22_environment_variable_setup',
         'test_23_fast_discovery_server_tool',
         'test_24_backup',
-        'test_25_backup_compatibility']
+        'test_25_backup_compatibility',
+        'test_26_backup_restore']
 
     return test in tests
 

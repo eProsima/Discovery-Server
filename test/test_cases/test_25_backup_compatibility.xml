@@ -13,12 +13,18 @@
     </servers>
     
     <clients>
-        <client name="client1_server1" profile_name="UDP_client1_server1" server="44.49.53.43.53.45.52.56.45.52.5F.31">
+        <client name="client1_server1" profile_name="UDP_client1_server1">
+            <publisher topic="topic1"/>
+        </client>
+        <client name="client1_server2" profile_name="UDP_client1_server2">
+            <subscriber topic="topic1"/>
+        </client>
+        <client name="client1_server3" profile_name="UDP_client1_server3">
             <publisher topic="topic1"/>
         </client>
     </clients>
     
-    <snapshots file="test_25_backup_compatibility.snapshot~">
+    <snapshots file="./test_25_backup_compatibility.snapshot~">
         <snapshot time="10">test_25_backup_compatibility_snapshot_1</snapshot>
     </snapshots>
 
@@ -26,29 +32,6 @@
         <participant profile_name="UDP_client1_server1" >
             <rtps>
                 <prefix>63.6c.69.65.6e.74.31.5f.73.31.5f.5f</prefix>
-                <builtin>
-                    <discovery_config>
-                        <discoveryProtocol>CLIENT</discoveryProtocol>
-                        <discoveryServersList>
-                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
-                                <metatrafficUnicastLocatorList>
-                                    <locator>
-                                        <udpv4>
-                                            <address>127.0.0.1</address>
-                                            <port>25811</port>
-                                        </udpv4>
-                                    </locator>
-                                </metatrafficUnicastLocatorList>
-                            </RemoteServer>
-                        </discoveryServersList>
-                    </discovery_config>
-                </builtin>
-            </rtps>
-        </participant>
-
-        <participant profile_name="UDP_client2_server1" >
-            <rtps>
-                <prefix>63.6c.69.65.6e.74.32.5f.73.31.5f.5f</prefix>
                 <builtin>
                     <discovery_config>
                         <discoveryProtocol>CLIENT</discoveryProtocol>
@@ -92,29 +75,6 @@
             </rtps>
         </participant>
 
-        <participant profile_name="UDP_client2_server2" >
-            <rtps>
-                <prefix>63.6c.69.65.6e.74.32.5f.73.32.5f.5f</prefix>
-                <builtin>
-                    <discovery_config>
-                        <discoveryProtocol>CLIENT</discoveryProtocol>
-                        <discoveryServersList>
-                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.32">
-                                <metatrafficUnicastLocatorList>
-                                    <locator>
-                                        <udpv4>
-                                            <address>127.0.0.1</address>
-                                            <port>25812</port>
-                                        </udpv4>
-                                    </locator>
-                                </metatrafficUnicastLocatorList>
-                            </RemoteServer>
-                        </discoveryServersList>
-                    </discovery_config>
-                </builtin>
-            </rtps>
-        </participant>
-
         <participant profile_name="UDP_client1_server3" >
             <rtps>
                 <prefix>63.6c.69.65.6e.74.31.5f.73.33.5f.5f</prefix>
@@ -128,52 +88,6 @@
                                         <udpv4>
                                             <address>127.0.0.1</address>
                                             <port>25813</port>
-                                        </udpv4>
-                                    </locator>
-                                </metatrafficUnicastLocatorList>
-                            </RemoteServer>
-                        </discoveryServersList>
-                    </discovery_config>
-                </builtin>
-            </rtps>
-        </participant>
-
-        <participant profile_name="UDP_client2_server3" >
-            <rtps>
-                <prefix>63.6c.69.65.6e.74.32.5f.73.33.5f.5f</prefix>
-                <builtin>
-                    <discovery_config>
-                        <discoveryProtocol>CLIENT</discoveryProtocol>
-                        <discoveryServersList>
-                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.33">
-                                <metatrafficUnicastLocatorList>
-                                    <locator>
-                                        <udpv4>
-                                            <address>127.0.0.1</address>
-                                            <port>25813</port>
-                                        </udpv4>
-                                    </locator>
-                                </metatrafficUnicastLocatorList>
-                            </RemoteServer>
-                        </discoveryServersList>
-                    </discovery_config>
-                </builtin>
-            </rtps>
-        </participant>
-
-        <participant profile_name="UDP_client1_server5" >
-            <rtps>
-                <prefix>63.6c.69.65.6e.74.31.5f.73.35.5f.5f</prefix>
-                <builtin>
-                    <discovery_config>
-                        <discoveryProtocol>CLIENT</discoveryProtocol>
-                        <discoveryServersList>
-                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.35">
-                                <metatrafficUnicastLocatorList>
-                                    <locator>
-                                        <udpv4>
-                                            <address>127.0.0.1</address>
-                                            <port>25815</port>
                                         </udpv4>
                                     </locator>
                                 </metatrafficUnicastLocatorList>
@@ -220,7 +134,7 @@
                                 </metatrafficUnicastLocatorList>
                             </RemoteServer>
                         </discoveryServersList>
-                        <discoveryProtocol>BACKUP</discoveryProtocol>
+                        <discoveryProtocol>SERVER</discoveryProtocol>
                     </discovery_config>
                     <metatrafficUnicastLocatorList>
                         <locator>
