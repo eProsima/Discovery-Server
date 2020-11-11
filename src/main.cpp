@@ -2,6 +2,7 @@
 #include "log/DSLog.h"
 #include "version/config.h"
 
+#include <fastdds/dds/log/StdoutErrConsumer.hpp>
 #include <fastrtps/Domain.h>
 
 #include "DSManager.h"
@@ -26,7 +27,14 @@ int main(int argc, char * argv[])
         Log::SetVerbosity(Log::Kind::Error);
     #endif
 
-    Log::SetVerbosity(Log::Kind::Error);
+    // Create a StdoutErrConsumer consumer that logs entries to stderr only when the Log::Kind is equal to WARNING
+    // This allows the test validate the output of the executions
+    std::unique_ptr<eprosima::fastdds::dds::StdoutErrConsumer> stdouterr_consumer(
+            new eprosima::fastdds::dds::StdoutErrConsumer());
+    stdouterr_consumer->stderr_threshold(Log::Kind::Warning);
+
+    // Register the consumer
+    Log::RegisterConsumer(std::move(stdouterr_consumer));
 
     Log::SetCategoryFilter(
         std::regex("(RTPS_PDPSERVER_TRIM)|(RTPS_PARTICIPANT)|(DISCOVERY_SERVER)"

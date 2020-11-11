@@ -26,6 +26,15 @@ class bcolors:
     ENDC = '\033[0m'
 
 
+class error_code:
+    """Test return definition."""
+
+    OK = 0
+    SKIP = 1
+    ERROR = 2
+    FAIL = 3
+
+
 def get_file_extension(file):
     """
     Get the extension of a file.

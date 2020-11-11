@@ -104,14 +104,18 @@ class CountLinesValidation(object):
     def validate(self):
         """Validate the test counting the number of lines."""
         lines_get = 0
-        with open(self.result_file_path) as f:
-            for line in f.readlines():
-                lines_get += 1
 
-        lines_expected = 0
-        with open(self.expected_file_path) as f:
-            for line in f.readlines():
-                lines_expected += 1
+        try:
+            with open(self.result_file_path) as f:
+                for line in f.readlines():
+                    lines_get += 1
+
+            lines_expected = 0
+            with open(self.expected_file_path) as f:
+                for line in f.readlines():
+                    lines_expected += 1
+        except IOError:
+            return shared.error_code.FAIL
 
         val = lines_get == lines_expected
 
@@ -119,9 +123,9 @@ class CountLinesValidation(object):
             self.logger.info(
                 'Result of counting lines validation: '
                 f'{shared.bcolors.OK}PASS{shared.bcolors.ENDC}')
+            return shared.error_code.OK
         else:
             self.logger.info(
                 'Result of counting lines validation: '
                 f'{shared.bcolors.FAIL}FAIL{shared.bcolors.ENDC}')
-
-        return val
+            return shared.error_code.ERROR

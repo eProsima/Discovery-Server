@@ -21,6 +21,7 @@ import subprocess
 import validation.CountLinesValidation as clv
 import validation.GenerateValidation as genv
 import validation.GroundTruthValidation as gtv
+import validation.TestParams as params
 import validation.shared as shared
 
 
@@ -234,10 +235,18 @@ def execute_test(
 
     else:
         command = [discovery_server_tool_path, path]
-        subprocess.call(command)
+        if debug:
+            subprocess.call(command)
+        else:
+            subprocess.call(command, stdout=subprocess.DEVNULL)
 
 
-def count_lines_check(test_snapshot, ground_truth_snapshot):
+def count_lines_check(
+    test,
+    test_snapshot_path,
+    ground_truth_snapshot_path,
+    test_params
+):
     """
     Validate the test counting counting the number of lines.
 
@@ -248,6 +257,9 @@ def count_lines_check(test_snapshot, ground_truth_snapshot):
     :param ground_truth_snapshot: The path to the a priori calculated test
         output.
     """
+    os.path.join(test_snapshot_path, f'{args.test}.snapshot~'),
+    os.path.join(ground_truth_snapshot_path, f'{args.test}.snapshot'),
+
     val = clv.CountLinesValidation(test_snapshot, ground_truth_snapshot)
 
     return val.validate()
@@ -322,6 +334,7 @@ def validate_test(
     test_snapshot,
     ground_truth_snapshot,
     discovery_server_tool_path,
+    test_params,
     fds_path=None,
     debug=False
 ):
@@ -339,7 +352,8 @@ def validate_test(
         test, test_path, discovery_server_tool_path, fds_path, debug)
     logger.info('------------------------------------------------------------')
 
-    lines_count_ret = count_lines_check(test_snapshot, ground_truth_snapshot)
+    lines_count_ret = count_lines_check(
+        test, test_snapshot, ground_truth_snapshot, test_params)
 
     gt_ret = ground_truth_check(test_snapshot, ground_truth_snapshot)
 
@@ -349,7 +363,6 @@ def validate_test(
 
     # Backup test needs to validate 2 snapshots, the snapshot from the server
     # process and the snapshot from the clients process.
-    # TODO create an array with the number of the tests that reuires more than one snapshot
     if test == 'test_24_backup' or test == 'test_26_backup_restore':
         aux_test_snapshot = os.path.join(
             os.path.dirname(test_snapshot), f'{test}_1.snapshot~')
@@ -463,12 +476,20 @@ if __name__ == '__main__':
         logger.error(f'Not supported test: {args.test}')
         exit(1)
 
+    # Load Test Params
+    test_params = params.TestParams(
+        os.path.join(args.test_cases, f'tests_params.csv'))
+    if not test_params.is_loaded():
+        logger.error(f'Error reading test parameters')
+        exit(1)
+
     if validate_test(
         args.test,
         os.path.join(args.test_cases, f'{args.test}.xml'),
         os.path.join(os.getcwd(), f'{args.test}.snapshot~'),
         os.path.join(args.ground_truth, f'{args.test}.snapshot'),
         args.exe,
+        test_params,
         fds_path=(args.fds if args.fds else None),
         debug=args.debug
     ):
