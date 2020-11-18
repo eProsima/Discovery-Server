@@ -2,18 +2,19 @@
 
 The [RTPS standard](http://www.omg.org/spec/DDSI-RTPS/2.3) specifies in section 8.5 a non-centralized, distributed
 simple discovery mechanism. This mechanism was devised to allow interoperability among independent
-vendor-specific implementations but is not expected to be optimal in every environment.
+vendor-specific implementations but it is not expected to be optimal in every environment.
 There are several scenarios were the simple discovery mechanism is unsuitable or plainly cannot be
 applied:
 
 - A high number of endpoint entities are continuously entering and exiting a large network.
-- A network without multicasting capabilities.
+- Networks without multicasting capabilities.
+- WiFi-based communication networks.
 
-In order to cope with the above issues, the *eProsima Fast DDS* discovery mechanism was extended with a new
-Discovery Server discovery mechanism.
-This mechanism is based on a client-server discovery paradigm, i.e. the metatraffic (message exchange among
-DDS DomainParticipants to identify each other) is managed by one or several server DomainParticipants (left figure), as
-opposed to simple discovery (right figure), where metatraffic is exchanged using a message broadcast mechanism like an
+In order to cope with the aforementioned issues, the *eProsima Fast DDS* discovery mechanisms are extended with a new
+Discovery Server discovery paradigm.
+This is based on a client-server architecture, i.e. the metatraffic (message exchange among
+DDS DomainParticipants to identify each other) is managed by one or several server DomainParticipants (right figure), as
+opposed to simple discovery (left figure), where metatraffic is exchanged using a message broadcast mechanism like an
 IP multicast protocol.
 Please, refer to
 [Fast DDS documentation](https://fast-dds.docs.eprosima.com/en/latest/fastdds/discovery/server_client.html) for
@@ -43,7 +44,7 @@ The **Discovery Server tool documentation** can be found
 
 ## Installation Guide
 
-In order to use the Discovery Server tool, its necessary to have a compatible version of
+In order to use the Discovery Server tool, it is necessary to have a compatible version of
 [eProsima Fast DDS](https://eprosima-fast-rtps.readthedocs.io/en/latest/) installed (over release 2.0.2).
 *Fast DDS* dependencies as tinyxml must be accessible, either because *Fast DDS* was build-installed defining
 THIRDPARTY=ON or because those libraries have been specifically installed.
@@ -66,8 +67,8 @@ the needed repositories.
 
 ### Linux
 
-1.  Create a Fast-DDS directory and download the repos file that will be used to install eProsima Fast DDS and its
-    dependencies:
+1.  Create a Discovery Server workspace and download the repos file that will be used to install the Discovery Server
+    tool and its dependencies:
 
     ```bash
     $ mkdir -p discovery-server-ws/src && cd discovery-server-ws
@@ -77,7 +78,7 @@ the needed repositories.
 
 1.  Finally, use colcon to compile all software.
     Choose the build configuration by declaring ``CMAKE_BUILD_TYPE`` as Debug or Release.
-    For this example, the Debug option has been choosen, which would be the choice of advanced users for debugging purposes.
+    For this example, the Debug option has been chosen, which would be the choice of advanced users for debugging purposes.
 
     ```bash
     $ colcon build --base-paths src
@@ -86,7 +87,7 @@ the needed repositories.
     ```
 
 1.  If you installed the Discovery Server tool following the steps outlined above, you can try the
-    `HelloWorldExampleDS`.
+    *HelloWorldExampleDS*.
     To run the example navigate to the following directory
 
     ``<path/to/discovery-server-ws>/discovery-server-ws/install/discovery-server/examples/HelloWorldExampleDS``
@@ -99,7 +100,7 @@ the needed repositories.
 
     to display the example usage instructions.
 
-    In order to test the ``HelloWorldExampleDS`` open three terminals and run the above command.
+    In order to test the *HelloWorldExampleDS* open three terminals and run the above command.
     Then run the following command in each terminal:
     -   Terminal 1:
         ```bash
@@ -119,8 +120,8 @@ the needed repositories.
 
 ### Windows
 
-1.  Create a *Fast DDS* directory and download the repos file that will be used to install *eProsima Fast DDS* and its
-    dependencies:
+1.  Create a Discovery Server workspace and download the repos file that will be used to install the Discovery Server
+    tool and its dependencies:
 
     ```bat
     > mkdir discovery-server-ws
@@ -136,7 +137,7 @@ the needed repositories.
 
 1.  Finally, use colcon to compile all software.
     Choose the build configuration by declaring ``CMAKE_BUILD_TYPE`` as Debug or Release.
-    For this example, the Debug option has been choosen, which would be the choice of advanced users for debugging purposes.
+    For this example, the Debug option has been chosen, which would be the choice of advanced users for debugging purposes.
     If using a multi-configuration generator like Visual Studio we recommend to build both in debug and release modes
 
     ```bat
@@ -149,7 +150,7 @@ the needed repositories.
     ```
 
 1. If you installed the Discovery Server tool following the steps outlined above, you can try the
-    `HelloWorldExampleDS`.
+    *HelloWorldExampleDS*.
     To run the example navigate to the following directory
 
     ``<path/to/discovery-server-ws>/discovery-server-ws/install/discovery-server/examples/HelloWorldExampleDS``
@@ -162,7 +163,7 @@ the needed repositories.
 
     to display the example usage instructions.
 
-    In order to test the ``HelloWorldExampleDS`` open three terminals and run the above command.
+    In order to test the *HelloWorldExampleDS* open three terminals and run the above command.
     Then run the following command in each terminal:
     -   Terminal 1:
         ```bash
@@ -182,7 +183,7 @@ the needed repositories.
 ---
 **NOTE**
 
-In order to avoid using vcstool the following repositories should be downloaded from github into
+In order to avoid using *vcstool*, the following repositories should be downloaded from github into
 the `discovery-server-ws/src` directory:
 
 |            PACKAGE                 |                              URL                        |    BRANCH   |
@@ -203,10 +204,10 @@ Each setting in *Fast DDS* can be configured through XML profiles. XML profiles 
 hard-coded settings within applications sources using XML configuration files.
 The *Fast DDS* XML schema was duly updated to accommodate the new Discovery Server tool settings.
 
--   The participant profile ``builtin`` tag contains a ``discovery_config`` tag where all discovery-related info is
+-   The participant profile ``<builtin>`` tag contains a ``<discovery_config>`` tag where all discovery-related info is
     gathered. This new tag contains the following new XML child elements:
 	- ``<discoveryProtocol>``: specifies the discovery type through the ``DiscoveryProtocol_t`` enumeration.
-	- ``<discoveryServersList>``: specifies the server or servers linked with a Client/Server.
+	- ``<discoveryServersList>``: specifies the server or servers to which a Client/Server connects.
 	- ``<clientAnnouncementPeriod>``: specifies the time span between PDP metatraffic exchange.
 
 An example of XML profiles for a client and a server is shown below.
@@ -218,11 +219,10 @@ An example of XML profiles for a client and a server is shown below.
 		<discovery_config>
 		  <discoveryProtocol>CLIENT</discoveryProtocol>
 		  <discoveryServersList>
-			<RemoteServer prefix="4D.49.47.55.45.4c.5f.42.41.52.52.4f">
+			<RemoteServer prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f">
 			  <metatrafficUnicastLocatorList>
 				<locator>
 				  <udpv4>
-                    <!-- placeholder server UDP address -->
 					<address>192.168.1.113</address>
 					<port>64863</port>
 				  </udpv4>
@@ -237,9 +237,7 @@ An example of XML profiles for a client and a server is shown below.
 
 <participant profile_name="UDP_server">
   <rtps>
-	<prefix>
-	  4D.49.47.55.45.4c.5f.42.41.52.52.4f
-	</prefix>
+	<prefix>4d.49.47.55.45.4c.5f.42.41.52.52.4f</prefix>
 	<builtin>
 		<discovery_config>
 		  <discoveryProtocol>SERVER</discoveryProtocol>
@@ -247,7 +245,6 @@ An example of XML profiles for a client and a server is shown below.
 		<metatrafficUnicastLocatorList>
 			<locator>
 				<udpv4>
-                    <!-- placeholder server UDP address -->
 					<address>192.168.1.113</address>
 					<port>64863</port>
 				</udpv4>
@@ -261,7 +258,8 @@ An example of XML profiles for a client and a server is shown below.
 ### Discovery Server executable
 
 The discovery server binary (named after the pattern ``discovery-server-X.X.X(d)`` where ``X.X.X`` is the version
-number and the optional *d* denotes a debug builds) is set up from one XML profiles files passed as command-line arguments.
+number and the optional *d* denotes a debug build) is set up from one XML profiles files passed as command-line
+arguments.
 To have the tool accessible in the terminal session it is necessary to source the setup file.
 
 -   Linux
