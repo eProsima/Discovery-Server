@@ -305,7 +305,8 @@ def generate_check(test, test_snapshot):
         'test_15_disposals_client_servers',
         'test_17_lease_duration_remove_client_server',
         'test_19_disposals_break_builtin_connections',
-        'test_25_backup_compatibility']
+        'test_25_backup_compatibility',
+        'test_27_tcp']
 
     val = genv.GenerateValidation(
         test_snapshot,
@@ -431,7 +432,8 @@ def supported_test(test):
         'test_23_fast_discovery_server_tool',
         'test_24_backup',
         'test_25_backup_compatibility',
-        'test_26_backup_restore']
+        'test_26_backup_restore',
+        'test_27_tcp']
 
     return test in tests
 

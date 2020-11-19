@@ -658,6 +658,17 @@ set_tests_properties(test_26_backup_restore PROPERTIES
     REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_26_backup_restore_1.xml
     REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_26_backup_restore.snapshot )
 
+# Test 27: TCP
+list(APPEND TEST_LIST test_27_tcp)
+add_test(NAME test_27_tcp
+    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_27_tcp
+    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+set_tests_properties(test_27_tcp PROPERTIES
+    REQUIRED_FILES ${RUN_TEST}
+    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_27_tcp.xml
+    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_27_tcp.snapshot )
+
 # Windows requires an special treatment of environmental variables
 if(WIN32)
 
