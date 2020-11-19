@@ -27,6 +27,8 @@ int main(int argc, char * argv[])
         Log::SetVerbosity(Log::Kind::Error);
     #endif
 
+    Log::SetVerbosity(Log::Kind::Error);
+
     // Create a StdoutErrConsumer consumer that logs entries to stderr only when the Log::Kind is equal to WARNING
     // This allows the test validate the output of the executions
     std::unique_ptr<eprosima::fastdds::dds::StdoutErrConsumer> stdouterr_consumer(

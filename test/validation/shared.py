@@ -14,6 +14,7 @@
 """Module to provide common methods for the test validation tool."""
 import argparse
 import os
+from enum import Enum
 
 
 class bcolors:
@@ -26,7 +27,7 @@ class bcolors:
     ENDC = '\033[0m'
 
 
-class error_code:
+class ReturnCode(Enum):
     """Test return definition."""
 
     OK = 0

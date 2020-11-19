@@ -18,6 +18,8 @@ from pathlib import Path
 
 import validation.shared as shared
 
+import xmltodict
+
 
 def validation_file_path(file_path):
     """Std file path to validate an snapshot."""
@@ -36,6 +38,7 @@ class Validator(object):
     def __init__(
         self,
         snapshot_file_path,
+        ground_truth_snapshot_file_path,
         test_params,
         debug=False,
         logger=None
@@ -47,7 +50,7 @@ class Validator(object):
         :param disposals: True if it is a disposals test (Default: False).
         :param server_endpoints: True if there are endpoints in the servers
             (Default: False).
-        :param logger: The logging object. COUNT_LINES_VALIDATION if None
+        :param logger: The logging object. VALIDATION if None
             logger is provided.
         :param debug: True/False to activate/deactivate debug logger.
         """
@@ -55,13 +58,17 @@ class Validator(object):
         self.logger.debug('Creating an instance of {}'.format(type(self)))
 
         self.snapshot_file_path = self.valid_snapshot_path(snapshot_file_path)
-        self.test_params = test_params
+        self.gt_snapshot_file_path = self.valid_snapshot_path(
+            ground_truth_snapshot_file_path)
+
+        self.val_snapshot = self.parse_xml_snapshot(self.snapshot_file_path)
+        self.gt_snapshot = self.parse_xml_snapshot(self.gt_snapshot_file_path)
 
     def set_logger(self, logger, debug):
         """
         Instance the class logger.
 
-        :param logger: The logging object. COUNT_LINES_VALIDATION if None
+        :param logger: The logging object. VALIDATION if None
             logger is provided.
         :param debug: True/False to activate/deactivate debug logger.
         """
@@ -71,7 +78,7 @@ class Validator(object):
             if isinstance(logger, str):
                 self.logger = logging.getLogger(logger)
             else:
-                self.logger = logging.getLogger('COUNT_LINES_VALIDATION')
+                self.logger = logging.getLogger('VALIDATION')
 
             if not self.logger.hasHandlers():
                 l_handler = logging.StreamHandler()
@@ -106,25 +113,54 @@ class Validator(object):
 
         return xml_file_path
 
+    def parse_xml_snapshot(
+        self,
+        xml_file_path
+    ):
+        """
+        Read an xml snapshot file and convert it into a dictionary.
+
+        :param xml_file_path: The path to the xml snapshot.
+        """
+        if (shared.get_file_extension(xml_file_path)
+                not in ['.snapshot', '.snapshot~']):
+            raise ValueError(
+                f'The snapshot file \"{xml_file_path}\" '
+                'is not an .snapshot file')
+        xml_file_path = Path(xml_file_path).resolve()
+        valid_path, xml_file = shared.is_valid_path(xml_file_path)
+        if not valid_path:
+            raise ValueError(f'NOT valid snapshot path: {xml_file}')
+
+        with open(xml_file_path) as xml_file:
+            snapshot_dict = xmltodict.parse(xml_file.read())
+
+        return snapshot_dict
+
     def validate(self):
         """Validate the test counting the number of lines."""
         res = self.virtual_validate()
 
-        color = shared.bcolors.ENDC
-        if res == shared.error_code.OK:
-            color = shared.bcolors.OK
-        elif res == shared.error_code.SKIP:
-            color = shared.bcolors.OK
-        elif res == shared.error_code.ERROR:
-            color = shared.bcolors.ERROR
-        elif res == shared.error_code.FAIL:
-            color = shared.bcolors.WARNING
+        if res == shared.ReturnCode.OK:
+            self.logger.info(
+                    f'Result of {self.validator_name()}: '
+                    f'{shared.bcolors.OK}{res.name}{shared.bcolors.ENDC}')
 
-        self.logger.info(
-                f'Result of {self.validator_name()}: '
-                f'{color}{res.name}{shared.bcolors.ENDC}')
+            return True
 
-        return res
+        elif res == shared.ReturnCode.SKIP:
+            self.logger.warning(
+                    f'Result of {self.validator_name()}: '
+                    f'{shared.bcolors.WARNING}{res.name}{shared.bcolors.ENDC}')
+
+            return True
+
+        else:
+            self.logger.error(
+                    f'Result of {self.validator_name()}: '
+                    f'{shared.bcolors.FAIL}{res.name}{shared.bcolors.ENDC}')
+
+        return False
 
     def virtual_validate(self):
         """
@@ -137,4 +173,4 @@ class Validator(object):
 
     def validator_name(self):
         """Return validator's name."""
-        pass
+        return type(self).__name__

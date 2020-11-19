@@ -25,3 +25,4 @@ test_23_fast_discovery_server_tool,True,True,False,1,1,False,False
 test_24_backup,True,True,False,2,2,True,False
 test_25_backup_compatibility,True,True,True,1,1,False,True
 test_26_backup_restore,True,True,False,2,2,True,False
+test_27_tcp,True,True,True,1,1,False,True
