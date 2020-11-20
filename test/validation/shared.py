@@ -14,9 +14,10 @@
 """Module to provide common methods for the test validation tool."""
 import argparse
 import os
+from enum import Enum
 
 
-class bcolors:
+class bcolors(str, Enum):
     """Colors definition."""
 
     OK = '\033[92m'
@@ -24,6 +25,15 @@ class bcolors:
     FAIL = '\033[91m'
     BOLD = '\033[1m'
     ENDC = '\033[0m'
+
+
+class ReturnCode(Enum):
+    """Test return definition."""
+
+    OK = 0
+    SKIP = 1
+    ERROR = 2
+    FAIL = 3
 
 
 def get_file_extension(file):
