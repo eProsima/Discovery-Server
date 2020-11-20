@@ -36,13 +36,14 @@ class GroundTruthValidation(validator.Validator):
 
         Constructor of the ground-truth validation class.
 
-        :param snapshot: Path to the snapshot xml file containing the
-            Discovery-Server test output.
-        :param snapshot: Path to the snapshot xml file containing the
-            Discovery-Server ground-truth test output.
-        :param logger: The logging object. GROUND_TRUTH_VALIDATION if None
-            logger is provided.
+        :param snapshot_file_path: The path to the snapshot xml file
+            containing the Discovery-Server test output.
+        :param ground_truth_snapshot_file_path: The path to the snapshot xml
+            file containing the Discovery-Server ground-truth test output.
+        :param test_params: The test parameters in a pandas Dataframe format.
         :param debug: True/False to activate/deactivate debug logger.
+        :param logger: The logging object. GENERATE_VALIDATION if None
+            logger is provided.
         """
         super().__init__(
             snapshot_file_path,
@@ -51,6 +52,9 @@ class GroundTruthValidation(validator.Validator):
             debug,
             logger
         )
+
+        self.val_snapshot = self.parse_xml_snapshot(self.snapshot_file_path)
+        self.gt_snapshot = self.parse_xml_snapshot(self.gt_snapshot_file_path)
 
         self.gt_dict = {'DS_Snapshots': {}}
         self.val_dict = {'DS_Snapshots': {}}

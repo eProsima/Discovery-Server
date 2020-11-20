@@ -46,23 +46,21 @@ class Validator(object):
         """
         Build a generic validation object.
 
-        :param snapshot_file_path: The path to the test output.
-        :param disposals: True if it is a disposals test (Default: False).
-        :param server_endpoints: True if there are endpoints in the servers
-            (Default: False).
-        :param logger: The logging object. VALIDATION if None
-            logger is provided.
+        :param snapshot_file_path: The path to the snapshot xml file
+            containing the Discovery-Server test output.
+        :param ground_truth_snapshot_file_path: The path to the snapshot xml
+            file containing the Discovery-Server ground-truth test output.
+        :param test_params: The test parameters in a pandas Dataframe format.
         :param debug: True/False to activate/deactivate debug logger.
+        :param logger: The logging object. GENERATE_VALIDATION if None
+            logger is provided.
         """
         self.set_logger(logger, debug)
-        self.logger.debug('Creating an instance of {}'.format(type(self)))
+        self.logger.debug(f'Creating an instance of {self.validator_name()}')
 
         self.snapshot_file_path = self.valid_snapshot_path(snapshot_file_path)
         self.gt_snapshot_file_path = self.valid_snapshot_path(
             ground_truth_snapshot_file_path)
-
-        self.val_snapshot = self.parse_xml_snapshot(self.snapshot_file_path)
-        self.gt_snapshot = self.parse_xml_snapshot(self.gt_snapshot_file_path)
 
     def set_logger(self, logger, debug):
         """

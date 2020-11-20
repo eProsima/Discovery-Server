@@ -93,7 +93,9 @@ def execute_test(
 
     :param test: The test to execute.
     :param path: The path of the xml configuration file of the test.
-    :param discovery_server_tool: The path to the discovery server executable.
+    :param discovery_server_tool_path: The path to the discovery server
+        executable.
+    :param fds_path: The path to the fast-discovery-server tool.
     :param debug: Debug flag (Default: False).
     """
     if test == 'test_16_lease_duration_single_client':
@@ -250,9 +252,14 @@ def validate_test(
     """
     Execute the tests and validate the output.
 
-    :param test: The test to execute.
-    :param path: The path of the xml configuration file of the test.
+    :param test_params_df: The test parameters in a pandas Dataframe format.
+    :param test_path: The path of the xml configuration file of the test.
+    :param test_snapshot: Path to the snapshot xml file containing the
+            Discovery-Server test output.
+    :param ground_truth_snapshot: The path to the snapshot xml file containing
+        the Discovery-Server ground-truth test output.
     :param discovery_server_tool: The path to the discovery server executable.
+    :param fds_path: The path to the fast-discovery-server tool.
     :param debug: Debug flag (Default: False).
     """
     test = test_params_df.iloc[0]['test_name']

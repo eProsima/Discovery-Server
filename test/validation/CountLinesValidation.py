@@ -28,13 +28,13 @@ class CountLinesValidation(validator.Validator):
     def virtual_validate(self):
         """Validate the test counting the number of lines."""
         lines_get = 0
+        lines_expected = 0
 
         try:
             with open(self.snapshot_file_path) as f:
                 for line in f.readlines():
                     lines_get += 1
 
-            lines_expected = 0
             with open(self.gt_snapshot_file_path) as f:
                 for line in f.readlines():
                     lines_expected += 1

@@ -37,12 +37,14 @@ class GenerateValidation(validator.Validator):
 
         Constructor of the GenerateValidation class.
 
-        :param snapshot: Path to the snapshot xml file containing the
-            Discovery-Server test output.
-        :param disposals: True if it is a disposals test (Default: False).
+        :param snapshot_file_path: The path to the snapshot xml file
+            containing the Discovery-Server test output.
+        :param ground_truth_snapshot_file_path: The path to the snapshot xml
+            file containing the Discovery-Server ground-truth test output.
+        :param test_params: The test parameters in a pandas Dataframe format.
+        :param debug: True/False to activate/deactivate debug logger.
         :param logger: The logging object. GENERATE_VALIDATION if None
             logger is provided.
-        :param debug: True/False to activate/deactivate debug logger.
         """
         super().__init__(
             snapshot_file_path,
@@ -51,6 +53,9 @@ class GenerateValidation(validator.Validator):
             debug,
             logger
         )
+
+        self.val_snapshot = self.parse_xml_snapshot(self.snapshot_file_path)
+        self.gt_snapshot = self.parse_xml_snapshot(self.gt_snapshot_file_path)
 
         self.test_params = test_params
         self.supported_validation = self.test_params.iloc[0]['generate_check']

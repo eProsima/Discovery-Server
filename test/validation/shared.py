@@ -17,7 +17,7 @@ import os
 from enum import Enum
 
 
-class bcolors:
+class bcolors(str, Enum):
     """Colors definition."""
 
     OK = '\033[92m'
