@@ -1,9 +1,9 @@
 # eProsima Discovery Server
 
-The [RTPS standard](http://www.omg.org/spec/DDSI-RTPS/2.3) specifies in section 8.5 a non-centralized, distributed
-simple discovery mechanism. This mechanism was devised to allow interoperability among independent
+The [RTPS standard](http://www.omg.org/spec/DDSI-RTPS/2.3) specifies in section 8.5 a non-centralized, distributed,
+simple discovery mechanism. This mechanism was devised to allow interoperability between independent
 vendor-specific implementations but it is not expected to be optimal in every environment.
-There are several scenarios were the simple discovery mechanism is unsuitable or plainly cannot be
+There are several scenarios where the simple discovery mechanism is unsuitable, or it just simply cannot be
 applied:
 
 - A high number of endpoint entities are continuously entering and exiting a large network.
@@ -47,7 +47,7 @@ The **Discovery Server tool documentation** can be found
 In order to use the Discovery Server tool, it is necessary to have a compatible version of
 [eProsima Fast DDS](https://eprosima-fast-rtps.readthedocs.io/en/latest/) installed (over release 2.0.2).
 *Fast DDS* dependencies as tinyxml must be accessible, either because *Fast DDS* was build-installed defining
-THIRDPARTY=ON or because those libraries have been specifically installed.
+`THIRDPARTY=ON|FORCE` or because those libraries have been specifically installed.
 The well known cross-platform tool [colcon](https://colcon.readthedocs.io/en/released/) was chosen to simplify the
 installation of the several mutually dependent [CMake](https://cmake.org/cmake/help/latest/) projects. In order to use
 colcon, [Python3](https://www.python.org/) and [CMake](https://cmake.org/cmake/help/latest/) must be first installed.
