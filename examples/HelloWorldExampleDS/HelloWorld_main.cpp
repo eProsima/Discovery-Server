@@ -275,10 +275,6 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    Log::SetCategoryFilter(std::regex("(RTPS_HISTORY)|(RTPS_PDP)|(SERVER_PDP_THREAD)|(CLIENT_PDP_THREAD)"
-                           "|(DISCOVERY_DATABASE)|(RTPS_PDP_LISTENER)"));
-    Log::SetVerbosity(Log::Kind::Info);
-
     switch(type)
     {
         case 1:

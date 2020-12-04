@@ -11,7 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Script to validate an snapshot resulting from a Discovery-Server test."""
+"""
+Script implementing the GenerateValidator class.
+
+The GenerateValidator validates the Discovery-Server test by comparing the
+test output with a self-generated snapshot that mimics the format and content
+that the test output should have if it passed.
+"""
 import itertools
 import json
 
@@ -21,8 +27,14 @@ import validation.Validator as validator
 import validation.shared as shared
 
 
-class GenerateValidation(validator.Validator):
-    """Class to validate an snapshot resulting from a Discovery-Server test."""
+class GenerateValidator(validator.Validator):
+    """
+    Class to validate an snapshot resulting from a Discovery-Server test.
+
+    Validates the Discovery-Server test by comparing the
+    test output with a self-generated snapshot that mimics the format and
+    content that the test output should have if it passed.
+    """
 
     def __init__(
         self,
@@ -35,7 +47,7 @@ class GenerateValidation(validator.Validator):
         """
         Build a validation object.
 
-        Constructor of the GenerateValidation class.
+        Constructor of the GenerateValidator class.
 
         :param snapshot_file_path: The path to the snapshot xml file
             containing the Discovery-Server test output.
@@ -43,7 +55,7 @@ class GenerateValidation(validator.Validator):
             file containing the Discovery-Server ground-truth test output.
         :param test_params: The test parameters in a pandas Dataframe format.
         :param debug: True/False to activate/deactivate debug logger.
-        :param logger: The logging object. GENERATE_VALIDATION if None
+        :param logger: The logging object. VALIDATION if None
             logger is provided.
         """
         super().__init__(
@@ -65,7 +77,7 @@ class GenerateValidation(validator.Validator):
         self.validate_dict = {'DS_Snapshots': {}}
         self.process_servers()
 
-    def virtual_validate(self):
+    def _validate(self):
         """Validate the snapshots resulting from a Discovery-Server test."""
         if self.disposals:
             self.logger.debug('Validation for disposals test snapshot.')
@@ -73,7 +85,7 @@ class GenerateValidation(validator.Validator):
         if not self.supported_validation:
             self.logger.warning(
                 f"{self.test_params.iloc[0]['test_name']} is not supported in "
-                f'{self.validator_name()}')
+                f'{self.__validator_name()}')
             return shared.ReturnCode.SKIP
 
         if self.server_endpoints:
@@ -88,7 +100,7 @@ class GenerateValidation(validator.Validator):
             self.logger.error(e)
             self.logger.error('Failed at parsing the test output snapshots.')
             self.logger.info(
-                f'Summary: 0 tests, 1 errors, 0 failures')
+                'Summary: 0 tests, 1 errors, 0 failures')
             return shared.ReturnCode.ERROR
 
         n_tests = 0
@@ -134,7 +146,7 @@ class GenerateValidation(validator.Validator):
 
             except KeyError as e:
                 self.logger.error(e)
-                self.logger.info(
+                self.logger.error(
                         f'Validation result of Snapshot '
                         f"{snapshot['description']}: "
                         f'{shared.bcolors.FAIL}FAIL{shared.bcolors.ENDC}')

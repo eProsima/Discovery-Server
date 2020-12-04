@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Script to execute a single Discovery Server v2 test."""
+"""Script to execute and validate a single Discovery Server v2 test."""
 import argparse
 import glob
 import logging
@@ -20,9 +20,9 @@ import subprocess
 
 import pandas as pd
 
-import validation.CountLinesValidation as clv
-import validation.GenerateValidation as genv
-import validation.GroundTruthValidation as gtv
+import validation.CountLinesValidator as clv
+import validation.GenerateValidator as genv
+import validation.GroundTruthValidator as gtv
 import validation.shared as shared
 
 
@@ -34,9 +34,14 @@ def parse_options():
     """
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        description="""
-        Script to execute every test in 'test_cases' subfolder and check it
-        is working correctly."""
+        add_help=True,
+        description=(
+            'Script to execute and validate a single Discovery Server v2 '
+            'test.'),
+        usage=(
+            'python3 run_test.py'
+            '-e <path/to/discovery-server/executable> -t <test-name>'
+            '-T test_cases -g test_solutions')
     )
     parser.add_argument(
         '-e',
@@ -49,13 +54,13 @@ def parse_options():
         '-t',
         '--test',
         type=str,
-        help=('Name of the test case to execute (without xml extension.')
+        help='Name of the test case to execute (without xml extension).'
     )
     parser.add_argument(
         '-f',
         '--fds',
         type=str,
-        help=('Path to fast-discovery-server tool.')
+        help='Path to fast-discovery-server tool.'
     )
     parser.add_argument(
         '-d',
@@ -68,14 +73,22 @@ def parse_options():
         '--test-cases',
         type=str,
         required=True,
-        help='Path to the directory containin the test cases.'
+        help='Path to the directory containing the test cases.'
     )
     parser.add_argument(
         '-g',
         '--ground-truth',
         type=str,
         required=True,
-        help='Path to the directory containin the expected snapshots.'
+        help='Path to the directory containing the expected snapshots.'
+    )
+    parser.add_argument(
+        '-p',
+        '--params',
+        type=str,
+        required=False,
+        default='tests_params.csv',
+        help='Path to the csv file which contains the tests parameters.'
     )
 
     return parser.parse_args()
@@ -240,7 +253,7 @@ def execute_test(
         subprocess.run([discovery_server_tool_path, path])
 
 
-def validate_test(
+def run_and_validate(
     test_params_df,
     test_path,
     test_snapshot,
@@ -261,6 +274,8 @@ def validate_test(
     :param discovery_server_tool: The path to the discovery server executable.
     :param fds_path: The path to the fast-discovery-server tool.
     :param debug: Debug flag (Default: False).
+
+    :return: True if the test pass the validation, False otherwise.
     """
     test = test_params_df.iloc[0]['test_name']
     logger.info('------------------------------------------------------------')
@@ -272,13 +287,14 @@ def validate_test(
     validation_result = True
 
     validators = [
-        clv.CountLinesValidation,
-        genv.GenerateValidation,
-        gtv.GroundTruthValidation]
+        clv.CountLinesValidator,
+        genv.GenerateValidator,
+        gtv.GroundTruthValidator]
 
     for i in range(1, test_params_df.iloc[0]['n_validations']+1):
-        for v in validators:
-            val = v(test_snapshot, ground_truth_snapshot, test_params_df)
+        for validator in validators:
+            val = validator(
+                test_snapshot, ground_truth_snapshot, test_params_df)
             validation_result &= val.validate()
 
         test_snapshot = os.path.join(
@@ -323,13 +339,17 @@ def clear(test, validation, wd):
             logger.error(f'Error while deleting file: {f}')
 
 
-def load_test_params(test_name):
+def load_test_params(test_name, tests_params_path):
     """
     Load test parameters.
 
     :param test_name: The unique identifier of the test.
+    :param tests_params_path: The path to the csv file which contains the
+        test parameters.
+
+    :return: The pandas dataframe resulted from parsing the test parameters
+        csv file.
     """
-    tests_params_path = os.path.join(os.getcwd(), 'test', 'tests_params.csv')
     if os.path.isfile(tests_params_path):
         tests_params_df = pd.read_csv(tests_params_path)
         test_params_df = tests_params_df.loc[
@@ -367,11 +387,8 @@ if __name__ == '__main__':
     else:
         logger.setLevel(logging.INFO)
 
-    # Load test parameters
-    test_params_df = load_test_params(args.test)
-
-    if validate_test(
-        test_params_df,
+    if run_and_validate(
+        load_test_params(args.test, args.params),
         os.path.join(args.test_cases, f'{args.test}.xml'),
         os.path.join(os.getcwd(), f'{args.test}.snapshot~'),
         os.path.join(args.ground_truth, f'{args.test}.snapshot'),

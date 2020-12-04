@@ -267,27 +267,11 @@ set(${PROJECT_NAME}_source_files
 
 # Executable
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_source_files} ${${PROJECT_NAME}_header_files}
-                ${${PROJECT_NAME}_schema_files} ${${PROJECT_NAME}_xml_tests}
                 ${${PROJECT_NAME}_python_tests} ${${PROJECT_NAME}_static_types})
 
 # schema, types and auxiliary xmls
 source_group(resources\\xsd FILES ${${PROJECT_NAME}_schema_files} )
 source_group(resources\\static_types FILES ${${PROJECT_NAME}_static_types} )
-
-# path to xml test TEST_FILES_DIR
-list(GET ${PROJECT_NAME}_tests 0 TEST_FILES_DIR)
-get_filename_component(TEST_FILES_DIR "${TEST_FILES_DIR}" DIRECTORY )
-file(TO_NATIVE_PATH "${TEST_FILES_DIR}/" TEST_FILES_DIR)
-
-# path to test solution snapshots SNAPSHOT_FILES_DIR
-list(GET ${PROJECT_NAME}_tests 0 SNAPSHOT_FILES_DIR)
-get_filename_component(SNAPSHOT_FILES_DIR "${SNAPSHOT_FILES_DIR}" DIRECTORY )
-file(TO_NATIVE_PATH "${SNAPSHOT_FILES_DIR}/" SNAPSHOT_FILES_DIR)
-
-# path to python validation files VALIDATION_FILES_DIR
-list(GET ${PROJECT_NAME}_tests 0 VALIDATION_FILES_DIR)
-get_filename_component(VALIDATION_FILES_DIR "${VALIDATION_FILES_DIR}" DIRECTORY )
-file(TO_NATIVE_PATH "${VALIDATION_FILES_DIR}/" VALIDATION_FILES_DIR)
 
 # avoid visual studio from trying to compile .idl files with midl
 set_source_files_properties(${${PROJECT_NAME}_idl} PROPERTIES HEADER_FILE_ONLY TRUE)
@@ -350,263 +334,61 @@ set(BINARY_SNAPSHOTS_DIR ${BINARY_TEST_DIR}/test_solutions)
 file(TO_NATIVE_PATH "${BINARY_SNAPSHOTS_DIR}/" BINARY_SNAPSHOTS_DIR)
 
 set(RUN_TEST ${BINARY_TEST_DIR}run_test.py)
+set(TESTS_PARAMS ${BINARY_TEST_DIR}tests_params.csv)
 
 # To save time is adviceable to run ctest -j 10 to parallelized the test execution. Note that test doesn't interfere
-# with each other because independent random ports are generated for the servers.
-
-# transform the xml.in files into actual xml with random port numbers
-# xml files are created into the current binary dir but installed into the test dir
-
-# files belonging to the same test must be consecutive alphabetically
-list(SORT ${PROJECT_NAME}_tests)
+# with each other because independent ports are used for the servers.
 
 unset(TEST_LIST)
 
-# Test 01
-list(APPEND TEST_LIST test_01_trivial)
-add_test(NAME test_01_trivial
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_01_trivial
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_01_trivial PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_01_trivial.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_01_trivial.snapshot )
-
-# Test 02
-list(APPEND TEST_LIST test_02_single_server_medium)
-add_test(NAME test_02_single_server_medium
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_02_single_server_medium
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_02_single_server_medium PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_02_single_server_medium.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_02_single_server_medium.snapshot )
-
-# Test 03
-list(APPEND TEST_LIST test_03_single_server_large)
-add_test(NAME test_03_single_server_large
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_03_single_server_large
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_03_single_server_large PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_03_single_server_large.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_03_single_server_large.snapshot )
-
-# Test 04
-list(APPEND TEST_LIST test_04_server_ping)
-add_test(NAME test_04_server_ping
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_04_server_ping
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_04_server_ping PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_04_server_ping.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_04_server_ping.snapshot )
-
-# Test 05
-list(APPEND TEST_LIST test_05_server_double_ping)
-add_test(NAME test_05_server_double_ping
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_05_server_double_ping
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_05_server_double_ping PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_05_server_double_ping.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_05_server_double_ping.snapshot )
-
-# Test 06
-list(APPEND TEST_LIST test_06_diamond_servers)
-add_test(NAME test_06_diamond_servers
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_06_diamond_servers
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_06_diamond_servers PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_06_diamond_servers.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_06_diamond_servers.snapshot )
-
-# Test 07
-list(APPEND TEST_LIST test_07_server_endpoints_two_servers)
-add_test(NAME test_07_server_endpoints_two_servers
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_07_server_endpoints_two_servers
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_07_server_endpoints_two_servers PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_07_server_endpoints_two_servers.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_07_server_endpoints_two_servers.snapshot )
-
-# Test 08
-list(APPEND TEST_LIST test_08_server_endpoints_four_clients)
-add_test(NAME test_08_server_endpoints_four_clients
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_08_server_endpoints_four_clients
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_08_server_endpoints_four_clients PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_08_server_endpoints_four_clients.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_08_server_endpoints_four_clients.snapshot )
-
-# Test 09
-list(APPEND TEST_LIST test_09_servers_serial)
-add_test(NAME test_09_servers_serial
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_09_servers_serial
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_09_servers_serial PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_09_servers_serial.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_09_servers_serial.snapshot )
-
-# Test 10
-list(APPEND TEST_LIST test_10_server_redundancy)
-add_test(NAME test_10_server_redundancy
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_10_server_redundancy
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_10_server_redundancy PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_10_server_redundancy.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_10_server_redundancy.snapshot )
-
-# Test 11
-list(APPEND TEST_LIST test_11_remote_servers)
-add_test(NAME test_11_remote_servers
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_11_remote_servers
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_11_remote_servers PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_11_remote_servers.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_11_remote_servers.snapshot )
-
-# Test 12
-list(APPEND TEST_LIST test_12_virtual_topics)
-add_test(NAME test_12_virtual_topics
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_12_virtual_topics
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_12_virtual_topics PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_12_virtual_topics.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_12_virtual_topics.snapshot )
-
-# Test 13
-list(APPEND TEST_LIST test_13_disposals_single_server)
-add_test(NAME test_13_disposals_single_server
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_13_disposals_single_server
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_13_disposals_single_server PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_13_disposals_single_server.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_13_disposals_single_server.snapshot )
-
-# Test 14
-list(APPEND TEST_LIST test_14_disposals_remote_servers)
-add_test(NAME test_14_disposals_remote_servers
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_14_disposals_remote_servers
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_14_disposals_remote_servers PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_14_disposals_remote_servers.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_14_disposals_remote_servers.snapshot )
-
-# Test 15
-list(APPEND TEST_LIST test_15_disposals_client_servers)
-add_test(NAME test_15_disposals_client_servers
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_15_disposals_client_servers
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_15_disposals_client_servers PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_15_disposals_client_servers.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_15_disposals_client_servers.snapshot )
-
-# Test 16
-list(APPEND TEST_LIST test_16_lease_duration_single_client)
-add_test(NAME test_16_lease_duration_single_client
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_16_lease_duration_single_client
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_16_lease_duration_single_client PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_16_lease_duration_single_client.xml
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_16_lease_duration_single_client_1.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_16_lease_duration_single_client.snapshot )
-
-# Test 17
-list(APPEND TEST_LIST test_17_lease_duration_remove_client_server)
-add_test(NAME test_17_lease_duration_remove_client_server
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_17_lease_duration_remove_client_server
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_17_lease_duration_remove_client_server PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_17_lease_duration_remove_client_server.xml
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_17_lease_duration_remove_client_server_1.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_17_lease_duration_remove_client_server.snapshot )
-
-# Test 18
-list(APPEND TEST_LIST test_18_disposals_remote_servers_multiprocess)
-add_test(NAME test_18_disposals_remote_servers_multiprocess
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_18_disposals_remote_servers_multiprocess
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_18_disposals_remote_servers_multiprocess PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_18_disposals_remote_servers_multiprocess.xml
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_18_disposals_remote_servers_multiprocess_1.xml
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_18_disposals_remote_servers_multiprocess_2.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_18_disposals_remote_servers_multiprocess.snapshot )
-
-# Test 19
-list(APPEND TEST_LIST test_19_disposals_break_builtin_connections)
-add_test(NAME test_19_disposals_break_builtin_connections
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_19_disposals_break_builtin_connections
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_19_disposals_break_builtin_connections PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_19_disposals_break_builtin_connections.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_19_disposals_break_builtin_connections.snapshot )
-
-# Test 20
-list(APPEND TEST_LIST test_20_break_builtin_connections)
-add_test(NAME test_20_break_builtin_connections
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_20_break_builtin_connections
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_20_break_builtin_connections PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_20_break_builtin_connections.xml
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_20_break_builtin_connections_1.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_20_break_builtin_connections.snapshot )
-
-# Test 21
-list(APPEND TEST_LIST test_21_disposals_remote_server_trivial)
-add_test(NAME test_21_disposals_remote_server_trivial
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_21_disposals_remote_server_trivial
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_21_disposals_remote_server_trivial PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_21_disposals_remote_server_trivial.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_21_disposals_remote_server_trivial.snapshot )
+list(APPEND TEST_LIST
+    test_01_trivial
+    test_02_single_server_medium
+    test_03_single_server_large
+    test_04_server_ping
+    test_05_server_double_ping
+    test_06_diamond_servers
+    test_07_server_endpoints_two_servers
+    test_08_server_endpoints_four_clients
+    test_09_servers_serial
+    test_10_server_redundancy
+    test_11_remote_servers
+    test_12_virtual_topics
+    test_13_disposals_single_server
+    test_14_disposals_remote_servers
+    test_15_disposals_client_servers
+    test_16_lease_duration_single_client
+    test_17_lease_duration_remove_client_server
+    test_18_disposals_remote_servers_multiprocess
+    test_19_disposals_break_builtin_connections
+    test_20_break_builtin_connections
+    test_21_disposals_remote_server_trivial
+    test_24_backup
+    test_25_backup_compatibility
+    test_26_backup_restore
+    test_27_tcp)
+foreach(TEST IN LISTS SINGLE_XML_TESTS)
+    add_test(NAME ${TEST}
+        COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+        -e $<TARGET_FILE:${PROJECT_NAME}> -t ${TEST}
+        -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR}
+        -p ${TESTS_PARAMS})
+    set_tests_properties(${TEST} PROPERTIES
+        REQUIRED_FILES ${RUN_TEST}
+        REQUIRED_FILES ${TESTS_PARAMS})
+endforeach()
 
 # Test 22: Testing setup using the ROS_DISCOVERY_SERVER environment variable
 list(APPEND TEST_LIST test_22_environment_variable_setup)
 add_test(NAME test_22_environment_variable_setup
     COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
     -e $<TARGET_FILE:${PROJECT_NAME}> -t test_22_environment_variable_setup
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
+    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR}
+    -p ${TESTS_PARAMS})
 set_tests_properties(test_22_environment_variable_setup PROPERTIES
     ENVIRONMENT ROS_DISCOVERY_SERVER=127.0.0.1:22811
     REQUIRED_FILES ${RUN_TEST}
+    REQUIRED_FILES ${TESTS_PARAMS}
     REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_22_environment_variable_setup.xml
     REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_22_environment_variable_setup.snapshot )
 
@@ -616,58 +398,13 @@ add_test(NAME test_23_fast_discovery_server_tool
     COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
     -e $<TARGET_FILE:${PROJECT_NAME}> -t test_23_fast_discovery_server_tool
     -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR}
+    -p ${TESTS_PARAMS}
     -f $<$<TARGET_EXISTS:fastdds::fast-discovery-server>:$<TARGET_FILE:fastdds::fast-discovery-server>>)
 set_tests_properties(test_23_fast_discovery_server_tool PROPERTIES
     REQUIRED_FILES ${RUN_TEST}
+    REQUIRED_FILES ${TESTS_PARAMS}
     REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_23_fast_discovery_server_tool.xml
     DISABLED $<NOT:$<TARGET_EXISTS:fastdds::fast-discovery-server>>)
-
-# Test 24: Backup server
-list(APPEND TEST_LIST test_24_backup)
-add_test(NAME test_24_backup
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_24_backup
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_24_backup PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_24_backup.xml
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_24_backup_1.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_24_backup.snapshot
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_24_backup_1.snapshot )
-
-# Test 25
-list(APPEND TEST_LIST test_25_backup_compatibility)
-add_test(NAME test_25_backup_compatibility
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_25_backup_compatibility
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_25_backup_compatibility PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_25_backup_compatibility.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_25_backup_compatibility.snapshot )
-
-# Test 26: Restore backup
-list(APPEND TEST_LIST test_26_backup_restore)
-add_test(NAME test_26_backup_restore
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_26_backup_restore
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_26_backup_restore PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_26_backup_restore.xml
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_26_backup_restore_1.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_26_backup_restore.snapshot )
-
-# Test 27: TCP
-list(APPEND TEST_LIST test_27_tcp)
-add_test(NAME test_27_tcp
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_27_tcp
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR})
-set_tests_properties(test_27_tcp PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_27_tcp.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_27_tcp.snapshot )
 
 # Windows requires an special treatment of environmental variables
 if(WIN32)

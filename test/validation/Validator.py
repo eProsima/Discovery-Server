@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Script to execute Discovery Server v2 tests."""
+"""Script implementing the Validator class."""
 import logging
 import os
 from pathlib import Path
@@ -30,9 +30,9 @@ class Validator(object):
     """
     Class to validate an snapshot resulting from a Discovery-Server test.
 
-    Validate the test counting and comparing the number of lines of the
-    output snapshot resulted from the test execution and an a priori well
-    knonw output.
+    This is the base class of various classes that implement a different type
+    of test output validation. Each of the child classes will implement its
+    validation mechanism in the _validate() function.
     """
 
     def __init__(
@@ -52,11 +52,11 @@ class Validator(object):
             file containing the Discovery-Server ground-truth test output.
         :param test_params: The test parameters in a pandas Dataframe format.
         :param debug: True/False to activate/deactivate debug logger.
-        :param logger: The logging object. GENERATE_VALIDATION if None
+        :param logger: The logging object. VALIDATION if None
             logger is provided.
         """
         self.set_logger(logger, debug)
-        self.logger.debug(f'Creating an instance of {self.validator_name()}')
+        self.logger.debug(f'Creating an instance of {self.__validator_name()}')
 
         self.snapshot_file_path = self.valid_snapshot_path(snapshot_file_path)
         self.gt_snapshot_file_path = self.valid_snapshot_path(
@@ -137,30 +137,30 @@ class Validator(object):
 
     def validate(self):
         """Validate the test counting the number of lines."""
-        res = self.virtual_validate()
+        res = self._validate()
 
         if res == shared.ReturnCode.OK:
             self.logger.info(
-                    f'Result of {self.validator_name()}: '
+                    f'Result of {self.__validator_name()}: '
                     f'{shared.bcolors.OK}{res.name}{shared.bcolors.ENDC}')
 
             return True
 
         elif res == shared.ReturnCode.SKIP:
             self.logger.warning(
-                    f'Result of {self.validator_name()}: '
+                    f'Result of {self.__validator_name()}: '
                     f'{shared.bcolors.WARNING}{res.name}{shared.bcolors.ENDC}')
 
             return True
 
         else:
             self.logger.error(
-                    f'Result of {self.validator_name()}: '
+                    f'Result of {self.__validator_name()}: '
                     f'{shared.bcolors.FAIL}{res.name}{shared.bcolors.ENDC}')
 
         return False
 
-    def virtual_validate(self):
+    def _validate(self):
         """
         Implement the specific validation.
 
@@ -169,6 +169,6 @@ class Validator(object):
         """
         pass
 
-    def validator_name(self):
+    def __validator_name(self):
         """Return validator's name."""
         return type(self).__name__

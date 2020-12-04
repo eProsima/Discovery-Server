@@ -11,7 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Script to validate an snapshot resulting from a Discovery-Server test."""
+"""
+Script implementing the GroundTruthValidator class.
+
+The GroundTruthValidator validates the Discovery-Server test by comparing
+the test output with a previously generated snapshot containing the exact
+output that the test output should have if it passes.
+"""
 import json
 
 import jsondiff
@@ -20,8 +26,14 @@ import validation.Validator as validator
 import validation.shared as shared
 
 
-class GroundTruthValidation(validator.Validator):
-    """Class to validate an snapshot resulting from a Discovery-Server test."""
+class GroundTruthValidator(validator.Validator):
+    """
+    Class to validate an snapshot resulting from a Discovery-Server test.
+
+    Validate the Discovery-Server test by comparing the test output with a
+    previously generated snapshot containing the exact output that the test
+    output should have if it passes.
+    """
 
     def __init__(
         self,
@@ -42,7 +54,7 @@ class GroundTruthValidation(validator.Validator):
             file containing the Discovery-Server ground-truth test output.
         :param test_params: The test parameters in a pandas Dataframe format.
         :param debug: True/False to activate/deactivate debug logger.
-        :param logger: The logging object. GENERATE_VALIDATION if None
+        :param logger: The logging object. VALIDATION if None
             logger is provided.
         """
         super().__init__(
@@ -58,9 +70,9 @@ class GroundTruthValidation(validator.Validator):
 
         self.gt_dict = {'DS_Snapshots': {}}
         self.val_dict = {'DS_Snapshots': {}}
-        self.process_servers()
+        self.servers = self.process_servers()
 
-    def virtual_validate(self):
+    def _validate(self):
         """Validate the snapshots resulting from a Discovery-Server test."""
         self.__trim_snapshot_dict(self.gt_snapshot, self.gt_dict)
         self.__trim_snapshot_dict(self.val_snapshot, self.val_dict)
@@ -72,13 +84,10 @@ class GroundTruthValidation(validator.Validator):
 
         for snapshot in self.gt_dict['DS_Snapshots']:
             n_tests += 1
-            val = False
             try:
-                val = self.__dict_equal(
-                    self.gt_dict['DS_Snapshots'][snapshot],
-                    self.val_dict['DS_Snapshots'][snapshot])
-
-                if val:
+                if self.__dict_equal(
+                        self.gt_dict['DS_Snapshots'][snapshot],
+                        self.val_dict['DS_Snapshots'][snapshot]):
                     self.logger.info(
                         f'Validation result of Snapshot {snapshot}: '
                         f'{shared.bcolors.OK}PASS{shared.bcolors.ENDC}')
@@ -91,7 +100,7 @@ class GroundTruthValidation(validator.Validator):
 
             except KeyError as e:
                 self.logger.error(e)
-                self.logger.info(
+                self.logger.error(
                         f'Validation result of Snapshot {snapshot}: '
                         f'{shared.bcolors.FAIL}FAIL{shared.bcolors.ENDC}')
                 error_tests.append(snapshot)
@@ -122,19 +131,19 @@ class GroundTruthValidation(validator.Validator):
 
     def process_servers(self):
         """Generate a list with the servers guid_prefix from the snapshot."""
-        self.servers = []
+        servers = []
         try:
             for snapshot in self.__dict2list(
                     self.gt_snapshot['DS_Snapshots']['DS_Snapshot']):
                 for ptdb in self.__dict2list(snapshot['ptdb']):
-                    [self.servers.append(ptdi['@guid_prefix'])
+                    [servers.append(ptdi['@guid_prefix'])
                         for ptdi in self.__dict2list(ptdb['ptdi'])
                         if (ptdi['@server'] == 'true' and
-                            ptdi['@guid_prefix'] not in self.servers)]
+                            ptdi['@guid_prefix'] not in servers)]
         except KeyError as e:
             self.logger.debug(e)
 
-        return self.servers
+        return servers
 
     def __trim_snapshot_dict(self, original_dict, trimmed_dict):
         """

@@ -27,7 +27,8 @@ int main(int argc, char * argv[])
         Log::SetVerbosity(Log::Kind::Error);
     #endif
 
-    Log::SetVerbosity(Log::Kind::Error);
+    // Clear all the consumers.
+    Log::ClearConsumers();
 
     // Create a StdoutErrConsumer consumer that logs entries to stderr only when the Log::Kind is equal to WARNING
     // This allows the test validate the output of the executions
@@ -37,10 +38,6 @@ int main(int argc, char * argv[])
 
     // Register the consumer
     Log::RegisterConsumer(std::move(stdouterr_consumer));
-
-    Log::SetCategoryFilter(
-        std::regex("(RTPS_PDPSERVER_TRIM)|(RTPS_PARTICIPANT)|(DISCOVERY_SERVER)"
-                   "|(SERVER_PDP_THREAD)|(CLIENT_PDP_THREAD)"));
 
     int return_code = 0;
 

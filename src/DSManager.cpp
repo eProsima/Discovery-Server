@@ -479,10 +479,6 @@ types::DynamicPubSubType* DSManager::setType(
 void DSManager::loadProfiles(
         tinyxml2::XMLElement* profiles)
 {
-    LibrarySettingsAttributes lib_setting;
-    lib_setting.intraprocess_delivery = IntraprocessDeliveryType::INTRAPROCESS_OFF;
-    xmlparser::XMLProfileManager::library_settings(lib_setting);
-
     xmlparser::XMLP_ret ret = xmlparser::XMLProfileManager::loadXMLProfiles(*profiles);
 
     if (ret == xmlparser::XMLP_ret::XML_OK)
