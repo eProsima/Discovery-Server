@@ -14,11 +14,11 @@
 """Script to execute and validate a single Discovery Server v2 test."""
 import argparse
 import glob
+import json
 import logging
 import os
 import subprocess
-
-import pandas as pd
+import threading
 
 import validation.CountLinesValidator as clv
 import validation.GenerateValidator as genv
@@ -87,7 +87,7 @@ def parse_options():
         '--params',
         type=str,
         required=False,
-        default='tests_params.csv',
+        default=os.path.join('configuration', 'tests_params.json'),
         help='Path to the csv file which contains the tests parameters.'
     )
 
@@ -95,8 +95,7 @@ def parse_options():
 
 
 def execute_test(
-    test,
-    path,
+    test_params,
     discovery_server_tool_path,
     fds_path=None,
     debug=False
@@ -111,6 +110,38 @@ def execute_test(
     :param fds_path: The path to the fast-discovery-server tool.
     :param debug: Debug flag (Default: False).
     """
+
+
+    try:
+        xml_config = test_params['xml_config_files']
+    except KeyError:
+        logger.error('XML configuration files not found')
+        exit(1)
+
+    if not xml_config:
+        logger.error('XML configuration files not found')
+        exit(1)
+
+    events = []
+
+    for xml in xml_config:
+        if ('creation_time' in xml) and isinstance(xml['creation_time'], int):
+            events.append(('RUN', xml['creation_time']))
+        if ('kill_time' in xml) and isinstance(xml['creation_time'], int):
+            events.append(('KILL', xml['kill_time']))
+
+    events.sort(key=lambda x: x[1])
+
+    # This could be a list comprehension
+    for i, event in events:
+        if i == 0:
+            continue
+        new_time = events[i-1][1] - event[1]
+        events[i] = (event[0], new_time)
+
+    exit(1)
+
+
     if test == 'test_16_lease_duration_single_client':
         aux_test_path = os.path.join(os.path.dirname(path), f'{test}_1.xml')
         # Launch
@@ -254,10 +285,7 @@ def execute_test(
 
 
 def run_and_validate(
-    test_params_df,
-    test_path,
-    test_snapshot,
-    ground_truth_snapshot,
+    test_params,
     discovery_server_tool_path,
     fds_path=None,
     debug=False
@@ -277,11 +305,11 @@ def run_and_validate(
 
     :return: True if the test pass the validation, False otherwise.
     """
-    test = test_params_df.iloc[0]['test_name']
+    test = test_params['id']
     logger.info('------------------------------------------------------------')
-    logger.info(f'Running {test}')
+    logger.info(f"Running {test_params['id']}")
     execute_test(
-        test, test_path, discovery_server_tool_path, fds_path, debug)
+        test_params, discovery_server_tool_path, fds_path, debug)
     logger.info('------------------------------------------------------------')
 
     validation_result = True
@@ -344,18 +372,18 @@ def load_test_params(test_name, tests_params_path):
     Load test parameters.
 
     :param test_name: The unique identifier of the test.
-    :param tests_params_path: The path to the csv file which contains the
+    :param tests_params_path: The path to the json file which contains the
         test parameters.
 
-    :return: The pandas dataframe resulted from parsing the test parameters
-        csv file.
+    :return: The Python dict resulting from reading the test params.
     """
     if os.path.isfile(tests_params_path):
-        tests_params_df = pd.read_csv(tests_params_path)
-        test_params_df = tests_params_df.loc[
-            tests_params_df['test_name'] == test_name]
+        with open(tests_params_path) as json_file:
+            tests_params = json.load(json_file)
 
-        if test_params_df.empty:
+        try:
+            test_params = tests_params['tests'][test_name]
+        except KeyError:
             logger.error(f'Not supported test: {test_name}')
             exit(1)
 
@@ -363,7 +391,7 @@ def load_test_params(test_name, tests_params_path):
         logger.error('Not found file with test parameters.')
         exit(1)
 
-    return test_params_df
+    return test_params
 
 
 if __name__ == '__main__':
@@ -389,9 +417,6 @@ if __name__ == '__main__':
 
     if run_and_validate(
         load_test_params(args.test, args.params),
-        os.path.join(args.test_cases, f'{args.test}.xml'),
-        os.path.join(os.getcwd(), f'{args.test}.snapshot~'),
-        os.path.join(args.ground_truth, f'{args.test}.snapshot'),
         args.exe,
         fds_path=(args.fds if args.fds else None),
         debug=args.debug
