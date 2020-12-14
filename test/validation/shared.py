@@ -82,3 +82,41 @@ def is_valid_path(path):
 def parent_dir_path():
     """Get the parent path of the current working directory."""
     return os.path.dirname(os.path.join(os.getcwd(), __file__))
+
+
+def replace_string_dict(dic, pattern, new_string):
+    """
+    Change pattern for new string over a whole dictionary recursively.
+    """
+    for k in dic.keys():
+        if type(dic[k]) == str:
+            dic[k] = dic[k].replace(pattern, new_string)
+        elif type(dic[k]) == list:
+            replace_string_list(dic[k], pattern, new_string)
+        elif type(dic[k]) == dict:
+            replace_string_dict(dic[k], pattern, new_string)
+
+
+def replace_string_list(l, pattern, new_string):
+    """
+    Change pattern for new string over a whole list recursively.
+    """
+    for i in range(len(l)):
+        if type(l[i]) == str:
+            l[i] = l[i].replace(pattern, new_string)
+        elif type(l[i]) == list:
+            replace_string_list(l[i], pattern, new_string)
+        elif type(l[i]) == dict:
+            replace_string_dict(l[i], pattern, new_string)
+
+
+def boolean_from_string(v):
+    """Get boolean value from a string."""
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1', 'True', 'T'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0', 'False', 'F'):
+        return False
+    else:
+        return None

@@ -103,6 +103,7 @@ class DSManager
     volatile bool no_callbacks;      // ongoing participant destruction
     bool auto_shutdown;         // close when event processing is finished?
     bool enable_prefix_validation; // allow multiple servers share the same prefix? (only for testing purposes)
+    bool correctly_created_;     // store false if the DSManager has not been successfully created
 
     void loadProfiles(tinyxml2::XMLElement *profiles);
     void loadServer(tinyxml2::XMLElement* server);
@@ -213,6 +214,11 @@ public:
         const std::string &epName)
     {
         return partName + "." + epName;
+    }
+
+    bool correctly_created()
+    {
+        return correctly_created_;
     }
 
     // default topics

@@ -38,33 +38,28 @@ class GenerateValidator(validator.Validator):
 
     def __init__(
         self,
-        snapshot_file_path,
-        ground_truth_snapshot_file_path,
-        test_params,
+        file_name,
+        output_file_name,
         debug=False,
         logger=None
     ):
         """
-        Build a validation object.
+        Build a generic validation object.
 
-        Constructor of the GenerateValidator class.
-
-        :param snapshot_file_path: The path to the snapshot xml file
+        :param file_name: The path to the snapshot xml file
             containing the Discovery-Server test output.
-        :param ground_truth_snapshot_file_path: The path to the snapshot xml
-            file containing the Discovery-Server ground-truth test output.
-        :param test_params: The test parameters in a pandas Dataframe format.
+        :param output_file_name: The path to the snapshot xml
+            file containing the expected test output.
         :param debug: True/False to activate/deactivate debug logger.
         :param logger: The logging object. VALIDATION if None
             logger is provided.
         """
         super().__init__(
-            snapshot_file_path,
-            ground_truth_snapshot_file_path,
-            test_params,
             debug,
             logger
         )
+        self.file_name_ = file_name
+        self.output_file_name_ = output_file_name
 
         self.val_snapshot = self.parse_xml_snapshot(self.snapshot_file_path)
         self.gt_snapshot = self.parse_xml_snapshot(self.gt_snapshot_file_path)

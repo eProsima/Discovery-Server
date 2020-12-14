@@ -1,0 +1,67 @@
+{
+    "configurations":
+    {
+        "transports":
+        {
+            "intraprocess":
+            {
+                "off": "<CONFIG_RELATIVE_PATH>/intraprocess_off.xml",
+                "on": "<CONFIG_RELATIVE_PATH>/intraprocess_full.xml"
+            }
+        }
+    },
+
+    "tests":
+    {
+
+        "test_24_backup": {
+            "clear": true,
+            "processes": [
+                {
+                    "process_id": 0,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/../test_cases/test_24_backup.xml",
+                    "environment_variables": [
+                    ],
+                    "kill_time": 5
+                },
+                {
+                    "process_id": 1,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/../test_cases/test_24_backup_1.xml",
+                    "environment_variables": [
+                    ],
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/../test_solutions/test_24_backup_1.snapshot",
+                            "output_file_path": "test_24_backup_1.snapshot~"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        }
+                    }
+                },
+                {
+                    "process_id": 2,
+                    "creation_time": 7,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/../test_cases/test_24_backup.xml",
+                    "environment_variables": [
+                    ],
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/../test_solutions/test_24_backup_1.snapshot",
+                            "output_file_path": "test_24_backup_1.snapshot~"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

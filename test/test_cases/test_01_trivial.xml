@@ -15,7 +15,7 @@
     </clients>
 
     <snapshots file="./test_01_trivial.snapshot~">
-        <snapshot time="5">test_01_trivial_snapshot_1</snapshot>
+        <snapshot time="2">test_01_trivial_snapshot_1</snapshot>
     </snapshots>
 
     <profiles>
@@ -103,7 +103,7 @@
             <name>topic_1</name>
             <dataType>sample_type_1</dataType>
         </topic>
-        
+
         <types>
             <type>
               <struct name="sample_type_1">

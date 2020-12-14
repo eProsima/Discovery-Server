@@ -66,8 +66,9 @@ const std::chrono::seconds DSManager::last_snapshot_delay_ = std::chrono::second
 DSManager::DSManager(
     const std::string& xml_file_path)
     : no_callbacks(false)
-    , auto_shutdown(false)
+    , auto_shutdown(true)
     , enable_prefix_validation(true)
+    , correctly_created_(false)
     , last_PDP_callback_(Snapshot::_st_ck)
     , last_EDP_callback_(Snapshot::_st_ck)
 {
@@ -202,6 +203,7 @@ DSManager::DSManager(
         return;
     }
 
+    correctly_created_ = true;
     LOG_INFO("File " << xml_file_path << " parsed successfully.");
 }
 

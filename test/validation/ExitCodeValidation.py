@@ -12,17 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Script implementing the CountLinesValidator class.
+Script implementing the ExitCodeValidation class.
 
-The CountLinesValidator validates the test counting and comparing the number
-of lines of the output snapshot resulted from the test execution and an a
-priori well known output.
+The ExitCodeValidation validates the test exit code
 """
 import validation.Validator as validator
 import validation.shared as shared
 
 
-class CountLinesValidator(validator.Validator):
+class ExitCodeValidation(validator.Validator):
     """
     Class to validate an snapshot resulting from a Discovery-Server test.
 
@@ -33,29 +31,19 @@ class CountLinesValidator(validator.Validator):
 
     def _validator_tag(self):
         """Return validator's tag in json parameters file."""
-        return 'count_lines_validation'
+        return 'exit_code_validation'
 
     def _validate(self):
-        """Validate the test counting the number of lines."""
-
-        lines_get = 0
-        lines_expected = 0
+        """Validate the test exit code"""
 
         try:
-            file_name = self.test_params_['file_path']
-            output_file_name = self.test_params_['output_file_path']
+            exit_code = self.process_execution_.returncode
+            expected_code = self.test_params_['expected_exit_code']
 
-            self.logger.debug(f'Snapshot to validate: {file_name}')
-            self.logger.debug(f'Output snapshot: {output_file_name}')
-
-            with open(file_name) as f:
-                lines_get = len(f.readlines())
-            with open(output_file_name) as f:
-                lines_expected = len(f.readlines())
-        except (IOError, ValueError) as e:
+        except KeyError as e:
             self.logger.error(e)
             return shared.ReturnCode.ERROR
 
-        val = (lines_get == lines_expected)
+        val = (expected_code == exit_code)
 
         return shared.ReturnCode.OK if val else shared.ReturnCode.FAIL

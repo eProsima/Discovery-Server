@@ -13,17 +13,23 @@
 # limitations under the License.
 """Script to execute and validate a single Discovery Server v2 test."""
 import argparse
+import functools
 import glob
 import json
 import logging
 import os
 import subprocess
 import threading
+import time
 
-import validation.CountLinesValidator as clv
-import validation.GenerateValidator as genv
-import validation.GroundTruthValidator as gtv
 import validation.shared as shared
+import validation.validation as val
+
+DESCRIPTION = """Script to execute and validate Discovery Server v2 test"""
+USAGE = ('python3 run_test.py -e <path/to/discovery-server/executable>'
+         ' -p <path/to/test/parameteres/file> [-t LIST[test-name]]'
+         ' [-f <path/to/fastd)ds/tool>] [-d] [-r] [-i <bool>] [-s <bool>]')
+MAX_TIME = 60*5
 
 
 def parse_options():
@@ -35,20 +41,24 @@ def parse_options():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         add_help=True,
-        description=(
-            'Script to execute and validate a single Discovery Server v2 '
-            'test.'),
-        usage=(
-            'python3 run_test.py'
-            '-e <path/to/discovery-server/executable> -t <test-name>'
-            '-T test_cases -g test_solutions')
+        description=(DESCRIPTION),
+        usage=(USAGE)
     )
-    parser.add_argument(
+    required_args = parser.add_argument_group('required arguments')
+    required_args.add_argument(
         '-e',
         '--exe',
         type=str,
         required=True,
         help='Path to discovery-server executable.'
+    )
+    parser.add_argument(
+        '-p',
+        '--params',
+        type=str,
+        required=False,
+        default=os.path.join('configuration', 'tests_params.json'),
+        help='Path to the csv file which contains the tests parameters.'
     )
     parser.add_argument(
         '-t',
@@ -59,6 +69,7 @@ def parse_options():
     parser.add_argument(
         '-f',
         '--fds',
+        required=False,
         type=str,
         help='Path to fast-discovery-server tool.'
     )
@@ -69,26 +80,24 @@ def parse_options():
         help='Print test execution.'
     )
     parser.add_argument(
-        '-T',
-        '--test-cases',
-        type=str,
-        required=True,
-        help='Path to the directory containing the test cases.'
+        '-r',
+        '--not-remove',
+        action='store_true',
+        help='Do not remove generated files.'
     )
     parser.add_argument(
-        '-g',
-        '--ground-truth',
-        type=str,
-        required=True,
-        help='Path to the directory containing the expected snapshots.'
-    )
-    parser.add_argument(
-        '-p',
-        '--params',
+        '-s',
+        '--shm',
         type=str,
         required=False,
-        default=os.path.join('configuration', 'tests_params.json'),
-        help='Path to the csv file which contains the tests parameters.'
+        help='Use shared memory transport. Default both.'
+    )
+    parser.add_argument(
+        '-i',
+        '--intraprocess',
+        type=str,
+        required=False,
+        help='Use intraprocess transport. Default both.'
     )
 
     return parser.parse_args()
@@ -284,9 +293,204 @@ def execute_test(
         subprocess.run([discovery_server_tool_path, path])
 
 
-def run_and_validate(
+def execute_validate_thread_test(
+    test_id,
+    result_list,
+    ds_tool_path,
+    process_params,
+    config_file,
+    flags,
+    fds_path=None,
+    debug=False
+):
+    """
+    Execute a single process inside a test and validate it.
+    """
+    # PARAMENTER CONFIGURATION
+    # Get process id
+    try:
+        process_id = process_params['process_id']
+    except KeyError:
+        logger.error(f'Missing <process_id> in process of test {process_id}')
+        result_list.append(False)
+        return False
+
+    logger.debug(f'Getting paramenters for test {test_id} '
+                 f'in process: {process_id}')
+
+    # Get creation time (default 0)
+    creation_time = process_params.get('creation_time', 0)
+
+    # Get kill time (default MaxTime)
+    kill_time = process_params.get('kill_time', MAX_TIME)
+
+    # Get  environment variables
+    try:
+        env_var = [(env['name'], env['value']) for env in
+                   process_params['environment_variables']]
+    except KeyError:
+        env_var = []
+
+    xml_config_file = None
+    # Check whether it must execute the DS tool or the fastdds tool
+    if 'xml_config_file' in process_params.keys():
+        xml_config_file = process_params['xml_config_file']
+
+    elif 'tool_config' in process_params.keys():
+        server_id = 0
+        server_address = None
+        server_port = None
+        if fds_path is None:
+            logger.error(f'Non tool given and needed')
+            result_list.append(False)
+            return False
+
+        try:
+            server_id = process_params['tool_config']['id']
+            server_address = process_params['tool_config']['address']
+            server_port = process_params['tool_config']['port']
+        except KeyError:
+            pass
+    else:
+        logger.error(f'Incorrect process paramenters: {test_id}-{process_id}')
+        result_list.append(False)
+        return False
+
+    # EXECUTION
+    # Wait for initial time
+    time.sleep(creation_time)
+
+    # Set env var
+    my_env = os.environ.copy()
+    for name, value in env_var:
+        logger.debug(f'Adding envvar {name}:{value} to {test_id}-{process_id}')
+        my_env[name] = value
+    # Set configuration file
+    my_env['FASTRTPS_DEFAULT_PROFILES_FILE'] = config_file
+    logger.debug(f'Configuration file {config_file} to {test_id}-{process_id}')
+
+    # Launch
+    if xml_config_file is not None:
+        # Configuration file
+        process_args = [ds_tool_path, xml_config_file] + flags
+
+    else:
+        # Fastdds tool
+        process_args = [fds_path, '-i', str(server_id)]
+        if server_address is not None:
+            process_args.append('-l')
+            process_args.append(str(server_address))
+        if server_port is not None:
+            process_args.append('-p')
+            process_args.append(str(server_port))
+
+    # Execute
+    logger.debug(f'Executing process {process_id} in test {test_id} with '
+                 f'command {process_args}')
+    proc = subprocess.Popen(process_args, env=my_env)
+
+    # Wait 5 seconds before killing the external client
+    try:
+        proc.wait(kill_time)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+
+    # Wait for server completion
+    proc.communicate()
+
+    # VALIDATION
+    if 'validation' not in process_params.keys():
+        result_list.append(True)
+        return True
+
+    logger.debug(f'Executing validation for process {process_id} '
+                 f'in test {test_id}')
+    validation_params = process_params['validation']
+
+    process_name = test_id + '.process_' + str(process_id)
+
+    result = val.validate_test(
+        process_name,
+        validation_params,
+        proc,
+        debug,
+        logger
+    )
+    result_list.append(result)
+    return result
+
+
+def execute_validate_test(
+    test_name,
+    test_id,
+    ds_tool_path,
     test_params,
+    config_file,
+    flags,
+    fds_path=None,
+    debug=False
+):
+    """
+    Execute every process test and validate within parameters given.
+
+    It executes every process in a different independent thread.
+    """
+    try:
+        processes = test_params['processes']
+    except KeyError:
+        logger.error(f'Missing processes in test parameters')
+        return False
+
+    thread_list = []
+    result_list = [True]
+
+    logger.debug(f'Preparing processes for test: {test_id}')
+
+    # Read every process config and run it in different threads
+    for process_config in processes:
+
+        thread = threading.Thread(
+            target=execute_validate_thread_test,
+            args=(test_id,
+                  result_list,
+                  ds_tool_path,
+                  process_config,
+                  config_file,
+                  flags,
+                  fds_path,
+                  debug))
+        thread_list.append(thread)
+
+    logger.debug(f'Executing process for test: {test_id}')
+
+    # Start threads
+    for thread in thread_list:
+        thread.start()
+
+    # Wait for all processes to end
+    for thread in thread_list:
+        thread.join()
+
+    logger.debug(f'Finished all processes for test: {test_id}')
+
+    result = functools.reduce(lambda a, b: a and b, result_list)
+
+    val.print_result_bool(
+        logger,
+        f'Result for test {test_id}: ',
+        result
+    )
+
+    return result
+
+
+def run_tests(
+    test_params,
+    config_params,
     discovery_server_tool_path,
+    tests=None,
+    intraprocess=None,
+    shm=None,
     fds_path=None,
     debug=False
 ):
@@ -305,73 +509,133 @@ def run_and_validate(
 
     :return: True if the test pass the validation, False otherwise.
     """
-    test = test_params['id']
-    logger.info('------------------------------------------------------------')
-    logger.info(f"Running {test_params['id']}")
-    execute_test(
-        test_params, discovery_server_tool_path, fds_path, debug)
-    logger.info('------------------------------------------------------------')
+    # get all tests available in parameter file
+    if tests is None:
+        tests = [(t, t) for t in list(test_params.keys())]
 
-    validation_result = True
+    logger.debug(f'Different tests to execute: {tests}')
 
-    validators = [
-        clv.CountLinesValidator,
-        genv.GenerateValidator,
-        gtv.GroundTruthValidator]
+    # create configuration file
+    # for now does only support intraprocess configuration
+    try:
+        config_intraprocess_on = (
+            'INTRAPROCESS',
+            config_params['transports']['intraprocess']['on']
+        )
+        config_intraprocess_off = (
+            'INTRAPROCESS_OFF',
+            config_params['transports']['intraprocess']['off']
+        )
 
-    for i in range(1, test_params_df.iloc[0]['n_validations']+1):
-        for validator in validators:
-            val = validator(
-                test_snapshot, ground_truth_snapshot, test_params_df)
-            validation_result &= val.validate()
+    except KeyError:
+        logger.error(f'Incorrect transports in parameter configuration')
 
-        test_snapshot = os.path.join(
-            os.path.dirname(test_snapshot), f'{test}_{i}.snapshot~')
-        ground_truth_snapshot = os.path.join(
-            os.path.dirname(ground_truth_snapshot), f'{test}_{i}.snapshot')
+    if intraprocess is None:
+        config_files = [config_intraprocess_on, config_intraprocess_off]
+    elif intraprocess:
+        config_files = [config_intraprocess_on]
+    else:
+        config_files = [config_intraprocess_off]
 
-    clear(test, validation_result, os.path.dirname(test_snapshot))
+    logger.debug(f'Different configuration files to execute: {config_files}')
 
-    return validation_result
+    # create flag parameters for DS tool execution
+    # only shared memory flag supported so far
+    # flag will be an list of flags, so combinatory must be list of lists
+    if shm is None:
+        flags_combinatory = [('NO_SHM', []), ('SHM', ['-s'])]
+    elif shm:
+        flags_combinatory = [('SHM', ['-s'])]
+    else:
+        flags_combinatory = [('NO_SHM', [])]
+
+    logger.debug(f'Different flags to execute: {config_files}')
+
+    test_results = True
+
+    # iterate over parameters
+    for test_name, test in tests:
+        for config_name, config_file in config_files:
+            for flag_name, flags in flags_combinatory:
+
+                # Remove Databases if param <clear> set in test params in order
+                # to execute same process again and not load old databases
+                # Last database will stay except clear flag is set
+                try:
+                    if test_params[test]['clear']:
+                        clear_db(os.getcwd())
+                except KeyError:
+                    pass
+
+                test_id = '' + test_name
+                test_id += '.' + config_name
+                test_id += '.' + flag_name
+
+                logger.info('--------------------------------------------')
+                logger.info(f'Running {test}'
+                            f' with config file <{config_file}>'
+                            f' and flags {flags}')
+
+                test_results = execute_validate_test(
+                        test_name,
+                        test_id,
+                        discovery_server_tool_path,
+                        test_params[test],
+                        config_file,
+                        flags,
+                        fds_path,
+                        debug) and test_results
+                logger.info('--------------------------------------------')
+
+    return test_results
 
 
-def clear(test, validation, wd):
+def clear_db(wd):
     """
-    Clear the working directory removing the generated files.
+    Clear the working directory removing the generated database files.
 
-    :param test: The test to execute.
-    :param validation: The validation result.
     :param wd: The working directory where clear the generated files.
     """
-    snapshots = glob.glob(
-        os.path.join(wd, f'{test}*.snapshot~'))
-
-    # Only remove the generated snapshots for valid tests, keeping the failing
-    # test results for debuging purposes.
-    if validation:
-        for s in snapshots:
-            try:
-                os.remove(s)
-            except OSError:
-                logger.error(f'Error while deleting file: {s}')
-
-    db_files = glob.glob(
+    files = glob.glob(
         os.path.join(wd, '*.json'))
-    db_files.extend(glob.glob(
+    files.extend(glob.glob(
         os.path.join(wd, '*.db')))
 
-    for f in db_files:
+    logger.debug(f'Removing files: {files}')
+
+    for f in files:
         try:
             os.remove(f)
         except OSError:
             logger.error(f'Error while deleting file: {f}')
 
 
-def load_test_params(test_name, tests_params_path):
+def clear(wd):
+    """
+    Clear the working directory removing the generated files.
+
+    :param wd: The working directory where clear the generated files.
+    """
+    files = glob.glob(
+        os.path.join(wd, f'*.snapshot~'))
+    files.extend(glob.glob(
+        os.path.join(wd, '*.json')))
+    files.extend(glob.glob(
+        os.path.join(wd, '*.db')))
+
+    logger.debug(f'Removing files: {files}')
+
+    for f in files:
+        try:
+            os.remove(f)
+        except OSError:
+            logger.error(f'Error while deleting file: {f}')
+
+
+def load_test_params(tests_params_path):
     """
     Load test parameters.
 
-    :param test_name: The unique identifier of the test.
     :param tests_params_path: The path to the json file which contains the
         test parameters.
 
@@ -379,19 +643,27 @@ def load_test_params(test_name, tests_params_path):
     """
     if os.path.isfile(tests_params_path):
         with open(tests_params_path) as json_file:
-            tests_params = json.load(json_file)
+            json_dic = json.load(json_file)
+
+        # modify paths
+        shared.replace_string_dict(
+            json_dic,
+            '<CONFIG_RELATIVE_PATH>',
+            os.path.dirname(tests_params_path)
+        )
 
         try:
-            test_params = tests_params['tests'][test_name]
+            test_params = json_dic['tests']
+            config_params = json_dic['configurations']
         except KeyError:
-            logger.error(f'Not supported test: {test_name}')
+            logger.error('XML configuration files not found')
             exit(1)
 
     else:
         logger.error('Not found file with test parameters.')
         exit(1)
 
-    return test_params
+    return test_params, config_params
 
 
 if __name__ == '__main__':
@@ -415,18 +687,37 @@ if __name__ == '__main__':
     else:
         logger.setLevel(logging.INFO)
 
-    if run_and_validate(
-        load_test_params(args.test, args.params),
+    test_params, config_params = load_test_params(args.params)
+
+    intraprocess = args.intraprocess
+    if intraprocess is not None:
+        intraprocess = shared.boolean_from_string(intraprocess)
+
+    shm = args.shm
+    if shm is not None:
+        shm = shared.boolean_from_string(shm)
+
+    result = run_tests(
+        test_params,
+        config_params,
         args.exe,
+        tests=args.test,
+        intraprocess=intraprocess,
+        shm=shm,
         fds_path=(args.fds if args.fds else None),
         debug=args.debug
-    ):
-        logger.info(
-            f'Overall test result for {args.test}: '
-            f'{shared.bcolors.OK}PASS{shared.bcolors.ENDC}')
+    )
+
+    val.print_result_bool(
+        logger,
+        f'Overall test results: ',
+        result
+    )
+
+    if not args.not_remove:
+        clear(os.getcwd())
+
+    if result:
         exit(0)
     else:
-        logger.info(
-            f'Overall test result for {args.test}: '
-            f'{shared.bcolors.FAIL}FAIL{shared.bcolors.ENDC}')
         exit(1)

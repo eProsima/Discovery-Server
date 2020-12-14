@@ -4,6 +4,7 @@
 
 #include <fastdds/dds/log/StdoutErrConsumer.hpp>
 #include <fastrtps/Domain.h>
+#include <fastrtps/xmlparser/XMLProfileManager.h>
 
 #include "DSManager.h"
 
@@ -30,6 +31,9 @@ int main(int argc, char * argv[])
     // Clear all the consumers.
     Log::ClearConsumers();
 
+    Log::SetVerbosity(Log::Kind::Error);
+    // Log::SetCategoryFilter(std::regex("(INTRAPROCESS)"));
+
     // Create a StdoutErrConsumer consumer that logs entries to stderr only when the Log::Kind is equal to WARNING
     // This allows the test validate the output of the executions
     std::unique_ptr<eprosima::fastdds::dds::StdoutErrConsumer> stdouterr_consumer(
@@ -38,6 +42,9 @@ int main(int argc, char * argv[])
 
     // Register the consumer
     Log::RegisterConsumer(std::move(stdouterr_consumer));
+
+    // Clear all the consumers.
+    // Log::ClearConsumers();
 
     int return_code = 0;
 
@@ -51,6 +58,13 @@ int main(int argc, char * argv[])
 
         {
             DSManager manager(path_to_config);
+            if (!manager.correctly_created())
+            {
+                return_code = 1;
+            }
+
+            // Load Default XML files
+            eprosima::fastrtps::xmlparser::XMLProfileManager::loadDefaultXMLFile();
 
             // Follow the config file instructions
             manager.runEvents(std::cin, std::cout);

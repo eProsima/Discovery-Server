@@ -37,8 +37,7 @@ class Validator(object):
 
     def __init__(
         self,
-        snapshot_file_path,
-        ground_truth_snapshot_file_path,
+        process_execution,
         test_params,
         debug=False,
         logger=None
@@ -46,21 +45,14 @@ class Validator(object):
         """
         Build a generic validation object.
 
-        :param snapshot_file_path: The path to the snapshot xml file
-            containing the Discovery-Server test output.
-        :param ground_truth_snapshot_file_path: The path to the snapshot xml
-            file containing the Discovery-Server ground-truth test output.
-        :param test_params: The test parameters in a pandas Dataframe format.
         :param debug: True/False to activate/deactivate debug logger.
         :param logger: The logging object. VALIDATION if None
             logger is provided.
         """
         self.set_logger(logger, debug)
-        self.logger.debug(f'Creating an instance of {self.__validator_name()}')
-
-        self.snapshot_file_path = self.valid_snapshot_path(snapshot_file_path)
-        self.gt_snapshot_file_path = self.valid_snapshot_path(
-            ground_truth_snapshot_file_path)
+        self.logger.debug(f'Creating an instance of {self.name()}')
+        self.process_execution_ = process_execution
+        self.test_params_ = test_params
 
     def set_logger(self, logger, debug):
         """
@@ -137,28 +129,24 @@ class Validator(object):
 
     def validate(self):
         """Validate the test counting the number of lines."""
-        res = self._validate()
-
-        if res == shared.ReturnCode.OK:
-            self.logger.info(
-                    f'Result of {self.__validator_name()}: '
-                    f'{shared.bcolors.OK}{res.name}{shared.bcolors.ENDC}')
-
-            return True
-
-        elif res == shared.ReturnCode.SKIP:
-            self.logger.warning(
-                    f'Result of {self.__validator_name()}: '
-                    f'{shared.bcolors.WARNING}{res.name}{shared.bcolors.ENDC}')
-
-            return True
-
+        if self._validator_tag() not in self.test_params_.keys():
+            res = shared.ReturnCode.SKIP
         else:
-            self.logger.error(
-                    f'Result of {self.__validator_name()}: '
-                    f'{shared.bcolors.FAIL}{res.name}{shared.bcolors.ENDC}')
+            self.test_params_ = self.test_params_[self._validator_tag()]
+            res = self._validate()
 
-        return False
+        color = shared.bcolors.FAIL
+
+        if res == shared.ReturnCode.SKIP:
+            color = shared.bcolors.WARNING
+        elif res == shared.ReturnCode.OK:
+            color = shared.bcolors.OK
+
+        self.logger.debug(
+                f'Result of {self.name()}: '
+                f'{color}{res.name}{shared.bcolors.ENDC}')
+
+        return res
 
     def _validate(self):
         """
@@ -169,6 +157,10 @@ class Validator(object):
         """
         pass
 
-    def __validator_name(self):
+    def name(self):
         """Return validator's name."""
         return type(self).__name__
+
+    def _validator_tag(self):
+        """Return validator's tag in json."""
+        pass
