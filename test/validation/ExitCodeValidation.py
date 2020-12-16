@@ -39,7 +39,7 @@ class ExitCodeValidation(validator.Validator):
 
         try:
             exit_code = self.validator_input_.exit_code
-            expected_code = self.test_params_['expected_exit_code']
+            expected_code = self.validation_params_['expected_exit_code']
 
         except KeyError as e:
             self.logger.error(e)

@@ -18,9 +18,8 @@
         "test_00_tool_help":
         {
             "processes":
-            [
-                {
-                    "process_id": 0,
+            {
+                "main": {
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_00_tool_help.xml",
                     "environment_variables": [],
                     "flags": ["-h"],
@@ -36,15 +35,15 @@
                         }
                     }
                 }
-            ]
+            }
         },
 
         "test_01_trivial":
         {
             "processes":
-            [
+            {
+                "main":
                 {
-                    "process_id": 0,
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_01_trivial.xml",
                     "environment_variables": [],
                     "validation":
@@ -72,15 +71,15 @@
                         }
                     }
                 }
-            ]
+            }
         },
 
         "test_18_disposals_remote_servers_multiprocess":
         {
             "processes":
-            [
+            {
+                "main":
                 {
-                    "process_id": 0,
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_18_disposals_remote_servers_multiprocess.xml",
                     "environment_variables": [],
                     "validation":
@@ -103,8 +102,8 @@
                         }
                     }
                 },
+                "server2":
                 {
-                    "process_id": 1,
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_18_disposals_remote_servers_multiprocess_1.xml",
                     "environment_variables": [],
                     "validation":
@@ -119,8 +118,8 @@
                         }
                     }
                 },
+                "server3":
                 {
-                    "process_id": 2,
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_18_disposals_remote_servers_multiprocess_2.xml",
                     "environment_variables": [],
                     "validation":
@@ -135,15 +134,15 @@
                         }
                     }
                 }
-            ]
+            }
         },
 
         "test_22_environment_variable_setup":
         {
             "processes":
-            [
+            {
+                "main":
                 {
-                    "process_id": 0,
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_22_environment_variable_setup.xml",
                     "environment_variables":
                     [
@@ -177,15 +176,15 @@
                         }
                     }
                 }
-            ]
+            }
         },
 
         "test_23_fast_discovery_server_tool":
         {
             "processes":
-            [
+            {
+                "main":
                 {
-                    "process_id": 0,
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_23_fast_discovery_server_tool.xml",
                     "environment_variables": [],
                     "validation":
@@ -208,8 +207,8 @@
                         }
                     }
                 },
+                "fastddstool":
                 {
-                    "process_id": 1,
                     "kill_time": 6,
                     "tool_config":
                     {
@@ -229,22 +228,22 @@
                         }
                     }
                 }
-            ]
+            }
         },
 
         "test_24_backup":
         {
             "clear": true,
             "processes":
-            [
+            {
+                "backup":
                 {
-                    "process_id": 0,
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_24_backup.xml",
                     "environment_variables": [],
                     "kill_time": 2
                 },
+                "clients":
                 {
-                    "process_id": 1,
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_24_backup_1.xml",
                     "environment_variables": [],
                     "validation":
@@ -267,8 +266,8 @@
                         }
                     }
                 },
+                "backuprestored":
                 {
-                    "process_id": 2,
                     "creation_time": 5,
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_24_backup.xml",
                     "environment_variables": [],
@@ -292,7 +291,7 @@
                         }
                     }
                 }
-            ]
+            }
         }
     }
 }

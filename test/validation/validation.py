@@ -38,11 +38,15 @@ class ValidatorInput(object):
         """
         Construct Validator Input with fields.
 
-        :param TODO
+        :param exit_code: exit code from process execution (OK = 0).
+        :param stderr_lines: number of stderr lines in process execution.
+        :param result_file: output file from process execution.
         """
         self.exit_code = exit_code
         self.stderr_lines = stderr_lines
         self.result_file = result_file
+        # OBSERVATION: Add here more fields from process execution
+        # in case a new validator requires new info
 
 
 def get_validators():
@@ -53,6 +57,8 @@ def get_validators():
         genv.GenerateValidator,
         gtv.GroundTruthValidator,
         sov.StderrOutputValidation
+        # OBSERVATION: Add here the validator constructor for
+        # adding a new validator
     ]
 
 
@@ -63,19 +69,33 @@ def validate_test(
     debug=False,
     logger=None
 ):
-    """
-    Validate thread execution.
+    """Validate thread execution.
+
+    It creates all the implemented validators. For those which are in
+    validation paramenters check wheter the validator
+    input given passes that specific validator. Skip otherwise.
+
+    :param process_id: process unique id.
+    :param validation_params: validation parameters.
+    :param validator_input: input for validator with fields needed.
+    :param debug: Debug flag (Default: False).
+    :param logger: logger object.
+
+    :return: True if all validators pass or skiped, false otherwise.
     """
 
+    # Get list of validator constructors
     validators = get_validators()
     final_result = True
 
     for validator_constructor in validators:
+        # Construct each validator
         validator = validator_constructor(
             validator_input,
             validation_params,
             debug)
 
+        # For each validator validates process execution
         result = validator.validate()
         print_result(
             logger,
@@ -83,6 +103,7 @@ def validate_test(
             result
         )
 
+        # Final result is PASSED if test is OK or SKIP
         if result != shared.ReturnCode.OK and result != shared.ReturnCode.SKIP:
             final_result = False
 
@@ -90,7 +111,15 @@ def validate_test(
 
 
 def print_result(logger, msg, res):
-    """Print test result with specific color depending result."""
+    """Print test result with specific color depending result.
+
+    Print a message in a color depending the result code given. Yellow for
+    skip case, Red for fail or error case and default color otherwise.
+
+    :param logger: logger object to print the result
+    :param msg: message to print
+    :param res: ReturnCode value
+    """
     if (type(res) is bool):
         print_result_bool(logger, msg, res)
 
@@ -111,7 +140,15 @@ def print_result(logger, msg, res):
 
 
 def print_result_bool(logger, msg, res):
-    """Print test result with specific color depending boolean result."""
+    """Print test result with specific color depending result.
+
+    Print a message in a color depending the result code given. Red if false
+    and default color otherwise.
+
+    :param logger: logger object to print the result
+    :param msg: message to print
+    :param res: boolean value
+    """
     if res:
         color = shared.bcolors.OK
         logger.info(
@@ -122,11 +159,6 @@ def print_result_bool(logger, msg, res):
         logger.info(
             f'{msg}: '
             f'{color}FAIL{shared.bcolors.ENDC}')
-
-
-def validation_file_path(file_path):
-    """Std file path to validate an snapshot."""
-    return os.path.join(file_path, '~')
 
 
 def validation_file_name(test_name):

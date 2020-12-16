@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Module to provide common methods for the test validation tool."""
-import argparse
 import os
 from enum import Enum
 
@@ -46,23 +45,6 @@ def get_file_extension(file):
     return os.path.splitext(str(file))[-1]
 
 
-def str2bool(arg):
-    """
-    Convert a string argument to boolean.
-
-    :param arg: The string argument.
-    :raise: argparse.ArgumentTypeError if the argument is not valid.
-    """
-    if isinstance(arg, bool):
-        return arg
-    if arg.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif arg.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
-
-
 def is_valid_path(path):
     """
     Check whether <path> is a valid and existing path.
@@ -88,7 +70,12 @@ def replace_string_dict(dic, pattern, new_string):
     """
     Change pattern for new string over a whole dictionary recursively.
 
-    xTODO
+    It iterates over a dictionary and every list or dictionary inside and
+    replace 'pattern' for 'new_string' in every string variable.
+
+    :param dic: dictionary to iterate.
+    :param pattern: string to search for in internal strings.
+    :param new_string: string to replace in case of finding the pattern.
     """
     for k in dic.keys():
         if type(dic[k]) == str:
@@ -103,7 +90,12 @@ def replace_string_list(l, pattern, new_string):
     """
     Change pattern for new string over a whole list recursively.
 
-    xTODO
+    It iterates over a list and every list or dictionary inside and
+    replace 'pattern' for 'new_string' in every string variable.
+
+    :param l: list to iterate.
+    :param pattern: string to search for in internal strings.
+    :param new_string: string to replace in case of finding the pattern.
     """
     for i in range(len(l)):
         if type(l[i]) == str:
@@ -114,13 +106,18 @@ def replace_string_list(l, pattern, new_string):
             replace_string_dict(l[i], pattern, new_string)
 
 
-def boolean_from_string(v):
-    """Get boolean value from a string."""
-    if isinstance(v, bool):
-        return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1', 'True', 'T', 'v', 'V'):
+def boolean_from_string(arg):
+    """
+    Convert a string argument to boolean.
+
+    :param arg: The string argument.
+    :raise: argparse.ArgumentTypeError if the argument is not valid.
+    """
+    if isinstance(arg, bool):
+        return arg
+    if arg.lower() in ('yes', 'true', 't', 'y', '1', 'v'):
         return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0', 'False', 'F'):
+    elif arg.lower() in ('no', 'false', 'f', 'n', '0'):
         return False
     else:
         return None

@@ -45,7 +45,7 @@ class GroundTruthValidator(validator.Validator):
         # Get parameters from test params
         try:
             self.val_snapshot = \
-                self.parse_xml_snapshot(self.test_params_['file_path'])
+                self.parse_xml_snapshot(self.validation_params_['file_path'])
             self.gt_snapshot = \
                 self.parse_xml_snapshot(self.validator_input_.result_file)
 

@@ -14,9 +14,26 @@
 """
 Script to execute and validate Discovery Server v2 tests.
 
-This script could be executed for a single test, but the default configuration
-will launch every single test (in parameter file) with different
-configurations combined.
+This script encapsulate several funciontalities focus on testing the
+Discovery Server v2.
+
+These tests are parametrized from tests_params, a file where all
+tests cases are described in json format, so this script knows how to
+execute and validate each of them.
+
+The main functionality is to execute each of the tests in parameter file
+once per combination of configurations possible.
+
+For each configuration, each test will be divided in different simultaneous
+process that will execute in different threads.
+
+For each process a tool is executed (DS tool or fastdds tool) following the
+configurations given: configuration file, environment variable, tool args.
+
+For each process a validation is run in order to check that the process
+has been executed successfully and has generated a correct output.
+These validators are also parametrized in test_params, because each process
+expects a different behaviour.
 """
 import argparse
 import functools
@@ -25,6 +42,7 @@ import itertools
 import json
 import logging
 import os
+import pathlib
 import signal
 import subprocess
 import threading
@@ -36,12 +54,13 @@ import validation.validation as val
 
 DESCRIPTION = """Script to execute and validate Discovery Server v2 test"""
 USAGE = ('python3 run_test.py -e <path/to/discovery-server/executable>'
-         ' -p <path/to/test/parameteres/file> [-t LIST[test-name]]'
-         ' [-f <path/to/fastd)ds/tool>] [-d] [-r] [-i <bool>] [-s <bool>]')
+         ' [-p <path/to/test/parameteres/file>] [-t LIST[test-name]]'
+         ' [-f <path/to/fastd)ds/tool>] [-d] [-r] [-i <bool>] [-s <bool>]'
+         ' [--force-remove]')
 
 # Max default time to kill a process in case it gets stucked
 # This is done by ctest automatically, but this script could be
-# run independently
+# run independently of ctest
 MAX_TIME = 60*5
 
 
@@ -70,15 +89,17 @@ def parse_options():
         '--params',
         type=str,
         required=False,
-        default=os.path.join('configuration', 'tests_params.json'),
-        help='Path to the csv file which contains the tests parameters.'
+        default=os.path.join(
+            pathlib.Path(__file__).parent.absolute(),
+            os.path.join('configuration', 'tests_params.json')),
+        help='Path to the json file which contains the tests parameters.'
     )
     parser.add_argument(
         '-t',
         '--test',
         nargs='+',
-        help='Name of the test case to execute (without xml extension), '
-             'or a pattern that fits in a name test'
+        help='Name of the test case to execute (without xml extension) '
+             'or a pattern of the test name'
     )
     parser.add_argument(
         '-f',
@@ -91,221 +112,40 @@ def parse_options():
         '-d',
         '--debug',
         action='store_true',
-        help='Print test execution.'
+        help='Print test debugging info.'
     )
     parser.add_argument(
         '-r',
         '--not-remove',
         action='store_true',
-        help='Do not remove generated files.'
+        help='Do not remove generated files at the end of the execution. '
+             'In case of test failure, files are not removed'
+    )
+    parser.add_argument(
+        '--force-remove',
+        action='store_true',
+        help='Remove generated files in any result case'
     )
     parser.add_argument(
         '-s',
         '--shm',
         type=str,
         required=False,
-        help='Use shared memory transport. Default both.'
+        help='Use shared memory transport. Default one test with each.'
     )
     parser.add_argument(
         '-i',
         '--intraprocess',
         type=str,
         required=False,
-        help='Use intraprocess transport. Default both.'
+        help='Use intraprocess transport. Default one test with each.'
     )
 
     return parser.parse_args()
 
 
-def execute_test(
-    test_params,
-    discovery_server_tool_path,
-    fds_path=None,
-    debug=False
-):
-    """
-    Run the Discovery Server v2 tests.
-
-    :param test: The test to execute.
-    :param path: The path of the xml configuration file of the test.
-    :param discovery_server_tool_path: The path to the discovery server
-        executable.
-    :param fds_path: The path to the fast-discovery-server tool.
-    :param debug: Debug flag (Default: False).
-    """
-    try:
-        xml_config = test_params['xml_config_files']
-    except KeyError:
-        logger.error('XML configuration files not found')
-        exit(1)
-
-    if not xml_config:
-        logger.error('XML configuration files not found')
-        exit(1)
-
-    events = []
-
-    for xml in xml_config:
-        if ('creation_time' in xml) and isinstance(xml['creation_time'], int):
-            events.append(('RUN', xml['creation_time']))
-        if ('kill_time' in xml) and isinstance(xml['creation_time'], int):
-            events.append(('KILL', xml['kill_time']))
-
-    events.sort(key=lambda x: x[1])
-
-    # This could be a list comprehension
-    for i, event in events:
-        if i == 0:
-            continue
-        new_time = events[i-1][1] - event[1]
-        events[i] = (event[0], new_time)
-
-    exit(1)
-
-
-    if test == 'test_16_lease_duration_single_client':
-        aux_test_path = os.path.join(os.path.dirname(path), f'{test}_1.xml')
-        # Launch
-        proc_server = subprocess.Popen(
-            [discovery_server_tool_path, path])
-        proc_client = subprocess.Popen(
-            [discovery_server_tool_path, aux_test_path])
-
-        # Wait 5 seconds before killing the external client
-        try:
-            proc_client.wait(5)
-        except subprocess.TimeoutExpired:
-            proc_client.kill()
-
-        # Wait for server completion
-        proc_server.communicate()
-
-    elif test == 'test_17_lease_duration_remove_client_server':
-        aux_test_path = os.path.join(os.path.dirname(path), f'{test}_1.xml')
-        # Launch
-        proc_main = subprocess.Popen(
-            [discovery_server_tool_path, path])
-        proc_sec = subprocess.Popen(
-            [discovery_server_tool_path, aux_test_path])
-
-        # Wait 5 seconds before killing the client server
-        try:
-            proc_sec.wait(15)
-        except subprocess.TimeoutExpired:
-            proc_sec.kill()
-
-        # Wait for server completion
-        proc_main.communicate()
-
-    elif test == 'test_18_disposals_remote_servers_multiprocess':
-        aux_test_path_1 = os.path.join(os.path.dirname(path), f'{test}_1.xml')
-        aux_test_path_2 = os.path.join(os.path.dirname(path), f'{test}_2.xml')
-        # Launch
-        proc_main = subprocess.Popen(
-            [discovery_server_tool_path, path])
-        proc_sec_1 = subprocess.Popen(
-            [discovery_server_tool_path, aux_test_path_1])
-        proc_sec_2 = subprocess.Popen(
-            [discovery_server_tool_path, aux_test_path_2])
-
-        # Wait for completion
-        proc_main.communicate()
-        proc_sec_1.communicate()
-        proc_sec_2.communicate()
-
-    elif test == 'test_20_break_builtin_connections':
-        aux_test_path = os.path.join(os.path.dirname(path), f'{test}_1.xml')
-        # Launch
-        proc_main = subprocess.Popen(
-            [discovery_server_tool_path, path])
-        proc_sec = subprocess.Popen(
-            [discovery_server_tool_path, aux_test_path])
-
-        # Wait 5 seconds before killing the server in the middle
-        try:
-            proc_sec.wait(20)
-        except subprocess.TimeoutExpired:
-            proc_sec.kill()
-
-        # Wait for completion
-        proc_main.communicate()
-
-    elif test == 'test_23_fast_discovery_server_tool':
-        if not fds_path:
-            logger.error('Not provided path to fast-discovery-server tool.')
-            exit(1)
-        # Launch server and clients
-        server = subprocess.Popen(
-            [fds_path, '-i',  '1', '-l', '127.0.0.1', '-p', '23811'])
-        clients = subprocess.Popen([discovery_server_tool_path, path])
-
-        # Wait till clients test is finished, then kill the server
-        clients.communicate()
-        server.kill()
-
-        if clients.returncode:
-            logger.error(
-                f'{test} process fault on clients: '
-                f'returncode {clients.returncode}')
-            exit(clients.returncode)
-
-    elif test == 'test_24_backup':
-        aux_test_path = os.path.join(os.path.dirname(path), f'{test}_1.xml')
-
-        # Launch server and clients.
-        proc_server = subprocess.Popen([discovery_server_tool_path, path])
-        proc_client = subprocess.Popen(
-            [discovery_server_tool_path, aux_test_path])
-
-        # Wait 5 seconds before killing the server, time enought to have all
-        # clients info recorded in the backup file
-        try:
-            proc_server.wait(5)
-        except subprocess.TimeoutExpired:
-            proc_server.kill()
-
-        # Relaunch the server again and expect it reloads the backup data.
-        result = subprocess.run([discovery_server_tool_path, path])
-
-        if result.returncode:
-            logger.error(f'Failure while running the backup server for {test}')
-            logger.error(result.stdout)
-            logger.error(result.stderr)
-            exit(result.returncode)
-
-        # Wait for client completion
-        proc_client.communicate()
-
-        if proc_client.returncode:
-            logger.error(f'Failure when running clients for {test}')
-            logger.error(result.stderr)
-            exit(proc_client.returncode)
-
-    elif test == 'test_26_backup_restore':
-        aux_test_path = os.path.join(os.path.dirname(path), f'{test}_1.xml')
-        # Launch and wait for completion
-        proc_main = subprocess.run(
-            [discovery_server_tool_path, path])
-        if proc_main.returncode:
-            logger.error(
-                f'{test} process ha failed to launch the backup server: '
-                f'returncode {proc_main.returncode}')
-            exit(proc_main.returncode)
-
-        proc_restore = subprocess.run(
-            [discovery_server_tool_path, aux_test_path])
-
-        if proc_restore.returncode:
-            logger.error(
-                f'{test} process has failed to restore the backup server: '
-                f'returncode {proc_restore.returncode}')
-            exit(proc_restore.returncode)
-
-    else:
-        subprocess.run([discovery_server_tool_path, path])
-
-
 def execute_validate_thread_test(
+    process_id,
     test_id,
     result_list,
     ds_tool_path,
@@ -320,24 +160,29 @@ def execute_validate_thread_test(
 
     This function will get all the needed information from a process
     paramenter json object, and will creat the environment variables, the
-    arguments and the initial and final time for a single process.
+    arguments for the tool and the initial and final time for a single process.
     It will execute the process and validate it afterwards.
 
-    :param test_id: TODO
+    :param process_id: process unique identifier
+    :param test_id: test identifier
+    :param result_list: boolean list to append result
+        (threading does not support function return).
+    :param ds_tool_path: path to Discovery-Server tool.
+    :param process_params: process parameters.
+    :param config_file: xml file for default configuration of FastDDS.
+    :param flags_in: auxiliar flags to use with the DS tool.
+    :param fds_path: path to fastdds tool. This arg is not needed unless
+        test must execute fastdds tool, in which case it will raise an error
+        if it is not set (Default: None).
+    :param debug: Debug flag (Default: False).
+
     :return: True if everything OK, False if any error or if test did not pass
     """
     ##########################
     # PARAMENTER CONFIGURATION
-    # Get process id
-    try:
-        process_id = process_params['process_id']
-    except KeyError:
-        logger.error(f'Missing <process_id> in process of test {process_id}')
-        result_list.append(False)
-        return False
 
-    logger.debug(f'Getting paramenters for test {test_id} '
-                 f'in process: {process_id}')
+    process_name = test_id + '_' + process_id
+    logger.debug(f'Getting paramenters for process test {process_name}')
 
     # Get creation time (default 0)
     creation_time = process_params.get('creation_time', 0)
@@ -358,7 +203,7 @@ def execute_validate_thread_test(
     if 'xml_config_file' in process_params.keys():
         # DS tool with xml config file
         xml_config_file = process_params['xml_config_file']
-        result_file = val.validation_file_name(test_id)
+        result_file = val.validation_file_name(process_name)
 
     elif 'tool_config' in process_params.keys():
         # fastdds tool
@@ -379,7 +224,7 @@ def execute_validate_thread_test(
         except KeyError:
             pass
     else:
-        logger.error(f'Incorrect process paramenters: {test_id}-{process_id}')
+        logger.error(f'Incorrect process paramenters: {process_name}')
         result_list.append(False)
         return False
 
@@ -397,11 +242,11 @@ def execute_validate_thread_test(
     # Set env var
     my_env = os.environ.copy()
     for name, value in env_var:
-        logger.debug(f'Adding envvar {name}:{value} to {test_id}-{process_id}')
+        logger.debug(f'Adding envvar {name}:{value} to {process_name}')
         my_env[name] = value
     # Set configuration file
     my_env['FASTRTPS_DEFAULT_PROFILES_FILE'] = config_file
-    logger.debug(f'Configuration file {config_file} to {test_id}-{process_id}')
+    logger.debug(f'Configuration file {config_file} to {process_name}')
 
     # Launch
     if xml_config_file is not None:
@@ -448,7 +293,7 @@ def execute_validate_thread_test(
     # VALIDATION
 
     # Show process output
-    logger.debug(f'Process {test_id} output')
+    logger.debug(f'Process {process_name} output')
     stderr_lines = proc.stderr.readlines()
     for line in stderr_lines:
         logger.info(line)
@@ -461,10 +306,8 @@ def execute_validate_thread_test(
         return True
 
     # Validation needed, pass to validate_test function
-    logger.debug(f'Executing validation for process {process_id} '
-                 f'in test {test_id}')
+    logger.debug(f'Executing validation for process {process_name}')
     validation_params = process_params['validation']
-    process_name = test_id + '.process_' + str(process_id)
     validator_input = val.ValidatorInput(
         proc.returncode,
         len(stderr_lines),
@@ -502,7 +345,16 @@ def execute_validate_test(
     It launch every process and wait till all of them are finished.
     Afterwards, it checks whether all processes has finished successfully
 
-    :param test_name:TODO
+    :param test_name: test name.
+    :param test_id: unique test identifier with test name and configurations.
+    :param ds_tool_path: path to Discovery-Server tool.
+    :param test_params: test parameters.
+    :param config_file: xml file for default configuration of FastDDS.
+    :param flags: auxiliar flags to use with the DS tool.
+    :param fds_path: path to fastdds tool. This arg is not needed unless
+        test must execute fastdds tool, in which case it will raise an error
+        if it is not set (Default: None).
+    :param debug: Debug flag (Default: False).
 
     :return: True if everything OK, False if any error or if test did not pass
     """
@@ -518,11 +370,12 @@ def execute_validate_test(
     logger.debug(f'Preparing processes for test: {test_id}')
 
     # Read every process config and run it in different threads
-    for process_config in processes:
+    for process_id, process_config in processes.items():
 
         thread = threading.Thread(
             target=execute_validate_thread_test,
-            args=(test_id,
+            args=(process_id,
+                  test_id,
                   result_list,
                   ds_tool_path,
                   process_config,
@@ -556,7 +409,28 @@ def execute_validate_test(
 
 
 def get_configurations(config_params, intraprocess, shm):
-    """ TODO """
+    """
+    Extract configurations from json.
+
+    It gets the information related to the test configurations from the
+    configuration tag in json parameter file.
+    It set the configuration files possible.
+    It also creates the combinatory for flags to use in each call. This means,
+    it gets all possible flags callable and mix them to test any possible
+    case.
+
+    :param config_params: dictionary with configurations.
+    :param intraprocess: only use intraprocess as configuration file.
+    :param shm: only use shared memory as default transport.
+
+    :return: tuple of two arrays.
+        First array is an array of tuples where first
+        element is the name of the configuration and the second element is
+        the path to the configuration
+        Second element is an array of tuples where first element is the
+        name of the flags combination, and second is an array of the
+        flags that will be used in this combination
+    """
     # Get configuration files
     config_files = []
     try:
@@ -566,6 +440,7 @@ def get_configurations(config_params, intraprocess, shm):
     except KeyError as e:
         logger.debug(e)
 
+    # If intraprocess arg is set only use that specific configuration file
     if intraprocess is not None:
         if intraprocess:
             config_files = \
@@ -581,9 +456,7 @@ def get_configurations(config_params, intraprocess, shm):
     logger.debug(f'Different configuration files to execute: '
                  f'{[c[0] for c in config_files]}')
 
-    # create flag parameters for DS tool execution
-    # only shared memory flag supported so far
-    # flag will be an list of flags, so combinatory must be list of lists
+    # Create flag parameters for DS tool execution
     flags = []
     try:
         fl = config_params['flags']
@@ -592,6 +465,7 @@ def get_configurations(config_params, intraprocess, shm):
     except KeyError as e:
         logger.debug(e)
 
+    # In case arg shm is set, there is not combinatory but an strict flag
     if shm is not None and not shm:
         flags = [f for f in flags if f[0] == 'SHM_OFF']
     if shm is not None and shm:
@@ -604,6 +478,8 @@ def get_configurations(config_params, intraprocess, shm):
             comb_flags = [c[1] for c in combination]
             flags_combinatory.append((comb_name, comb_flags))
 
+    # Default flag in case there has not been any flag combination and
+    # shm arg is not given
     if len(flags_combinatory) == 0 or shm is None:
         flags_combinatory.append(('NO_FLAGS', []))
 
@@ -624,9 +500,26 @@ def create_tests(
     debug=False,
 ):
     """
-    Execute the tests and validate the output.
+    Create test combinatory and execute each test.
 
-    :param params_file_df: TODO
+    It gets the different tests that are going to be executed, and the
+    different configurations and flags that are going to take, and it will
+    iterate over all of them once to execute and validate each one of them.
+
+    :param params_file_df: tests paramenters.
+    :param config_params: configuration paramenters.
+    :param discovery_server_tool_path: discovery server tool path.
+    :param tests: array of strings with test names or patterns of test names.
+    :param intraprocess: if set it specifies if intraprocess is used or not.
+        If None, both with and without intraprocess will be executed.
+        (Default: None)
+    :param shm: if set it specifies if shared memory is used or not.
+        If None, both with and without shared memory will be executed.
+        (Default: None)
+    :param fds_path: path to fastdds tool. This arg is not needed unless
+        test must execute fastdds tool, in which case it will raise an error
+        if it is not set (Default: None).
+    :param debug: Debug flag (Default: False).
 
     :return: True if all the tests passed the validation, False otherwise.
     """
@@ -698,6 +591,12 @@ def clear_db(wd):
     """
     Clear the working directory removing the generated database files.
 
+    Some processes generate databases in working directory for persistence
+    prupose. These files could break another process run, so they should be
+    deleted.
+    These files are called *.json or *.db, so any other file in the wd
+    with such name will be erased.
+
     :param wd: The working directory where clear the generated files.
     """
     files = glob.glob(
@@ -717,6 +616,8 @@ def clear_db(wd):
 def clear(wd):
     """
     Clear the working directory removing the generated files.
+
+    Remove each file that matches pattern *.snapshot~, *.json or *.db
 
     :param wd: The working directory where clear the generated files.
     """
@@ -743,8 +644,10 @@ def load_test_params(tests_params_path):
     :param tests_params_path: The path to the json file which contains the
         test parameters.
 
-    :return: The Python dict resulting from reading the test params.
+    :return: Tuple of Python dicts, first test parameters and second
+        configuration paramenters.
     """
+    logger.debug(f'Getting parameters from file {tests_params_path}')
     if os.path.isfile(tests_params_path):
         with open(tests_params_path) as json_file:
             json_dic = json.load(json_file)
@@ -818,7 +721,7 @@ if __name__ == '__main__':
         result
     )
 
-    if not args.not_remove:
+    if result and not args.not_remove or args.force_remove:
         clear(os.getcwd())
 
     if result:

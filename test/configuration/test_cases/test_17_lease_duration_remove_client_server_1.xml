@@ -8,7 +8,7 @@
     </servers>
 
     <snapshots file="./test_17_lease_duration_remove_client_server_1.snapshot~">
-        <snapshot time="10">test_17_lease_duration_remove_client_server_1_snapshot_1</snapshot>
+        <snapshot time="20">test_17_lease_duration_remove_client_server_1_snapshot_1</snapshot>
     </snapshots>
 
     <profiles>
@@ -34,8 +34,8 @@
                         <initialAnnouncements>
                             <count>0</count>
                         </initialAnnouncements>
-                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
-                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                        <leaseAnnouncement>5</leaseAnnouncement>
+                        <leaseDuration>2</leaseDuration>
                     </discovery_config>
                     <metatrafficUnicastLocatorList>
                         <locator>
@@ -53,7 +53,7 @@
             <name>topic_1</name>
             <dataType>sample_type_1</dataType>
         </topic>
-        
+
         <types>
             <type>
               <struct name="sample_type_1">

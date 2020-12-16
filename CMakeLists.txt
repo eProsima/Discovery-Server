@@ -339,15 +339,20 @@ file(TO_NATIVE_PATH "${BINARY_SNAPSHOTS_DIR}/" BINARY_SNAPSHOTS_DIR)
 set(RUN_TEST ${BINARY_TEST_DIR}run_test.py)
 set(TESTS_PARAMS ${BINARY_CONF_DIR}tests_params.json)
 
-# Tests are named after the test number, but they could be changed to get the whole test name
+# It is possible to create different executables for shm ON and OFF and intraprocess ON and OFF but will
+# need nestead loops over different arguments for the same test <run_test.py>
 # To save time is adviceable to run ctest -j 10 to parallelized the test execution.
 # Note that test doesn't interfere with each other because independent ports are used for the servers.
 
 unset(TEST_LIST)
 list(APPEND TEST_LIST
-    00
-    01
-    18)
+        test_00_tool_help
+        test_01_trivial
+        test_18_disposals_remote_servers_multiprocess
+        test_22_environment_variable_setup
+        test_23_fast_discovery_server_tool
+        test_24_backup
+    )
 
 foreach(TEST IN LISTS TEST_LIST)
     unset(TEST_NAME)

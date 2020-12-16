@@ -46,8 +46,8 @@ class GenerateValidator(validator.Validator):
 
         # Get input values
         try:
-            self.disposals = self.test_params_['disposals']
-            self.server_endpoints = self.test_params_['server_endpoints']
+            self.disposals = self.validation_params_['disposals']
+            self.server_endpoints = self.validation_params_['server_endpoints']
             self.val_snapshot = \
                 self.parse_xml_snapshot(self.validator_input_.result_file)
 

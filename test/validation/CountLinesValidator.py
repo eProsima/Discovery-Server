@@ -42,7 +42,7 @@ class CountLinesValidator(validator.Validator):
         lines_expected = 0
 
         try:
-            file_name = self.test_params_['file_path']
+            file_name = self.validation_params_['file_path']
             output_file_name = self.validator_input_.result_file
 
             self.logger.debug(f'Snapshot to validate: {file_name}')

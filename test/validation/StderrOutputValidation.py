@@ -38,7 +38,7 @@ class StderrOutputValidation(validator.Validator):
         """Validate the test stderr number of lines."""
         try:
             exit_lines_count = self.validator_input_.stderr_lines
-            expected_lines = self.test_params_['err_expected_lines']
+            expected_lines = self.validation_params_['err_expected_lines']
 
         except KeyError as e:
             self.logger.error(e)

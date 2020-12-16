@@ -1,0 +1,93 @@
+{
+    "configurations":
+    {
+        "description": "Configuration parameters that are general for all tests",
+
+        "configuration_files":
+        {
+            "description": "Different configuration files that could be use as Configuration by default for FastDDS",
+            "CONFIG_FILE_NAME_1": "configuration_file_path_1.xml",
+            "CONFIG_FILE_NAME_2": "configuration_file_path_2.xml"
+        },
+        "flags":
+        {
+            "description": "Different flags to use with the Discovery Server tool",
+            "FLAG_NAME_1": "--flag1",
+            "FLAG_NAME_2": "--flag2"
+        }
+    },
+
+    "tests":
+    {
+        "description": "All the implemented test",
+
+        "test_xx_name":
+        {
+            "clear": true, "description": "it needs to clear databases in workspace before run. Default 0",
+            "processes":
+            {
+                "PROCESS_NAME":
+                {
+                    "xml_config_file": "configuration_test_file.xml", "description": "configuration file for DS tool. Needed to execute DS tool",
+
+                    "tool_config":
+                    {
+                        "description": "execute fastdds discovery-server tool",
+                        "id" : 1, "description": "server id. Needed",
+                        "address": "127.0.0.1", "description": "server address. Optional",
+                        "port": 23811, "description": "port. Optional"
+                    },
+
+                    "environment_variables": [
+                        {
+                            "name": "variable1 name",
+                            "value": "variable1 value"
+                        },
+                        {
+                            "name": "variable2 name",
+                            "value": "variable2 value"
+                        }
+                    ],  "description": "minimum: 0",
+
+                    "flags": ["--flag1", "--flag2"],  "description": "minimum: 0",
+
+                    "creation_time": 5, "description": "time to create process. Default 0 minutes",
+
+                    "kill_time": 314, "description": "time to kill process. Default 5 minutes",
+
+                    "validation":
+                    {
+                        "desciption": "list of validators and its parameters",
+
+                        "exit_code_validation":
+                        {
+                            "desciption": "validate that process exit code is equal expected_exit_code",
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "desciption": "validate that process stderr exit length is equal err_expected_lines",
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "description": "validate that snapshots are correct.",
+                            "disposals": false, "description": "process has disposals",
+                            "server_endpoints": false, "description": "vprocess has server endpoints",
+                        },
+                        "ground_truth_validation":
+                        {
+                            "desciption": "compares result snapshots",
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_22_environment_variable_setup.snapshot"
+                        },
+                        "count_lines_validation":
+                        {
+                            "desciption": "validate that snapshots have same number of lines than result.",
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_22_environment_variable_setup.snapshot"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
