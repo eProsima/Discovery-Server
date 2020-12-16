@@ -2,29 +2,26 @@
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
 
     <servers>
-        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server3" removal_time="15"> 
-            <subscriber topic="topic1"/>
-        </server>
+        <server name="server2" prefix="44.49.53.43.53.45.52.56.45.52.5f.32" profile_name="UDP_server2"/>
     </servers>
 
-    <snapshots file="./test_18_disposals_remote_servers_multiprocess_2.snapshot~">
-        <snapshot time="25">test_18_disposals_remote_servers_multiprocess_snapshot_1</snapshot>
+    <snapshots file="./test_18_disposals_remote_servers_multiprocess_1.snapshot~">
+        <snapshot time="15">test_18_disposals_remote_servers_multiprocess_snapshot_1</snapshot>
     </snapshots>
 
     <profiles>
-
-        <participant profile_name="UDP_server3">
+        <participant profile_name="UDP_server2">
             <rtps>
-                <prefix>44.49.53.43.53.45.52.56.45.52.5F.33</prefix>
+                <prefix>44.49.53.43.53.45.52.56.45.52.5F.32</prefix>
                 <builtin>
                     <discovery_config>
                         <discoveryServersList>
-                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.32">
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
                                 <metatrafficUnicastLocatorList>
                                     <locator>
                                         <udpv4>
                                             <address>127.0.0.1</address>
-                                            <port>18812</port>
+                                            <port>18811</port>
                                         </udpv4>
                                     </locator>
                                 </metatrafficUnicastLocatorList>
@@ -38,7 +35,7 @@
                         <locator>
                             <udpv4>
                                 <address>127.0.0.1</address>
-                                <port>18813</port>
+                                <port>18812</port>
                             </udpv4>
                         </locator>
                     </metatrafficUnicastLocatorList>

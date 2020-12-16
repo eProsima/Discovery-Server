@@ -22,8 +22,9 @@ import json
 
 import jsondiff
 
+import shared.shared as shared
+
 import validation.Validator as validator
-import validation.shared as shared
 
 
 class GroundTruthValidator(validator.Validator):
@@ -35,45 +36,29 @@ class GroundTruthValidator(validator.Validator):
     output should have if it passes.
     """
 
-    def __init__(
-        self,
-        snapshot_file_path,
-        ground_truth_snapshot_file_path,
-        test_params,
-        debug=False,
-        logger=None
-    ):
-        """
-        Build a validation object.
+    def _validator_tag(self):
+        """Return validator's tag in json parameters file."""
+        return 'ground_truth_validation'
 
-        Constructor of the ground-truth validation class.
+    def _validate(self):
+        """Validate the snapshots resulting from a Discovery-Server test."""
+        # Get parameters from test params
+        try:
+            self.val_snapshot = \
+                self.parse_xml_snapshot(self.test_params_['file_path'])
+            self.gt_snapshot = \
+                self.parse_xml_snapshot(self.validator_input_.result_file)
 
-        :param snapshot_file_path: The path to the snapshot xml file
-            containing the Discovery-Server test output.
-        :param ground_truth_snapshot_file_path: The path to the snapshot xml
-            file containing the Discovery-Server ground-truth test output.
-        :param test_params: The test parameters in a pandas Dataframe format.
-        :param debug: True/False to activate/deactivate debug logger.
-        :param logger: The logging object. VALIDATION if None
-            logger is provided.
-        """
-        super().__init__(
-            snapshot_file_path,
-            ground_truth_snapshot_file_path,
-            test_params,
-            debug,
-            logger
-        )
-
-        self.val_snapshot = self.parse_xml_snapshot(self.snapshot_file_path)
-        self.gt_snapshot = self.parse_xml_snapshot(self.gt_snapshot_file_path)
+        except (KeyError, ValueError) as e:
+            self.logger.error(e)
+            self.logger.error('Incorrect arguments in validator'
+                              'parametrization')
+            return shared.ReturnCode.ERROR
 
         self.gt_dict = {'DS_Snapshots': {}}
         self.val_dict = {'DS_Snapshots': {}}
         self.servers = self.process_servers()
 
-    def _validate(self):
-        """Validate the snapshots resulting from a Discovery-Server test."""
         self.__trim_snapshot_dict(self.gt_snapshot, self.gt_dict)
         self.__trim_snapshot_dict(self.val_snapshot, self.val_dict)
 
@@ -88,12 +73,12 @@ class GroundTruthValidator(validator.Validator):
                 if self.__dict_equal(
                         self.gt_dict['DS_Snapshots'][snapshot],
                         self.val_dict['DS_Snapshots'][snapshot]):
-                    self.logger.info(
+                    self.logger.debug(
                         f'Validation result of Snapshot {snapshot}: '
                         f'{shared.bcolors.OK}PASS{shared.bcolors.ENDC}')
                     successful_tests.append(snapshot)
                 else:
-                    self.logger.info(
+                    self.logger.debug(
                         f'Validation result of Snapshot {snapshot}: '
                         f'{shared.bcolors.FAIL}FAIL{shared.bcolors.ENDC}')
                     failed_tests.append(snapshot)
@@ -104,10 +89,6 @@ class GroundTruthValidator(validator.Validator):
                         f'Validation result of Snapshot {snapshot}: '
                         f'{shared.bcolors.FAIL}FAIL{shared.bcolors.ENDC}')
                 error_tests.append(snapshot)
-
-        self.logger.info(
-            f'Summary: {n_tests} tests, {len(error_tests)} errors, '
-            f'{len(failed_tests)} failures')
 
         if error_tests:
             return shared.ReturnCode.ERROR

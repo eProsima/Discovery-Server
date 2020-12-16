@@ -141,8 +141,13 @@ class DSManager
     // last snapshot delay, needed for sync purposes
     static const std::chrono::seconds last_snapshot_delay_;
 
+    bool shared_memory_off_;
+
 public:
-    DSManager(const std::string& xml_file_path);
+    DSManager(const std::string& xml_file_path, const bool shared_memory_off);
+    FASTDDS_DEPRECATED_UNTIL(3, "eprosima::discovery_server::DSManager(const std::set<std::string>& xml_snapshot_files,"
+            "const std::string & output_file)",
+            "Old Discovery Server v1 constructor to validate.")
     DSManager(const std::set<std::string>& xml_snapshot_files,
         const std::string & output_file);
     ~DSManager();
@@ -227,6 +232,16 @@ public:
 
     // parsing regex
     static const std::regex ipv4_regular_expression;
+
+    void disable_shared_memory()
+    {
+        shared_memory_off_ = true;
+    }
+
+    void output_file(std::string file_path)
+    {
+        snapshots_output_file = file_path;
+    }
 
 };
 

@@ -16,14 +16,9 @@ import logging
 import os
 from pathlib import Path
 
-import validation.shared as shared
+import shared.shared as shared
 
 import xmltodict
-
-
-def validation_file_path(file_path):
-    """Std file path to validate an snapshot."""
-    return os.path.join(file_path, '~')
 
 
 class Validator(object):
@@ -37,7 +32,7 @@ class Validator(object):
 
     def __init__(
         self,
-        process_execution,
+        validator_input,
         test_params,
         debug=False,
         logger=None
@@ -51,7 +46,7 @@ class Validator(object):
         """
         self.set_logger(logger, debug)
         self.logger.debug(f'Creating an instance of {self.name()}')
-        self.process_execution_ = process_execution
+        self.validator_input_ = validator_input
         self.test_params_ = test_params
 
     def set_logger(self, logger, debug):

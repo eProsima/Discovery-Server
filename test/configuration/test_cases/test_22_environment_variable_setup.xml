@@ -16,7 +16,7 @@
     </simples>
 
     <snapshots file="./test_22_environment_variable_setup.snapshot~">
-        <snapshot time="5">test_22_environment_variable_setup_snapshot_1</snapshot>
+        <snapshot time="2">test_22_environment_variable_setup_snapshot_1</snapshot>
     </snapshots>
 
     <profiles>

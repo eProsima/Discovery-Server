@@ -87,6 +87,8 @@ def parent_dir_path():
 def replace_string_dict(dic, pattern, new_string):
     """
     Change pattern for new string over a whole dictionary recursively.
+
+    xTODO
     """
     for k in dic.keys():
         if type(dic[k]) == str:
@@ -100,6 +102,8 @@ def replace_string_dict(dic, pattern, new_string):
 def replace_string_list(l, pattern, new_string):
     """
     Change pattern for new string over a whole list recursively.
+
+    xTODO
     """
     for i in range(len(l)):
         if type(l[i]) == str:
@@ -114,7 +118,7 @@ def boolean_from_string(v):
     """Get boolean value from a string."""
     if isinstance(v, bool):
         return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1', 'True', 'T'):
+    if v.lower() in ('yes', 'true', 't', 'y', '1', 'True', 'T', 'v', 'V'):
         return True
     elif v.lower() in ('no', 'false', 'f', 'n', '0', 'False', 'F'):
         return False

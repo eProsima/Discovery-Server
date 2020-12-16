@@ -23,8 +23,9 @@ import json
 
 import jsondiff
 
+import shared.shared as shared
+
 import validation.Validator as validator
-import validation.shared as shared
 
 
 class GenerateValidator(validator.Validator):
@@ -36,52 +37,32 @@ class GenerateValidator(validator.Validator):
     content that the test output should have if it passed.
     """
 
-    def __init__(
-        self,
-        file_name,
-        output_file_name,
-        debug=False,
-        logger=None
-    ):
-        """
-        Build a generic validation object.
+    def _validator_tag(self):
+        """Return validator's tag in json parameters file."""
+        return 'generate_validation'
 
-        :param file_name: The path to the snapshot xml file
-            containing the Discovery-Server test output.
-        :param output_file_name: The path to the snapshot xml
-            file containing the expected test output.
-        :param debug: True/False to activate/deactivate debug logger.
-        :param logger: The logging object. VALIDATION if None
-            logger is provided.
-        """
-        super().__init__(
-            debug,
-            logger
-        )
-        self.file_name_ = file_name
-        self.output_file_name_ = output_file_name
+    def _validate(self):
+        """Validate the snapshots resulting from a Discovery-Server test."""
 
-        self.val_snapshot = self.parse_xml_snapshot(self.snapshot_file_path)
-        self.gt_snapshot = self.parse_xml_snapshot(self.gt_snapshot_file_path)
+        # Get input values
+        try:
+            self.disposals = self.test_params_['disposals']
+            self.server_endpoints = self.test_params_['server_endpoints']
+            self.val_snapshot = \
+                self.parse_xml_snapshot(self.validator_input_.result_file)
 
-        self.test_params = test_params
-        self.supported_validation = self.test_params.iloc[0]['generate_check']
-        self.disposals = self.test_params.iloc[0]['disposals']
-        self.server_endpoints = self.test_params.iloc[0]['server_endpoints']
+        except (KeyError, ValueError) as e:
+            self.logger.error(e)
+            self.logger.error('Incorrect arguments in validator'
+                              'parametrization')
+            return shared.ReturnCode.ERROR
+
         self.copy_dict = {'DS_Snapshots': {}}
         self.validate_dict = {'DS_Snapshots': {}}
         self.process_servers()
 
-    def _validate(self):
-        """Validate the snapshots resulting from a Discovery-Server test."""
         if self.disposals:
             self.logger.debug('Validation for disposals test snapshot.')
-
-        if not self.supported_validation:
-            self.logger.warning(
-                f"{self.test_params.iloc[0]['test_name']} is not supported in "
-                f'{self.__validator_name()}')
-            return shared.ReturnCode.SKIP
 
         if self.server_endpoints:
             self.logger.warning(
@@ -94,8 +75,6 @@ class GenerateValidator(validator.Validator):
         except KeyError as e:
             self.logger.error(e)
             self.logger.error('Failed at parsing the test output snapshots.')
-            self.logger.info(
-                'Summary: 0 tests, 1 errors, 0 failures')
             return shared.ReturnCode.ERROR
 
         n_tests = 0
@@ -127,13 +106,13 @@ class GenerateValidator(validator.Validator):
                             f"DS_Snapshot_{snapshot['@timestamp']}"])
 
                 if val:
-                    self.logger.info(
+                    self.logger.debug(
                         f'Validation result of Snapshot '
                         f"{snapshot['description']}: "
                         f'{shared.bcolors.OK}PASS{shared.bcolors.ENDC}')
                     successful_tests.append(snapshot['description'])
                 else:
-                    self.logger.info(
+                    self.logger.debug(
                         f'Validation result of Snapshot '
                         f"{snapshot['description']}: "
                         f'{shared.bcolors.FAIL}FAIL{shared.bcolors.ENDC}')
@@ -146,10 +125,6 @@ class GenerateValidator(validator.Validator):
                         f"{snapshot['description']}: "
                         f'{shared.bcolors.FAIL}FAIL{shared.bcolors.ENDC}')
                 error_tests.append(snapshot)
-
-        self.logger.info(
-            f'Summary: {n_tests} tests, {len(error_tests)} errors, '
-            f'{len(failed_tests)} failures')
 
         if error_tests:
             return shared.ReturnCode.ERROR

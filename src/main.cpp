@@ -7,6 +7,7 @@
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 
 #include "DSManager.h"
+#include "arguments.h"
 
 using namespace eprosima;
 using namespace fastrtps;
@@ -15,7 +16,7 @@ using namespace fastrtps::rtps;
 using namespace fastdds::rtps;
 using namespace discovery_server;
 
-std::pair<std::set<std::string>, std::string> validationCommandLineParser(int argc, char * argv[]);
+using namespace std;
 
 int main(int argc, char * argv[])
 {
@@ -43,65 +44,95 @@ int main(int argc, char * argv[])
     // Register the consumer
     Log::RegisterConsumer(std::move(stdouterr_consumer));
 
-    // Clear all the consumers.
-    // Log::ClearConsumers();
+    // skip program name argv[0] if present
+    argc -= (argc > 0);
+    argv += (argc > 0);
+    option::Stats stats(usage, argc, argv);
+    vector<option::Option> options(stats.options_max);
+    vector<option::Option> buffer(stats.buffer_max);
+    option::Parser parse(usage, argc, argv, &options[0], &buffer[0]);
+
+    // check the command line options
+    if (parse.error())
+    {
+        return 1;
+    }
+
+    // no arguments beyond options
+    int noopts = parse.nonOptionsCount();
+    if ( noopts )
+    {
+        string sep( noopts == 1 ? "argument: " : "arguments: " );
+
+        cout << "Unknown ";
+
+        while ( noopts-- )
+        {
+            cout << sep << parse.nonOption(noopts);
+            sep = ", ";
+        }
+
+        endl(cout);
+
+        return 1;
+    }
+
+    // show help if asked to
+    if (options[HELP] || argc == 0)
+    {
+        option::printUsage(std::cout, usage);
+
+        return 0;
+    }
+
+    // Load config file path from arg
+    option::Option* pOp = options[CONFIG_FILE];
+
+    if ( nullptr == pOp )
+    {
+        cout << "Specify configuration file is mandatory: use -c or --config-file option." << endl;
+        return 1;
+    }
+    else if ( pOp->count() != 1)
+    {
+        cout << "Only one configuration file can be specified." << endl;
+        return 1;
+    }
 
     int return_code = 0;
+    std::string path_to_config = pOp->arg;
 
-    if (!(argc > 1))
+    // Load Default XML files
+    eprosima::fastrtps::xmlparser::XMLProfileManager::loadDefaultXMLFile();
+
+    // Create DSManager
+    DSManager manager(path_to_config, options[SHM]);
+    if (!manager.correctly_created())
     {
-        std::cout << "Usage: discovery-server [CONFIG_XML|SNAPSHOT_XML+ [-out output_filename]]" << std::endl;
+        return_code = 1;
     }
-    else if (argc == 2)
+
+    // Load output file path
+    option::Option* pOp_of = options[OUTPUT_FILE];
+    if ( nullptr != pOp_of )
     {
-        std::string path_to_config = argv[1];
+        manager.output_file(pOp_of->arg);
+    }
 
+    // Follow the config file instructions
+    manager.runEvents(std::cin, std::cout);
+
+    // Check the snapshots read
+    if(manager.shouldValidate())
+    {
+        if(!manager.validateAllSnapshots())
         {
-            DSManager manager(path_to_config);
-            if (!manager.correctly_created())
-            {
-                return_code = 1;
-            }
-
-            // Load Default XML files
-            eprosima::fastrtps::xmlparser::XMLProfileManager::loadDefaultXMLFile();
-
-            // Follow the config file instructions
-            manager.runEvents(std::cin, std::cout);
-
-            // maybe it's not a standalone test and validation should be procrastinated
-            if (manager.shouldValidate())
-            {
-                // Check the snapshots taken
-                if (!manager.validateAllSnapshots())
-                {
-                    LOG_ERROR("Discovery Server error: several snapshots show info leakage");
-                    return_code = -1; // report CTest the test fail
-                }
-                else
-                {
-                    std::cout << manager.successMessage() << std::endl;
-                }
-            }
+            LOG_ERROR("Discovery Server error: several snapshots show info leakage");
+            return_code = -1; // report CTest the test fail
         }
-    }
-    else
-    {
-        auto arguments = validationCommandLineParser(argc, argv);
-        DSManager manager(arguments.first, arguments.second);
-
-        // Check the snapshots read
-        if(manager.shouldValidate())
+        else
         {
-            if(!manager.validateAllSnapshots())
-            {
-                LOG_ERROR("Discovery Server error: several snapshots show info leakage");
-                return_code = -1; // report CTest the test fail
-            }
-            else
-            {
-                std::cout << manager.successMessage() << std::endl;
-            }
+            std::cout << manager.successMessage() << std::endl;
         }
     }
 
@@ -109,53 +140,18 @@ int main(int argc, char * argv[])
     Domain::stopAll();
 
     return return_code;
-
 }
 
-// C++11 template deduction cannot directly map std::tolower in std::transform
-char toLower(const char & c)
+/*static*/
+option::ArgStatus Arg::check_inp(
+        const option::Option& option,
+        bool /* msg */)
 {
-    return std::tolower(c);
-}
-
-std::pair<std::set<std::string>,std::string> validationCommandLineParser(int argc, char * argv[])
-{
-    using namespace std;
-
-    // handle -out output_file_name scenario
-    bool next_is_filename = false;
-    string outfilename;
-    string outflag("-out");
-
-    set<string> files;
-    for(int i = 1; i < argc; ++i)
+    // the argument is required
+    if ( nullptr != option.arg )
     {
-        const char * argtext = argv[i];
-
-        // former argument was -out flag
-        if(next_is_filename)
-        {
-            next_is_filename = false;
-            outfilename = argtext;
-        }
-        else
-        {
-            // check if its a flag or a file
-            string::size_type len = string::traits_type::length(argtext);
-            string file(len, ' ');
-            transform(argtext, argtext + len, file.begin(), toLower);
-
-            if(outflag == file)
-            {
-                next_is_filename = true;
-            }
-            else
-            {
-                // kept the file
-                files.emplace(argtext, len);
-            }
-        }
+        return option::ARG_OK;
     }
 
-    return std::make_pair(std::move(files),std::move(outfilename));
+    return option::ARG_ILLEGAL;
 }

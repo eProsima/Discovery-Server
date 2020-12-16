@@ -327,6 +327,9 @@ file(COPY ${TEST_DIR} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 set(BINARY_TEST_DIR ${CMAKE_CURRENT_BINARY_DIR}/test)
 file(TO_NATIVE_PATH "${BINARY_TEST_DIR}/" BINARY_TEST_DIR)
 
+set(BINARY_CONF_DIR ${BINARY_TEST_DIR}/configuration)
+file(TO_NATIVE_PATH "${BINARY_CONF_DIR}/" BINARY_CONF_DIR)
+
 set(BINARY_TEST_CASES_DIR ${BINARY_TEST_DIR}/test_cases)
 file(TO_NATIVE_PATH "${BINARY_TEST_CASES_DIR}/" BINARY_TEST_CASES_DIR)
 
@@ -334,77 +337,33 @@ set(BINARY_SNAPSHOTS_DIR ${BINARY_TEST_DIR}/test_solutions)
 file(TO_NATIVE_PATH "${BINARY_SNAPSHOTS_DIR}/" BINARY_SNAPSHOTS_DIR)
 
 set(RUN_TEST ${BINARY_TEST_DIR}run_test.py)
-set(TESTS_PARAMS ${BINARY_TEST_DIR}tests_params.csv)
+set(TESTS_PARAMS ${BINARY_CONF_DIR}tests_params.json)
 
-# To save time is adviceable to run ctest -j 10 to parallelized the test execution. Note that test doesn't interfere
-# with each other because independent ports are used for the servers.
+# Tests are named after the test number, but they could be changed to get the whole test name
+# To save time is adviceable to run ctest -j 10 to parallelized the test execution.
+# Note that test doesn't interfere with each other because independent ports are used for the servers.
 
 unset(TEST_LIST)
-
 list(APPEND TEST_LIST
-    test_01_trivial
-    test_02_single_server_medium
-    test_03_single_server_large
-    test_04_server_ping
-    test_05_server_double_ping
-    test_06_diamond_servers
-    test_07_server_endpoints_two_servers
-    test_08_server_endpoints_four_clients
-    test_09_servers_serial
-    test_10_server_redundancy
-    test_11_remote_servers
-    test_12_virtual_topics
-    test_13_disposals_single_server
-    test_14_disposals_remote_servers
-    test_15_disposals_client_servers
-    test_16_lease_duration_single_client
-    test_17_lease_duration_remove_client_server
-    test_18_disposals_remote_servers_multiprocess
-    test_19_disposals_break_builtin_connections
-    test_20_break_builtin_connections
-    test_21_disposals_remote_server_trivial
-    test_24_backup
-    test_25_backup_compatibility
-    test_26_backup_restore
-    test_27_tcp)
-foreach(TEST IN LISTS SINGLE_XML_TESTS)
-    add_test(NAME ${TEST}
+    00
+    01
+    18)
+
+foreach(TEST IN LISTS TEST_LIST)
+    unset(TEST_NAME)
+    set(TEST_NAME "discovery_server_test_${TEST}")
+    add_test(NAME ${TEST_NAME}
         COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-        -e $<TARGET_FILE:${PROJECT_NAME}> -t ${TEST}
-        -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR}
-        -p ${TESTS_PARAMS})
-    set_tests_properties(${TEST} PROPERTIES
+        -e $<TARGET_FILE:${PROJECT_NAME}>
+        -p ${TESTS_PARAMS}
+        -f $<$<TARGET_EXISTS:fastdds::fast-discovery-server>:$<TARGET_FILE:fastdds::fast-discovery-server>>
+        -t ${TEST}
+        -i false)
+    set_tests_properties(${TEST_NAME} PROPERTIES
         REQUIRED_FILES ${RUN_TEST}
         REQUIRED_FILES ${TESTS_PARAMS})
 endforeach()
 
-# Test 22: Testing setup using the ROS_DISCOVERY_SERVER environment variable
-list(APPEND TEST_LIST test_22_environment_variable_setup)
-add_test(NAME test_22_environment_variable_setup
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_22_environment_variable_setup
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR}
-    -p ${TESTS_PARAMS})
-set_tests_properties(test_22_environment_variable_setup PROPERTIES
-    ENVIRONMENT ROS_DISCOVERY_SERVER=127.0.0.1:22811
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${TESTS_PARAMS}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_22_environment_variable_setup.xml
-    REQUIRED_FILES ${BINARY_SNAPSHOTS_DIR}test_22_environment_variable_setup.snapshot )
-
-# Test 23: Testing fast-discovery-server tool capacity of launching servers
-list(APPEND TEST_LIST test_23_fast_discovery_server_tool)
-add_test(NAME test_23_fast_discovery_server_tool
-    COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-    -e $<TARGET_FILE:${PROJECT_NAME}> -t test_23_fast_discovery_server_tool
-    -T ${BINARY_TEST_CASES_DIR} -g ${BINARY_SNAPSHOTS_DIR}
-    -p ${TESTS_PARAMS}
-    -f $<$<TARGET_EXISTS:fastdds::fast-discovery-server>:$<TARGET_FILE:fastdds::fast-discovery-server>>)
-set_tests_properties(test_23_fast_discovery_server_tool PROPERTIES
-    REQUIRED_FILES ${RUN_TEST}
-    REQUIRED_FILES ${TESTS_PARAMS}
-    REQUIRED_FILES ${BINARY_TEST_CASES_DIR}test_23_fast_discovery_server_tool.xml
-    DISABLED $<NOT:$<TARGET_EXISTS:fastdds::fast-discovery-server>>)
 
 # Windows requires an special treatment of environmental variables
 if(WIN32)

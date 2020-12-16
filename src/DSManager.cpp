@@ -23,6 +23,7 @@
 #include <fastrtps/publisher/Publisher.h>
 
 #include <fastrtps/transport/TCPv4TransportDescriptor.h>
+#include <fastrtps/transport/UDPv4TransportDescriptor.h>
 #include <fastrtps/transport/TCPv6TransportDescriptor.h>
 #include <fastrtps/utils/IPLocator.h>
 
@@ -64,13 +65,15 @@ const std::regex DSManager::ipv4_regular_expression("^((?:[0-9]{1,3}\\.){3}[0-9]
 const std::chrono::seconds DSManager::last_snapshot_delay_ = std::chrono::seconds(1);
 
 DSManager::DSManager(
-    const std::string& xml_file_path)
+    const std::string& xml_file_path,
+    const bool shared_memory_off)
     : no_callbacks(false)
     , auto_shutdown(true)
     , enable_prefix_validation(true)
     , correctly_created_(false)
     , last_PDP_callback_(Snapshot::_st_ck)
     , last_EDP_callback_(Snapshot::_st_ck)
+    , shared_memory_off_(shared_memory_off)
 {
     tinyxml2::XMLDocument doc;
     if (tinyxml2::XMLError::XML_SUCCESS == doc.LoadFile(xml_file_path.c_str()))
@@ -698,6 +701,15 @@ void DSManager::loadServer(
         }
     }
 
+    if (shared_memory_off_)
+    {
+        // Desactivate transport by default
+        atts.rtps.useBuiltinTransports = false;
+
+        auto udp_transport = std::make_shared<UDPv4TransportDescriptor>();
+        atts.rtps.userTransports.push_back(udp_transport);
+    }
+
     // We define the PDP as external (when moved to fast library it would be SERVER)
     DiscoverySettings & b = atts.rtps.builtin.discovery_config;
     (void)b;
@@ -951,6 +963,15 @@ void DSManager::loadClient(
             p4->set_WAN_address(address);
         }
 
+    }
+
+    if (shared_memory_off_)
+    {
+        // Desactivate transport by default
+        atts.rtps.useBuiltinTransports = false;
+
+        auto udp_transport = std::make_shared<UDPv4TransportDescriptor>();
+        atts.rtps.userTransports.push_back(udp_transport);
     }
 
     GUID_t guid(atts.rtps.prefix, c_EntityId_RTPSParticipant);

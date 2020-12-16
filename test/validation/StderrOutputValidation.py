@@ -12,17 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Script implementing the CountLinesValidator class.
+Script implementing the StderrOutputValidation class.
 
-The CountLinesValidator validates the test counting and comparing the number
-of lines of the output snapshot resulted from the test execution and an a
-priori well known output.
+The StderrOutputValidation validates the test exit code
 """
 import shared.shared as shared
 
 import validation.Validator as validator
 
-class CountLinesValidator(validator.Validator):
+
+class StderrOutputValidation(validator.Validator):
     """
     Class to validate an snapshot resulting from a Discovery-Server test.
 
@@ -33,33 +32,22 @@ class CountLinesValidator(validator.Validator):
 
     def _validator_tag(self):
         """Return validator's tag in json parameters file."""
-        return 'count_lines_validation'
+        return 'stderr_validation'
 
     def _validate(self):
-        """Validate the test counting the number of lines."""
-
-        lines_get = 0
-        lines_expected = 0
-
+        """Validate the test stderr number of lines."""
         try:
-            file_name = self.test_params_['file_path']
-            output_file_name = self.validator_input_.result_file
+            exit_lines_count = self.validator_input_.stderr_lines
+            expected_lines = self.test_params_['err_expected_lines']
 
-            self.logger.debug(f'Snapshot to validate: {file_name}')
-            self.logger.debug(f'Output snapshot: {output_file_name}')
-
-            with open(file_name) as f:
-                lines_get = len(f.readlines())
-            with open(output_file_name) as f:
-                lines_expected = len(f.readlines())
-        except (IOError, ValueError) as e:
+        except KeyError as e:
             self.logger.error(e)
             return shared.ReturnCode.ERROR
 
-        self.logger.debug(f'CountLinesValidator: Lines in result snapshot:'
-                          f'{lines_get}, expected lines in snapshot:'
-                          f'{lines_expected}')
+        self.logger.debug(f'StderrOutputValidation: stderr process exit lines:'
+                          f'{exit_lines_count}, expected lines:'
+                          f'{expected_lines}')
 
-        val = (lines_get == lines_expected)
+        val = (exit_lines_count == expected_lines)
 
         return shared.ReturnCode.OK if val else shared.ReturnCode.FAIL

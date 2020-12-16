@@ -16,8 +16,9 @@ Script implementing the ExitCodeValidation class.
 
 The ExitCodeValidation validates the test exit code
 """
+import shared.shared as shared
+
 import validation.Validator as validator
-import validation.shared as shared
 
 
 class ExitCodeValidation(validator.Validator):
@@ -37,12 +38,16 @@ class ExitCodeValidation(validator.Validator):
         """Validate the test exit code"""
 
         try:
-            exit_code = self.process_execution_.returncode
+            exit_code = self.validator_input_.exit_code
             expected_code = self.test_params_['expected_exit_code']
 
         except KeyError as e:
             self.logger.error(e)
             return shared.ReturnCode.ERROR
+
+        self.logger.debug(f'ExitCodeValidation: process exit code:'
+                          f'{exit_code}, expected code:'
+                          f'{expected_code}')
 
         val = (expected_code == exit_code)
 

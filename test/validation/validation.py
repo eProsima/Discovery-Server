@@ -12,18 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Script implementing the CountLinesValidator class.
+Script implementing the validation-run_test communicate module.
 
-The CountLinesValidator validates the test counting and comparing the number
-of lines of the output snapshot resulted from the test execution and an a
-priori well known output.
+In order to do run_test.py script and validation module works independently,
+this script encapsulates the different methods needed from one to the other.
 """
+import shared.shared as shared
 
 import validation.CountLinesValidator as clv
 import validation.ExitCodeValidation as ecv
 import validation.GenerateValidator as genv
 import validation.GroundTruthValidator as gtv
-import validation.shared as shared
+import validation.StderrOutputValidation as sov
+
+
+class ValidatorInput(object):
+    """Encapsulate Validator input."""
+
+    def __init__(
+        self,
+        exit_code=None,
+        stderr_lines=None,
+        result_file=None
+    ):
+        """
+        Construct Validator Input with fields.
+
+        :param TODO
+        """
+        self.exit_code = exit_code
+        self.stderr_lines = stderr_lines
+        self.result_file = result_file
 
 
 def get_validators():
@@ -31,15 +50,16 @@ def get_validators():
     return [
         ecv.ExitCodeValidation,
         clv.CountLinesValidator,
-        # genv.GenerateValidator,
-        # gtv.GroundTruthValidator,
+        genv.GenerateValidator,
+        gtv.GroundTruthValidator,
+        sov.StderrOutputValidation
     ]
 
 
 def validate_test(
     process_id,
     validation_params,
-    process_execution,
+    validator_input,
     debug=False,
     logger=None
 ):
@@ -52,7 +72,7 @@ def validate_test(
 
     for validator_constructor in validators:
         validator = validator_constructor(
-            process_execution,
+            validator_input,
             validation_params,
             debug)
 
@@ -102,3 +122,13 @@ def print_result_bool(logger, msg, res):
         logger.info(
             f'{msg}: '
             f'{color}FAIL{shared.bcolors.ENDC}')
+
+
+def validation_file_path(file_path):
+    """Std file path to validate an snapshot."""
+    return os.path.join(file_path, '~')
+
+
+def validation_file_name(test_name):
+    """Std name for a result snapshot."""
+    return test_name + '.snapshot~'

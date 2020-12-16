@@ -1,317 +1,296 @@
 {
     "configurations":
     {
-        "transports":
+        "configuration_files":
         {
-            "intraprocess":
-            {
-                "off": "intraprocess_off.xml",
-                "on": "intraprocess_full.xml"
-            }
+            "INTRAPROCESS_OFF": "<CONFIG_RELATIVE_PATH>/intraprocess_off.xml",
+            "INTRAPROCESS_ON": "<CONFIG_RELATIVE_PATH>/intraprocess_full.xml"
+        },
+        "flags":
+        {
+            "SHM_OFF": "-s"
         }
     },
+
     "tests":
     {
 
-        "test_01_trivial":
+        "test_00_tool_help":
         {
-            "remove_failed": "False",
-            "remove_passed": "True",
             "processes":
             [
                 {
                     "process_id": 0,
-                    "xml_config_file": "../test_cases/test_01_trivial.xml",
-                    "environment_variables":
-                    [
-                    ],
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_00_tool_help.xml",
+                    "environment_variables": [],
+                    "flags": ["-h"],
                     "validation":
                     {
-                        "count_lines_validation":
-                        {
-                            "file_path": "../test_solutions/test_01_trivial.snapshot",
-                            "output_file_path": "../test_solutions/test_01_trivial.snapshot~"
-                        },
-                        "ground_truth_validation":
-                        {
-                            "file_path": "../test_solutions/test_01_trivial.snapshot",
-                            "output_file_path": "../test_solutions/test_01_trivial.snapshot~"
-                        },
-                        "generate_validation":
-                        {
-                            "disposals": "False",
-                            "server_endpoints": "False",
-                            "output_file_path": "../test_solutions/test_01_trivial.snapshot~"
-                        },
-                        "stderr_validation":
-                        {
-                            "stderr_expected_lines": 0
-                        },
                         "exit_code_validation":
                         {
                             "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
                         }
                     }
                 }
             ]
         },
 
-        "test_18_disposals_remote_servers_multiprocess": {
-            "id": "test_18_disposals_remote_servers_multiprocess",
-            "remove_failed": "False",
-            "remove_passed": "True",
-            "processes": [
+        "test_01_trivial":
+        {
+            "processes":
+            [
                 {
                     "process_id": 0,
-                    "xml_config_file": "../test_cases/test_18_disposals_remote_servers_multiprocess.xml",
-                    "environment_variables": [
-                    ],
-                    "count_lines_validation": [
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_01_trivial.xml",
+                    "environment_variables": [],
+                    "validation":
+                    {
+                        "count_lines_validation":
                         {
-                            "file_path": "../test_solutions/test_18_disposals_remote_servers_multiprocess.snapshot",
-                            "output_file_path": "../test_solutions/test_18_disposals_remote_servers_multiprocess.snapshot~"
-                        }
-                    ],
-                    "ground_truth_validation": [
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_01_trivial.snapshot"
+                        },
+                        "exit_code_validation":
                         {
-                            "file_path": "../test_solutions/test_18_disposals_remote_servers_multiprocess.snapshot",
-                            "output_file_path": "../test_solutions/test_18_disposals_remote_servers_multiprocess.snapshot~"
-                        }
-                    ],
-                    "stderr_validation": [
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
                         {
                             "err_expected_lines": 0
-                        }
-                    ],
-                    "exit_code_validation": [
+                        },
+                        "generate_validation":
                         {
-                            "expected_code": 0
-                        }
-                    ]
-                },
-                {
-                    "process_id": 1,
-                    "xml_config_file": "../test_cases/test_18_disposals_remote_servers_multiprocess_1.xml",
-                    "environment_variables": [
-                    ],
-                    "count_lines_validation": [
+                            "disposals": false,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
                         {
-                            "file_path": "../test_solutions/test_18_disposals_remote_servers_multiprocess_1.snapshot",
-                            "output_file_path": "../test_solutions/test_18_disposals_remote_servers_multiprocess_1.snapshot~"
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_01_trivial.snapshot"
                         }
-                    ],
-                    "ground_truth_validation": [
-                        {
-                            "file_path": "../test_solutions/test_18_disposals_remote_servers_multiprocess_1.snapshot",
-                            "output_file_path": "../test_solutions/test_18_disposals_remote_servers_multiprocess_1.snapshot~"
-                        }
-                    ],
-                    "stderr_validation": [
-                        {
-                            "err_expected_lines": 0
-                        }
-                    ],
-                    "exit_code_validation": [
-                        {
-                            "expected_code": 0
-                        }
-                    ]
-                },
-                {
-                    "process_id": 2,
-                    "xml_config_file": "../test_cases/test_18_disposals_remote_servers_multiprocess_2.xml",
-                    "environment_variables": [
-                    ],
-                    "count_lines_validation": [
-                        {
-                            "file_path": "../test_solutions/test_18_disposals_remote_servers_multiprocess_2.snapshot",
-                            "output_file_path": "../test_solutions/test_18_disposals_remote_servers_multiprocess_2.snapshot~"
-                        }
-                    ],
-                    "ground_truth_validation": [
-                        {
-                            "file_path": "../test_solutions/test_18_disposals_remote_servers_multiprocess_2.snapshot",
-                            "output_file_path": "../test_solutions/test_18_disposals_remote_servers_multiprocess_2.snapshot~"
-                        }
-                    ],
-                    "stderr_validation": [
-                        {
-                            "err_expected_lines": 0
-                        }
-                    ],
-                    "exit_code_validation": [
-                        {
-                            "expected_code": 0
-                        }
-                    ]
+                    }
                 }
             ]
         },
 
-        "test_22_environment_variable_setup": {
-            "id": "test_22_environment_variable_setup",
-            "remove_failed": "False",
-            "remove_passed": "True",
-            "processes": [
+        "test_18_disposals_remote_servers_multiprocess":
+        {
+            "processes":
+            [
                 {
                     "process_id": 0,
-                    "xml_config_file": "../test_cases/test_22_environment_variable_setup.xml",
-                    "environment_variables": [
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_18_disposals_remote_servers_multiprocess.xml",
+                    "environment_variables": [],
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_18_disposals_remote_servers_multiprocess.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_18_disposals_remote_servers_multiprocess.snapshot"
+                        }
+                    }
+                },
+                {
+                    "process_id": 1,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_18_disposals_remote_servers_multiprocess_1.xml",
+                    "environment_variables": [],
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                {
+                    "process_id": 2,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_18_disposals_remote_servers_multiprocess_2.xml",
+                    "environment_variables": [],
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            ]
+        },
+
+        "test_22_environment_variable_setup":
+        {
+            "processes":
+            [
+                {
+                    "process_id": 0,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_22_environment_variable_setup.xml",
+                    "environment_variables":
+                    [
                         {
                             "name": "ROS_DISCOVERY_SERVER",
                             "value": "127.0.0.1:22811"
                         }
                     ],
-                    "count_lines_validation": [
+                    "validation":
+                    {
+                        "count_lines_validation":
                         {
-                            "file_path": "../test_solutions/test_22_environment_variable_setup.snapshot",
-                            "output_file_path": "../test_solutions/test_22_environment_variable_setup.snapshot~"
-                        }
-                    ],
-                    "ground_truth_validation": [
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_22_environment_variable_setup.snapshot"
+                        },
+                        "exit_code_validation":
                         {
-                            "file_path": "../test_solutions/test_22_environment_variable_setup.snapshot",
-                            "output_file_path": "../test_solutions/test_22_environment_variable_setup.snapshot~"
-                        }
-                    ],
-                    "generate_validation": [
-                        {
-                            "disposals": "False",
-                            "server_endpoints": "False",
-                            "output_file_path": "../test_solutions/test_22_environment_variable_setup.snapshot~"
-                        }
-                    ],
-                    "stderr_validation": [
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
                         {
                             "err_expected_lines": 0
-                        }
-                    ],
-                    "exit_code_validation": [
+                        },
+                        "generate_validation":
                         {
-                            "expected_code": 0
-                        }
-                    ]
-                }
-            ]
-        },
-
-        "test_23_fast_discovery_server_tool": {
-            "id": "test_23_fast_discovery_server_tool",
-            "remove_failed": "False",
-            "remove_passed": "True",
-            "processes": [
-                {
-                    "process_id": 0,
-                    "xml_config_file": "../test_cases/test_23_fast_discovery_server_tool.xml",
-                    "environment_variables": [
-                    ],
-                    "count_lines_validation": [
+                            "disposals": false,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
                         {
-                            "file_path": "../test_solutions/test_23_fast_discovery_server_tool.snapshot",
-                            "output_file_path": "../test_solutions/test_23_fast_discovery_server_tool.snapshot~"
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_22_environment_variable_setup.snapshot"
                         }
-                    ],
-                    "ground_truth_validation": [
-                        {
-                            "file_path": "../test_solutions/test_23_fast_discovery_server_tool.snapshot",
-                            "output_file_path": "../test_solutions/test_23_fast_discovery_server_tool.snapshot~"
-                        }
-                    ],
-                    "stderr_validation": [
-                        {
-                            "err_expected_lines": 0
-                        }
-                    ],
-                    "exit_code_validation": [
-                        {
-                            "expected_code": 0
-                        }
-                    ]
-                },
-                {
-                    "process_id": 1,
-                    "tool_config": {
-                        "id" : 0,
-                        "address": "127.0.0.1",
-                        "port": 23811
                     }
                 }
             ]
         },
 
-        "test_24_backup": {
-            "id": "test_24_backup",
-            "remove_failed": "False",
-            "remove_passed": "True",
-            "processes": [
+        "test_23_fast_discovery_server_tool":
+        {
+            "processes":
+            [
                 {
                     "process_id": 0,
-                    "xml_config_file": "../test_cases/test_24_backup.xml",
-                    "environment_variables": [
-                    ],
-                    "kill_time": 5,
-                    "stderr_validation": [
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_23_fast_discovery_server_tool.xml",
+                    "environment_variables": [],
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_23_fast_discovery_server_tool.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
                         {
                             "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_23_fast_discovery_server_tool.snapshot"
                         }
-                    ]
+                    }
                 },
                 {
                     "process_id": 1,
-                    "xml_config_file": "../test_cases/test_24_backup_1.xml",
-                    "environment_variables": [
-                    ],
-                    "count_lines_validation": [
+                    "kill_time": 6,
+                    "tool_config":
+                    {
+                        "id" : 1,
+                        "address": "127.0.0.1",
+                        "port": 23811
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
                         {
-                            "file_path": "../test_solutions/test_24_backup_1.snapshot",
-                            "output_file_path": "../test_solutions/test_24_backup_1.snapshot~"
-                        }
-                    ],
-                    "ground_truth_validation": [
-                        {
-                            "file_path": "../test_solutions/test_24_backup_1.snapshot",
-                            "output_file_path": "../test_solutions/test_24_backup_1.snapshot~"
-                        }
-                    ],
-                    "stderr_validation": [
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
                         {
                             "err_expected_lines": 0
                         }
-                    ],
-                    "exit_code_validation": [
+                    }
+                }
+            ]
+        },
+
+        "test_24_backup":
+        {
+            "clear": true,
+            "processes":
+            [
+                {
+                    "process_id": 0,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_24_backup.xml",
+                    "environment_variables": [],
+                    "kill_time": 2
+                },
+                {
+                    "process_id": 1,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_24_backup_1.xml",
+                    "environment_variables": [],
+                    "validation":
+                    {
+                        "count_lines_validation":
                         {
-                            "expected_code": 0
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_24_backup_1.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_24_backup_1.snapshot"
                         }
-                    ]
+                    }
                 },
                 {
                     "process_id": 2,
-                    "creation_time": 7,
-                    "xml_config_file": "../test_cases/test_24_backup.xml",
-                    "environment_variables": [
-                    ],
-                    "count_lines_validation": [
+                    "creation_time": 5,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_24_backup.xml",
+                    "environment_variables": [],
+                    "validation":
+                    {
+                        "count_lines_validation":
                         {
-                            "file_path": "../test_solutions/test_24_backup.snapshot",
-                            "output_file_path": "../test_solutions/test_24_backup.snapshot~"
-                        }
-                    ],
-                    "ground_truth_validation": [
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_24_backup.snapshot"
+                        },
+                        "exit_code_validation":
                         {
-                            "file_path": "../test_solutions/test_24_backup.snapshot",
-                            "output_file_path": "../test_solutions/test_24_backup.snapshot~"
-                        }
-                    ],
-                    "stderr_validation": [
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
                         {
                             "err_expected_lines": 0
-                        }
-                    ],
-                    "exit_code_validation": [
+                        },
+                        "ground_truth_validation":
                         {
-                            "expected_code": 0
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_24_backup.snapshot"
                         }
-                    ]
+                    }
                 }
             ]
         }
