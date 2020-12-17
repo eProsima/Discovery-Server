@@ -34,8 +34,12 @@
                         <initialAnnouncements>
                             <count>0</count>
                         </initialAnnouncements>
-                        <leaseAnnouncement>5</leaseAnnouncement>
-                        <leaseDuration>2</leaseDuration>
+                        <leaseDuration>
+                            <sec>5</sec>
+                        </leaseDuration>
+                        <leaseAnnouncement>
+                            <sec>2</sec>
+                        </leaseAnnouncement>
                     </discovery_config>
                     <metatrafficUnicastLocatorList>
                         <locator>

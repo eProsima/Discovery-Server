@@ -144,6 +144,11 @@ def parse_options():
     return parser.parse_args()
 
 
+def working_directory():
+    """Return the working directory path."""
+    return os.getcwd()
+
+
 def execute_validate_thread_test(
     process_id,
     test_id,
@@ -153,6 +158,7 @@ def execute_validate_thread_test(
     config_file,
     flags_in,
     fds_path=None,
+    clear=True,
     debug=False
 ):
     """
@@ -174,6 +180,7 @@ def execute_validate_thread_test(
     :param fds_path: path to fastdds tool. This arg is not needed unless
         test must execute fastdds tool, in which case it will raise an error
         if it is not set (Default: None).
+    :param clear: if true remove generated files if test passes.
     :param debug: Debug flag (Default: False).
 
     :return: True if everything OK, False if any error or if test did not pass
@@ -296,9 +303,9 @@ def execute_validate_thread_test(
     logger.debug(f'Process {process_name} output')
     stderr_lines = proc.stderr.readlines()
     for line in stderr_lines:
-        logger.info(line)
+        logger.info(line.decode('utf-8'))
     for line in proc.stdout.readlines():
-        logger.debug(line)
+        logger.debug(line.decode('utf-8'))
 
     # Check if validation needed by test params
     if 'validation' not in process_params.keys():
@@ -323,6 +330,12 @@ def execute_validate_thread_test(
         logger
     )
 
+    #######
+    # CLEAR
+    # In case we must clear the generated file
+    if result and clear:
+        clear_file(working_directory(), result_file)
+
     # Update result_list and return
     result_list.append(result)
     return result
@@ -336,6 +349,7 @@ def execute_validate_test(
     config_file,
     flags,
     fds_path=None,
+    clear=True,
     debug=False
 ):
     """
@@ -354,6 +368,7 @@ def execute_validate_test(
     :param fds_path: path to fastdds tool. This arg is not needed unless
         test must execute fastdds tool, in which case it will raise an error
         if it is not set (Default: None).
+    :param clear: if true remove generated files if test passes.
     :param debug: Debug flag (Default: False).
 
     :return: True if everything OK, False if any error or if test did not pass
@@ -364,7 +379,10 @@ def execute_validate_test(
         logger.error(f'Missing processes in test parameters')
         return False
 
+    # List of thread configurations to run every test process
     thread_list = []
+    # List of results for every test process. Each process will append its
+    # result and the it will join the results (Python lists are thread safe)
     result_list = [True]
 
     logger.debug(f'Preparing processes for test: {test_id}')
@@ -382,6 +400,7 @@ def execute_validate_test(
                   config_file,
                   flags,
                   fds_path,
+                  clear,
                   debug))
         thread_list.append(thread)
 
@@ -496,6 +515,7 @@ def create_tests(
     tests=None,
     intraprocess=None,
     shm=None,
+    clear=True,
     fds_path=None,
     debug=False,
 ):
@@ -516,6 +536,7 @@ def create_tests(
     :param shm: if set it specifies if shared memory is used or not.
         If None, both with and without shared memory will be executed.
         (Default: None)
+    :param clear: if true remove generated files if test passes.
     :param fds_path: path to fastdds tool. This arg is not needed unless
         test must execute fastdds tool, in which case it will raise an error
         if it is not set (Default: None).
@@ -560,7 +581,7 @@ def create_tests(
                 # Last database will stay except clear flag is set
                 try:
                     if params_file[test]['clear']:
-                        clear_db(os.getcwd())
+                        clear_db(working_directory())
                 except KeyError:
                     pass
 
@@ -581,6 +602,7 @@ def create_tests(
                         config_file,
                         flags,
                         fds_path,
+                        clear,
                         debug) and test_results
                 logger.info('--------------------------------------------')
 
@@ -627,6 +649,25 @@ def clear(wd):
         os.path.join(wd, '*.json')))
     files.extend(glob.glob(
         os.path.join(wd, '*.db')))
+
+    logger.debug(f'Removing files: {files}')
+
+    for f in files:
+        try:
+            os.remove(f)
+        except OSError:
+            logger.error(f'Error while deleting file: {f}')
+
+
+def clear_file(wd, file_name):
+    """
+    Clear an specific file in the directory.
+
+    :param wd: The working directory where clear the file.
+    :param file_name: Name of file to remove.
+    """
+    files = glob.glob(
+        os.path.join(wd, file_name))
 
     logger.debug(f'Removing files: {files}')
 
@@ -711,6 +752,7 @@ if __name__ == '__main__':
         tests=args.test,
         intraprocess=intraprocess,
         shm=shm,
+        clear=not args.not_remove,
         fds_path=(args.fds if args.fds else None),
         debug=args.debug,
     )
@@ -721,8 +763,8 @@ if __name__ == '__main__':
         result
     )
 
-    if result and not args.not_remove or args.force_remove:
-        clear(os.getcwd())
+    if args.force_remove:
+        clear(working_directory())
 
     if result:
         exit(0)

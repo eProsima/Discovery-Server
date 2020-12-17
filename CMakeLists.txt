@@ -348,10 +348,32 @@ unset(TEST_LIST)
 list(APPEND TEST_LIST
         test_00_tool_help
         test_01_trivial
+        test_02_single_server_medium
+        test_03_single_server_large
+        test_04_server_ping
+        test_05_server_double_ping
+        test_06_diamond_servers
+        test_07_server_endpoints_two_servers
+        test_08_server_endpoints_four_clients
+        test_09_servers_serial
+        test_10_server_redundancy
+        test_11_remote_servers
+        test_12_virtual_topics
+        test_13_disposals_single_server
+        test_14_disposals_remote_servers
+        test_15_disposals_client_servers
+        test_16_lease_duration_single_client
+        test_17_lease_duration_remove_client_server
         test_18_disposals_remote_servers_multiprocess
+        test_19_disposals_break_builtin_connections
+        test_20_break_builtin_connections
+        test_21_disposals_remote_server_trivial
         test_22_environment_variable_setup
         test_23_fast_discovery_server_tool
         test_24_backup
+        test_25_backup_compatibility
+        test_26_backup_restore
+        # test_27_tcp # Add to test TCP
     )
 
 foreach(TEST IN LISTS TEST_LIST)
@@ -363,7 +385,9 @@ foreach(TEST IN LISTS TEST_LIST)
         -p ${TESTS_PARAMS}
         -f $<$<TARGET_EXISTS:fastdds::fast-discovery-server>:$<TARGET_FILE:fastdds::fast-discovery-server>>
         -t ${TEST}
-        -i false)
+        -i false) # Remove this argument to execute test with and without intraprocess
+        # -s true|false # Add this argument to execute test only with or without shared memory and not both
+        # --force-remove # Add this argument to erase every file generated during test execution
     set_tests_properties(${TEST_NAME} PROPERTIES
         REQUIRED_FILES ${RUN_TEST}
         REQUIRED_FILES ${TESTS_PARAMS})

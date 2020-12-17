@@ -47,11 +47,11 @@
                             "name": "variable2 name",
                             "value": "variable2 value"
                         }
-                    ],  "description": "minimum: 0",
+                    ],  "description": "optional",
 
                     "flags": ["--flag1", "--flag2"],  "description": "minimum: 0",
 
-                    "creation_time": 5, "description": "time to create process. Default 0 minutes",
+                    "creation_time": 314, "description": "waiting time to create process. Default 0 minutes",
 
                     "kill_time": 314, "description": "time to kill process. Default 5 minutes",
 
@@ -73,7 +73,7 @@
                         {
                             "description": "validate that snapshots are correct.",
                             "disposals": false, "description": "process has disposals",
-                            "server_endpoints": false, "description": "vprocess has server endpoints",
+                            "server_endpoints": false, "description": "process has server endpoints"
                         },
                         "ground_truth_validation":
                         {
