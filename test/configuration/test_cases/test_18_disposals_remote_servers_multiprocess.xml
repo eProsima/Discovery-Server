@@ -13,9 +13,9 @@
 
     <snapshots file="./test_18_disposals_remote_servers_multiprocess.snapshot~">
         <!-- Starting point -->
-        <snapshot time="5">test_18_disposals_remote_servers_multiprocess_snapshot_1</snapshot>
+        <snapshot time="3">test_18_disposals_remote_servers_multiprocess_snapshot_1</snapshot>
         <!-- Remove server3 -->
-        <snapshot time="15">test_18_disposals_remote_servers_multiprocess_snapshot_2</snapshot>
+        <snapshot time="7">test_18_disposals_remote_servers_multiprocess_snapshot_2</snapshot>
     </snapshots>
 
     <profiles>

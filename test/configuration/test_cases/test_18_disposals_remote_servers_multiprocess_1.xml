@@ -6,7 +6,7 @@
     </servers>
 
     <snapshots file="./test_18_disposals_remote_servers_multiprocess_1.snapshot~">
-        <snapshot time="15">test_18_disposals_remote_servers_multiprocess_snapshot_1</snapshot>
+        <snapshot time="8">test_18_disposals_remote_servers_multiprocess_snapshot_1</snapshot>
     </snapshots>
 
     <profiles>

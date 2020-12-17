@@ -45,7 +45,7 @@ int main(int argc, char * argv[])
     // Clear all the consumers.
     Log::ClearConsumers();
 
-    Log::SetVerbosity(Log::Kind::Info);
+    Log::SetVerbosity(Log::Kind::Error);
     // Log::SetCategoryFilter(std::regex("(INTRAPROCESS)"));
 
     // Create a StdoutErrConsumer consumer that logs entries to stderr only when the Log::Kind is equal to WARNING

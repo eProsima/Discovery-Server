@@ -9,9 +9,9 @@
     <snapshots>
         <snapshot time="20">test_lease_duration_snapshot_3</snapshot>
     </snapshots>
-    
+
     <profiles>
-        
+
         <participant profile_name="UDP_client3_server1" >
             <rtps>
                 <prefix>63.6c.69.65.6e.74.33.5f.73.31.5f.5f</prefix>
@@ -31,10 +31,10 @@
                             </RemoteServer>
                         </discoveryServersList>
                         <leaseDuration>
-                            <sec>5</sec>
+                            <sec>3</sec>
                         </leaseDuration>
                         <leaseAnnouncement>
-                            <sec>2</sec>
+                            <sec>1</sec>
                         </leaseAnnouncement>
                     </discovery_config>
                 </builtin>
@@ -59,6 +59,6 @@
             </struct>
             </type>
         </types>
-        
+
     </profiles>
 </DS>

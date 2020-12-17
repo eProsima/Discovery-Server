@@ -4,45 +4,45 @@
     <servers>
         <server name="server1" profile_name="UDP_server1" />
         <server name="server2" prefix="44.49.53.43.53.45.52.56.45.52.5f.32" profile_name="UDP_server2">
-            <subscriber topic="topic1" removal_time="20"/>
+            <subscriber topic="topic1" removal_time="7"/>
         </server>
-        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server3" removal_time="60"> 
-            <subscriber topic="topic1" removal_time="10"/>
-            <subscriber topic="topic1" creation_time="17"/>
+        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server3" removal_time="22">
+            <subscriber topic="topic1" removal_time="4"/>
+            <subscriber topic="topic1" creation_time="7"/>
         </server>
     </servers>
 
     <clients>
-        <client removal_time="40" name="client1_server1" profile_name="UDP_client1_server1">
-            <publisher removal_time="30" topic="topic1"/>
+        <client removal_time="14" name="client1_server1" profile_name="UDP_client1_server1">
+            <publisher removal_time="10" topic="topic1"/>
         </client>
-        <client creation_time="50" name="client2_server1" profile_name="UDP_client2_server1">
-            <publisher creation_time="50" topic="topic1"/>
+        <client creation_time="18" name="client2_server1" profile_name="UDP_client2_server1">
+            <publisher topic="topic1"/>
         </client>
     </clients>
 
     <snapshots file="./test_14_disposals_remote_servers.snapshot~">
 
         <!-- Starting point -->
-        <snapshot time="8">test_14_disposals_remote_servers_snapshot_1</snapshot>
+        <snapshot time="3">test_14_disposals_remote_servers_snapshot_1</snapshot>
         <!-- Remove subscriber1 from server3 -->
-        <snapshot time="15">test_14_disposals_remote_servers_snapshot_2</snapshot>
-        <!-- 
+        <snapshot time="6">test_14_disposals_remote_servers_snapshot_2</snapshot>
+        <!--
             Remove subscriber1 from server2
             Create subscriber2 in server3
          -->
-        <snapshot time="25">test_14_disposals_remote_servers_snapshot_3</snapshot>
+        <snapshot time="9">test_14_disposals_remote_servers_snapshot_3</snapshot>
         <!-- Remove publisher 1 from client1_server1 -->
-        <snapshot time="35">test_14_disposals_remote_servers_snapshot_4</snapshot>
+        <snapshot time="13">test_14_disposals_remote_servers_snapshot_4</snapshot>
         <!-- Remove client1_server1 -->
-        <snapshot time="45">test_14_disposals_remote_servers_snapshot_5</snapshot>
-        <!-- 
+        <snapshot time="17">test_14_disposals_remote_servers_snapshot_5</snapshot>
+        <!--
             Create client2_server1
             Create a publisher in client2_server1
          -->
-        <snapshot time="55">test_14_disposals_remote_servers_snapshot_6</snapshot>
+        <snapshot time="21">test_14_disposals_remote_servers_snapshot_6</snapshot>
         <!-- Remove server3 -->
-        <snapshot time="65">test_14_disposals_remote_servers_snapshot_7</snapshot>
+        <snapshot time="25">test_14_disposals_remote_servers_snapshot_7</snapshot>
 
     </snapshots>
 

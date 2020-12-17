@@ -3,7 +3,7 @@
     <servers>
         <server name="server1" prefix="44.49.53.43.53.45.52.56.45.52.5f.31" profile_name="UDP_server1"/>
         <server name="server2" prefix="44.49.53.43.53.45.52.56.45.52.5f.32" profile_name="UDP_server2"/>
-        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server3"/>          
+        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server3"/>
     </servers>
 
     <clients>
@@ -13,7 +13,7 @@
     </clients>
 
     <snapshots file="./test_10_server_redundancy.snapshot~">
-        <snapshot time="10">test_10_server_redundancy_snapshot_1</snapshot>
+        <snapshot time="2">test_10_server_redundancy_snapshot_1</snapshot>
     </snapshots>
 
     <profiles>
@@ -141,7 +141,7 @@
             <name>topic_1</name>
             <dataType>sample_type_1</dataType>
         </topic>
-        
+
         <types>
             <type>
               <struct name="sample_type_1">

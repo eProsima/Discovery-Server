@@ -3,11 +3,11 @@
 
     <servers>
         <server name="server1" profile_name="UDP_server1" />
-        <server name="server2" prefix="44.49.53.43.53.45.52.56.45.52.5f.32" profile_name="UDP_server2" removal_time="15">
+        <server name="server2" prefix="44.49.53.43.53.45.52.56.45.52.5f.32" profile_name="UDP_server2" removal_time="3">
             <subscriber topic="topic1"/>
         </server>
-        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server3" creation_time="25" removal_time="45"> 
-            <subscriber topic="topic1" creation_time="25"/>
+        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server3" creation_time="6" removal_time="12">
+            <subscriber topic="topic1" creation_time="6"/>
         </server>
     </servers>
 
@@ -15,23 +15,23 @@
         <client name="client1_server1" profile_name="UDP_client1_server1">
             <publisher topic="topic1"/>
         </client>
-        <client name="client1_server3" profile_name="UDP_client1_server3" creation_time="25" removal_time="35">
-            <subscriber topic="topic1" creation_time="25" removal_time="35"/>
+        <client name="client1_server3" profile_name="UDP_client1_server3" creation_time="6" removal_time="9">
+            <subscriber topic="topic1" creation_time="6" removal_time="9"/>
         </client>
     </clients>
 
     <snapshots file="./test_15_disposals_client_servers.snapshot~">
 
         <!-- Starting point -->
-        <snapshot time="10">test_15_disposals_client_servers_snapshot_1</snapshot>
+        <snapshot time="2">test_15_disposals_client_servers_snapshot_1</snapshot>
         <!-- Remove server2 which is a client of server1 -->
-        <snapshot time="20">test_15_disposals_client_servers_snapshot_2</snapshot>
+        <snapshot time="5">test_15_disposals_client_servers_snapshot_2</snapshot>
         <!-- Create server3, client1_server3 and a subscriber in client1_server3 -->
-        <snapshot time="30">test_15_disposals_client_servers_snapshot_3</snapshot>
+        <snapshot time="8">test_15_disposals_client_servers_snapshot_3</snapshot>
         <!-- Remove client1_server3 and its subscriber-->
-        <snapshot time="40">test_15_disposals_client_servers_snapshot_4</snapshot>
+        <snapshot time="11">test_15_disposals_client_servers_snapshot_4</snapshot>
         <!-- Remove server3 -->
-        <snapshot time="50">test_15_disposals_client_servers_snapshot_5</snapshot>
+        <snapshot time="14">test_15_disposals_client_servers_snapshot_5</snapshot>
 
     </snapshots>
 

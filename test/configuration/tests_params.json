@@ -598,7 +598,7 @@
                 "leaseclient":
                 {
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_16_lease_duration_single_client_1.xml",
-                    "kill_time": 5
+                    "kill_time": 3
                 }
             }
         },
@@ -639,7 +639,7 @@
                 "leaseserver":
                 {
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_17_lease_duration_remove_client_server_1.xml",
-                    "kill_time": 15
+                    "kill_time": 4
                 }
             }
         },
@@ -775,7 +775,7 @@
                 "server2":
                 {
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_20_break_builtin_connections_1.xml",
-                    "kill_time": 20
+                    "kill_time": 4
                 }
             }
         },
@@ -1041,7 +1041,7 @@
                 "restore":
                 {
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_26_backup_restore_1.xml",
-                    "creation_time": 10,
+                    "creation_time": 4,
                     "validation":
                     {
                         "count_lines_validation":
@@ -1072,7 +1072,6 @@
                 "main":
                 {
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_27_tcp.xml",
-                    "kill_time": 9,
                     "validation":
                     {
                         "count_lines_validation":

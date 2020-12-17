@@ -3,8 +3,8 @@
 
     <servers>
         <server name="server1" profile_name="UDP_server1" />
-        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server3" creation_time="10"> 
-            <subscriber topic="topic1" creation_time="10"/>
+        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server3">
+            <subscriber topic="topic1"/>
         </server>
     </servers>
 
@@ -12,19 +12,19 @@
         <client name="client1_server1" profile_name="UDP_client1_server1">
             <publisher topic="topic1"/>
         </client>
-        <client name="client2_server1" profile_name="UDP_client2_server1" creation_time="45">
-            <publisher topic="topic1" creation_time="45"/>
+        <client name="client2_server1" profile_name="UDP_client2_server1" creation_time="10">
+            <publisher topic="topic1" creation_time="10"/>
         </client>
     </clients>
 
     <snapshots file="./test_20_break_builtin_connections.snapshot~">
 
         <!-- Starting point -->
-        <snapshot time="10">test_20_break_builtin_connections_snapshot_1</snapshot>
+        <snapshot time="3">test_20_break_builtin_connections_snapshot_1</snapshot>
         <!-- Remove server2 which is a client of server1 -->
-        <snapshot time="40">test_20_break_builtin_connections_snapshot_2</snapshot>
+        <snapshot time="9">test_20_break_builtin_connections_snapshot_2</snapshot>
         <!-- Create client2_server1. Server3 should never match with this new client. -->
-        <snapshot time="55">test_20_break_builtin_connections_snapshot_3</snapshot>
+        <snapshot time="13">test_20_break_builtin_connections_snapshot_3</snapshot>
 
     </snapshots>
 

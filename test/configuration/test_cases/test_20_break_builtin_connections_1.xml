@@ -8,8 +8,8 @@
     </servers>
 
     <snapshots file="./test_20_break_builtin_connections_1.snapshot~">
-        <!-- This server will be kill 20 seconds after initialization -->
-        <snapshot time="60">test_20_break_builtin_connections_1_snapshot_1</snapshot>
+        <!-- This server will be kill 4 seconds after initialization -->
+        <snapshot time="20">test_20_break_builtin_connections_1_snapshot_1</snapshot>
     </snapshots>
 
     <profiles>

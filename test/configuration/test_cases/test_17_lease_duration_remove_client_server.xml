@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false" >
-  
-    <!-- 
+
+    <!--
     Basically we'll launch two discovery-servers instances:
-        
+
             1 - A server with several clients. This instances will take an snapshot at the beginning and another at the end.
-            
+
             2 - A client which references the server on the first instance. This process would be killed from python between the snapshots.
-            
-        The first snapshot must show how all clients (remote one included) known each other. 
+
+        The first snapshot must show how all clients (remote one included) known each other.
     After killing process 2 (and its client) the server must kill its proxy by lease duration time out and report it to all other clients.
     The second snapshot must show how all participants have removed the remote client from its discovery database.
     -->
@@ -27,10 +27,10 @@
     </clients>
 
     <snapshots file="./test_17_lease_duration_remove_client_server.snapshot~" >
-        <snapshot time="10">test_17_lease_duration_remove_client_server_snapshot_1</snapshot>
-        <snapshot time="30">test_17_lease_duration_remove_client_server_snapshot_2</snapshot>
+        <snapshot time="3">test_17_lease_duration_remove_client_server_snapshot_1</snapshot>
+        <snapshot time="9">test_17_lease_duration_remove_client_server_snapshot_2</snapshot>
     </snapshots>
-  
+
     <profiles>
         <participant profile_name="UDP_client1_server1" >
             <rtps>
@@ -89,7 +89,7 @@
                 </builtin>
             </rtps>
         </participant>
-        
+
         <participant profile_name="UDP_server">
             <rtps>
                 <prefix>44.49.53.43.53.45.52.56.45.52.5F.31</prefix>
@@ -111,7 +111,7 @@
                         </udpv4>
                         </locator>
                     </metatrafficUnicastLocatorList>
-                </builtin>        
+                </builtin>
             </rtps>
         </participant>
 

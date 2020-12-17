@@ -4,8 +4,8 @@
     <servers>
         <server name="server1" prefix="44.49.53.43.53.45.52.56.45.52.5f.31" profile_name="UDP_server1"/>
         <server name="server2" prefix="44.49.53.43.53.45.52.56.45.52.5f.32" profile_name="UDP_server2"/>
-        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server3"/>          
-        <server name="server4" prefix="44.49.53.43.53.45.52.56.45.52.5f.34" profile_name="UDP_server4"/>          
+        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server3"/>
+        <server name="server4" prefix="44.49.53.43.53.45.52.56.45.52.5f.34" profile_name="UDP_server4"/>
     </servers>
 
     <clients>
@@ -24,7 +24,7 @@
     </clients>
 
     <snapshots file="./test_06_diamond_servers.snapshot~">
-        <snapshot time="15">test_06_diamond_servers_snapshot_1</snapshot>
+        <snapshot time="2">test_06_diamond_servers_snapshot_1</snapshot>
     </snapshots>
 
     <profiles>
@@ -281,7 +281,7 @@
                 </builtin>
             </rtps>
         </participant>
-    
+
 
         <topic profile_name="topic1">
             <name>topic_1</name>
@@ -292,7 +292,7 @@
             <name>topic_2</name>
             <dataType>sample_type_1</dataType>
         </topic>
-        
+
         <types>
             <type>
               <struct name="sample_type_1">

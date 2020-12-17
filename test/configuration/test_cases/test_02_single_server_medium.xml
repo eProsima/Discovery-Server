@@ -129,7 +129,7 @@
     </clients>
 
     <snapshots file="./test_02_single_server_medium.snapshot~">
-        <snapshot time="15">test_02_single_server_medium_snapshot_1</snapshot>
+        <snapshot time="6">test_02_single_server_medium_snapshot_1</snapshot>
     </snapshots>
 
     <profiles>

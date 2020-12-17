@@ -2,12 +2,12 @@
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
 
     <servers>
-        <server name="server1" creation_time="4" prefix="44.49.53.43.53.45.52.56.45.52.5F.31" profile_name="UDP_server1" />
+        <server name="server1" creation_time="2" prefix="44.49.53.43.53.45.52.56.45.52.5F.31" profile_name="UDP_server1" />
         <server name="server2" prefix="44.49.53.43.53.45.52.56.45.52.5f.32" profile_name="UDP_server2" />
     </servers>
 
     <snapshots file="./test_04_server_ping.snapshot~">
-        <snapshot time="10">test_04_server_ping_snapshot_1</snapshot>
+        <snapshot time="4">test_04_server_ping_snapshot_1</snapshot>
     </snapshots>
 
     <profiles>

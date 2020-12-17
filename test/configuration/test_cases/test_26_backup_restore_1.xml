@@ -12,9 +12,9 @@
     </clients>
 
     <snapshots file="./test_26_backup_restore_1.snapshot~">
-        <snapshot time="10">test_26_backup_restore_1_snapshot_server</snapshot>
+        <snapshot time="3">test_26_backup_restore_1_snapshot_server</snapshot>
     </snapshots>
-  
+
     <profiles>
         <participant profile_name="UDP_client2_server1" >
             <rtps>
@@ -38,7 +38,7 @@
                 </builtin>
             </rtps>
         </participant>
-        
+
         <participant profile_name="UDP_server">
             <rtps>
                 <prefix>44.49.53.43.53.45.52.56.45.52.5F.31</prefix>
@@ -57,17 +57,17 @@
                 </builtin>
             </rtps>
         </participant>
-        
+
         <topic profile_name="topic1">
             <name>topic_1</name>
             <dataType>sample_type_1</dataType>
         </topic>
-        
+
         <topic profile_name="topic2">
             <name>topic_2</name>
             <dataType>sample_type_1</dataType>
         </topic>
-        
+
         <types>
             <type>
                 <struct name="sample_type_1">
@@ -76,6 +76,6 @@
                 </struct>
             </type>
         </types>
-        
+
     </profiles>
 </DS>

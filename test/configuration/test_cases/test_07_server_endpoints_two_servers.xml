@@ -10,7 +10,7 @@
     </servers>
 
     <snapshots file="./test_07_server_endpoints_two_servers.snapshot~">
-        <snapshot time="5">test_07_server_endpoints_two_servers_snapshot_1</snapshot>
+        <snapshot time="2">test_07_server_endpoints_two_servers_snapshot_1</snapshot>
     </snapshots>
 
     <profiles>
@@ -64,7 +64,7 @@
                 </builtin>
             </rtps>
         </participant>
-    
+
         <participant profile_name="UDP_server2">
             <rtps>
                 <prefix>44.49.53.43.53.45.52.56.45.52.5F.32</prefix>

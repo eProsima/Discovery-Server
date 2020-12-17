@@ -230,6 +230,9 @@ def execute_validate_thread_test(
             server_port = process_params['tool_config']['port']
         except KeyError:
             pass
+
+        result_file = 'servertool_' + str(server_id)
+
     else:
         logger.error(f'Incorrect process paramenters: {process_name}')
         result_list.append(False)
@@ -765,6 +768,13 @@ if __name__ == '__main__':
 
     if args.force_remove:
         clear(working_directory())
+
+    if not args.not_remove and result:
+        # This clears the DataBases in case the result is correct and remove
+        # is on. It is not done for each process because clear_db does not
+        # allow to choose which file to clear, so every database will be
+        # removed, and there is not an easy way to know the files' names.
+        clear_db(working_directory())
 
     if result:
         exit(0)

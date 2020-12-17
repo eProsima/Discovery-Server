@@ -9,102 +9,135 @@
         Separate tests to test every possibility in disposals
         PDP is tested from one step to the other
 
-        time 0: start new test / creation
-        time 6: original snapshot
-        time 8: create / remove entities
-        time 14: result snapshot
-        time 16: remove all
+        Time(s) | Action
+        0       | create C1 C1_P C2 C2_S
+        2       | snapshot
+        3       | remove all
 
+        4       | create C3 C3_P C4 C4_S
+        6       | snapshot
+        7       | remove C3_P
+        9       | snapshot
+        10      | remove all
+
+
+        11      | create C5 C5_P C6 C6_S
+        13      | snapshot
+        14      | remove C6_S
+        16      | snapshot
+        17      | remove all
+
+        18      | create C7 C7_P1 C7_P2 C8 C8_S1 C8_S2
+        20      | snapshot
+        21      | remove C7_P1 C8_S1
+        23      | snapshot
+        24      | remove all
+
+        25      | create C9 C9_P C10 C10_S
+        27      | snapshot
+        28      | remove C9_P C10_S
+        30      | snapshot
+        31      | remove all
+
+        32      | create C11 C11_S C12 C12_P
+        34      | snapshot
+        35      | remove C11_S create C13 C13_S
+        37      | snapshot
+        38      | remove C11 C12_p create C14 C14_P
+        40      | snapshot
+        41      | remove all
+
+        43      | final snapshot
     -->
 
     <clients>
-        <!-- standar test 
-                1.P1 - 2.S1 --> 
-        <client removal_time="16" name="client1_server1" profile_name="UDP_client1_server1">
+        <!-- standar test
+                1.P1 - 2.S1 -->
+        <client removal_time="3" name="client1_server1" profile_name="UDP_client1_server1">
             <publisher topic="topic1"/>
         </client>
-        <client removal_time="16" name="client2_server1" profile_name="UDP_client2_server1">
+        <client removal_time="3" name="client2_server1" profile_name="UDP_client2_server1">
             <subscriber topic="topic1"/>
         </client>
 
         <!-- test remove publisher
-                1.P1 - 2.S1 : 1 - 2.S1 --> 
-        <client creation_time="20" removal_time="36" name="client3_server1" profile_name="UDP_client3_server1">
-            <publisher removal_time="28" topic="topic1"/>
+                1.P1 - 2.S1 : 1 - 2.S1 -->
+        <client creation_time="4" removal_time="10" name="client3_server1" profile_name="UDP_client3_server1">
+            <publisher removal_time="7" topic="topic1"/>
         </client>
-        <client creation_time="20" removal_time="36" name="client4_server1" profile_name="UDP_client4_server1">
+        <client creation_time="4" removal_time="10" name="client4_server1" profile_name="UDP_client4_server1">
             <subscriber topic="topic1"/>
-        </client> 
+        </client>
 
         <!-- test remove subscriber
-                1.P1 - 2.S1 : 1.P1 - 2 --> 
-        <client creation_time="40" removal_time="56" name="client5_server1" profile_name="UDP_client5_server1">
+                1.P1 - 2.S1 : 1.P1 - 2 -->
+        <client creation_time="11" removal_time="17" name="client5_server1" profile_name="UDP_client5_server1">
             <publisher topic="topic1"/>
         </client>
-        <client creation_time="40" removal_time="56" name="client6_server1" profile_name="UDP_client6_server1">
-            <subscriber removal_time="48" topic="topic1"/>
-        </client>     
+        <client creation_time="11" removal_time="17" name="client6_server1" profile_name="UDP_client6_server1">
+            <subscriber removal_time="14" topic="topic1"/>
+        </client>
 
         <!-- test remove repeated
                 1.[P1.P2] - 2.[S1.S2] : 1.P2 - 2.S2 -->
-        <client creation_time="60" removal_time="76" name="client7_server1" profile_name="UDP_client7_server1">
-            <publisher removal_time="68" topic="topic1"/>
+        <client creation_time="18" removal_time="24" name="client7_server1" profile_name="UDP_client7_server1">
+            <publisher removal_time="21" topic="topic1"/>
             <publisher topic="topic1"/>
         </client>
-        <client creation_time="60" removal_time="76" name="client8_server1" profile_name="UDP_client8_server1">
-            <subscriber removal_time="68" topic="topic1"/>
+        <client creation_time="18" removal_time="24" name="client8_server1" profile_name="UDP_client8_server1">
+            <subscriber removal_time="21" topic="topic1"/>
             <subscriber topic="topic1"/>
-        </client>  
+        </client>
 
         <!-- test remove both one after another
                 1.P1 - 2.S1 : 1 - 2 -->
-        <client creation_time="80" removal_time="96" name="client9_server1" profile_name="UDP_client9_server1">
-            <publisher removal_time="88" topic="topic1"/>
+        <client creation_time="25" removal_time="31" name="client9_server1" profile_name="UDP_client9_server1">
+            <publisher removal_time="28" topic="topic1"/>
         </client>
-        <client creation_time="80" removal_time="96" name="client10_server1" profile_name="UDP_client10_server1">
-            <subscriber removal_time="88" topic="topic1"/>
+        <client creation_time="25" removal_time="31" name="client10_server1" profile_name="UDP_client10_server1">
+            <subscriber removal_time="28" topic="topic1"/>
         </client>
 
         <!-- test remove then create twice
                 1.S1 - 2.P1 : 1 - 2.P1 - 3.S1 : 2 - 3.S1 - 4.P1 -->
-        <client creation_time="100" removal_time="116" name="client11_server1" profile_name="UDP_client11_server1">
-            <subscriber removal_time="108" topic="topic1"/>
+        <client creation_time="32" removal_time="38" name="client11_server1" profile_name="UDP_client11_server1">
+            <subscriber removal_time="35" topic="topic1"/>
         </client>
-        <client creation_time="100" removal_time="136" name="client12_server1" profile_name="UDP_client12_server1">
-            <publisher removal_time="116" topic="topic1"/>
+        <client creation_time="32" removal_time="41" name="client12_server1" profile_name="UDP_client12_server1">
+            <publisher removal_time="38" topic="topic1"/>
         </client>
-        <client creation_time="110" removal_time="136" name="client13_server1" profile_name="UDP_client13_server1">
+        <client creation_time="35" removal_time="41" name="client13_server1" profile_name="UDP_client13_server1">
             <subscriber topic="topic1"/>
         </client>
-        <client creation_time="120" removal_time="136" name="client14_server1" profile_name="UDP_client14_server1">
+        <client creation_time="38" removal_time="41" name="client14_server1" profile_name="UDP_client14_server1">
             <publisher topic="topic1"/>
-        </client> 
+        </client>
 
-        
+
     </clients>
 
     <snapshots file="./test_13_disposals_single_server.snapshot~">
 
-        <snapshot time="14">test_13_disposals_single_server_2.P1_-_3.S1</snapshot>
+        <snapshot time="2">test_13_disposals_single_server_2.P1_-_3.S1</snapshot>
 
-        <snapshot time="26">test_13_disposals_single_server_4.P1_-_5.S1</snapshot>
-        <snapshot time="34">test_13_disposals_single_server_4_-_5.S1</snapshot>
+        <snapshot time="6">test_13_disposals_single_server_4.P1_-_5.S1</snapshot>
+        <snapshot time="9">test_13_disposals_single_server_4_-_5.S1</snapshot>
 
-        <snapshot time="46">test_13_disposals_single_server_6.P1_-_7.S1</snapshot>
-        <snapshot time="54">test_13_disposals_single_server_6.P1_-_7</snapshot>
+        <snapshot time="13">test_13_disposals_single_server_6.P1_-_7.S1</snapshot>
+        <snapshot time="16">test_13_disposals_single_server_6.P1_-_7</snapshot>
 
-        <snapshot time="66">test_13_disposals_single_server_8.[P1,P2]_-_9.[S1,S2]</snapshot>
-        <snapshot time="74">test_13_disposals_single_server_8.P2_-_9.S2</snapshot>
+        <snapshot time="20">test_13_disposals_single_server_8.[P1,P2]_-_9.[S1,S2]</snapshot>
+        <snapshot time="23">test_13_disposals_single_server_8.P2_-_9.S2</snapshot>
 
-        <snapshot time="86">test_13_disposals_single_server_a.P1_-_b.S1</snapshot>
-        <snapshot time="94">test_13_disposals_single_server_a_-_b</snapshot>
+        <snapshot time="26">test_13_disposals_single_server_a.P1_-_b.S1</snapshot>
+        <snapshot time="30">test_13_disposals_single_server_a_-_b</snapshot>
 
-        <snapshot time="106">test_13_disposals_single_server_c.S1_-_d.P1</snapshot>
-        <snapshot time="114">test_13_disposals_single_server_c_-_d.P1_-_e.S1</snapshot>
-        <snapshot time="126">test_13_disposals_single_server_d_-_e.S1_-_f.P1</snapshot>
-        
-        <snapshot time="140">test_13_disposals_single_server_closure</snapshot>
-        
+        <snapshot time="34">test_13_disposals_single_server_c.S1_-_d.P1</snapshot>
+        <snapshot time="37">test_13_disposals_single_server_c_-_d.P1_-_e.S1</snapshot>
+        <snapshot time="40">test_13_disposals_single_server_d_-_e.S1_-_f.P1</snapshot>
+
+        <snapshot time="43">test_13_disposals_single_server_closure</snapshot>
+
     </snapshots>
 
     <profiles>

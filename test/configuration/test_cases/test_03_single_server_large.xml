@@ -774,7 +774,7 @@
     </client>
   </clients>
   <snapshots file="./test_03_single_server_large.snapshot~">
-    <snapshot time="30">test_03_single_server_large_snapshot_1</snapshot>
+    <snapshot time="60">test_03_single_server_large_snapshot_1</snapshot>
   </snapshots>
   <profiles>
     <participant profile_name="UDP_server">

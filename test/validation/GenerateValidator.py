@@ -65,7 +65,7 @@ class GenerateValidator(validator.Validator):
             self.logger.debug('Validation for disposals test snapshot.')
 
         if self.server_endpoints:
-            self.logger.warning(
+            self.logger.debug(
                 'Not supported validation for servers with endpoints')
             return shared.ReturnCode.SKIP
 
