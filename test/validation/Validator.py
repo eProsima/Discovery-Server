@@ -11,56 +11,44 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Script to execute Discovery Server v2 tests."""
+"""Script implementing the Validator class."""
 import logging
-import os
 from pathlib import Path
 
-import validation.shared as shared
+import shared.shared as shared
 
 import xmltodict
-
-
-def validation_file_path(file_path):
-    """Std file path to validate an snapshot."""
-    return os.path.join(file_path, '~')
 
 
 class Validator(object):
     """
     Class to validate an snapshot resulting from a Discovery-Server test.
 
-    Validate the test counting and comparing the number of lines of the
-    output snapshot resulted from the test execution and an a priori well
-    knonw output.
+    This is the base class of various classes that implement a different type
+    of test output validation. Each of the child classes will implement its
+    validation mechanism in the _validate() function.
     """
 
     def __init__(
         self,
-        snapshot_file_path,
-        ground_truth_snapshot_file_path,
-        test_params,
+        validator_input,
+        validation_params,
         debug=False,
         logger=None
     ):
         """
         Build a generic validation object.
 
-        :param snapshot_file_path: The path to the snapshot xml file
-            containing the Discovery-Server test output.
-        :param ground_truth_snapshot_file_path: The path to the snapshot xml
-            file containing the Discovery-Server ground-truth test output.
-        :param test_params: The test parameters in a pandas Dataframe format.
+        :param validator_input: storage of process execution information.
+        :param validation_params: validation parameters.
         :param debug: True/False to activate/deactivate debug logger.
-        :param logger: The logging object. GENERATE_VALIDATION if None
+        :param logger: The logging object. VALIDATION if None
             logger is provided.
         """
         self.set_logger(logger, debug)
-        self.logger.debug(f'Creating an instance of {self.validator_name()}')
-
-        self.snapshot_file_path = self.valid_snapshot_path(snapshot_file_path)
-        self.gt_snapshot_file_path = self.valid_snapshot_path(
-            ground_truth_snapshot_file_path)
+        self.logger.debug(f'Creating an instance of {self.name()}')
+        self.validator_input_ = validator_input
+        self.validation_params_ = validation_params
 
     def set_logger(self, logger, debug):
         """
@@ -90,27 +78,6 @@ class Validator(object):
         else:
             self.logger.setLevel(logging.INFO)
 
-    def valid_snapshot_path(
-        self,
-        xml_file_path
-    ):
-        """
-        Read an xml snapshot file and convert it into a dictionary.
-
-        :param xml_file_path: The path to the xml snapshot.
-        """
-        if (shared.get_file_extension(xml_file_path)
-                not in ['.snapshot', '.snapshot~']):
-            raise ValueError(
-                f'The snapshot file \"{xml_file_path}\" '
-                'is not an .snapshot file')
-        xml_file_path = Path(xml_file_path).resolve()
-        valid_path, xml_file = shared.is_valid_path(xml_file_path)
-        if not valid_path:
-            raise ValueError(f'NOT valid snapshot path: {xml_file}')
-
-        return xml_file_path
-
     def parse_xml_snapshot(
         self,
         xml_file_path
@@ -119,6 +86,8 @@ class Validator(object):
         Read an xml snapshot file and convert it into a dictionary.
 
         :param xml_file_path: The path to the xml snapshot.
+
+        :return: snapshot in Python dictionaty.
         """
         if (shared.get_file_extension(xml_file_path)
                 not in ['.snapshot', '.snapshot~']):
@@ -136,39 +105,52 @@ class Validator(object):
         return snapshot_dict
 
     def validate(self):
-        """Validate the test counting the number of lines."""
-        res = self.virtual_validate()
+        """General validation function.
 
-        if res == shared.ReturnCode.OK:
-            self.logger.info(
-                    f'Result of {self.validator_name()}: '
-                    f'{shared.bcolors.OK}{res.name}{shared.bcolors.ENDC}')
+        It checks if this validator must be used with these parameters.
+        In positive case, it will execute the specific subclass validate
+        function and return the result. In negative case, it will
+        return SKIP.
 
-            return True
-
-        elif res == shared.ReturnCode.SKIP:
-            self.logger.warning(
-                    f'Result of {self.validator_name()}: '
-                    f'{shared.bcolors.WARNING}{res.name}{shared.bcolors.ENDC}')
-
-            return True
-
-        else:
-            self.logger.error(
-                    f'Result of {self.validator_name()}: '
-                    f'{shared.bcolors.FAIL}{res.name}{shared.bcolors.ENDC}')
-
-        return False
-
-    def virtual_validate(self):
+        :return: ReturnCode depending the validation process.
         """
-        Implement the specific validation.
+        # Check whether this validator tag is in parameters
+        if self._validator_tag() not in self.validation_params_.keys():
+            # If there si not the tag in parameters test is skipped
+            res = shared.ReturnCode.SKIP
+        else:
+            self.validation_params_ = \
+                self.validation_params_[self._validator_tag()]
+            # Execute validation
+            res = self._validate()
+
+        # Print result
+        color = shared.bcolors.FAIL
+        if res == shared.ReturnCode.SKIP:
+            color = shared.bcolors.WARNING
+        elif res == shared.ReturnCode.OK:
+            color = shared.bcolors.OK
+
+        self.logger.debug(
+                f'Result of {self.name()}: '
+                f'{color}{res.name}{shared.bcolors.ENDC}')
+
+        return res
+
+    def _validate(self):
+        """Implement the specific validation.
 
         Depending on the validator, this method implements
         the different validation possibilities.
+
+        :return: ReturnCode depending the validation process.
         """
         pass
 
-    def validator_name(self):
+    def name(self):
         """Return validator's name."""
         return type(self).__name__
+
+    def _validator_tag(self):
+        """Return validator's tag in json file."""
+        pass

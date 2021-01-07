@@ -103,6 +103,7 @@ class DSManager
     volatile bool no_callbacks;      // ongoing participant destruction
     bool auto_shutdown;         // close when event processing is finished?
     bool enable_prefix_validation; // allow multiple servers share the same prefix? (only for testing purposes)
+    bool correctly_created_;     // store false if the DSManager has not been successfully created
 
     void loadProfiles(tinyxml2::XMLElement *profiles);
     void loadServer(tinyxml2::XMLElement* server);
@@ -140,8 +141,13 @@ class DSManager
     // last snapshot delay, needed for sync purposes
     static const std::chrono::seconds last_snapshot_delay_;
 
+    bool shared_memory_off_;
+
 public:
-    DSManager(const std::string& xml_file_path);
+    DSManager(const std::string& xml_file_path, const bool shared_memory_off);
+    FASTDDS_DEPRECATED_UNTIL(3, "eprosima::discovery_server::DSManager(const std::set<std::string>& xml_snapshot_files,"
+            "const std::string & output_file)",
+            "Old Discovery Server v1 constructor to validate.")
     DSManager(const std::set<std::string>& xml_snapshot_files,
         const std::string & output_file);
     ~DSManager();
@@ -215,12 +221,27 @@ public:
         return partName + "." + epName;
     }
 
+    bool correctly_created()
+    {
+        return correctly_created_;
+    }
+
     // default topics
     static HelloWorldPubSubType builtin_defaultType;
     static TopicAttributes builtin_defaultTopic;
 
     // parsing regex
     static const std::regex ipv4_regular_expression;
+
+    void disable_shared_memory()
+    {
+        shared_memory_off_ = true;
+    }
+
+    void output_file(std::string file_path)
+    {
+        snapshots_output_file = file_path;
+    }
 
 };
 
