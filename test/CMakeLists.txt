@@ -72,6 +72,7 @@ list(APPEND TEST_LIST
         test_24_backup
         test_25_backup_compatibility
         test_26_backup_restore
+        test_28_slow_arise
         # test_27_tcp # Add to test TCP
     )
 
