@@ -22,11 +22,11 @@
         </client>
     </clients>
 
-    <snapshots file="./test_06_diamond_servers.snapshot~">
+    <snapshots file="./test_28_slow_arise.snapshot~">
         <snapshot time="3">c11 and c21 knows each other</snapshot>
         <snapshot time="8">s3 knows c11 and c21</snapshot>
         <snapshot time="13">c32 and c42 knows each other and s1 and s3</snapshot>
-        <snapshot time="18">all servers knows each other</snapshot>
+        <snapshot time="25">all servers knows each other</snapshot>
     </snapshots>
 
     <profiles>

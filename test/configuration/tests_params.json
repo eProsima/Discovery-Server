@@ -1128,6 +1128,36 @@
                     }
                 }
             }
+        },
+
+        "test_29_server_ping_late_joiner":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_29_server_ping_late_joiner.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_29_server_ping_late_joiner.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_29_server_ping_late_joiner.snapshot"
+                        }
+                    }
+                }
+            }
         }
     }
 }
