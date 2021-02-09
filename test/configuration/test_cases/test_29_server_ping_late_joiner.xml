@@ -3,17 +3,17 @@
 
     <!--
         Three servers pinging this direction
-        S1 <- S2 <- S3
-        First only 1 is awake
-        Secondly 3 joins, but there is no discovery
+        S1 <- S2 <- S3 <- S4
+        First only 1 and 4 are awake
+        Secondly 4 joins, but there is no discovery
         Finally 2 joins
     -->
 
     <servers>
         <server name="server1" prefix="44.49.53.43.53.45.52.56.45.52.5F.31" profile_name="UDP_server1" />
         <server name="server2" prefix="44.49.53.43.53.45.52.56.45.52.5F.32" profile_name="UDP_server2" creation_time="4"/>
-        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server3" />
-        <server name="server4" prefix="44.49.53.43.53.45.52.56.45.52.5f.34" profile_name="UDP_server4" creation_time="1" />
+        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server3" creation_time="1"/>
+        <server name="server4" prefix="44.49.53.43.53.45.52.56.45.52.5f.34" profile_name="UDP_server4" />
     </servers>
 
     <snapshots file="./test_29_server_ping_late_joiner.snapshot~">
