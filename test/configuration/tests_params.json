@@ -1065,18 +1065,18 @@
             }
         },
 
-        "test_27_tcp":
+        "test_27_slow_arise":
         {
             "processes":
             {
                 "main":
                 {
-                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_27_tcp.xml",
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_27_slow_arise.xml",
                     "validation":
                     {
                         "count_lines_validation":
                         {
-                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_27_tcp.snapshot"
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_27_slow_arise.snapshot"
                         },
                         "exit_code_validation":
                         {
@@ -1086,32 +1086,27 @@
                         {
                             "err_expected_lines": 0
                         },
-                        "generate_validation":
-                        {
-                            "disposals": false,
-                            "server_endpoints": false
-                        },
                         "ground_truth_validation":
                         {
-                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_27_tcp.snapshot"
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_27_slow_arise.snapshot"
                         }
                     }
                 }
             }
         },
 
-        "test_28_slow_arise":
+        "test_28_slow_arise_interconnection":
         {
             "processes":
             {
                 "main":
                 {
-                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_28_slow_arise.xml",
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_28_slow_arise_interconnection.xml",
                     "validation":
                     {
                         "count_lines_validation":
                         {
-                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_28_slow_arise.snapshot"
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_28_slow_arise_interconnection.snapshot"
                         },
                         "exit_code_validation":
                         {
@@ -1123,7 +1118,7 @@
                         },
                         "ground_truth_validation":
                         {
-                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_28_slow_arise.snapshot"
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_28_slow_arise_interconnection.snapshot"
                         }
                     }
                 }
@@ -1154,6 +1149,71 @@
                         "ground_truth_validation":
                         {
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_29_server_ping_late_joiner.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_30_connect_locally_with_remote_entity":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_30_connect_locally_with_remote_entity.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_30_connect_locally_with_remote_entity.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_30_connect_locally_with_remote_entity.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_99_tcp":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_99_tcp.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_99_tcp.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_99_tcp.snapshot"
                         }
                     }
                 }
