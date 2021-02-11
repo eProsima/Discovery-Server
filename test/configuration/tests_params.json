@@ -1185,6 +1185,36 @@
             }
         },
 
+        "test_31_matched_servers_not_share_info":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_31_matched_servers_not_share_info.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_31_matched_servers_not_share_info.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_31_matched_servers_not_share_info.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
         "test_99_tcp":
         {
             "processes":
