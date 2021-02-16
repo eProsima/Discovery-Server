@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
+    <!-- It checks the SUPER_CLIENT behaviour over a complex net with some servers, clients interconnected
+            and various super clients
+
+        Entity  Type        Endpoints(P,S)      Connected to    Prefix
+        S1      server      0                   S2              44.49.53.43.53.45.52.56.45.52.5F.31
+        S2      server      P1 S2               S1              44.49.53.43.53.45.52.56.45.52.5F.32
+        S3      backup      0                   S2              44.49.53.43.53.45.52.56.45.52.5F.33
+        S4      server      0                   S3              44.49.53.43.53.45.52.56.45.52.5F.34
+
+        C1      client      P1                  S1              63.6c.69.65.6e.74.31.5f.73.31.5f.5f
+        C2      client      S1 S2               S2              63.6c.69.65.6e.74.32.5f.73.31.5f.5f
+        C3      client      P2                  S3              63.6c.69.65.6e.74.33.5f.73.31.5f.5f
+        C4      client      P1 P1               S2 S3           63.6c.69.65.6e.74.34.5f.73.31.5f.5f
+
+        SC1     super       P1                  S1              63.6c.69.65.6e.74.35.5f.73.31.5f.5f
+        SC2     super       S2                  S1 S2           63.6c.69.65.6e.74.36.5f.73.31.5f.5f
+        SC3     super       0                   S3              63.6c.69.65.6e.74.37.5f.73.31.5f.5f
+        SC4     super       S1 S1 S2            S1              63.6c.69.65.6e.74.38.5f.73.31.5f.5f
+    -->
+
+    <servers>
+        <server name="server1" prefix="44.49.53.43.53.45.52.56.45.52.5F.31" profile_name="UDP_server1"/>
+        <server name="server2" prefix="44.49.53.43.53.45.52.56.45.52.5F.32" profile_name="UDP_server2">
+            <publisher topic="topic1"/>
+            <subscriber topic="topic2"/>
+        </server>
+        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5F.33" profile_name="UDP_server3"/>
+        <server name="server4" prefix="44.49.53.43.53.45.52.56.45.52.5F.34" profile_name="UDP_server4"/>
+    </servers>
+
+    <clients>
+        <client name="client1" profile_name="UDP_client1">
+            <publisher topic="topic1"/>
+        </client>
+        <client name="client2" profile_name="UDP_client2">
+            <subscriber topic="topic1"/>
+            <subscriber topic="topic2"/>
+        </client>
+        <client name="client3" profile_name="UDP_client3">
+            <publisher topic="topic2"/>
+        </client>
+        <client name="client4" profile_name="UDP_client4">
+            <publisher topic="topic1"/>
+            <publisher topic="topic1"/>
+        </client>
+
+        <client name="super_client1" profile_name="UDP_super_client1">
+            <publisher topic="topic1"/>
+        </client>
+        <client name="super_client2" profile_name="UDP_super_client2">
+            <subscriber topic="topic2"/>
+        </client>
+        <client name="super_client3" profile_name="UDP_super_client3" />
+        <client name="super_client4" profile_name="UDP_super_client4">
+            <subscriber topic="topic1"/>
+            <subscriber topic="topic1"/>
+            <subscriber topic="topic2"/>
+        </client>
+    </clients>
+
+    <snapshots file="./test_33_superclient_complex.snapshot~">
+        <snapshot time="5">test_33_superclient_complex</snapshot>
+    </snapshots>
+
+    <profiles>
+
+    <!-- SUPER CLIENTS -->
+        <participant profile_name="UDP_super_client1" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.35.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>SUPER_CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>33811</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_super_client2" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.36.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>SUPER_CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>33811</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.32">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>33812</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_super_client3" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.37.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>SUPER_CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.33">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>33813</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_super_client4" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.38.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>SUPER_CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>33811</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+    <!-- CLIENTS -->
+        <participant profile_name="UDP_client1" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.31.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>33811</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_client2" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.32.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.32">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>33812</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_client3" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.33.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.33">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>33813</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_client4" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.34.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.32">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>33812</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.33">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>33813</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+    <!-- SERVERS -->
+        <participant profile_name="UDP_server1">
+            <rtps>
+                <prefix>44.49.53.43.53.45.52.56.45.52.5F.31</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.32">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>33812</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <discoveryProtocol>SERVER</discoveryProtocol>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                                <port>33811</port>
+                            </udpv4>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_server2">
+            <rtps>
+                <prefix>44.49.53.43.53.45.52.56.45.52.5F.32</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>33811</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <discoveryProtocol>SERVER</discoveryProtocol>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                                <port>33812</port>
+                            </udpv4>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_server3">
+            <rtps>
+                <prefix>44.49.53.43.53.45.52.56.45.52.5F.33</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.32">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>33812</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <discoveryProtocol>BACKUP</discoveryProtocol>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                                <port>33813</port>
+                            </udpv4>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_server4">
+            <rtps>
+                <prefix>44.49.53.43.53.45.52.56.45.52.5F.34</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.33">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>33813</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <discoveryProtocol>SERVER</discoveryProtocol>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                                <port>33814</port>
+                            </udpv4>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <topic profile_name="topic1">
+            <name>topic_1</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <topic profile_name="topic2">
+            <name>topic_2</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <types>
+            <type>
+              <struct name="sample_type_1">
+                <member name="index" type="uint32" />
+                <member name="message" type="string" />
+              </struct>
+            </type>
+        </types>
+
+     </profiles>
+</DS>

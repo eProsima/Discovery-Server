@@ -794,7 +794,8 @@ void DSManager::loadClient(
     }
 
     // we must assert that DiscoveryProtocol is CLIENT
-    if (atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::CLIENT)
+    if (atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::CLIENT &&
+        atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::SUPER_CLIENT)
     {
         LOG_ERROR("DSManager::loadClient try to create a client with an incompatible profile: " << profile_name);
         return;
