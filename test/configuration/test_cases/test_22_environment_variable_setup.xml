@@ -46,7 +46,7 @@
 
         <participant profile_name="UDP_server">
             <rtps>
-                <prefix>44.49.53.43.53.45.52.56.45.52.5F.30</prefix>
+                <prefix>44.53.00.5f.45.50.52.4f.53.49.4d.41</prefix>
                 <builtin>
                     <discovery_config>
                         <clientAnnouncementPeriod>

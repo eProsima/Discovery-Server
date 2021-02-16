@@ -3,7 +3,7 @@
     <DS_Snapshot timestamp="1604570304823" process_time="5000" last_pdp_callback_time="1012" last_edp_callback_time="2461" someone="true">
         <description>test_23_fast_discovery_server_tool_snapshot_1</description>
         <ptdb guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1">
-            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.31" guid_entity="0.0.1.c1" server="false" alive="true" name="1" discovered_timestamp="107"/>
+            <ptdi guid_prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41" guid_entity="0.0.1.c1" server="false" alive="true" name="1" discovered_timestamp="107"/>
             <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="11">
                 <publisher type="sample_type_1" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="11"/>
             </ptdi>
@@ -12,7 +12,7 @@
             </ptdi>
         </ptdb>
         <ptdb guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.1.c1">
-            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.31" guid_entity="0.0.1.c1" server="false" alive="true" name="1" discovered_timestamp="124"/>
+            <ptdi guid_prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41" guid_entity="0.0.1.c1" server="false" alive="true" name="1" discovered_timestamp="124"/>
             <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="client1" discovered_timestamp="1012">
                 <publisher type="sample_type_1" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="2461"/>
             </ptdi>
@@ -21,7 +21,7 @@
             </ptdi>
         </ptdb>
         <ptdb guid_prefix="63.6c.69.65.6e.74.33.5f.73.31.5f.5f" guid_entity="0.0.1.c1">
-            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.31" guid_entity="0.0.1.c1" server="false" alive="true" name="1" discovered_timestamp="124"/>
+            <ptdi guid_prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41" guid_entity="0.0.1.c1" server="false" alive="true" name="1" discovered_timestamp="124"/>
             <ptdi guid_prefix="63.6c.69.65.6e.74.33.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="19">
                 <publisher type="sample_type_1" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.33.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="19"/>
             </ptdi>
@@ -30,7 +30,7 @@
             </ptdi>
         </ptdb>
         <ptdb guid_prefix="63.6c.69.65.6e.74.34.5f.73.31.5f.5f" guid_entity="0.0.1.c1">
-            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.31" guid_entity="0.0.1.c1" server="false" alive="true" name="1" discovered_timestamp="124"/>
+            <ptdi guid_prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41" guid_entity="0.0.1.c1" server="false" alive="true" name="1" discovered_timestamp="124"/>
             <ptdi guid_prefix="63.6c.69.65.6e.74.33.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="client3" discovered_timestamp="1012">
                 <publisher type="sample_type_1" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.33.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="2461"/>
             </ptdi>
