@@ -162,7 +162,7 @@ find_package(OpenSSL QUIET) # according to cmake docs on FindOpenSS is hinted de
 find_package(PythonInterp 3 REQUIRED)
 
 #install lxml module required for some tests
-execute_process(COMMAND ${Python3_EXECUTABLE} "-m pip install lxml")
+execute_process(COMMAND ${Python3_EXECUTABLE} "-m pip install lxml xmltodict jsondiff")
 
 # OpenSSL isn't mandatory
 if(TARGET OpenSSL::SSL)
