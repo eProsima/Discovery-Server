@@ -77,6 +77,7 @@ list(APPEND TEST_LIST
         test_29_server_ping_late_joiner
         test_30_connect_locally_with_remote_entity
         test_31_matched_servers_not_share_info
+        test_34_connect_locally_with_remote_server
         # test_27_tcp # Add to test TCP
     )
 
