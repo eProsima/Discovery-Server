@@ -62,7 +62,7 @@
     </clients>
 
     <snapshots file="./test_33_superclient_complex.snapshot~">
-        <snapshot time="5">test_33_superclient_complex</snapshot>
+        <snapshot time="9">test_33_superclient_complex</snapshot>
     </snapshots>
 
     <profiles>
