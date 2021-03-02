@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DS_Snapshots xmlns="http://www.eprosima.com/XMLSchemas/ds-snapshot">
+    <DS_Snapshot timestamp="1603380772979" process_time="10000" last_pdp_callback_time="4180" last_edp_callback_time="0" someone="true">
+        <description>3.4 knows each other</description>
+        <ptdb guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.31" guid_entity="0.0.1.c1"/>
+        <ptdb guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.33" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.34" guid_entity="0.0.1.c1" server="true" alive="true" name="server4" discovered_timestamp="4180"/>
+        </ptdb>
+        <ptdb guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.34" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.33" guid_entity="0.0.1.c1" server="true" alive="true" name="server3" discovered_timestamp="4180"/>
+        </ptdb>
+    </DS_Snapshot>
+    <DS_Snapshot timestamp="1603380772979" process_time="10000" last_pdp_callback_time="4180" last_edp_callback_time="0" someone="true">
+        <description>1.2 knows each other, 2.3 knows each other</description>
+        <ptdb guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.31" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.32" guid_entity="0.0.1.c1" server="true" alive="true" name="server2" discovered_timestamp="4067"/>
+        </ptdb>
+        <ptdb guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.32" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.31" guid_entity="0.0.1.c1" server="true" alive="true" name="server1" discovered_timestamp="4180"/>
+            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.33" guid_entity="0.0.1.c1" server="true" alive="true" name="server3" discovered_timestamp="4180"/>
+        </ptdb>
+        <ptdb guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.33" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.32" guid_entity="0.0.1.c1" server="true" alive="true" name="server2" discovered_timestamp="4067"/>
+            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.34" guid_entity="0.0.1.c1" server="true" alive="true" name="server4" discovered_timestamp="4180"/>
+        </ptdb>
+        <ptdb guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.34" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.33" guid_entity="0.0.1.c1" server="true" alive="true" name="server3" discovered_timestamp="4180"/>
+        </ptdb>
+    </DS_Snapshot>
+</DS_Snapshots>

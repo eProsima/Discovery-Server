@@ -72,13 +72,23 @@ list(APPEND TEST_LIST
         test_24_backup
         test_25_backup_compatibility
         test_26_backup_restore
+        test_27_slow_arise
+        test_28_slow_arise_interconnection
+        test_29_server_ping_late_joiner
+        test_30_connect_locally_with_remote_entity
+        test_31_matched_servers_not_share_info
+        test_34_connect_locally_with_remote_server
         # test_27_tcp # Add to test TCP
     )
+
+# The above TEST_LIST has tests that spawn multiple test cases, we need a new variable to enumerate them
+set(TEST_CASE_LIST)
 
 foreach(TEST IN LISTS TEST_LIST)
 
     unset(TEST_NAME)
     set(TEST_NAME "discovery_server_test.${TEST}.SHM_ON")
+    list(APPEND TEST_CASE_LIST ${TEST_NAME})
     # Test with shared memory
     add_test(NAME ${TEST_NAME}
         COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
@@ -95,6 +105,7 @@ foreach(TEST IN LISTS TEST_LIST)
 
     unset(TEST_NAME)
     set(TEST_NAME "discovery_server_test.${TEST}.SHM_OFF")
+    list(APPEND TEST_CASE_LIST ${TEST_NAME})
     # Test without shared memory
     add_test(NAME ${TEST_NAME}
         COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
@@ -167,6 +178,5 @@ if(WIN32)
     #message(STATUS ${TEST_ENVIRONMENT_DEPENDENCIES})
 
     # make sure the target dependencies we found override others already installed when loading dlls
-    set_property(TEST ${TEST_LIST} APPEND PROPERTY ENVIRONMENT "PATH=${TEST_ENVIRONMENT_DEPENDENCIES}\\;${WINDOWS_PATH_VARIABLE}" )
-
+    set_property(TEST ${TEST_CASE_LIST} APPEND PROPERTY ENVIRONMENT "PATH=${TEST_ENVIRONMENT_DEPENDENCIES}\\;${WINDOWS_PATH_VARIABLE}" )
 endif()

@@ -1065,18 +1065,198 @@
             }
         },
 
-        "test_27_tcp":
+        "test_27_slow_arise":
         {
             "processes":
             {
                 "main":
                 {
-                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_27_tcp.xml",
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_27_slow_arise.xml",
                     "validation":
                     {
                         "count_lines_validation":
                         {
-                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_27_tcp.snapshot"
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_27_slow_arise.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_27_slow_arise.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_28_slow_arise_interconnection":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_28_slow_arise_interconnection.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_28_slow_arise_interconnection.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_28_slow_arise_interconnection.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_29_server_ping_late_joiner":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_29_server_ping_late_joiner.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_29_server_ping_late_joiner.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_29_server_ping_late_joiner.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_30_connect_locally_with_remote_entity":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_30_connect_locally_with_remote_entity.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_30_connect_locally_with_remote_entity.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_30_connect_locally_with_remote_entity.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_31_matched_servers_not_share_info":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_31_matched_servers_not_share_info.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_31_matched_servers_not_share_info.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_31_matched_servers_not_share_info.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_34_connect_locally_with_remote_server":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_34_connect_locally_with_remote_server.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_34_connect_locally_with_remote_server.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_34_connect_locally_with_remote_server.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_99_tcp":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_99_tcp.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_99_tcp.snapshot"
                         },
                         "exit_code_validation":
                         {
@@ -1093,7 +1273,7 @@
                         },
                         "ground_truth_validation":
                         {
-                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_27_tcp.snapshot"
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_99_tcp.snapshot"
                         }
                     }
                 }

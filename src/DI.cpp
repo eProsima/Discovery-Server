@@ -575,7 +575,7 @@ void DI_database::UpdateSubLiveliness(const GUID_t & subs,
     if(it == database.end() || *it != pguid)
     {
         // participant should be here because the subscriber should create it on its callback
-        LOG_ERROR("Non reported subscriber liveliness callback. Participant:" << pguid)
+        LOG_ERROR("Non reported subscriber liveliness callback. Participant:" << pguid);
         return;
     }
 
@@ -586,8 +586,8 @@ void DI_database::UpdateSubLiveliness(const GUID_t & subs,
     if(sit == ss.end() || *sit != subs)
     {
         // subscriber should be here because should be created on its callback
-        LOG_ERROR("Non reported subscriber liveliness callback. Subscriber: " << subs)
-            return;
+        LOG_ERROR("Non reported subscriber liveliness callback. Subscriber: " << subs);
+        return;
     }
 
     // Update the liveliness info
