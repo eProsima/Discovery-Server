@@ -48,6 +48,7 @@ int main(int argc, char * argv[])
     Log::SetVerbosity(Log::Kind::Error);
     // Log::SetCategoryFilter(std::regex("(INTRAPROCESS)"));
 
+#if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 1
     // Create a StdoutErrConsumer consumer that logs entries to stderr only when the Log::Kind is equal to WARNING
     // This allows the test validate the output of the executions
     std::unique_ptr<eprosima::fastdds::dds::StdoutErrConsumer> stdouterr_consumer(
@@ -56,6 +57,7 @@ int main(int argc, char * argv[])
 
     // Register the consumer
     Log::RegisterConsumer(std::move(stdouterr_consumer));
+#endif
 
     // skip program name argv[0] if present
     argc -= (argc > 0);

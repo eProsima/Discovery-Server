@@ -145,9 +145,11 @@ class DSManager
 
 public:
     DSManager(const std::string& xml_file_path, const bool shared_memory_off);
+#if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >=2
     FASTDDS_DEPRECATED_UNTIL(3, "eprosima::discovery_server::DSManager(const std::set<std::string>& xml_snapshot_files,"
             "const std::string & output_file)",
             "Old Discovery Server v1 constructor to validate.")
+#endif
     DSManager(const std::set<std::string>& xml_snapshot_files,
         const std::string & output_file);
     ~DSManager();
