@@ -15,7 +15,9 @@
 #include "log/DSLog.h"
 #include "version/config.h"
 
+#if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 1
 #include <fastdds/dds/log/StdoutErrConsumer.hpp>
+#endif
 #include <fastrtps/Domain.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 
