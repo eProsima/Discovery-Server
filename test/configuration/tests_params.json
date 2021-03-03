@@ -1245,6 +1245,85 @@
             }
         },
 
+        "test_35_fds_two_connected_servers_with_clients":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_35_fds_two_connected_servers_with_clients.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_35_fds_two_connected_servers_with_clients.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_35_fds_two_connected_servers_with_clients.snapshot"
+                        }
+                    }
+                },
+                "fastddstool_1":
+                {
+                    "kill_time": 5,
+                    "tool_config":
+                    {
+                        "id" : 0,
+                        "address": "127.0.0.1",
+                        "port": 35811
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "fastddstool_2":
+                {
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS_DISCOVERY_SERVER",
+                            "value": "127.0.0.1:35811"
+                        }
+                    ],
+                    "kill_time": 5,
+                    "tool_config":
+                    {
+                        "id" : 1,
+                        "address": "127.0.0.1",
+                        "port": 35812
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
         "test_99_tcp":
         {
             "processes":

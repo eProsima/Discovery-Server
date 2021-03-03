@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
+    <!-- Two servers created with CLI and connected to each other (using env variable) can share client information
+
+        Entity  Type        Endpoints(P,S)      Connected to    Prefix
+        S1      server      0                                   44.53.00.5f.45.50.52.4f.53.49.4d.41
+        S2      server      0                   S1              44.53.01.5f.45.50.52.4f.53.49.4d.41
+
+        C1      client      P1                  S1              63.6c.69.65.6e.74.31.5f.73.31.5f.5f
+        C2      client      S1                  P1              63.6c.69.65.6e.74.32.5f.73.31.5f.5f
+    -->
+
+    <clients>
+        <client name="client1" profile_name="UDP_client1">
+            <publisher topic="topic1"/>
+        </client>
+        <client name="client2" profile_name="UDP_client2">
+            <subscriber topic="topic1"/>
+        </client>
+    </clients>
+
+    <snapshots file="./test_35_fds_two_connected_servers_with_clients.snapshot~">
+        <snapshot time="3">test_35_fds_two_connected_servers_with_clients</snapshot>
+    </snapshots>
+
+    <profiles>
+
+    <!-- CLIENTS -->
+        <participant profile_name="UDP_client1" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.31.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>35811</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_client2" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.32.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.53.01.5f.45.50.52.4f.53.49.4d.41">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>35812</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <topic profile_name="topic1">
+            <name>topic_1</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <types>
+            <type>
+              <struct name="sample_type_1">
+                <member name="index" type="uint32" />
+                <member name="message" type="string" />
+              </struct>
+            </type>
+        </types>
+
+     </profiles>
+</DS>
