@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DS_Snapshots xmlns="http://www.eprosima.com/XMLSchemas/ds-snapshot">
     <DS_Snapshot timestamp="1613560996564" process_time="5000" last_pdp_callback_time="927" last_edp_callback_time="1377" someone="true">
-        <description>test_32_fds_two_connected_servers_with_clients</description>
+        <description>test_35_fds_two_connected_servers_with_clients</description>
         <ptdb guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1">
             <ptdi guid_prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41" guid_entity="0.0.1.c1" server="false" alive="true" name="0" discovered_timestamp="108"/>
             <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">

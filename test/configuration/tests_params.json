@@ -1215,18 +1215,18 @@
             }
         },
 
-        "test_32_fds_two_connected_servers_with_clients":
+        "test_34_connect_locally_with_remote_server":
         {
             "processes":
             {
                 "main":
                 {
-                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_32_fds_two_connected_servers_with_clients.xml",
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_34_connect_locally_with_remote_server.xml",
                     "validation":
                     {
                         "count_lines_validation":
                         {
-                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_32_fds_two_connected_servers_with_clients.snapshot"
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_34_connect_locally_with_remote_server.snapshot"
                         },
                         "exit_code_validation":
                         {
@@ -1238,7 +1238,37 @@
                         },
                         "ground_truth_validation":
                         {
-                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_32_fds_two_connected_servers_with_clients.snapshot"
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_34_connect_locally_with_remote_server.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_35_fds_two_connected_servers_with_clients":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_35_fds_two_connected_servers_with_clients.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_35_fds_two_connected_servers_with_clients.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_35_fds_two_connected_servers_with_clients.snapshot"
                         }
                     }
                 },
@@ -1249,7 +1279,7 @@
                     {
                         "id" : 0,
                         "address": "127.0.0.1",
-                        "port": 34811
+                        "port": 35811
                     },
                     "validation":
                     {
@@ -1269,7 +1299,7 @@
                     [
                         {
                             "name": "ROS_DISCOVERY_SERVER",
-                            "value": "127.0.0.1:34811"
+                            "value": "127.0.0.1:35811"
                         }
                     ],
                     "kill_time": 5,
@@ -1277,7 +1307,7 @@
                     {
                         "id" : 1,
                         "address": "127.0.0.1",
-                        "port": 34812
+                        "port": 35812
                     },
                     "validation":
                     {

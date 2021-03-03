@@ -20,8 +20,8 @@
         </client>
     </clients>
 
-    <snapshots file="./test_32_fds_two_connected_servers_with_clients.snapshot~">
-        <snapshot time="3">test_32_fds_two_connected_servers_with_clients</snapshot>
+    <snapshots file="./test_35_fds_two_connected_servers_with_clients.snapshot~">
+        <snapshot time="3">test_35_fds_two_connected_servers_with_clients</snapshot>
     </snapshots>
 
     <profiles>
@@ -39,7 +39,7 @@
                                     <locator>
                                         <udpv4>
                                             <address>127.0.0.1</address>
-                                            <port>34811</port>
+                                            <port>35811</port>
                                         </udpv4>
                                     </locator>
                                 </metatrafficUnicastLocatorList>
@@ -67,7 +67,7 @@
                                     <locator>
                                         <udpv4>
                                             <address>127.0.0.1</address>
-                                            <port>34812</port>
+                                            <port>35812</port>
                                         </udpv4>
                                     </locator>
                                 </metatrafficUnicastLocatorList>
