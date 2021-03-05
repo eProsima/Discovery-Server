@@ -44,6 +44,7 @@ set(TESTS_PARAMS ${BINARY_CONF_DIR}tests_params.json)
 # Note that test doesn't interfere with each other because independent ports are used for the servers.
 
 unset(TEST_LIST)
+# These tests run in all Fast DDS 2.x branches
 list(APPEND TEST_LIST
         test_00_tool_help
         test_01_trivial
@@ -68,21 +69,38 @@ list(APPEND TEST_LIST
         test_20_break_builtin_connections
         test_21_disposals_remote_server_trivial
         test_22_environment_variable_setup
-        test_23_fast_discovery_server_tool
-        test_24_backup
-        test_25_backup_compatibility
-        test_26_backup_restore
-        test_27_slow_arise
-        test_28_slow_arise_interconnection
-        test_29_server_ping_late_joiner
-        test_30_connect_locally_with_remote_entity
-        test_31_matched_servers_not_share_info
-        test_32_superclient_trivial
-        test_33_superclient_complex
-        test_34_connect_locally_with_remote_server
-        test_35_fds_two_connected_servers_with_clients
-        # test_27_tcp # Add to test TCP
     )
+
+# This test does not run in Fast DDS 2.0.x because signal handling for closing the tool was not
+# backported. Only checking minor version because find_package already checks major.
+if(fastrtps_VERSION_MINOR GREATER_EQUAL 1)
+    list(APPEND TEST_LIST
+    test_23_fast_discovery_server_tool
+    )
+endif()
+
+# These tests run in all Fast DDS 2.x branches
+list(APPEND TEST_LIST
+    test_24_backup
+    test_25_backup_compatibility
+    test_26_backup_restore
+    test_27_slow_arise
+    test_28_slow_arise_interconnection
+    test_29_server_ping_late_joiner
+    test_30_connect_locally_with_remote_entity
+    test_31_matched_servers_not_share_info
+    test_32_superclient_trivial
+    test_33_superclient_complex
+    test_34_connect_locally_with_remote_server
+)
+
+# Adding remote servers to the server using env var was introduced in Fast DDS v2.3. Only checking
+# minor version because find_package already checks major.
+if(fastrtps_VERSION_MINOR GREATER_EQUAL 3)
+    list(APPEND TEST_LIST
+        test_35_fds_two_connected_servers_with_clients
+    )
+endif()
 
 # The above TEST_LIST has tests that spawn multiple test cases, we need a new variable to enumerate them
 set(TEST_CASE_LIST)
