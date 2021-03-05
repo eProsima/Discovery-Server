@@ -72,8 +72,8 @@ list(APPEND TEST_LIST
     )
 
 # This test does not run in Fast DDS 2.0.x because signal handling for closing the tool was not
-# backported. Only checking minor version because find_package already checks major.
-if(fastrtps_VERSION_MINOR GREATER_EQUAL 1)
+# backported.
+if(fastrtps_VERSION VERSION_GREATER_EQUAL "2.1.0")
     list(APPEND TEST_LIST
     test_23_fast_discovery_server_tool
     )
@@ -94,9 +94,8 @@ list(APPEND TEST_LIST
     test_34_connect_locally_with_remote_server
 )
 
-# Adding remote servers to the server using env var was introduced in Fast DDS v2.3. Only checking
-# minor version because find_package already checks major.
-if(fastrtps_VERSION_MINOR GREATER_EQUAL 3)
+# Adding remote servers to the server using env var was introduced in Fast DDS v2.3.
+if(fastrtps_VERSION VERSION_GREATER_EQUAL "2.3.0")
     list(APPEND TEST_LIST
         test_35_fds_two_connected_servers_with_clients
     )
