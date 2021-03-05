@@ -794,7 +794,7 @@ void DSManager::loadClient(
     }
 
     // we must assert that DiscoveryProtocol is CLIENT
-#if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 3
+#if FASTRTPS_VERSION_MAJOR >= 2
     if (atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::CLIENT &&
         atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::SUPER_CLIENT)
 #else
