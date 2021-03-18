@@ -61,7 +61,15 @@ bool HelloWorldServer::init(Locator_t server_address)
 
         if(server_address.kind == LOCATOR_KIND_TCPv4)
         {
-            descriptor = std::make_shared<TCPv4TransportDescriptor>();
+            auto tcpv4_descriptor = std::make_shared<TCPv4TransportDescriptor>();
+
+            // set up wan if provided public address
+            if (IPLocator::hasWan(server_address))
+            {
+                tcpv4_descriptor->set_WAN_address(IPLocator::toWanstring(server_address));
+            }
+
+            descriptor = tcpv4_descriptor;
         }
         else
         {

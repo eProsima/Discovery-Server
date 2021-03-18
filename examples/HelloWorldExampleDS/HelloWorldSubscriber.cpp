@@ -64,11 +64,22 @@ bool HelloWorldSubscriber::init(Locator_t server_address)
         IPLocator::setLogicalPort(server_address, 65215);
         IPLocator::setPhysicalPort(server_address, default_port);
 
-        ratt.metatrafficUnicastLocatorList.push_back(server_address);
-        PParam.rtps.builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
+        {
+            // clean the client wan from server locator
+            Locator_t address(server_address);
+            IPLocator::setWan(address,0,0,0,0);
+            ratt.metatrafficUnicastLocatorList.push_back(address);
+            PParam.rtps.builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
+        }
 
         PParam.rtps.useBuiltinTransports = false;
         std::shared_ptr<TCPv4TransportDescriptor> descriptor = std::make_shared<TCPv4TransportDescriptor>();
+
+        // set up wan if provided public address
+        if (IPLocator::hasWan(server_address))
+        {
+            descriptor->set_WAN_address(IPLocator::toWanstring(server_address));
+        }
 
         // Generate a listening port for the client
         std::default_random_engine gen(System::GetPID());
