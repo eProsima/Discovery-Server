@@ -89,7 +89,7 @@ struct Arg : public option::Arg
         return option::ARG_ILLEGAL;
     }
 
-    static const std::regex ipv4, ipv6;
+    static const std::regex wan, ipv4, ipv6;
 };
 
 enum  optionIndex {
@@ -98,7 +98,8 @@ enum  optionIndex {
     SAMPLES,
     INTERVAL,
     TCP,
-    LOCATOR
+    LOCATOR,
+    WAN
 };
 
 const option::Descriptor usage[] = {
@@ -113,9 +114,12 @@ const option::Descriptor usage[] = {
         "  -i <num>, \t--interval=<num>  \tTime between samples in milliseconds (Default: 100)." },
     { LOCATOR, 0, "l", "ip",                Arg::Locator,
         "  -l <IPaddress[:port number]>, \t--ip=<IPaddress[:port number]>  \tServer address." },
+    { WAN, 0, "w", "wan",                Arg::Locator,
+        "  -w <IPaddress>, \t--wan=<IPaddress]>  \tnetwork wan address." },
     { 0, 0, 0, 0, 0, 0 }
 };
 
+/*static*/ const std::regex Arg::wan(R"(^((?:[0-9]{1,3}\.){3}[0-9]{1,3})$)");
 /*static*/ const std::regex Arg::ipv4(R"(^((?:[0-9]{1,3}\.){3}[0-9]{1,3})?:?(?:(\d+))?$)");
 /*static*/ const std::regex Arg::ipv6(R"(^\[?((?:[0-9a-fA-F]{0,4}\:){7}[0-9a-fA-F]{0,4})?(?:\]:)?(?:(\d+))?$)");
 
@@ -147,6 +151,7 @@ int main(int argc, char** argv)
     int count = 20;
     long sleep = 100;
     Locator_t server_address;
+    std::string wan_address;
     server_address.port = 60006; // default physical port
 
     if(argc > 1)
@@ -259,14 +264,43 @@ int main(int argc, char** argv)
                 break;
             }
 
+            case WAN:
+            {
+                std::cmatch mr;
+
+                if(regex_match(opt.arg, mr, Arg::wan))
+                {
+                    std::cmatch::iterator it = mr.cbegin();
+                    wan_address = (++it)->str();
+                }
+                else
+                {
+                    std::cout << "CLI error: Wan address must be Ipv4" << std::endl;
+                    return -1;
+                }
+                break;
+            }
+
             case UNKNOWN_OPT:
                 option::printUsage(fwrite, stdout, usage, columns);
                 return 0;
                 break;
-
             }
         }
 
+        // once all arguments are parsed validate coherence
+        // - only accept wan argument if locator is tcpv4
+        if (!wan_address.empty())
+        {
+            if( server_address.kind != LOCATOR_KIND_TCPv4)
+            {
+                std::cout << "CLI error: --wan option only over tcpv4" << std::endl;
+                return -1;
+            }
+
+            // add wan to the locator
+            IPLocator::setWan(server_address, wan_address);
+        }
     }
     else
     {
