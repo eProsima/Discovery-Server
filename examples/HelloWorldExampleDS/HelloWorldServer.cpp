@@ -34,7 +34,8 @@ HelloWorldServer::HelloWorldServer()
 {
 }
 
-bool HelloWorldServer::init(Locator_t server_address)
+bool HelloWorldServer::init(
+        Locator_t server_address)
 {
     ParticipantAttributes PParam;
     PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::SERVER;
@@ -48,7 +49,7 @@ bool HelloWorldServer::init(Locator_t server_address)
     // all local interfaces
 
     if (server_address.kind == LOCATOR_KIND_TCPv4 ||
-        server_address.kind == LOCATOR_KIND_TCPv6)
+            server_address.kind == LOCATOR_KIND_TCPv6)
     {
 
         // logical port cannot be customize in this example
@@ -59,7 +60,7 @@ bool HelloWorldServer::init(Locator_t server_address)
 
         std::shared_ptr<TCPTransportDescriptor> descriptor;
 
-        if(server_address.kind == LOCATOR_KIND_TCPv4)
+        if (server_address.kind == LOCATOR_KIND_TCPv4)
         {
             auto tcpv4_descriptor = std::make_shared<TCPv4TransportDescriptor>();
 
@@ -88,8 +89,10 @@ bool HelloWorldServer::init(Locator_t server_address)
     }
 
     mp_participant = Domain::createParticipant(PParam);
-    if (mp_participant==nullptr)
+    if (mp_participant == nullptr)
+    {
         return false;
+    }
 
     return true;
 }
@@ -99,10 +102,8 @@ HelloWorldServer::~HelloWorldServer()
     Domain::removeParticipant(mp_participant);
 }
 
-
 void HelloWorldServer::run()
 {
     std::cout << "Server running. Please press enter to stop the server" << std::endl;
     std::cin.ignore();
 }
-
