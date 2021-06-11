@@ -36,6 +36,7 @@ These validators are also parametrized in test_params, because each process
 expects a different behaviour.
 """
 import argparse
+import asyncio
 import functools
 import glob
 import itertools
@@ -44,9 +45,10 @@ import logging
 import os
 import pathlib
 import signal
-import subprocess
 import threading
 import time
+
+from asyncio.subprocess import PIPE
 
 import shared.shared as shared
 
@@ -149,6 +151,77 @@ def working_directory():
     return os.getcwd()
 
 
+async def read_output(output, num_lines, index):
+    """
+    Read an process stream output, printing each line using the internal log.
+    Also update the line counter in the num_lines list using the index argument.
+
+    :param[in] output: Process stream output.
+    :param[inout] num_lines List with line counters for each process stream output.
+    :param[in] index Indicates which line counter must be updated.
+    """
+
+    while True:
+        try:
+            line = await asyncio.wait_for(output.readline(), timeout=None)
+        except asyncio.CancelledError:
+            pass
+        else:
+            if line:
+                num_lines[index] = num_lines[index] + 1
+                logger.info(line.decode('utf-8'))
+                continue
+        break
+
+
+async def read_outputs(proc, num_lines):
+    """
+    Read asynchronously the stdout and stderr of the process.
+
+    :param[in] proc Process whose stream outputs will be read.
+    :param[inout] num_lines List with line counters for each process stream output.
+    """
+    await asyncio.gather(read_output(proc.stdout, num_lines, 0), read_output(proc.stderr, num_lines, 1))
+
+
+async def run_command(process_args, environment, timeout):
+    """
+    Execute a process and read its stream outputs asynchronouly.
+
+    :param[in] process_args List of process arguments.
+    :param[in] environment List of environment variables to be used when executing the process.
+    :param[in] timeout Expiration time of the execution.
+
+    :return Tuple (process return code, lines printed on stderr stream output)
+    """
+    proc = await asyncio.create_subprocess_exec(
+        *process_args,
+        env=environment,
+        stdout=PIPE,
+        stderr=PIPE
+    )
+
+    num_lines = [0, 0]
+
+    try:
+        await asyncio.wait_for(read_outputs(proc, num_lines), timeout)
+    except asyncio.TimeoutError:
+        pass
+
+    try:
+        proc.send_signal(signal.SIGINT)
+        time.sleep(1)
+    except Exception:
+        pass
+
+    try:
+        proc.kill()
+    except Exception:
+        pass
+
+    return (await proc.wait(), num_lines[1])
+
+
 def execute_validate_thread_test(
     process_id,
     test_id,
@@ -218,7 +291,7 @@ def execute_validate_thread_test(
         server_address = None
         server_port = None
         if fds_path is None:
-            logger.error(f'Non tool given and needed')
+            logger.error('Non tool given and needed')
             result_list.append(False)
             return False
 
@@ -277,38 +350,12 @@ def execute_validate_thread_test(
     # Execute
     logger.debug(f'Executing process {process_id} in test {test_id} with '
                  f'command {process_args}')
-    proc = subprocess.Popen(
-        process_args,
-        env=my_env,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
-
-    # Wait 5 seconds before killing the external client
-    try:
-        proc.wait(kill_time)
-    except subprocess.TimeoutExpired:
-        proc.send_signal(signal.SIGINT)
-
-    # In case SIGINT has failed, it waits a fraction of KILL_TIME and
-    # kill the process badly
-    try:
-        proc.wait(kill_time/2)
-    except subprocess.TimeoutExpired:
-        proc.kill()
+    process_ret, lines = asyncio.run(run_command(process_args, my_env, kill_time))
 
     # Do not use communicate, as stderr is needed further in validation
 
     ############
     # VALIDATION
-
-    # Show process output
-    logger.debug(f'Process {process_name} output')
-    stderr_lines = proc.stderr.readlines()
-    for line in stderr_lines:
-        logger.info(line.decode('utf-8'))
-    for line in proc.stdout.readlines():
-        logger.debug(line.decode('utf-8'))
 
     # Check if validation needed by test params
     if 'validation' not in process_params.keys():
@@ -319,8 +366,8 @@ def execute_validate_thread_test(
     logger.debug(f'Executing validation for process {process_name}')
     validation_params = process_params['validation']
     validator_input = val.ValidatorInput(
-        proc.returncode,
-        len(stderr_lines),
+        process_ret,
+        lines,
         result_file
     )
 
@@ -379,7 +426,7 @@ def execute_validate_test(
     try:
         processes = test_params['processes']
     except KeyError:
-        logger.error(f'Missing processes in test parameters')
+        logger.error('Missing processes in test parameters')
         return False
 
     # List of thread configurations to run every test process
@@ -647,7 +694,7 @@ def clear(wd):
     :param wd: The working directory where clear the generated files.
     """
     files = glob.glob(
-        os.path.join(wd, f'*.snapshot~'))
+        os.path.join(wd, '*.snapshot~'))
     files.extend(glob.glob(
         os.path.join(wd, '*.json')))
     files.extend(glob.glob(
