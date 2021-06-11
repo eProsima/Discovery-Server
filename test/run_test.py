@@ -151,39 +151,49 @@ def working_directory():
     return os.getcwd()
 
 
-async def read_stdout(stdout, num_lines):
+async def read_output(output, num_lines, index):
+    """
+    Read an process stream output, printing each line using the internal log.
+    Also update the line counter in the num_lines list using the index argument.
+
+    :param[in] output: Process stream output.
+    :param[inout] num_lines List with line counters for each process stream output.
+    :param[in] index Indicates which line counter must be updated.
+    """
+
     while True:
         try:
-            line = await asyncio.wait_for(stdout.readline(), timeout=None)
+            line = await asyncio.wait_for(output.readline(), timeout=None)
         except asyncio.CancelledError:
             pass
         else:
             if line:
-                num_lines[0] = num_lines[0] + 1
+                num_lines[index] = num_lines[index] + 1
                 logger.info(line.decode('utf-8'))
                 continue
         break
 
 
-async def read_stderr(stderr, num_lines):
-    while True:
-        try:
-            line = await asyncio.wait_for(stderr.readline(), timeout=None)
-        except asyncio.CancelledError:
-            pass
-        else:
-            if line:
-                num_lines[1] = num_lines[1] + 1
-                logger.debug(line.decode('utf-8'))
-                continue
-        break
-
-
 async def read_outputs(proc, num_lines):
-    await asyncio.gather(read_stdout(proc.stdout, num_lines), read_stderr(proc.stderr, num_lines))
+    """
+    Read asynchronously the stdout and stderr of the process.
+
+    :param[in] proc Process whose stream outputs will be read.
+    :param[inout] num_lines List with line counters for each process stream output.
+    """
+    await asyncio.gather(read_output(proc.stdout, num_lines, 0), read_output(proc.stderr, num_lines, 1))
 
 
 async def run_command(process_args, environment, timeout):
+    """
+    Execute a process and read its stream outputs asynchronouly.
+
+    :param[in] process_args List of process arguments.
+    :param[in] environment List of environment variables to be used when executing the process.
+    :param[in] timeout Expiration time of the execution.
+
+    :return Tuple (process return code, lines printed on stderr stream output)
+    """
     proc = await asyncio.create_subprocess_exec(
         *process_args,
         env=environment,
