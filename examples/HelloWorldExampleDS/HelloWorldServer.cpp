@@ -40,6 +40,7 @@ bool HelloWorldServer::init(Locator_t server_address)
     PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::SERVER;
     PParam.rtps.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
     PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
+    PParam.rtps.builtin.discovery_config.initial_announcements.count = 0;
     PParam.rtps.setName("Participant_server");
 
     uint16_t default_port = IPLocator::getPhysicalPort(server_address.port);

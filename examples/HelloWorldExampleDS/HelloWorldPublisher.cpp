@@ -31,7 +31,9 @@
 #include <random>
 
 using namespace eprosima::fastrtps;
+using namespace eprosima::fastdds;
 using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds::rtps;
 
 HelloWorldPublisher::HelloWorldPublisher()
     : mp_participant(nullptr)

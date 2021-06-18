@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
+    <!--
+        In this test the case is that a Server will known a Client that must ping it before
+        it actually pings the server (by other server connection).
+    -->
+
+    <servers>
+        <server name="server1" prefix="44.49.53.43.53.45.52.56.45.52.5F.31" profile_name="UDP_server1" />
+        <server name="server2" prefix="44.49.53.43.53.45.52.56.45.52.5F.32" profile_name="UDP_server2" creation_time="7"/>
+    </servers>
+
+    <clients>
+        <client name="client1" profile_name="UDP_client">
+            <publisher topic="topic1"/>
+        </client>
+    </clients>
+
+    <snapshots file="./test_30_connect_locally_with_remote_entity.snapshot~">
+        <snapshot time="9">S2 knows C1 but C1 does not know S2</snapshot>
+        <snapshot time="12">All knows each other</snapshot>
+    </snapshots>
+
+    <profiles>
+        <participant profile_name="UDP_client" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.31.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>04811</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.32">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>04812</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                        <clientAnnouncementPeriod>
+                            <sec>5</sec>
+                        </clientAnnouncementPeriod>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_server1">
+            <rtps>
+                <prefix>44.49.53.43.53.45.52.56.45.52.5F.31</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>SERVER</discoveryProtocol>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                                <port>04811</port>
+                            </udpv4>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_server2">
+            <rtps>
+                <prefix>44.49.53.43.53.45.52.56.45.52.5F.32</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>04811</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <discoveryProtocol>SERVER</discoveryProtocol>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                                <port>04812</port>
+                            </udpv4>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <topic profile_name="topic1">
+            <name>topic_1</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <types>
+            <type>
+              <struct name="sample_type_1">
+                <member name="index" type="uint32" />
+                <member name="message" type="string" />
+              </struct>
+            </type>
+        </types>
+
+     </profiles>
+</DS>

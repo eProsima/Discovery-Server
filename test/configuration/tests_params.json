@@ -1,0 +1,1423 @@
+{
+    "configurations":
+    {
+        "configuration_files":
+        {
+            "INTRAPROCESS_OFF": "<CONFIG_RELATIVE_PATH>/intraprocess_off.xml",
+            "INTRAPROCESS_ON": "<CONFIG_RELATIVE_PATH>/intraprocess_full.xml"
+        },
+        "flags":
+        {
+            "SHM_OFF": "-s"
+        }
+    },
+
+    "tests":
+    {
+
+        "test_00_tool_help":
+        {
+            "processes":
+            {
+                "main": {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_00_tool_help.xml",
+                    "flags": ["-h"],
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_01_trivial":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_01_trivial.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_01_trivial.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_01_trivial.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_02_single_server_medium":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_02_single_server_medium.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_02_single_server_medium.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_02_single_server_medium.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_03_single_server_large":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_03_single_server_large.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_03_single_server_large.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_03_single_server_large.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_04_server_ping":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_04_server_ping.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_04_server_ping.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_04_server_ping.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_05_server_double_ping":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_05_server_double_ping.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_05_server_double_ping.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_05_server_double_ping.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_06_diamond_servers":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_06_diamond_servers.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_06_diamond_servers.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_06_diamond_servers.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_07_server_endpoints_two_servers":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_07_server_endpoints_two_servers.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_07_server_endpoints_two_servers.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_07_server_endpoints_two_servers.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_08_server_endpoints_four_clients":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_08_server_endpoints_four_clients.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_08_server_endpoints_four_clients.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_08_server_endpoints_four_clients.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_09_servers_serial":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_09_servers_serial.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_09_servers_serial.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_09_servers_serial.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_10_server_redundancy":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_10_server_redundancy.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_10_server_redundancy.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_10_server_redundancy.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_11_remote_servers":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_11_remote_servers.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_11_remote_servers.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_11_remote_servers.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_12_virtual_topics":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_12_virtual_topics.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_12_virtual_topics.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_12_virtual_topics.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_13_disposals_single_server":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_13_disposals_single_server.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_13_disposals_single_server.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_13_disposals_single_server.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_14_disposals_remote_servers":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_14_disposals_remote_servers.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_14_disposals_remote_servers.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_14_disposals_remote_servers.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_15_disposals_client_servers":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_15_disposals_client_servers.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_15_disposals_client_servers.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_15_disposals_client_servers.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_16_lease_duration_single_client":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_16_lease_duration_single_client.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_16_lease_duration_single_client.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_16_lease_duration_single_client.snapshot"
+                        }
+                    }
+                },
+
+                "leaseclient":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_16_lease_duration_single_client_1.xml",
+                    "kill_time": 3
+                }
+            }
+        },
+
+        "test_17_lease_duration_remove_client_server":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_17_lease_duration_remove_client_server.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_17_lease_duration_remove_client_server.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_17_lease_duration_remove_client_server.snapshot"
+                        }
+                    }
+                },
+
+                "leaseserver":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_17_lease_duration_remove_client_server_1.xml",
+                    "kill_time": 4
+                }
+            }
+        },
+
+        "test_18_disposals_remote_servers_multiprocess":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_18_disposals_remote_servers_multiprocess.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_18_disposals_remote_servers_multiprocess.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_18_disposals_remote_servers_multiprocess.snapshot"
+                        }
+                    }
+                },
+                "server2":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_18_disposals_remote_servers_multiprocess_1.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "server3":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_18_disposals_remote_servers_multiprocess_2.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_19_disposals_break_builtin_connections":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_19_disposals_break_builtin_connections.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_19_disposals_break_builtin_connections.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_19_disposals_break_builtin_connections.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_20_break_builtin_connections":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_20_break_builtin_connections.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_20_break_builtin_connections.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_20_break_builtin_connections.snapshot"
+                        }
+                    }
+                },
+
+                "server2":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_20_break_builtin_connections_1.xml",
+                    "kill_time": 4
+                }
+            }
+        },
+
+        "test_21_disposals_remote_server_trivial":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_21_disposals_remote_server_trivial.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_21_disposals_remote_server_trivial.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_21_disposals_remote_server_trivial.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_22_environment_variable_setup":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_22_environment_variable_setup.xml",
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS_DISCOVERY_SERVER",
+                            "value": "127.0.0.1:22811"
+                        }
+                    ],
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_22_environment_variable_setup.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_22_environment_variable_setup.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_23_fast_discovery_server_tool":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_23_fast_discovery_server_tool.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_23_fast_discovery_server_tool.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_23_fast_discovery_server_tool.snapshot"
+                        }
+                    }
+                },
+                "fastddstool":
+                {
+                    "kill_time": 6,
+                    "tool_config":
+                    {
+                        "id" : 0,
+                        "address": "127.0.0.1",
+                        "port": 23811
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_24_backup":
+        {
+            "clear": true,
+            "processes":
+            {
+                "backup":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_24_backup.xml",
+                    "kill_time": 2
+                },
+                "clients":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_24_backup_1.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_24_backup_1.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_24_backup_1.snapshot"
+                        }
+                    }
+                },
+                "backuprestored":
+                {
+                    "creation_time": 5,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_24_backup.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_24_backup.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_24_backup.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_25_backup_compatibility":
+        {
+            "clear": true,
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_25_backup_compatibility.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_25_backup_compatibility.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_25_backup_compatibility.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_26_backup_restore":
+        {
+            "clear": true,
+            "processes":
+            {
+                "backup":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_26_backup_restore.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_26_backup_restore.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_26_backup_restore.snapshot"
+                        }
+                    }
+                },
+
+                "restore":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_26_backup_restore_1.xml",
+                    "creation_time": 4,
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_26_backup_restore_1.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_26_backup_restore_1.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_27_slow_arise":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_27_slow_arise.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_27_slow_arise.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_27_slow_arise.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_28_slow_arise_interconnection":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_28_slow_arise_interconnection.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_28_slow_arise_interconnection.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_28_slow_arise_interconnection.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_29_server_ping_late_joiner":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_29_server_ping_late_joiner.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_29_server_ping_late_joiner.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_29_server_ping_late_joiner.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_30_connect_locally_with_remote_entity":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_30_connect_locally_with_remote_entity.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_30_connect_locally_with_remote_entity.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_30_connect_locally_with_remote_entity.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_31_matched_servers_not_share_info":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_31_matched_servers_not_share_info.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_31_matched_servers_not_share_info.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_31_matched_servers_not_share_info.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_32_superclient_trivial":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_32_superclient_trivial.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_32_superclient_trivial.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_32_superclient_trivial.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_33_superclient_complex":
+        {
+            "clear": true,
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_33_superclient_complex.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_33_superclient_complex.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_33_superclient_complex.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_34_connect_locally_with_remote_server":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_34_connect_locally_with_remote_server.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_34_connect_locally_with_remote_server.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_34_connect_locally_with_remote_server.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_35_fds_two_connected_servers_with_clients":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_35_fds_two_connected_servers_with_clients.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_35_fds_two_connected_servers_with_clients.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_35_fds_two_connected_servers_with_clients.snapshot"
+                        }
+                    }
+                },
+                "fastddstool_1":
+                {
+                    "kill_time": 5,
+                    "tool_config":
+                    {
+                        "id" : 0,
+                        "address": "127.0.0.1",
+                        "port": 35811
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "fastddstool_2":
+                {
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS_DISCOVERY_SERVER",
+                            "value": "127.0.0.1:35811"
+                        }
+                    ],
+                    "kill_time": 5,
+                    "tool_config":
+                    {
+                        "id" : 1,
+                        "address": "127.0.0.1",
+                        "port": 35812
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_99_tcp":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_99_tcp.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_99_tcp.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_99_tcp.snapshot"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

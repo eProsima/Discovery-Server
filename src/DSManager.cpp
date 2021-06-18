@@ -23,6 +23,7 @@
 #include <fastrtps/publisher/Publisher.h>
 
 #include <fastrtps/transport/TCPv4TransportDescriptor.h>
+#include <fastrtps/transport/UDPv4TransportDescriptor.h>
 #include <fastrtps/transport/TCPv6TransportDescriptor.h>
 #include <fastrtps/utils/IPLocator.h>
 
@@ -34,6 +35,9 @@
 #include <sstream>
 
 using namespace eprosima::fastrtps;
+using namespace eprosima::fastdds;
+using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds::rtps;
 using namespace eprosima::discovery_server;
 
 // non exported from fast-RTPS (watch out they may be updated)
@@ -61,12 +65,15 @@ const std::regex DSManager::ipv4_regular_expression("^((?:[0-9]{1,3}\\.){3}[0-9]
 const std::chrono::seconds DSManager::last_snapshot_delay_ = std::chrono::seconds(1);
 
 DSManager::DSManager(
-    const std::string& xml_file_path)
+    const std::string& xml_file_path,
+    const bool shared_memory_off)
     : no_callbacks(false)
-    , auto_shutdown(false)
+    , auto_shutdown(true)
     , enable_prefix_validation(true)
+    , correctly_created_(false)
     , last_PDP_callback_(Snapshot::_st_ck)
     , last_EDP_callback_(Snapshot::_st_ck)
+    , shared_memory_off_(shared_memory_off)
 {
     tinyxml2::XMLDocument doc;
     if (tinyxml2::XMLError::XML_SUCCESS == doc.LoadFile(xml_file_path.c_str()))
@@ -199,6 +206,7 @@ DSManager::DSManager(
         return;
     }
 
+    correctly_created_ = true;
     LOG_INFO("File " << xml_file_path << " parsed successfully.");
 }
 
@@ -693,6 +701,15 @@ void DSManager::loadServer(
         }
     }
 
+    if (shared_memory_off_)
+    {
+        // Desactivate transport by default
+        atts.rtps.useBuiltinTransports = false;
+
+        auto udp_transport = std::make_shared<UDPv4TransportDescriptor>();
+        atts.rtps.userTransports.push_back(udp_transport);
+    }
+
     // We define the PDP as external (when moved to fast library it would be SERVER)
     DiscoverySettings & b = atts.rtps.builtin.discovery_config;
     (void)b;
@@ -777,7 +794,12 @@ void DSManager::loadClient(
     }
 
     // we must assert that DiscoveryProtocol is CLIENT
-    if (atts.rtps.builtin.discovery_config.discoveryProtocol != rtps::DiscoveryProtocol_t::CLIENT)
+#if FASTRTPS_VERSION_MAJOR >= 2
+    if (atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::CLIENT &&
+        atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::SUPER_CLIENT)
+#else
+    if (atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::CLIENT)
+#endif
     {
         LOG_ERROR("DSManager::loadClient try to create a client with an incompatible profile: " << profile_name);
         return;
@@ -948,6 +970,15 @@ void DSManager::loadClient(
 
     }
 
+    if (shared_memory_off_)
+    {
+        // Desactivate transport by default
+        atts.rtps.useBuiltinTransports = false;
+
+        auto udp_transport = std::make_shared<UDPv4TransportDescriptor>();
+        atts.rtps.userTransports.push_back(udp_transport);
+    }
+
     GUID_t guid(atts.rtps.prefix, c_EntityId_RTPSParticipant);
     DPD* pD = nullptr;
     DPC* pC = nullptr;
@@ -1033,7 +1064,7 @@ void DSManager::loadSimple(
         }
 
         // we must assert that DiscoveryProtocol is CLIENT
-        if(atts.rtps.builtin.discovery_config.discoveryProtocol != rtps::DiscoveryProtocol_t::SIMPLE)
+        if(atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::SIMPLE)
         {
             LOG_ERROR("DSManager::loadSimple try to create a simple participant with an incompatible profile: " << profile_name);
             return;
@@ -1444,7 +1475,7 @@ void DSManager::MapServerInfo(
 
 void DSManager::onParticipantDiscovery(
         Participant* participant,
-        rtps::ParticipantDiscoveryInfo&& info)
+        ParticipantDiscoveryInfo&& info)
 {
     bool server = false;
     const GUID_t& partid = info.info.m_guid;
@@ -1498,7 +1529,7 @@ void DSManager::onParticipantDiscovery(
 
 void DSManager::onSubscriberDiscovery(
         Participant* participant,
-        rtps::ReaderDiscoveryInfo&& info)
+        ReaderDiscoveryInfo&& info)
 {
     typedef ReaderDiscoveryInfo::DISCOVERY_STATUS DS;
 
@@ -1572,7 +1603,7 @@ void DSManager::onSubscriberDiscovery(
 
 void  DSManager::onPublisherDiscovery(
         Participant* participant,
-        rtps::WriterDiscoveryInfo&& info)
+        WriterDiscoveryInfo&& info)
 {
     typedef WriterDiscoveryInfo::DISCOVERY_STATUS DS;
 

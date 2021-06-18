@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false" >
+
+    <!--
+    Basically we'll launch two discovery-servers instances:
+
+            1 - A server with several clients. This instances will take an snapshot at the beginning and another at the end.
+
+            2 - A client which references the server on the first instance. This process would be killed from python between the snapshots.
+
+        The first snapshot must show how all clients (remote one included) known each other.
+    After killing process 2 (and its client) the server must kill its proxy by lease duration time out and report it to all other clients.
+    The second snapshot must show how all participants have removed the remote client from its discovery database.
+    -->
+
+    <servers>
+        <server name="server" profile_name="UDP_server" />
+    </servers>
+
+    <clients>
+        <client name="client1" profile_name="UDP_client1_server1">
+        <publisher topic="topic1" />
+        </client>
+        <client name="client2" profile_name="UDP_client2_server1">
+        <subscriber topic="topic1" />
+        <publisher topic="topic2" />
+        </client>
+    </clients>
+
+    <snapshots file="./test_16_lease_duration_single_client.snapshot~" >
+        <snapshot time="2">test_16_lease_duration_single_client_snapshot_1</snapshot>
+        <snapshot time="8">test_16_lease_duration_single_client_snapshot_2</snapshot>
+    </snapshots>
+
+    <profiles>
+        <participant profile_name="UDP_client1_server1" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.31.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>16811</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <leaseDuration>
+                            <sec>5</sec>
+                        </leaseDuration>
+                        <leaseAnnouncement>
+                            <sec>2</sec>
+                        </leaseAnnouncement>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_client2_server1" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.32.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>127.0.0.1</address>
+                                            <port>16811</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <leaseDuration>
+                            <sec>5</sec>
+                        </leaseDuration>
+                        <leaseAnnouncement>
+                            <sec>2</sec>
+                        </leaseAnnouncement>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_server">
+            <rtps>
+                <prefix>44.49.53.43.53.45.52.56.45.52.5F.31</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>SERVER</discoveryProtocol>
+                        <leaseDuration>
+                            <sec>5</sec>
+                        </leaseDuration>
+                        <leaseAnnouncement>
+                            <sec>2</sec>
+                        </leaseAnnouncement>
+                    </discovery_config>
+                <metatrafficUnicastLocatorList>
+                    <locator>
+                    <udpv4>
+                        <address>127.0.0.1</address>
+                        <port>16811</port>
+                    </udpv4>
+                    </locator>
+                </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <topic profile_name="topic1">
+            <name>topic_1</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <topic profile_name="topic2">
+            <name>topic_2</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <types>
+            <type>
+            <struct name="sample_type_1">
+                <member name="index" type="uint32" />
+                <member name="message" type="string" />
+            </struct>
+            </type>
+        </types>
+    </profiles>
+</DS>
