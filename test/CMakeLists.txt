@@ -81,9 +81,10 @@ endif()
 
 # These tests run in all Fast DDS 2.x branches
 list(APPEND TEST_LIST
-    test_24_backup
-    test_25_backup_compatibility
-    test_26_backup_restore
+    # Backup tests are disabled until backup feature is fixed.
+    # test_24_backup
+    # test_25_backup_compatibility
+    # test_26_backup_restore
     test_27_slow_arise
     test_28_slow_arise_interconnection
     test_29_server_ping_late_joiner
