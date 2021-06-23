@@ -45,6 +45,8 @@ import logging
 import os
 import pathlib
 import signal
+import subprocess
+import sys
 import threading
 import time
 
@@ -220,6 +222,21 @@ async def run_command(process_args, environment, timeout):
         pass
 
     return (await proc.wait(), num_lines[1])
+
+
+def pass_shm_contrains():
+    """
+    Check /dev/shm is greater than 64Mb (docker default).
+    """
+    ret_value = True
+    if sys.platform == 'linux':
+        proc = subprocess.check_output("df --output=size /dev/shm | tail -n 1", shell=True).decode()
+        size = int(proc)
+        if 65536 >= size:
+            print('Test cannot run in this system. Contrain shm_size not pass.')
+            ret_value = False
+
+    return ret_value
 
 
 def execute_validate_thread_test(
@@ -625,6 +642,15 @@ def create_tests(
     for test_name, test in tests:
         for config_name, config_file in config_files:
             for flag_name, flags in flags_combinatory:
+                # Check constrains
+                # - shm_size
+                if shm is not None and shm:
+                    try:
+                        if (params_file[test]['contrains'] and 'shm_size' in params_file[test]['contrains'] and
+                                not pass_shm_contrains()):
+                            continue
+                    except KeyError:
+                        pass
 
                 # Remove Databases if param <clear> set in test params in order
                 # to execute same process again and not load old databases
@@ -644,7 +670,7 @@ def create_tests(
                             f' with config file <{config_file}>'
                             f' and flags {flags}')
 
-                test_results = execute_validate_test(
+                test_results &= execute_validate_test(
                         test_name,
                         test_id,
                         discovery_server_tool_path,
