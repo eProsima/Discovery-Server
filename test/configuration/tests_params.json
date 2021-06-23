@@ -109,6 +109,7 @@
 
         "test_03_single_server_large":
         {
+            "contrains": ["shm_size"],
             "processes":
             {
                 "main":
