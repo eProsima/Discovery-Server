@@ -492,7 +492,7 @@ def execute_validate_test(
     )
 
     # Clear /dev/shm
-    subprocess.run(['rm', '/dev/shm/*'], shell=True)
+    subprocess.run(['rm', '/dev/shm/*fastrtps*'], shell=True)
 
     return result
 
