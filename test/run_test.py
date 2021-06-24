@@ -491,6 +491,9 @@ def execute_validate_test(
         result
     )
 
+    # Clear /dev/shm
+    subprocess.run(['rm', '/dev/shm/*'], shell=True)
+
     return result
 
 
