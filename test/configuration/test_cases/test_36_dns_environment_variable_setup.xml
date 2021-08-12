@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
 
-  <!-- This test merely assess that the simple participants became full-fledge clients by using the
-  ROS_DISCOVERY_SERVER. Thy must locate the server defined as the base default one -->
+    <!--
+        This test merely assesses that the simple participants become full-fledged clients by using
+        the ROS_DISCOVERY_SERVER. They must locate the server defined as the base default one.
+    -->
 
     <servers>
         <server name="server1" profile_name="UDP_server" />

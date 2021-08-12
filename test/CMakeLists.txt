@@ -99,6 +99,12 @@ list(APPEND TEST_LIST
 if(fastrtps_VERSION VERSION_GREATER_EQUAL "2.3.0")
     list(APPEND TEST_LIST
         test_35_fds_two_connected_servers_with_clients
+    )
+endif()
+
+# Adding remote servers while running was introduced in Fast DDS v2.4.0
+if(fastrtps_VERSION VERSION_GREATER_EQUAL "2.4.0")
+    list(APPEND TEST_LIST
         test_36_dns_environment_variable_setup
         test_37_dns_fast_discovery_server_tool
     )
