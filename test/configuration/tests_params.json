@@ -1386,6 +1386,99 @@
             }
         },
 
+        "test_36_dns_environment_variable_setup":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_36_dns_environment_variable_setup.xml",
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS_DISCOVERY_SERVER",
+                            "value": "localhost:36811"
+                        }
+                    ],
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_36_dns_environment_variable_setup.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_36_dns_environment_variable_setup.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_37_dns_fast_discovery_server_tool":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_37_dns_fast_discovery_server_tool.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_37_dns_fast_discovery_server_tool.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_37_dns_fast_discovery_server_tool.snapshot"
+                        }
+                    }
+                },
+                "fastddstool":
+                {
+                    "kill_time": 6,
+                    "tool_config":
+                    {
+                        "id" : 0,
+                        "address": "localhost",
+                        "port": 37811
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
         "test_99_tcp":
         {
             "processes":

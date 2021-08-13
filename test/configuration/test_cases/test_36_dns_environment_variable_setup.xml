@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
+    <!--
+        This test merely assesses that the simple participants become full-fledged clients by using
+        the ROS_DISCOVERY_SERVER. They must locate the server defined as the base default one.
+    -->
+
+    <servers>
+        <server name="server1" profile_name="UDP_server" />
+    </servers>
+
+    <simples>
+        <simple name="client1" profile_name="UDP_client1"/>
+        <simple name="client2" profile_name="UDP_client2"/>
+        <simple name="client3" profile_name="UDP_client3"/>
+        <simple name="client4" profile_name="UDP_client4"/>
+    </simples>
+
+    <snapshots file="./test_36_dns_environment_variable_setup.snapshot~">
+        <snapshot time="2">test_36_dns_environment_variable_setup_snapshot_1</snapshot>
+    </snapshots>
+
+    <profiles>
+        <participant profile_name="UDP_client1" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.31.5f.73.31.5f.5f</prefix>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_client2" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.32.5f.73.31.5f.5f</prefix>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_client3" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.33.5f.73.31.5f.5f</prefix>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_client4" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.34.5f.73.31.5f.5f</prefix>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_server">
+            <rtps>
+                <prefix>44.53.00.5f.45.50.52.4f.53.49.4d.41</prefix>
+                <builtin>
+                    <discovery_config>
+                        <clientAnnouncementPeriod>
+                            <sec>0</sec>
+                            <nanosec>20000000</nanosec>
+                        </clientAnnouncementPeriod>
+                        <discoveryProtocol>SERVER</discoveryProtocol>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                    </discovery_config>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <address>localhost</address>
+                                <port>36811</port>
+                            </udpv4>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <topic profile_name="topic1">
+            <name>topic_1</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <types>
+            <type>
+              <struct name="sample_type_1">
+                <member name="index" type="uint32" />
+                <member name="message" type="string" />
+              </struct>
+            </type>
+        </types>
+
+    </profiles>
+
+</DS>
