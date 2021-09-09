@@ -1479,6 +1479,46 @@
             }
         },
 
+        "test_38_self_connection":
+        {
+            "description": [
+                "Test to check the behaviour of a Server that tries to connect with itself thinking it is a remote server.",
+                "The expected behaviour is to nothing happens, the Server will acked itself and its change is already in the Database."
+            ],
+
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_38_self_connection.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_38_self_connection.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_38_self_connection.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
         "test_99_tcp":
         {
             "processes":
