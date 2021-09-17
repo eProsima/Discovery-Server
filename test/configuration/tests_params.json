@@ -1519,6 +1519,131 @@
             }
         },
 
+        "test_39_reconnect_after_restart":
+        {
+            "description": [
+                "Server B connects with server A. Server B leaves. Server B start again. Server A leaves, Server A start again",
+                "Both Servers should know every information from the other before leaving and after restarting"
+            ],
+
+            "processes":
+            {
+                "serverA_1":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_39_reconnect_after_restart_A1.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_reconnect_after_restart_A1.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_reconnect_after_restart_A1.snapshot"
+                        }
+                    }
+                },
+
+                "serverA_2":
+                {
+                    "creation_time": 12,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_39_reconnect_after_restart_A2.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_reconnect_after_restart_A2.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_reconnect_after_restart_A2.snapshot"
+                        }
+                    }
+                },
+
+                "serverB_1":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_39_reconnect_after_restart_B1.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_reconnect_after_restart_B1.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_reconnect_after_restart_B1.snapshot"
+                        }
+                    }
+                },
+
+                "serverB_2":
+                {
+                    "creation_time": 6,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_39_reconnect_after_restart_B2.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_reconnect_after_restart_B2.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_reconnect_after_restart_B2.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
         "test_99_tcp":
         {
             "processes":
