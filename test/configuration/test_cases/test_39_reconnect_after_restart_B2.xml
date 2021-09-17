@@ -14,7 +14,7 @@
     <snapshots file="./test_39_reconnect_after_restart_B2.snapshot~">
         <snapshot time="2">Knows server A, client A and client B</snapshot>
         <snapshot time="5">Not know server A</snapshot>
-        <snapshot time="8">Knows server A, client A and client B</snapshot>
+        <snapshot time="9">Knows server A, client A and client B</snapshot>
     </snapshots>
 
     <profiles>

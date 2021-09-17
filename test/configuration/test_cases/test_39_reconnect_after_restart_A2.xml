@@ -13,6 +13,7 @@
 
     <snapshots file="./test_39_reconnect_after_restart_A2.snapshot~">
         <snapshot time="2">Knows server B, client A and client B</snapshot>
+        <snapshot time="5">Not know B</snapshot>
     </snapshots>
 
     <profiles>

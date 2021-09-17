@@ -1523,7 +1523,19 @@
         {
             "description": [
                 "Server B connects with server A. Server B leaves. Server B start again. Server A leaves, Server A start again",
-                "Both Servers should know every information from the other before leaving and after restarting"
+                "Both Servers should know every information from the other before leaving and after restarting",
+                "t = 0  : A1 starts & B1 starts",
+                "t = 2  : A1 snapshot",
+                "t = 3  : B1 snapshot & A1 finish",
+                "t = 5  : A1 snapshot",
+                "t = 6  : B2 starts",
+                "t = 8  : B2 snapshot",
+                "t = 9  : A1 snapshot & A1 finish",
+                "t = 11 : B2 snapshot",
+                "t = 12 : A2 starts",
+                "t = 14 : A2 snapshot",
+                "t = 15 : B2 snapshot & B2 finish",
+                "t = 17 : A2 snapshot & A2 finish"
             ],
 
             "processes":
@@ -1547,7 +1559,8 @@
                         },
                         "generate_validation":
                         {
-                            "disposals": true
+                            "disposals": true,
+                            "server_endpoints": false
                         },
                         "ground_truth_validation":
                         {
@@ -1576,7 +1589,8 @@
                         },
                         "generate_validation":
                         {
-                            "disposals": true
+                            "disposals": true,
+                            "server_endpoints": false
                         },
                         "ground_truth_validation":
                         {
@@ -1604,7 +1618,8 @@
                         },
                         "generate_validation":
                         {
-                            "disposals": true
+                            "disposals": true,
+                            "server_endpoints": false
                         },
                         "ground_truth_validation":
                         {
@@ -1633,7 +1648,8 @@
                         },
                         "generate_validation":
                         {
-                            "disposals": true
+                            "disposals": true,
+                            "server_endpoints": false
                         },
                         "ground_truth_validation":
                         {
