@@ -113,7 +113,8 @@ endif()
 # These tests run in all Fast DDS 2.x branches
 list(APPEND TEST_LIST
     test_38_self_connection
-    test_39_reconnect_after_restart
+    test_39_trivial_reconnect
+    test_40_reconnect_after_restart
 )
 
 # The above TEST_LIST has tests that spawn multiple test cases, we need a new variable to enumerate them
