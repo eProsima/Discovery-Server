@@ -17,7 +17,7 @@
 
 #if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 1
 #include <fastdds/dds/log/StdoutErrConsumer.hpp>
-#endif
+#endif // if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 1
 #include <fastrtps/Domain.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 
@@ -33,16 +33,18 @@ using namespace discovery_server;
 
 using namespace std;
 
-int main(int argc, char * argv[])
+int main(
+        int argc,
+        char* argv[])
 {
     // Initialize loging
     #if defined LOG_LEVEL_INFO
-        Log::SetVerbosity(Log::Kind::Info);
+    Log::SetVerbosity(Log::Kind::Info);
     #elif defined LOG_LEVEL_WARN
-        Log::SetVerbosity(Log::Kind::Warning);
+    Log::SetVerbosity(Log::Kind::Warning);
     #elif defined LOG_LEVEL_ERROR
-        Log::SetVerbosity(Log::Kind::Error);
-    #endif
+    Log::SetVerbosity(Log::Kind::Error);
+    #endif // if defined LOG_LEVEL_INFO
 
     // Clear all the consumers.
     Log::ClearConsumers();
@@ -54,12 +56,12 @@ int main(int argc, char * argv[])
     // Create a StdoutErrConsumer consumer that logs entries to stderr only when the Log::Kind is equal to WARNING
     // This allows the test validate the output of the executions
     std::unique_ptr<eprosima::fastdds::dds::StdoutErrConsumer> stdouterr_consumer(
-            new eprosima::fastdds::dds::StdoutErrConsumer());
+        new eprosima::fastdds::dds::StdoutErrConsumer());
     stdouterr_consumer->stderr_threshold(Log::Kind::Warning);
 
     // Register the consumer
     Log::RegisterConsumer(std::move(stdouterr_consumer));
-#endif
+#endif // if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 1
 
     // skip program name argv[0] if present
     argc -= (argc > 0);
@@ -140,9 +142,9 @@ int main(int argc, char * argv[])
     manager.runEvents(std::cin, std::cout);
 
     // Check the snapshots read
-    if(manager.shouldValidate())
+    if (manager.shouldValidate())
     {
-        if(!manager.validateAllSnapshots())
+        if (!manager.validateAllSnapshots())
         {
             LOG_ERROR("Discovery Server error: several snapshots show info leakage");
             return_code = -1; // report CTest the test fail
@@ -154,6 +156,9 @@ int main(int argc, char * argv[])
     }
 
     Log::Flush();
+
+    manager.onTerminate();
+
     Domain::stopAll();
 
     return return_code;

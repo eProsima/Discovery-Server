@@ -19,112 +19,121 @@
 #include <iterator>
 #include <sstream>
 #include <iomanip>
+#include <iostream>
 #include <tinyxml2.h>
 #include "DI.h"
 #include "IDs.h"
 
+#include <iostream>
+
 #ifndef XMLCheckResult
-#define XMLCheckResult(a_eResult) if (a_eResult != XML_SUCCESS) { printf("Error: %i\n", a_eResult); \
-    return a_eResult; }
-#endif
+#define XMLCheckResult(a_eResult) if (a_eResult != XML_SUCCESS){ printf("Error: %i\n", a_eResult); \
+                                                                 return a_eResult; }
+#endif // ifndef XMLCheckResult
 
 using namespace eprosima::fastrtps;
 using namespace eprosima::discovery_server;
 
 // basic discovery items operations
 
-bool DI::operator==(
-    const GUID_t& guid) const
+bool DiscoveryItem::operator ==(
+        const GUID_t& guid) const
 {
     return endpoint_guid == guid;
 }
 
-bool DI::operator!=(
-    const GUID_t& guid) const
+bool DiscoveryItem::operator !=(
+        const GUID_t& guid) const
 {
     return endpoint_guid != guid;
 }
 
-bool DI::operator==(
-    const DI& d) const
+bool DiscoveryItem::operator ==(
+        const DiscoveryItem& d) const
 {
     return endpoint_guid == d.endpoint_guid;
 }
 
-bool DI::operator!=(
-    const DI& d) const
+bool DiscoveryItem::operator !=(
+        const DiscoveryItem& d) const
 {
     return endpoint_guid != d.endpoint_guid;
 }
 
-bool DI::operator<(
-    const GUID_t& guid) const
+bool DiscoveryItem::operator <(
+        const GUID_t& guid) const
 {
     return endpoint_guid < guid;
 }
 
-bool DI::operator<(
-    const DI& d) const
+bool DiscoveryItem::operator <(
+        const DiscoveryItem& d) const
 {
     return endpoint_guid < d.endpoint_guid;
 }
 
-// publiser discovery item operations
-bool PDI::operator==(
-    const PDI& p) const
+// publisher discovery item operations
+bool PublisherDiscoveryItem::operator ==(
+        const PublisherDiscoveryItem& p) const
 {
-    return DI::operator==(p)
-        && type_name == p.type_name
-        && topic_name == p.topic_name;
+    return DiscoveryItem::operator ==(p)
+           && type_name == p.type_name
+           && topic_name == p.topic_name;
 }
 
-std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PDI& di)
+std::ostream& eprosima::discovery_server::operator <<(
+        std::ostream& os,
+        const PublisherDiscoveryItem& di)
 {
     return os << "Publisher " << di.endpoint_guid << " TypeName: " << di.type_name
-        << " TopicName: " << di.topic_name;
+              << " TopicName: " << di.topic_name;
 }
 
 // subscriber discovery item operations
-bool SDI::operator==(
-    const SDI& p) const
+bool SubscriberDiscoveryItem::operator ==(
+        const SubscriberDiscoveryItem& p) const
 {
-    return DI::operator==(p)
-        && type_name == p.type_name
-        && topic_name == p.topic_name;
+    return DiscoveryItem::operator ==(p)
+           && type_name == p.type_name
+           && topic_name == p.topic_name;
 }
 
-std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const SDI& di)
+std::ostream& eprosima::discovery_server::operator <<(
+        std::ostream& os,
+        const SubscriberDiscoveryItem& di)
 {
     return os << "Subscriber " << di.endpoint_guid << " TypeName: " << di.type_name
-        << " TopicName: " << di.topic_name << " liveliness, alive_count: " << di.alive_count
-        << " not_alive_count: " << di.not_alive_count;
+              << " TopicName: " << di.topic_name << " liveliness, alive_count: " << di.alive_count
+              << " not_alive_count: " << di.not_alive_count;
 }
 
 // participant discovery item operations
 
-bool PtDI::operator==(
-    const PtDI& p) const
+bool ParticipantDiscoveryItem::operator ==(
+        const ParticipantDiscoveryItem& p) const
 {
-    return DI::operator==(p)
-        // && this->is_alive == p.is_alive // own participant may not be aware
-        // && this->is_server == p.is_server // only in-process participants may be aware of this
-        // && this->participant_name == p.participant_name // own participant may not be aware
-        && this->publishers == p.publishers
-        && this->subscribers == p.subscribers;
+    return DiscoveryItem::operator ==(p)
+           // && this->is_alive == p.is_alive // own participant may not be aware
+           // && this->is_server == p.is_server // only in-process participants may be aware of this
+           // && this->participant_name == p.participant_name // own participant may not be aware
+           && this->publishers == p.publishers
+           && this->subscribers == p.subscribers;
 }
 
-bool PtDI::operator!=(
-    const PtDI& p) const
+bool ParticipantDiscoveryItem::operator !=(
+        const ParticipantDiscoveryItem& p) const
 {
-    return DI::operator!=(p)
-        // || this->is_alive != p.is_alive // own participant may not be aware
-        // || this->is_server != p.is_server // only in-process participants may be aware of this
-        // || this->participant_name != p.participant_name // own participant may not be aware
-        || this->publishers != p.publishers
-        || this->subscribers != p.subscribers;
+    return DiscoveryItem::operator !=(p)
+           // || this->is_alive != p.is_alive // own participant may not be aware
+           // || this->is_server != p.is_server // only in-process participants may be aware of this
+           // || this->participant_name != p.participant_name // own participant may not be aware
+           || this->publishers != p.publishers
+           || this->subscribers != p.subscribers;
 }
 
-std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtDI& di)
+std::ostream& eprosima::discovery_server::operator <<(
+        std::ostream& os,
+        const ParticipantDiscoveryItem& di)
 {
     os << (di.is_alive ? "\t" : "\t Zombie" ) << " Participant ";
 
@@ -144,7 +153,7 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtD
     {
         os << "\t\t" << di.publishers.size() << " publishers:" << std::endl;
 
-        for ( const PDI & pdi : di.publishers )
+        for ( const PublisherDiscoveryItem& pdi : di.publishers )
         {
             os << "\t\t\t" << pdi << std::endl;
         }
@@ -154,7 +163,7 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtD
     {
         os << "\t\t" << di.subscribers.size() << " subscribers:" << std::endl;
 
-        for (const SDI & sdi : di.subscribers)
+        for (const SubscriberDiscoveryItem& sdi : di.subscribers)
         {
             os << "\t\t\t" << sdi << std::endl;
         }
@@ -163,75 +172,77 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtD
     return os;
 }
 
-bool PtDI::operator[](
-    const PDI& p) const
+bool ParticipantDiscoveryItem::operator [](
+        const PublisherDiscoveryItem& p) const
 {
     // search the list
     return publishers.end() != publishers.find(p);
 }
 
-bool PtDI::operator[](
-    const SDI& p) const
+bool ParticipantDiscoveryItem::operator [](
+        const SubscriberDiscoveryItem& p) const
 {
     // search the list
     return subscribers.end() != subscribers.find(p);
 }
 
-void PtDI::acknowledge(
-    bool alive) const
+void ParticipantDiscoveryItem::acknowledge(
+        bool alive) const
 {
     // STL makes iterator const to prevent that any key changing unsorts the container
     // so we introduce this method to avoid constant ugly const_cast use
-    PtDI & part = const_cast<PtDI&>(*this);
+    ParticipantDiscoveryItem& part = const_cast<ParticipantDiscoveryItem&>(*this);
     part.is_alive = alive;
 }
 
-PtDI::size_type PtDI::CountSubscribers() const
+ParticipantDiscoveryItem::size_type ParticipantDiscoveryItem::CountSubscribers() const
 {
-    return  subscribers.size();
+    return subscribers.size();
 }
 
-PtDI::size_type PtDI::CountPublishers() const
+ParticipantDiscoveryItem::size_type ParticipantDiscoveryItem::CountPublishers() const
 {
-    return  publishers.size();
+    return publishers.size();
 }
 
-PtDI::size_type PtDI::CountEndpoints() const
+ParticipantDiscoveryItem::size_type ParticipantDiscoveryItem::CountEndpoints() const
 {
-    return  publishers.size() + subscribers.size();
+    return publishers.size() + subscribers.size();
 }
 
-PtDB::size_type PtDB::CountParticipants() const
+ParticipantDiscoveryDatabase::size_type ParticipantDiscoveryDatabase::CountParticipants() const
 {
     return size();
 }
 
-PtDB::size_type PtDB::CountSubscribers() const
-{
-    return std::accumulate(begin(),end(), size_type(0),
-        [](size_type subs, const PtDI & part)
-        {
-            return subs + part.CountSubscribers();
-        }
-    );
-}
-
-PtDB::size_type PtDB::CountPublishers() const
+ParticipantDiscoveryDatabase::size_type ParticipantDiscoveryDatabase::CountSubscribers() const
 {
     return std::accumulate(begin(), end(), size_type(0),
-        [](size_type pubs, const PtDI & part)
-    {
-        return pubs + part.CountPublishers();
-    }
-    );
+                   [](size_type subs, const ParticipantDiscoveryItem& part)
+                   {
+                       return subs + part.CountSubscribers();
+                   }
+                   );
 }
 
-std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtDB& db)
+ParticipantDiscoveryDatabase::size_type ParticipantDiscoveryDatabase::CountPublishers() const
+{
+    return std::accumulate(begin(), end(), size_type(0),
+                   [](size_type pubs, const ParticipantDiscoveryItem& part)
+                   {
+                       return pubs + part.CountPublishers();
+                   }
+                   );
+}
+
+std::ostream& eprosima::discovery_server::operator <<(
+        std::ostream& os,
+        const ParticipantDiscoveryDatabase& db)
 {
     os << "Participant " << db.endpoint_guid << " discovered " << db.CountParticipants() << " participants, ";
     os << db.CountPublishers() << " publishers and " << db.CountSubscribers() << " subscribers:" << std::endl;
 
-    for (const PtDI & pt : db)
+    for (const ParticipantDiscoveryItem& pt : db)
     {
         os << pt << std::endl;
     }
@@ -241,80 +252,85 @@ std::ostream& eprosima::discovery_server::operator<<(std::ostream& os, const PtD
 
 // wrap_iterator implementation
 
-PtDB::smart_iterator PtDB::sbegin() const
+ParticipantDiscoveryDatabase::smart_iterator ParticipantDiscoveryDatabase::sbegin() const
 {
     return smart_iterator(*this);
 }
 
-PtDB::smart_iterator PtDB::send() const
+ParticipantDiscoveryDatabase::smart_iterator ParticipantDiscoveryDatabase::send() const
 {
     return smart_iterator(*this).end();
 }
 
-PtDB::size_type PtDB::real_size() const
+ParticipantDiscoveryDatabase::size_type ParticipantDiscoveryDatabase::real_size() const
 {
-    return std::distance(sbegin(),send());
+    return std::distance(sbegin(), send());
 }
 
-PtDB::smart_iterator::smart_iterator(const PtDB& cont) : ref_cont_(cont), wrap_it_(cont.begin())
+ParticipantDiscoveryDatabase::smart_iterator::smart_iterator(
+        const ParticipantDiscoveryDatabase& cont)
+    : ref_cont_(cont)
+    , wrap_it_(cont.begin())
 {
     // ignore zombies
-    while( wrap_it_ != cont.end() && !wrap_it_->is_alive )
+    while ( wrap_it_ != cont.end() && !wrap_it_->is_alive )
     {
         ++wrap_it_;
     }
 }
 
-PtDB::smart_iterator PtDB::smart_iterator::operator++()
+ParticipantDiscoveryDatabase::smart_iterator ParticipantDiscoveryDatabase::smart_iterator::operator ++()
 {
     do
     {
         ++wrap_it_;
     }
-    while( wrap_it_ != ref_cont_.end() && !wrap_it_->is_alive );
+    while ( wrap_it_ != ref_cont_.end() && !wrap_it_->is_alive );
 
     return *this;
 }
 
-PtDB::smart_iterator PtDB::smart_iterator::operator++(int)
+ParticipantDiscoveryDatabase::smart_iterator ParticipantDiscoveryDatabase::smart_iterator::operator ++(
+        int)
 {
     smart_iterator tmp(*this);
 
-    operator++();
+    operator ++();
 
     return tmp;
 }
 
-PtDB::smart_iterator::reference PtDB::smart_iterator::operator*() const
+ParticipantDiscoveryDatabase::smart_iterator::reference ParticipantDiscoveryDatabase::smart_iterator::operator *() const
 {
-    return (reference)*wrap_it_;
+    return (reference) * wrap_it_;
 }
 
-PtDB::smart_iterator::pointer PtDB::smart_iterator::operator->() const
+ParticipantDiscoveryDatabase::smart_iterator::pointer ParticipantDiscoveryDatabase::smart_iterator::operator ->() const
 {
     return &(**this);
 }
 
-bool PtDB::smart_iterator::operator==(const smart_iterator& it) const
+bool ParticipantDiscoveryDatabase::smart_iterator::operator ==(
+        const smart_iterator& it) const
 {
-   // note that zombies are skip, that simplifies comparison
-   return wrap_it_ == it.wrap_it_;
+    // note that zombies are skip, that simplifies comparison
+    return wrap_it_ == it.wrap_it_;
 }
 
-bool PtDB::smart_iterator::operator!=(const smart_iterator& it) const
+bool ParticipantDiscoveryDatabase::smart_iterator::operator !=(
+        const smart_iterator& it) const
 {
-   // note that zombies are skip, that simplifies comparison
-   return !(*this == it);
+    // note that zombies are skip, that simplifies comparison
+    return !(*this == it);
 }
 
-PtDB::smart_iterator PtDB::smart_iterator::end() const
+ParticipantDiscoveryDatabase::smart_iterator ParticipantDiscoveryDatabase::smart_iterator::end() const
 {
     // the end iterator matches the wrapped iterator one
     smart_iterator tmp(ref_cont_);
     tmp.wrap_it_ = ref_cont_.end();
     return tmp;
 }
-
 
 // acceptable snapshot missalignment in ms
 std::chrono::milliseconds Snapshot::aceptable_offset_ = std::chrono::milliseconds(400);
@@ -323,19 +339,21 @@ std::chrono::milliseconds Snapshot::aceptable_offset_ = std::chrono::millisecond
 std::chrono::system_clock::time_point Snapshot::_sy_ck(std::chrono::system_clock::now());
 std::chrono::steady_clock::time_point Snapshot::_st_ck(std::chrono::steady_clock::now());
 
-std::chrono::system_clock::time_point Snapshot::getSystemTime(std::chrono::steady_clock::time_point tp)
+std::chrono::system_clock::time_point Snapshot::getSystemTime(
+        std::chrono::steady_clock::time_point tp)
 {
     using namespace std::chrono;
 
     return _sy_ck + duration_cast<system_clock::duration>(tp - _st_ck);
 }
 
-std::string Snapshot::getTimeStamp(std::chrono::steady_clock::time_point snap_time)
+std::string Snapshot::getTimeStamp(
+        std::chrono::steady_clock::time_point snap_time)
 {
     std::chrono::system_clock::time_point tp = Snapshot::getSystemTime(snap_time);
     std::time_t time = std::chrono::system_clock::to_time_t(tp);
     std::chrono::milliseconds ms =
-        std::chrono::duration_cast<std::chrono::milliseconds>(tp - std::chrono::system_clock::from_time_t(time));
+            std::chrono::duration_cast<std::chrono::milliseconds>(tp - std::chrono::system_clock::from_time_t(time));
 
     std::ostringstream stream;
     stream << std::put_time(localtime(&time), "%F %T.") << std::setw(3) << std::setfill('0') << ms.count() << " ";
@@ -343,20 +361,21 @@ std::string Snapshot::getTimeStamp(std::chrono::steady_clock::time_point snap_ti
     return stream.str();
 }
 
-// DI_database methods
+// DiscoveryItemDatabase methods
 
 // livetime of the return objects is not guaranteed, do not store
-std::vector<const PtDI*> DI_database::FindParticipant(const GUID_t& ptid) const
+std::vector<const ParticipantDiscoveryItem*> DiscoveryItemDatabase::FindParticipant(
+        const GUID_t& ptid) const
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    std::vector<const PtDI*> v;
+    std::vector<const ParticipantDiscoveryItem*> v;
 
     // traverse the map of participants searching for one particular specific info
     for (Snapshot::const_iterator pit = image.cbegin(); pit != image.cend(); ++pit)
     {
-        const PtDB & _database = *pit;
-        auto  it = std::lower_bound(_database.cbegin(), _database.cend(), ptid);
+        const ParticipantDiscoveryDatabase& _database = *pit;
+        auto it = std::lower_bound(_database.cbegin(), _database.cend(), ptid);
 
         if (it != _database.end() && *it == ptid)
         {
@@ -367,17 +386,17 @@ std::vector<const PtDI*> DI_database::FindParticipant(const GUID_t& ptid) const
     return v;
 }
 
-bool DI_database::AddParticipant(
-    const GUID_t& spokesman,
-    const GUID_t& ptid,
-    const std::string& name,
-    const std::chrono::steady_clock::time_point& discovered_timestamp,
-    bool server/* = false*/)
+bool DiscoveryItemDatabase::AddParticipant(
+        const GUID_t& spokesman,
+        const GUID_t& ptid,
+        const std::string& name,
+        const std::chrono::steady_clock::time_point& discovered_timestamp,
+        bool server /* = false*/)
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    PtDB & _database = image[spokesman];
-    PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+    ParticipantDiscoveryDatabase& _database = image[spokesman];
+    ParticipantDiscoveryDatabase::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
     if (it == _database.end() || *it != ptid)
     {
@@ -401,21 +420,34 @@ bool DI_database::AddParticipant(
 
 }
 
-bool DI_database::RemoveParticipant(const GUID_t& deceased)
+bool DiscoveryItemDatabase::RemoveParticipant(
+        const GUID_t& deceased)
 {
     std::lock_guard<std::mutex> lock(database_mutex);
+
+    //std::cout << "EraseParticipant:: " << deceased << " - " << image.size() << std::endl;
 
     return image.erase(deceased) != 0;
 }
 
-bool DI_database::RemoveParticipant(
-    const GUID_t& spokesman,
-    const GUID_t& ptid)
+bool DiscoveryItemDatabase::RemoveParticipant(
+        const GUID_t& spokesman,
+        const GUID_t& ptid)
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    PtDB & _database = image[spokesman];
-    PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(),ptid);
+    //std::cout << "RemoveParticipant:: " << spokesman << " - " << ptid <<  std::endl;
+
+    //if (std::find(image.begin(), image.end(), spokesman) == image.end())
+    /*Snapshot::iterator snap_it = image.find(spokesman);
+       if ( snap_it == image.end())
+       {
+         return false;
+       }*/
+
+    ParticipantDiscoveryDatabase& _database = image[spokesman];
+    //ParticipantDiscoveryDatabase _database = *snap_it;
+    ParticipantDiscoveryDatabase::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
     if (it == _database.end() || *it != ptid)
     {
@@ -438,24 +470,28 @@ bool DI_database::RemoveParticipant(
 }
 
 template<class T>
-bool DI_database::AddEndPoint(
-    T&(PtDI::* m)() const,
-    const GUID_t& spokesman,
-    const GUID_t& ptid,
-    const GUID_t& id,
-    const std::string& _typename,
-    const std::string& topicname,
-    const std::chrono::steady_clock::time_point& discovered_timestamp)
+bool DiscoveryItemDatabase::AddEndPoint(
+        T& (ParticipantDiscoveryItem::* m)() const,
+        const GUID_t& spokesman,
+        const GUID_t& ptid,
+        const GUID_t& id,
+        const std::string& _typename,
+        const std::string& topicname,
+        const std::chrono::steady_clock::time_point& discovered_timestamp)
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    PtDB & _database = image[spokesman];
-    PtDB::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
+    //std::cout << "Adding endpoint " << spokesman << " participant: " << ptid << " endpoint " << id << std::endl;
+    //std::cout << _typename << ":" << topicname << std::endl;
+
+
+    ParticipantDiscoveryDatabase& _database = image[spokesman];
+    ParticipantDiscoveryDatabase::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
     if (it == _database.end() || ptid == spokesman )
     {
         // participant is no there, add a zombie participant
-        it = _database.emplace_hint(it,ptid);
+        it = _database.emplace_hint(it, ptid);
 
         // participant death acknowledge but not their owned endpoints
         it->acknowledge(ptid == spokesman);
@@ -478,20 +514,36 @@ bool DI_database::AddEndPoint(
     assert(_typename == sit->type_name);
     assert(topicname == sit->topic_name);
 
+    //std::cout << "Done" << std::endl;
+    //std::cout << std::endl;
+
+
+
     return true;
 }
 
 template<class T>
-bool DI_database::RemoveEndPoint(
-    T&(PtDI::* m)() const,
-    const GUID_t& spokesman,
-    const GUID_t& ptid,
-    const GUID_t& id)
+bool DiscoveryItemDatabase::RemoveEndPoint(
+        T& (ParticipantDiscoveryItem::* m)() const,
+        const GUID_t& spokesman,
+        const GUID_t& ptid,
+        const GUID_t& id)
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    PtDB & database = image[spokesman];
-    PtDB::iterator it = std::lower_bound(database.begin(), database.end(), ptid);
+    //std::cout << "RemoveEndpoint:: " << spokesman << " - " << ptid << " - " << id << std::endl;
+
+    if (image.find(spokesman) == image.end())
+    //Snapshot::iterator snap_it = image.find(spokesman);
+    //if ( snap_it == image.end())
+    {
+        return false;
+    }
+
+    ParticipantDiscoveryDatabase& database = image[spokesman];
+    ParticipantDiscoveryDatabase::iterator it = std::lower_bound(database.begin(), database.end(), ptid);
+
+    //std::cout << "Removing endpoint " << spokesman << " participant: " << ptid << " endpoint " << id << std::endl;
 
     if (it == database.end() || *it != ptid)
     {
@@ -499,7 +551,7 @@ bool DI_database::RemoveEndPoint(
         return false;
     }
 
-    T & cont = (*it.*m)();
+    T& cont = (*it.*m)();
     typename T::iterator sit = std::lower_bound(cont.begin(), cont.end(), id);
 
     if (sit == cont.end() || *sit != id )
@@ -516,51 +568,58 @@ bool DI_database::RemoveEndPoint(
         database.erase(it);
     }
 
+    //std::cout << "Done" << std::endl;
+    //std::cout << std::endl;
+
     return true;
 
+
 }
 
-bool DI_database::AddSubscriber(
-    const GUID_t& spokesman,
-    const GUID_t& ptid,
-    const GUID_t& sid,
-    const std::string& _typename,
-    const std::string& topicname,
-    const std::chrono::steady_clock::time_point& discovered_timestamp)
+bool DiscoveryItemDatabase::AddSubscriber(
+        const GUID_t& spokesman,
+        const GUID_t& ptid,
+        const GUID_t& sid,
+        const std::string& _typename,
+        const std::string& topicname,
+        const std::chrono::steady_clock::time_point& discovered_timestamp)
 {
-    return AddEndPoint(&PtDI::getSubscribers, spokesman,ptid, sid, _typename, topicname, discovered_timestamp);
+    return AddEndPoint(&ParticipantDiscoveryItem::getSubscribers, spokesman, ptid, sid, _typename, topicname,
+                   discovered_timestamp);
 }
 
-bool DI_database::RemoveSubscriber(
-    const GUID_t& spokesman,
-    const GUID_t& ptid,
-    const GUID_t& sid)
+bool DiscoveryItemDatabase::RemoveSubscriber(
+        const GUID_t& spokesman,
+        const GUID_t& ptid,
+        const GUID_t& sid)
 {
-    return RemoveEndPoint(&PtDI::getSubscribers, spokesman, ptid, sid);
+    return RemoveEndPoint(&ParticipantDiscoveryItem::getSubscribers, spokesman, ptid, sid);
 }
 
-bool DI_database::AddPublisher(
-    const GUID_t& spokesman,
-    const GUID_t& ptid,
-    const GUID_t& pid,
-    const std::string& _typename,
-    const std::string& topicname,
-    const std::chrono::steady_clock::time_point& discovered_timestamp)
+bool DiscoveryItemDatabase::AddPublisher(
+        const GUID_t& spokesman,
+        const GUID_t& ptid,
+        const GUID_t& pid,
+        const std::string& _typename,
+        const std::string& topicname,
+        const std::chrono::steady_clock::time_point& discovered_timestamp)
 {
-    return AddEndPoint(&PtDI::getPublishers, spokesman, ptid, pid, _typename, topicname, discovered_timestamp);
+    return AddEndPoint(&ParticipantDiscoveryItem::getPublishers, spokesman, ptid, pid, _typename, topicname,
+                   discovered_timestamp);
 }
 
-bool DI_database::RemovePublisher(
-    const GUID_t& spokesman,
-    const GUID_t& ptid,
-    const GUID_t& pid)
+bool DiscoveryItemDatabase::RemovePublisher(
+        const GUID_t& spokesman,
+        const GUID_t& ptid,
+        const GUID_t& pid)
 {
-    return RemoveEndPoint(&PtDI::getPublishers, spokesman, ptid, pid);
+    return RemoveEndPoint(&ParticipantDiscoveryItem::getPublishers, spokesman, ptid, pid);
 }
 
-void DI_database::UpdateSubLiveliness(const GUID_t & subs,
-    int32_t alive_count,
-    int32_t not_alive_count)
+void DiscoveryItemDatabase::UpdateSubLiveliness(
+        const GUID_t& subs,
+        int32_t alive_count,
+        int32_t not_alive_count)
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
@@ -568,11 +627,19 @@ void DI_database::UpdateSubLiveliness(const GUID_t & subs,
     GUID_t pguid(subs);
     pguid.entityId = eprosima::fastrtps::rtps::c_EntityId_RTPSParticipant;
 
-    // Locate the PtDI associated with the subscriber
-    PtDB & database = image[pguid];
-    PtDB::iterator it = std::lower_bound(database.begin(), database.end(), pguid);
+    if (image.find(pguid) == image.end())
+    //Snapshot::iterator snap_it = image.find(spokesman);
+    //if ( snap_it == image.end())
+    {
+        return;
+    }
 
-    if(it == database.end() || *it != pguid)
+
+    // Locate the PtDI associated with the subscriber
+    ParticipantDiscoveryDatabase& database = image[pguid];
+    ParticipantDiscoveryDatabase::iterator it = std::lower_bound(database.begin(), database.end(), pguid);
+
+    if (it == database.end() || *it != pguid)
     {
         // participant should be here because the subscriber should create it on its callback
         LOG_ERROR("Non reported subscriber liveliness callback. Participant:" << pguid);
@@ -580,10 +647,10 @@ void DI_database::UpdateSubLiveliness(const GUID_t & subs,
     }
 
     // Locate the SDI associated with the subscriber
-    PtDI::subscriber_set & ss = it->getSubscribers();
-    PtDI::subscriber_set::iterator sit = std::lower_bound(ss.begin(), ss.end(), subs);
+    ParticipantDiscoveryItem::subscriber_set& ss = it->getSubscribers();
+    ParticipantDiscoveryItem::subscriber_set::iterator sit = std::lower_bound(ss.begin(), ss.end(), subs);
 
-    if(sit == ss.end() || *sit != subs)
+    if (sit == ss.end() || *sit != subs)
     {
         // subscriber should be here because should be created on its callback
         LOG_ERROR("Non reported subscriber liveliness callback. Subscriber: " << subs);
@@ -591,41 +658,55 @@ void DI_database::UpdateSubLiveliness(const GUID_t & subs,
     }
 
     // Update the liveliness info
-    SDI & sub = const_cast<SDI&>(*sit);
+    SubscriberDiscoveryItem& sub = const_cast<SubscriberDiscoveryItem&>(*sit);
 
     sub.alive_count = alive_count;
     sub.not_alive_count = not_alive_count;
 
     LOG_INFO("Subscriber " << subs << " liveliness callback reporting:"
-        " alive_count " << alive_count <<
-        " not_alive_count " << not_alive_count )
+            " alive_count " << alive_count <<
+            " not_alive_count " << not_alive_count )
 }
 
-DI_database::size_type DI_database::CountParticipants(const GUID_t& spokesman) const
+DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountParticipants(
+        const GUID_t& spokesman) const
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    const PtDB* p = image[spokesman];
+    Snapshot::iterator snap_it = image.find(spokesman);
+    if ( snap_it == image.end())
+    {
+        return 0;
+    }
+
+    const ParticipantDiscoveryDatabase* p = image[spokesman];
 
     if (p != nullptr)
     {
-       return p->size();
+        return p->size();
     }
 
     return 0;
 }
 
-DI_database::size_type DI_database::CountSubscribers(const GUID_t& spokesman) const
+DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountSubscribers(
+        const GUID_t& spokesman) const
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    const PtDB* p = image[spokesman];
+    Snapshot::iterator snap_it = image.find(spokesman);
+    if ( snap_it == image.end())
+    {
+        return 0;
+    }
+
+    const ParticipantDiscoveryDatabase* p = image[spokesman];
 
     if (p != nullptr)
     {
         size_type count = 0;
 
-        for (const PtDI& part : *p)
+        for (const ParticipantDiscoveryItem& part : *p)
         {
             count += part.subscribers.size();
         }
@@ -636,17 +717,24 @@ DI_database::size_type DI_database::CountSubscribers(const GUID_t& spokesman) co
     return 0;
 }
 
-DI_database::size_type DI_database::CountPublishers(const GUID_t& spokesman) const
+DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountPublishers(
+        const GUID_t& spokesman) const
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    const PtDB* p = image[spokesman];
+    Snapshot::iterator snap_it = image.find(spokesman);
+    if ( snap_it == image.end())
+    {
+        return 0;
+    }
+
+    const ParticipantDiscoveryDatabase* p = image[spokesman];
 
     if (p != nullptr)
     {
         size_type count = 0;
 
-        for (const PtDI& part : *p)
+        for (const ParticipantDiscoveryItem& part : *p)
         {
             count += part.publishers.size();
         }
@@ -657,18 +745,24 @@ DI_database::size_type DI_database::CountPublishers(const GUID_t& spokesman) con
     return 0;
 }
 
-DI_database::size_type DI_database::CountSubscribers(
-    const GUID_t& spokesman,
-    const GUID_t& ptid) const
+DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountSubscribers(
+        const GUID_t& spokesman,
+        const GUID_t& ptid) const
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    const PtDB* p = image[spokesman];
+    Snapshot::iterator snap_it = image.find(spokesman);
+    if ( snap_it == image.end())
+    {
+        return 0;
+    }
+
+    const ParticipantDiscoveryDatabase* p = image[spokesman];
 
     if (p != nullptr)
     {
-        const PtDB & database = *p;
-        PtDB::iterator it = std::lower_bound(database.begin(), database.end(), ptid);
+        const ParticipantDiscoveryDatabase& database = *p;
+        ParticipantDiscoveryDatabase::iterator it = std::lower_bound(database.begin(), database.end(), ptid);
 
         if (it == database.end() || *it != ptid)
         {
@@ -682,18 +776,26 @@ DI_database::size_type DI_database::CountSubscribers(
     return 0;
 }
 
-DI_database::size_type DI_database::CountPublishers(
-    const GUID_t& spokesman,
-    const GUID_t& ptid) const
+DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountPublishers(
+        const GUID_t& spokesman,
+        const GUID_t& ptid) const
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    const PtDB* p = image[spokesman];
+    if (image.find(spokesman) == image.end())
+    //Snapshot::iterator snap_it = image.find(spokesman);
+    //if ( snap_it == image.end())
+    {
+        return 0;
+    }
+
+
+    const ParticipantDiscoveryDatabase* p = image[spokesman];
 
     if (p != nullptr)
     {
-        const PtDB & database = *p;
-        PtDB::iterator it = std::lower_bound(database.begin(), database.end(), ptid);
+        const ParticipantDiscoveryDatabase& database = *p;
+        ParticipantDiscoveryDatabase::iterator it = std::lower_bound(database.begin(), database.end(), ptid);
 
         if (it == database.end() || *it != ptid)
         {
@@ -707,14 +809,14 @@ DI_database::size_type DI_database::CountPublishers(
     return 0;
 }
 
-bool eprosima::discovery_server::operator==(
-        const PtDB& cl,
-        const PtDB& cr)
+bool eprosima::discovery_server::operator ==(
+        const ParticipantDiscoveryDatabase& cl,
+        const ParticipantDiscoveryDatabase& cr)
 {
     // In order to optimize the algorithm we make l < r. Note that the collections are ordered.
     bool swap = cr.endpoint_guid < cl.endpoint_guid;
-    const PtDB& l = swap ? cr : cl;
-    const PtDB& r = swap ? cl : cr;
+    const ParticipantDiscoveryDatabase& l = swap ? cr : cl;
+    const ParticipantDiscoveryDatabase& r = swap ? cl : cr;
 
     // Note that each participant doesn't keep its own discovery info
     // The only acceptable difference between participants discovery information is their own
@@ -723,10 +825,10 @@ bool eprosima::discovery_server::operator==(
     // Note that we must ignore the zombie participants (those reported dead but whose endpoints dead is not reported)
     // Thus, we use and special iteration for convenience:
 
-    PtDB::smart_iterator lit = l.sbegin(), rit = r.sbegin();
+    ParticipantDiscoveryDatabase::smart_iterator lit = l.sbegin(), rit = r.sbegin();
     bool go = true;
 
-    while(go)
+    while (go)
     {
         // one of the list reach an end
         if (lit == l.send())
@@ -734,7 +836,8 @@ bool eprosima::discovery_server::operator==(
             // finish simultaneously or differ only in
             // each other discovery data
             return (rit == r.send()
-                || ((rit->endpoint_guid == l.endpoint_guid || rit->endpoint_guid == r.endpoint_guid) && r.send() == ++rit));
+                   || ((rit->endpoint_guid == l.endpoint_guid || rit->endpoint_guid == r.endpoint_guid) &&
+                   r.send() == ++rit));
         }
 
         if (rit == r.send())
@@ -742,7 +845,8 @@ bool eprosima::discovery_server::operator==(
             // finish simultaneously or differ only in
             // each other discovery data
             return (lit == l.send()
-                || ((lit->endpoint_guid == r.endpoint_guid || lit->endpoint_guid == l.endpoint_guid) && l.send() == ++lit));
+                   || ((lit->endpoint_guid == r.endpoint_guid || lit->endpoint_guid == l.endpoint_guid) &&
+                   l.send() == ++lit));
         }
 
         // comparing elements
@@ -750,14 +854,17 @@ bool eprosima::discovery_server::operator==(
         {
             // check members
             if (*lit != *rit)
+            {
                 return false;
+            }
 
             // next iteration
             ++lit;
             ++rit;
         }
         else
-        {   // check if our own discovery data is interfering
+        {
+            // check if our own discovery data is interfering
             go = false;
 
             if (rit->endpoint_guid == l.endpoint_guid)
@@ -767,37 +874,38 @@ bool eprosima::discovery_server::operator==(
             }
 
             if (lit->endpoint_guid == r.endpoint_guid
-               && (r.real_size() == l.real_size() || !go ))
+                    && (r.real_size() == l.real_size() || !go ))
             {
                 go = true; // sweep over
                 ++lit;
             }
         }
-    };
+    }
 
     // one or several unknown participants within
     return false;
 }
 
-PtDB& Snapshot::operator[](
+ParticipantDiscoveryDatabase& Snapshot::operator [](
         const GUID_t& id)
 {
     auto it = std::lower_bound(begin(), end(), id);
-    const PtDB * p = nullptr;
+    const ParticipantDiscoveryDatabase* p = nullptr;
 
     if (it == end() || *it != id)
-    {  // no there, emplace
-         p = &(*emplace(id).first);
+    {
+        // no there, emplace
+        p = &(*emplace(id).first);
     }
     else
     {
         p = &*it;
     }
 
-    return const_cast<PtDB&>(*p);
+    return const_cast<ParticipantDiscoveryDatabase&>(*p);
 }
 
-const PtDB* Snapshot::operator[](
+const ParticipantDiscoveryDatabase* Snapshot::operator [](
         const GUID_t& id) const
 {
     auto it = std::lower_bound(begin(), end(), id);
@@ -811,24 +919,24 @@ const PtDB* Snapshot::operator[](
 }
 
 void Snapshot::to_xml(
-    tinyxml2::XMLElement* pRoot,
-    tinyxml2::XMLDocument& xmlDoc) const
+        tinyxml2::XMLElement* pRoot,
+        tinyxml2::XMLDocument& xmlDoc) const
 {
     using namespace tinyxml2;
 
     // timestamp time is recorded in ms from the POSIX epoch
     pRoot->SetAttribute(s_sTimestamp.c_str(),
-        std::chrono::duration_cast<std::chrono::milliseconds>(getSystemTime(_time).time_since_epoch()).count());
+            std::chrono::duration_cast<std::chrono::milliseconds>(getSystemTime(_time).time_since_epoch()).count());
 
     // process_time is recorded in ms from the process startup
     pRoot->SetAttribute(s_sProcessTime.c_str(),
-        std::chrono::duration_cast<std::chrono::milliseconds>(_time - process_startup_).count());
+            std::chrono::duration_cast<std::chrono::milliseconds>(_time - process_startup_).count());
 
     // last_?dp_callback time is recorded in ms from the process startup
     pRoot->SetAttribute(s_sLastPdpCallback.c_str(),
-        std::chrono::duration_cast<std::chrono::milliseconds>(last_PDP_callback_-process_startup_).count());
+            std::chrono::duration_cast<std::chrono::milliseconds>(last_PDP_callback_ - process_startup_).count());
     pRoot->SetAttribute(s_sLastEdpCallback.c_str(),
-        std::chrono::duration_cast<std::chrono::milliseconds>(last_EDP_callback_-process_startup_).count());
+            std::chrono::duration_cast<std::chrono::milliseconds>(last_EDP_callback_ - process_startup_).count());
 
     pRoot->SetAttribute(s_sSomeone.c_str(), if_someone);
 
@@ -836,7 +944,7 @@ void Snapshot::to_xml(
     pDescription->SetText(this->_des.c_str());
     pRoot->InsertEndChild(pDescription);
 
-    for (const PtDB& ptdb : *this)
+    for (const ParticipantDiscoveryDatabase& ptdb : *this)
     {
         XMLElement* pPtdb = xmlDoc.NewElement(s_sPtDB.c_str());
         {
@@ -850,28 +958,28 @@ void Snapshot::to_xml(
             pPtdb->SetAttribute(s_sGUID_entity.c_str(), sstream.str().c_str());
         }
 
-        for (const PtDI& ptdi : ptdb)
+        for (const ParticipantDiscoveryItem& ptdi : ptdb)
         {
             XMLElement* pPtdi = xmlDoc.NewElement(s_sPtDI.c_str());
             {
                 std::stringstream sstream;
                 sstream << ptdi.endpoint_guid.guidPrefix;
-                pPtdi->SetAttribute(s_sGUID_prefix.c_str(),sstream.str().c_str());
+                pPtdi->SetAttribute(s_sGUID_prefix.c_str(), sstream.str().c_str());
             }
             {
                 std::stringstream sstream;
                 sstream << ptdi.endpoint_guid.entityId;
-                pPtdi->SetAttribute(s_sGUID_entity.c_str(),sstream.str().c_str());
+                pPtdi->SetAttribute(s_sGUID_entity.c_str(), sstream.str().c_str());
             }
 
             pPtdi->SetAttribute(s_sServer.c_str(), ptdi.is_server);
             pPtdi->SetAttribute(s_sAlive.c_str(), ptdi.is_alive);
             pPtdi->SetAttribute(s_sName.c_str(), ptdi.participant_name.c_str());
             pPtdi->SetAttribute(s_sDiscovered_timestamp.c_str(),
-                std::chrono::duration_cast<std::chrono::milliseconds>(
-                    ptdi.discovered_timestamp_ - process_startup_).count());
+                    std::chrono::duration_cast<std::chrono::milliseconds>(
+                        ptdi.discovered_timestamp_ - process_startup_).count());
 
-            for (const SDI& sub : ptdi.subscribers)
+            for (const SubscriberDiscoveryItem& sub : ptdi.subscribers)
             {
                 XMLElement* pSub = xmlDoc.NewElement(s_sSubscriber.c_str());
                 pSub->SetAttribute(s_sType.c_str(), sub.type_name.c_str());
@@ -879,21 +987,21 @@ void Snapshot::to_xml(
                 {
                     std::stringstream sstream;
                     sstream << sub.endpoint_guid.guidPrefix;
-                    pSub->SetAttribute(s_sGUID_prefix.c_str(),sstream.str().c_str());
+                    pSub->SetAttribute(s_sGUID_prefix.c_str(), sstream.str().c_str());
                 }
                 {
                     std::stringstream sstream;
                     sstream << sub.endpoint_guid.entityId;
-                    pSub->SetAttribute(s_sGUID_entity.c_str(),sstream.str().c_str());
+                    pSub->SetAttribute(s_sGUID_entity.c_str(), sstream.str().c_str());
                 }
                 pSub->SetAttribute(s_sDiscovered_timestamp.c_str(),
-                    std::chrono::duration_cast<std::chrono::milliseconds>(
-                        sub.discovered_timestamp_ - process_startup_).count());
+                        std::chrono::duration_cast<std::chrono::milliseconds>(
+                            sub.discovered_timestamp_ - process_startup_).count());
 
                 // Show liveliness callback info if requested, only makes sense to show
                 // liveliness on this participant endpoints
-                if(show_liveliness_ &&
-                    (sub.endpoint_guid.guidPrefix == ptdb.endpoint_guid.guidPrefix))
+                if (show_liveliness_ &&
+                        (sub.endpoint_guid.guidPrefix == ptdb.endpoint_guid.guidPrefix))
                 {
                     pSub->SetAttribute(s_sAliveCount.c_str(), sub.alive_count);
                     pSub->SetAttribute(s_sNotAliveCount.c_str(), sub.not_alive_count);
@@ -902,7 +1010,7 @@ void Snapshot::to_xml(
                 pPtdi->InsertEndChild(pSub);
             }
 
-            for (const PDI& pub : ptdi.publishers)
+            for (const PublisherDiscoveryItem& pub : ptdi.publishers)
             {
                 XMLElement* pPub = xmlDoc.NewElement(s_sPublisher.c_str());
                 pPub->SetAttribute(s_sType.c_str(), pub.type_name.c_str());
@@ -910,16 +1018,16 @@ void Snapshot::to_xml(
                 {
                     std::stringstream sstream;
                     sstream << pub.endpoint_guid.guidPrefix;
-                    pPub->SetAttribute(s_sGUID_prefix.c_str(),sstream.str().c_str());
+                    pPub->SetAttribute(s_sGUID_prefix.c_str(), sstream.str().c_str());
                 }
                 {
                     std::stringstream sstream;
                     sstream << pub.endpoint_guid.entityId;
-                    pPub->SetAttribute(s_sGUID_entity.c_str(),sstream.str().c_str());
+                    pPub->SetAttribute(s_sGUID_entity.c_str(), sstream.str().c_str());
                 }
                 pPub->SetAttribute(s_sDiscovered_timestamp.c_str(),
-                    std::chrono::duration_cast<std::chrono::milliseconds>(
-                        pub.discovered_timestamp_ - process_startup_).count());
+                        std::chrono::duration_cast<std::chrono::milliseconds>(
+                            pub.discovered_timestamp_ - process_startup_).count());
                 pPtdi->InsertEndChild(pPub);
             }
 
@@ -939,7 +1047,8 @@ void Snapshot::from_xml(
 
     if (pRoot != nullptr)
     {
-        {   // load timestamps
+        {
+            // load timestamps
             using namespace std::chrono;
 
             milliseconds dts(pRoot->Int64Attribute(s_sTimestamp.c_str()));
@@ -991,11 +1100,11 @@ void Snapshot::from_xml(
                 ptdb_guid.entityId = entityId;
             }
 
-            PtDB ptdb(ptdb_guid);
+            ParticipantDiscoveryDatabase ptdb(ptdb_guid);
 
-            for(XMLElement* pPtdi = pPtdb->FirstChildElement(s_sPtDI.c_str());
-                pPtdi != nullptr;
-                pPtdi = pPtdi->NextSiblingElement(s_sPtDI.c_str()))
+            for (XMLElement* pPtdi = pPtdb->FirstChildElement(s_sPtDI.c_str());
+                    pPtdi != nullptr;
+                    pPtdi = pPtdi->NextSiblingElement(s_sPtDI.c_str()))
             {
                 GUID_t ptdi_guid;
                 {
@@ -1017,7 +1126,7 @@ void Snapshot::from_xml(
                     ptdi_guid.entityId = entityId;
                 }
 
-                PtDI ptdi(
+                ParticipantDiscoveryItem ptdi(
                     ptdi_guid,
                     pPtdi->Attribute(s_sName.c_str()),
                     pPtdi->BoolAttribute(s_sServer.c_str()),
@@ -1027,9 +1136,9 @@ void Snapshot::from_xml(
                 pPtdi->QueryBoolAttribute(s_sAlive.c_str(), &ptdi.is_alive);
                 //std::cout << "PTDI: " << ptdi.id_ << std::endl;
 
-                for(XMLElement* pSub = pPtdi->FirstChildElement(s_sSubscriber.c_str());
-                    pSub != nullptr;
-                    pSub = pSub->NextSiblingElement(s_sSubscriber.c_str()))
+                for (XMLElement* pSub = pPtdi->FirstChildElement(s_sSubscriber.c_str());
+                        pSub != nullptr;
+                        pSub = pSub->NextSiblingElement(s_sSubscriber.c_str()))
                 {
                     GUID_t sub_guid;
                     {
@@ -1053,12 +1162,13 @@ void Snapshot::from_xml(
                     }
 
                     std::chrono::milliseconds disc_t(pSub->Int64Attribute(s_sDiscovered_timestamp.c_str()));
-                    SDI sub(sub_guid, pSub->Attribute(s_sType.c_str()), pSub->Attribute(s_sTopic.c_str()),
-                        process_startup_ + disc_t);
+                    SubscriberDiscoveryItem sub(sub_guid, pSub->Attribute(s_sType.c_str()),
+                            pSub->Attribute(s_sTopic.c_str()),
+                            process_startup_ + disc_t);
 
                     // retrieve liveliness values if any
-                    if((XML_NO_ATTRIBUTE != pSub->QueryAttribute(s_sAliveCount.c_str(), &sub.alive_count)) ||
-                        (XML_NO_ATTRIBUTE != pSub->QueryAttribute(s_sNotAliveCount.c_str(), &sub.not_alive_count)))
+                    if ((XML_NO_ATTRIBUTE != pSub->QueryAttribute(s_sAliveCount.c_str(), &sub.alive_count)) ||
+                            (XML_NO_ATTRIBUTE != pSub->QueryAttribute(s_sNotAliveCount.c_str(), &sub.not_alive_count)))
                     {
                         show_liveliness_ = true; // if present any attributes set liveliness
                     }
@@ -1066,9 +1176,9 @@ void Snapshot::from_xml(
                     ptdi.subscribers.insert(std::move(sub));
                 }
 
-                for(XMLElement* pPub = pPtdi->FirstChildElement(s_sPublisher.c_str());
-                    pPub != nullptr;
-                    pPub = pPub->NextSiblingElement(s_sPublisher.c_str()))
+                for (XMLElement* pPub = pPtdi->FirstChildElement(s_sPublisher.c_str());
+                        pPub != nullptr;
+                        pPub = pPub->NextSiblingElement(s_sPublisher.c_str()))
                 {
                     GUID_t pub_guid;
                     {
@@ -1091,8 +1201,9 @@ void Snapshot::from_xml(
                     }
 
                     std::chrono::milliseconds disc_t(pPub->Int64Attribute(s_sDiscovered_timestamp.c_str()));
-                    PDI pub(pub_guid, pPub->Attribute(s_sType.c_str()), pPub->Attribute(s_sTopic.c_str()),
-                        process_startup_ + disc_t);
+                    PublisherDiscoveryItem pub(pub_guid, pPub->Attribute(s_sType.c_str()),
+                            pPub->Attribute(s_sTopic.c_str()),
+                            process_startup_ + disc_t);
                     ptdi.publishers.insert(std::move(pub));
                 }
 
@@ -1105,26 +1216,26 @@ void Snapshot::from_xml(
     }
 }
 
-Snapshot& Snapshot::operator+=(
-    const Snapshot& sh)
+Snapshot& Snapshot::operator +=(
+        const Snapshot& sh)
 {
     // Verify snapshot sync
     std::chrono::milliseconds offset =
-        std::chrono::duration_cast<std::chrono::milliseconds>(_time - sh._time);
+            std::chrono::duration_cast<std::chrono::milliseconds>(_time - sh._time);
 
     // if( abs(offset) > Snapshot::aceptable_offset_ ) // uses abs(duration< ...) which is a C++17 hack
-    if( abs(offset.count()) > Snapshot::aceptable_offset_.count() )
+    if ( abs(offset.count()) > Snapshot::aceptable_offset_.count())
     {
         LOG_ERROR("Watch out Snapshot sync. They are " << abs(offset.count()) << " ms away.");
     }
 
     // We keep the later last call in the merging
-    if( (last_PDP_callback_- process_startup_) < (sh.last_PDP_callback_ - sh.process_startup_) )
+    if ((last_PDP_callback_ - process_startup_) < (sh.last_PDP_callback_ - sh.process_startup_))
     {
         last_PDP_callback_ = sh.last_PDP_callback_;
     }
 
-    if( (last_EDP_callback_ - process_startup_) < (sh.last_EDP_callback_ -  sh.process_startup_) )
+    if ((last_EDP_callback_ - process_startup_) < (sh.last_EDP_callback_ -  sh.process_startup_))
     {
         last_EDP_callback_ = sh.last_EDP_callback_;
     }
@@ -1140,7 +1251,7 @@ Snapshot& Snapshot::operator+=(
     return *this;
 }
 
-std::ostream& eprosima::discovery_server::operator<<(
+std::ostream& eprosima::discovery_server::operator <<(
         std::ostream& os,
         const Snapshot& shot)
 {
@@ -1163,7 +1274,7 @@ std::ostream& eprosima::discovery_server::operator<<(
 
     os << shot.size() << " participants report the following discovery info:" << endl;
 
-    for (const PtDB& db : shot)
+    for (const ParticipantDiscoveryDatabase& db : shot)
     {
         os << db << endl;
     }
