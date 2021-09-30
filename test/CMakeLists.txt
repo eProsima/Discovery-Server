@@ -114,7 +114,10 @@ endif()
 list(APPEND TEST_LIST
     test_38_self_connection
     test_39_trivial_reconnect
-    test_40_reconnect_after_restart
+    test_40_trivial_server_reconnect
+    test_41_reconnect_with_clients
+    test_42_server_reconnect_with_clients
+    test_43_complex_reconnect
 )
 
 # The above TEST_LIST has tests that spawn multiple test cases, we need a new variable to enumerate them

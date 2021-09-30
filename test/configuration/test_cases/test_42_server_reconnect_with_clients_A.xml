@@ -2,35 +2,36 @@
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
 
     <servers>
-        <server name="server" profile_name="UDP server B" />
+        <server name="server" profile_name="UDP server A" />
     </servers>
 
     <clients>
-        <client name="client1" profile_name="UDP_client1_serverB">
-            <subscriber topic="topic1"/>
+        <client name="client1" profile_name="UDP_client1_serverA">
+            <publisher topic="topic1"/>
         </client>
     </clients>
 
-    <snapshots file="./test_40_reconnect_after_restart_B2.snapshot~">
-        <snapshot time="2">Knows server A, client A and client B</snapshot>
-        <snapshot time="5">Not know server A</snapshot>
-        <snapshot time="9">Knows server A, client A and client B</snapshot>
+    <snapshots file="./test_42_server_reconnect_with_clients_A.snapshot~">
+        <snapshot time="2">Knows server B, client A and client B</snapshot>
+        <snapshot time="8">Do not know server B</snapshot>
+        <snapshot time="13">Knows server B, client A and client B</snapshot>
     </snapshots>
 
     <profiles>
-        <participant profile_name="UDP_client1_serverB" >
+
+        <participant profile_name="UDP_client1_serverA" >
             <rtps>
-                <prefix>63.6c.69.65.6e.74.32.5f.73.31.5f.5f</prefix>
+                <prefix>63.6c.69.65.6e.74.31.5f.73.31.5f.5f</prefix>
                 <builtin>
                     <discovery_config>
                         <discoveryProtocol>CLIENT</discoveryProtocol>
                         <discoveryServersList>
-                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.32">
+                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
                                 <metatrafficUnicastLocatorList>
                                     <locator>
                                         <udpv4>
                                             <address>127.0.0.1</address>
-                                            <port>39812</port>
+                                            <port>42811</port>
                                         </udpv4>
                                     </locator>
                                 </metatrafficUnicastLocatorList>
@@ -46,19 +47,19 @@
             </rtps>
         </participant>
 
-        <participant profile_name="UDP server B">
+        <participant profile_name="UDP server A">
         <rtps>
-            <prefix>44.49.53.43.53.45.52.56.45.52.5F.32</prefix>
+            <prefix>44.49.53.43.53.45.52.56.45.52.5F.31</prefix>
             <builtin>
                 <discovery_config>
                     <discoveryProtocol>SERVER</discoveryProtocol>
                     <discoveryServersList>
-                        <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
+                        <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.32">
                             <metatrafficUnicastLocatorList>
                                 <locator>
                                     <udpv4>
                                         <address>127.0.0.1</address>
-                                        <port>39811</port>
+                                        <port>42812</port>
                                     </udpv4>
                                 </locator>
                             </metatrafficUnicastLocatorList>
@@ -74,7 +75,7 @@
                     <locator>
                         <udpv4>
                             <address>127.0.0.1</address>
-                            <port>39812</port>
+                            <port>42811</port>
                         </udpv4>
                     </locator>
                 </metatrafficUnicastLocatorList>

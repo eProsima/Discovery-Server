@@ -5,10 +5,10 @@
         <server name="server" profile_name="UDP server A" />
     </servers>
 
-    <snapshots file="./test_39_trivial_reconnect_A.snapshot~">
+    <snapshots file="./test_40_trivial_server_reconnect_A.snapshot~">
         <snapshot time="2">Knows server B</snapshot>
-        <snapshot time="6">Do not know server B</snapshot>
-        <snapshot time="10">Knows server B</snapshot>
+        <snapshot time="7">Do not know server B</snapshot>
+        <snapshot time="11">Knows server B</snapshot>
     </snapshots>
 
     <profiles>
@@ -18,6 +18,18 @@
             <builtin>
                 <discovery_config>
                     <discoveryProtocol>SERVER</discoveryProtocol>
+                    <discoveryServersList>
+                        <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.32">
+                            <metatrafficUnicastLocatorList>
+                                <locator>
+                                    <udpv4>
+                                        <address>127.0.0.1</address>
+                                        <port>40812</port>
+                                    </udpv4>
+                                </locator>
+                            </metatrafficUnicastLocatorList>
+                        </RemoteServer>
+                    </discoveryServersList>
                     <initialAnnouncements>
                         <count>0</count>
                     </initialAnnouncements>
@@ -28,7 +40,7 @@
                     <locator>
                         <udpv4>
                             <address>127.0.0.1</address>
-                            <port>39811</port>
+                            <port>40811</port>
                         </udpv4>
                     </locator>
                 </metatrafficUnicastLocatorList>

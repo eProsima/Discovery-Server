@@ -11,10 +11,10 @@
         </client>
     </clients>
 
-    <snapshots file="./test_40_reconnect_after_restart_A1.snapshot~">
+    <snapshots file="./test_43_complex_reconnect_A1.snapshot~">
         <snapshot time="2">Knows server B, client A and client B</snapshot>
-        <snapshot time="5">Do not know server B</snapshot>
-        <snapshot time="9">Knows server B, client A and client B</snapshot>
+        <snapshot time="6">Do not know server B</snapshot>
+        <snapshot time="12">Knows server B, client A and client B</snapshot>
     </snapshots>
 
     <profiles>
@@ -30,7 +30,7 @@
                                     <locator>
                                         <udpv4>
                                             <address>127.0.0.1</address>
-                                            <port>39811</port>
+                                            <port>43811</port>
                                         </udpv4>
                                     </locator>
                                 </metatrafficUnicastLocatorList>
@@ -62,7 +62,7 @@
                     <locator>
                         <udpv4>
                             <address>127.0.0.1</address>
-                            <port>39811</port>
+                            <port>43811</port>
                         </udpv4>
                     </locator>
                 </metatrafficUnicastLocatorList>
