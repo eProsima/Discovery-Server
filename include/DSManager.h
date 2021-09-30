@@ -24,10 +24,6 @@
 
 #include "log/DSLog.h"
 
-#include <fastrtps/participant/Participant.h>
-#include <fastrtps/participant/ParticipantListener.h>
-#include <fastrtps/subscriber/SubscriberListener.h>
-#include <fastrtps/publisher/PublisherListener.h>
 #include <fastrtps/xmlparser/XMLParser.h>
 
 #include <fastdds/dds/domain/DomainParticipant.hpp>
@@ -101,14 +97,8 @@ class DelayedParticipantCreation;
 class DelayedParticipantDestruction;
 
 class DSManager
-    : public xmlparser::XMLParser      // access to parsing protected functions
-//, public eprosima::fastrtps::ParticipantListener  // receive discovery callback information
-//, public eprosima::fastrtps::SubscriberListener  // receive subscriber lifeliness information
-, public eprosima::fastdds::dds::DomainParticipantListener
-
-//, public eprosima::fastdds::dds::DataReaderListener
-
-
+    : public xmlparser::XMLParser
+    , public eprosima::fastdds::dds::DomainParticipantListener
 
 {
     typedef std::map<GUID_t, DomainParticipant*> participant_map;

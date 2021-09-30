@@ -16,11 +16,7 @@
 
 #include <tinyxml2.h>
 
-#include <fastrtps/Domain.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
-
-#include <fastrtps/subscriber/Subscriber.h>
-#include <fastrtps/publisher/Publisher.h>
 
 #include <fastrtps/transport/TCPv4TransportDescriptor.h>
 #include <fastrtps/transport/UDPv4TransportDescriptor.h>
@@ -1800,8 +1796,6 @@ void DSManager::on_participant_discovery(
         }
     }
 
-    //std::cout << info.status << ":" << srcGuid << ":" << partid << std::endl;
-
     // add to database, it has its own mtx
     // note that when a participant is destroyed he will wait for all his callbacks to return
     // state will be alive during all callbacks
@@ -1882,8 +1876,6 @@ void DSManager::on_subscriber_discovery(
         part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
     }
 
-    //std::cout << info.status << ":" << srcGuid << ":" << subsid << std::endl;
-
     switch (info.status)
     {
         case DS::DISCOVERED_READER:
@@ -1959,8 +1951,6 @@ void DSManager::on_publisher_discovery(
         // if remote use prefix instead of name
         part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
     }
-
-    //std::cout << info.status << ":" << srcGuid << ":" << pubsid << std::endl;
 
     switch (info.status)
     {

@@ -16,8 +16,6 @@
 #include "LJ.h"
 #include "DSManager.h"
 
-#include <fastrtps/transport/UDPv4TransportDescriptor.h>
-
 using namespace eprosima::fastrtps;
 using namespace eprosima::discovery_server;
 // New API

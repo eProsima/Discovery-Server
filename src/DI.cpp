@@ -481,10 +481,6 @@ bool DiscoveryItemDatabase::AddEndPoint(
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    //std::cout << "Adding endpoint " << spokesman << " participant: " << ptid << " endpoint " << id << std::endl;
-    //std::cout << _typename << ":" << topicname << std::endl;
-
-
     ParticipantDiscoveryDatabase& _database = image[spokesman];
     ParticipantDiscoveryDatabase::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
@@ -514,11 +510,6 @@ bool DiscoveryItemDatabase::AddEndPoint(
     assert(_typename == sit->type_name);
     assert(topicname == sit->topic_name);
 
-    //std::cout << "Done" << std::endl;
-    //std::cout << std::endl;
-
-
-
     return true;
 }
 
@@ -531,19 +522,13 @@ bool DiscoveryItemDatabase::RemoveEndPoint(
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    //std::cout << "RemoveEndpoint:: " << spokesman << " - " << ptid << " - " << id << std::endl;
-
     if (image.find(spokesman) == image.end())
-    //Snapshot::iterator snap_it = image.find(spokesman);
-    //if ( snap_it == image.end())
     {
         return false;
     }
 
     ParticipantDiscoveryDatabase& database = image[spokesman];
     ParticipantDiscoveryDatabase::iterator it = std::lower_bound(database.begin(), database.end(), ptid);
-
-    //std::cout << "Removing endpoint " << spokesman << " participant: " << ptid << " endpoint " << id << std::endl;
 
     if (it == database.end() || *it != ptid)
     {
@@ -568,8 +553,6 @@ bool DiscoveryItemDatabase::RemoveEndPoint(
         database.erase(it);
     }
 
-    //std::cout << "Done" << std::endl;
-    //std::cout << std::endl;
 
     return true;
 
@@ -628,8 +611,6 @@ void DiscoveryItemDatabase::UpdateSubLiveliness(
     pguid.entityId = eprosima::fastrtps::rtps::c_EntityId_RTPSParticipant;
 
     if (image.find(pguid) == image.end())
-    //Snapshot::iterator snap_it = image.find(spokesman);
-    //if ( snap_it == image.end())
     {
         return;
     }
@@ -783,8 +764,6 @@ DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountPublishers(
     std::lock_guard<std::mutex> lock(database_mutex);
 
     if (image.find(spokesman) == image.end())
-    //Snapshot::iterator snap_it = image.find(spokesman);
-    //if ( snap_it == image.end())
     {
         return 0;
     }
@@ -1134,7 +1113,6 @@ void Snapshot::from_xml(
                     );
 
                 pPtdi->QueryBoolAttribute(s_sAlive.c_str(), &ptdi.is_alive);
-                //std::cout << "PTDI: " << ptdi.id_ << std::endl;
 
                 for (XMLElement* pSub = pPtdi->FirstChildElement(s_sSubscriber.c_str());
                         pSub != nullptr;

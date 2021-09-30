@@ -29,11 +29,6 @@ namespace eprosima {
 namespace discovery_server {
 
 using eprosima::fastrtps::rtps::GUID_t;
-using eprosima::fastrtps::Participant;
-using eprosima::fastrtps::Publisher;
-using eprosima::fastrtps::Subscriber;
-using eprosima::fastrtps::SubscriberListener;
-using eprosima::fastrtps::PublisherListener;
 using eprosima::fastrtps::PublisherAttributes;
 using eprosima::fastrtps::SubscriberAttributes;
 using eprosima::fastrtps::ParticipantAttributes;
