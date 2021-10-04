@@ -46,7 +46,7 @@ int main(int argc, char * argv[])
     #elif LOG_LEVEL_ERROR
         Log::SetVerbosity(Log::Kind::Error);
     #else
-        Log::SetVerbosity(Log::Kind::Warning);
+        Log::SetVerbosity(Log::Kind::Error);
     #endif
 
 #if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 1

@@ -177,7 +177,7 @@ endif()
 ###############################################################################
 
 option(LOG_LEVEL_INFO OFF)
-option(LOG_LEVEL_WARN ON)
+option(LOG_LEVEL_WARN OFF)
 option(LOG_LEVEL_ERROR OFF)
 
 add_definitions(-DLOG_LEVEL_INFO=$<STREQUAL:$<UPPER_CASE:${LOG_LEVEL_INFO}>,ON>)
