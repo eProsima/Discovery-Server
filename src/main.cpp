@@ -15,7 +15,7 @@
 #include "log/DSLog.h"
 #include "version/config.h"
 
-#if FASTRTPS_VERSION_MAJOR >= 2 || (FASTRTPS_VERSION_MAJOR == 2 && FASTRTPS_VERSION_MINOR >= 1)
+#if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 1
 #include <fastdds/dds/log/StdoutErrConsumer.hpp>
 #endif
 #include <fastrtps/Domain.h>
@@ -35,19 +35,20 @@ using namespace std;
 
 int main(int argc, char * argv[])
 {
+    // Initialize loging
+    #if defined LOG_LEVEL_INFO
+        Log::SetVerbosity(Log::Kind::Info);
+    #elif defined LOG_LEVEL_WARN
+        Log::SetVerbosity(Log::Kind::Warning);
+    #elif defined LOG_LEVEL_ERROR
+        Log::SetVerbosity(Log::Kind::Error);
+    #endif
+
     // Clear all the consumers.
     Log::ClearConsumers();
 
-    // Initialize loging
-    #if LOG_LEVEL_INFO
-        Log::SetVerbosity(Log::Kind::Info);
-    #elif LOG_LEVEL_WARN
-        Log::SetVerbosity(Log::Kind::Warning);
-    #elif LOG_LEVEL_ERROR
-        Log::SetVerbosity(Log::Kind::Error);
-    #else
-        Log::SetVerbosity(Log::Kind::Error);
-    #endif
+    Log::SetVerbosity(Log::Kind::Error);
+    // Log::SetCategoryFilter(std::regex("(INTRAPROCESS)"));
 
 #if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 1
     // Create a StdoutErrConsumer consumer that logs entries to stderr only when the Log::Kind is equal to WARNING
