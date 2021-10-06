@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "log/DSLog.h"
 #include "LJ.h"
+
+#include "log/DSLog.h"
 #include "DSManager.h"
 
 using namespace eprosima::fastrtps;
@@ -60,7 +61,6 @@ void DelayedParticipantCreation::operator ()(
     info.participant = p;
     info.publisher = publisher_;
     info.subscriber = subscriber_;
-
 
     if (p)
     {

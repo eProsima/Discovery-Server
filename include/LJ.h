@@ -17,13 +17,13 @@
 #define _LJ_H_
 
 #include <string>
+#include <thread>
+
 #include <fastrtps/rtps/common/Guid.h>
 #include <fastrtps/types/DynamicPubSubType.h>
-#include "DSManager.h"
-
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 
-#include <thread>
+#include "DSManager.h"
 
 namespace eprosima {
 namespace discovery_server {
@@ -176,7 +176,6 @@ template<> struct LateJoinerDataTraits<DataWriter>
             DataWriter*);
     typedef DataWriter* (DSManager::* GetEndpoint)(
             GUID_t&);
-    //typedef bool(*removeEndpoint)(DataWriter*);
     typedef ReturnCode_t (DSManager::* removeEndpoint)(
             DataWriter*);
 
@@ -200,7 +199,6 @@ template<> struct LateJoinerDataTraits<DataReader>
             DataReader*);
     typedef DataReader* (DSManager::* GetEndpoint)(
             GUID_t&);
-    //typedef bool(*removeEndpoint)(DataReader*);
     typedef ReturnCode_t (DSManager::* removeEndpoint)(
             DataReader*);
 

@@ -14,23 +14,24 @@
 
 #include "log/DSLog.h"
 
+#include <iostream>
+#include <sstream>
+
 #include <tinyxml2.h>
 
+#include <fastrtps/Domain.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
-
-#include <fastrtps/transport/TCPv4TransportDescriptor.h>
-#include <fastrtps/transport/UDPv4TransportDescriptor.h>
-#include <fastrtps/transport/TCPv6TransportDescriptor.h>
+#include <fastrtps/subscriber/Subscriber.h>
+#include <fastrtps/publisher/Publisher.h>
 #include <fastrtps/utils/IPLocator.h>
 
-#include <fastrtps/types/DynamicTypeBuilderFactory.h>
+#include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
+#include <fastdds/rtps/transport/TCPv4TransportDescriptor.h>
+#include <fastdds/rtps/transport/TCPv6TransportDescriptor.h>
 
 #include "DSManager.h"
 #include "LJ.h"
 #include "IDs.h"
-
-#include <iostream>
-#include <sstream>
 
 using namespace eprosima::fastrtps;
 using namespace eprosima::fastdds;
@@ -833,9 +834,6 @@ void DSManager::onTerminate()
     }
 
     events.clear();
-
-
-
 }
 
 DSManager::~DSManager()
@@ -844,7 +842,6 @@ DSManager::~DSManager()
     {
         saveSnapshots(snapshots_output_file);
     }
-    //onTerminate();
 }
 
 void DSManager::loadServer(

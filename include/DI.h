@@ -16,15 +16,16 @@
 #ifndef _DI_H_
 #define _DI_H_
 
-#include <fastrtps/rtps/common/Guid.h>
-#include <ctime>
-#include <set>
-#include <map>
-#include <vector>
-#include <mutex>
 #include <chrono>
-#include <string>
+#include <ctime>
+#include <map>
+#include <mutex>
 #include <ostream>
+#include <set>
+#include <string>
+#include <vector>
+
+#include <fastrtps/rtps/common/Guid.h>
 
 namespace tinyxml2 {
 class XMLElement;

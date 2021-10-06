@@ -22,8 +22,10 @@
 #include <regex>
 #include <chrono>
 
-#include "log/DSLog.h"
-
+#include <fastrtps/participant/Participant.h>
+#include <fastrtps/participant/ParticipantListener.h>
+#include <fastrtps/subscriber/SubscriberListener.h>
+#include <fastrtps/publisher/PublisherListener.h>
 #include <fastrtps/xmlparser/XMLParser.h>
 
 #include <fastdds/dds/domain/DomainParticipant.hpp>
@@ -35,10 +37,9 @@
 #include <fastdds/dds/publisher/DataWriter.hpp>
 #include <fastdds/dds/publisher/Publisher.hpp>
 
-
-#include "../resources/static_types/HelloWorldPubSubTypes.h"
-
 #include "DI.h"
+#include "log/DSLog.h"
+#include "../resources/static_types/HelloWorldPubSubTypes.h"
 
 using namespace eprosima::fastrtps;
 using namespace eprosima::fastdds;
@@ -97,8 +98,9 @@ class DelayedParticipantCreation;
 class DelayedParticipantDestruction;
 
 class DSManager
-    : public xmlparser::XMLParser
-    , public eprosima::fastdds::dds::DomainParticipantListener
+    : public xmlparser::XMLParser      // access to parsing protected functions
+    , public eprosima::fastdds::dds::DomainParticipantListener // receive discovery callback information and 
+                                                               // subscriber lifeliness information
 
 {
     typedef std::map<GUID_t, DomainParticipant*> participant_map;

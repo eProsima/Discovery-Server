@@ -13,18 +13,20 @@
 // limitations under the License.
 
 #include "log/DSLog.h"
-#include <cassert>
+
 #include <algorithm>
-#include <numeric>
-#include <iterator>
-#include <sstream>
+#include <cassert>
 #include <iomanip>
 #include <iostream>
+#include <iterator>
+#include <numeric>
+#include <sstream>
+
 #include <tinyxml2.h>
+
 #include "DI.h"
 #include "IDs.h"
 
-#include <iostream>
 
 #ifndef XMLCheckResult
 #define XMLCheckResult(a_eResult) if (a_eResult != XML_SUCCESS){ printf("Error: %i\n", a_eResult); \
@@ -436,17 +438,7 @@ bool DiscoveryItemDatabase::RemoveParticipant(
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    //std::cout << "RemoveParticipant:: " << spokesman << " - " << ptid <<  std::endl;
-
-    //if (std::find(image.begin(), image.end(), spokesman) == image.end())
-    /*Snapshot::iterator snap_it = image.find(spokesman);
-       if ( snap_it == image.end())
-       {
-         return false;
-       }*/
-
     ParticipantDiscoveryDatabase& _database = image[spokesman];
-    //ParticipantDiscoveryDatabase _database = *snap_it;
     ParticipantDiscoveryDatabase::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
     if (it == _database.end() || *it != ptid)
@@ -492,11 +484,6 @@ bool DiscoveryItemDatabase::AddEndPoint(
         // participant death acknowledge but not their owned endpoints
         it->acknowledge(ptid == spokesman);
     }
-
-    // STL makes iterator const to prevent that any key changing unsorts the container
-    //const PtDI * p = &(*it);
-    //PtDI::subscriber_set& ( PtDI::* gS)() const = &PtDI::getSubscribers;
-    //PtDI::subscriber_set & subs = (p->*gS)();
 
     T& cont = (*it.*m)();
     typename T::iterator sit = std::lower_bound(cont.begin(), cont.end(), id);
@@ -552,11 +539,7 @@ bool DiscoveryItemDatabase::RemoveEndPoint(
         // remove participant if zombie
         database.erase(it);
     }
-
-
     return true;
-
-
 }
 
 bool DiscoveryItemDatabase::AddSubscriber(
@@ -614,7 +597,6 @@ void DiscoveryItemDatabase::UpdateSubLiveliness(
     {
         return;
     }
-
 
     // Locate the PtDI associated with the subscriber
     ParticipantDiscoveryDatabase& database = image[pguid];
@@ -1113,7 +1095,7 @@ void Snapshot::from_xml(
                     );
 
                 pPtdi->QueryBoolAttribute(s_sAlive.c_str(), &ptdi.is_alive);
-
+               
                 for (XMLElement* pSub = pPtdi->FirstChildElement(s_sSubscriber.c_str());
                         pSub != nullptr;
                         pSub = pSub->NextSiblingElement(s_sSubscriber.c_str()))
