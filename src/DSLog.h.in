@@ -15,17 +15,17 @@
 #ifndef _EPROSIMA_IS_LOG_H_
 #define _EPROSIMA_IS_LOG_H_
 
-#if defined LOG_LEVEL_INFO && LOG_LEVEL_INFO  
+#if defined LOG_LEVEL_INFO && LOG_LEVEL_INFO
     #define __INTERNALDEBUG
-    #define __DEBUG 
+    #define __DEBUG
     #undef LOG_NO_INFO
     #undef LOG_NO_WARN
     #undef LOG_NO_ERROR
-#elif defined LOG_LEVEL_WARN && LOG_LEVEL_WARN 
+#elif defined LOG_LEVEL_WARN && LOG_LEVEL_WARN
     #define LOG_NO_INFO
     #undef LOG_NO_WARN
     #undef LOG_NO_ERROR
-#elif defined LOG_LEVEL_ERROR && LOG_LEVEL_ERROR 
+#elif defined LOG_LEVEL_ERROR && LOG_LEVEL_ERROR
     #define LOG_NO_INFO
     #define LOG_NO_WARN
     #undef LOG_NO_ERROR

@@ -85,6 +85,13 @@ list(APPEND TEST_LIST
         test_34_connect_locally_with_remote_server
 
         test_38_self_connection
+
+        test_39_trivial_reconnect
+        test_40_trivial_server_reconnect
+        test_41_reconnect_with_clients
+        test_42_server_reconnect_with_clients
+        test_43_complex_reconnect
+
         test_60_disconnection
     )
 
@@ -103,7 +110,7 @@ if(fastrtps_VERSION VERSION_GREATER_EQUAL "2.3.0")
     )
 endif()
 
-# Adding remote servers while running was introduced in Fast DDS v2.4.0
+# Adding DNS and Environment modification while running was introduced in Fast DDS v2.4.0
 if(fastrtps_VERSION VERSION_GREATER_EQUAL "2.4.0")
     list(APPEND TEST_LIST
         test_36_dns_environment_variable_setup
