@@ -176,9 +176,17 @@ endif()
 # Logging
 ###############################################################################
 
-option(LOG_LEVEL_INFO OFF)
-option(LOG_LEVEL_WARN OFF)
-option(LOG_LEVEL_ERROR OFF)
+if(NOT DEFINED LOG_LEVEL_INFO)
+    set(LOG_LEVEL_INFO OFF)
+endif()
+
+if(NOT DEFINED LOG_LEVEL_WARN)
+    set(LOG_LEVEL_WARN OFF)
+endif()
+
+if(NOT DEFINED LOG_LEVEL_ERROR)
+    SET(LOG_LEVEL_ERROR ON)
+endif()
 
 add_definitions(-DLOG_LEVEL_INFO=$<STREQUAL:$<UPPER_CASE:${LOG_LEVEL_INFO}>,ON>)
 add_definitions(-DLOG_LEVEL_WARN=$<STREQUAL:$<UPPER_CASE:${LOG_LEVEL_WARN}>,ON>)
