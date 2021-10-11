@@ -257,7 +257,7 @@ struct ParticipantDiscoveryItem : public DiscoveryItem
     using DiscoveryItem::operator !=;
 
     /**
-     * verifies if two PtDI keep the same info
+     * verifies if two ParticipantDiscoveryItem keep the same info
      * despite been rooted on two different participants
      **/
     bool operator ==(
@@ -312,8 +312,8 @@ struct ParticipantDiscoveryItem : public DiscoveryItem
 
     //! Returns the number of endpoints owned
     size_type CountEndpoints() const;
-    size_type CountSubscribers() const;
-    size_type CountPublishers() const;
+    size_type CountDataReaders() const;
+    size_type CountDataWriters() const;
 
 };
 
@@ -392,8 +392,8 @@ struct ParticipantDiscoveryDatabase : public DiscoveryItem, public std::set<Part
     size_type real_size() const;
 
     size_type CountParticipants() const;
-    size_type CountSubscribers() const;
-    size_type CountPublishers() const;
+    size_type CountDataReaders() const;
+    size_type CountDataWriters() const;
 
 };
 
@@ -421,12 +421,12 @@ struct Snapshot : public std::set<ParticipantDiscoveryDatabase>
     bool show_liveliness_;
 
     // time conversions auxiliary
-    static std::chrono::system_clock::time_point _sy_ck;
-    static std::chrono::steady_clock::time_point _st_ck;
+    static std::chrono::system_clock::time_point _system_clock;
+    static std::chrono::steady_clock::time_point _steady_clock;
     static std::chrono::system_clock::time_point getSystemTime(
-            std::chrono::steady_clock::time_point tp);
+            std::chrono::steady_clock::time_point time_point);
     static std::string getTimeStamp(
-            std::chrono::steady_clock::time_point tp);
+            std::chrono::steady_clock::time_point time_point);
 
     // acceptable snapshot missalignment in ms
     static std::chrono::milliseconds aceptable_offset_;
@@ -435,12 +435,12 @@ struct Snapshot : public std::set<ParticipantDiscoveryDatabase>
     std::string _des;
 
     explicit Snapshot(
-            std::chrono::steady_clock::time_point t = Snapshot::_st_ck,
-            std::chrono::steady_clock::time_point pdp_cb = Snapshot::_st_ck,
-            std::chrono::steady_clock::time_point edp_cb = Snapshot::_st_ck,
+            std::chrono::steady_clock::time_point t = Snapshot::_steady_clock,
+            std::chrono::steady_clock::time_point pdp_cb = Snapshot::_steady_clock,
+            std::chrono::steady_clock::time_point edp_cb = Snapshot::_steady_clock,
             bool someone = true,
             bool show_liveliness = false)
-        : process_startup_(Snapshot::_st_ck)
+        : process_startup_(Snapshot::_steady_clock)
         , _time(t)
         , last_PDP_callback_(pdp_cb)
         , last_EDP_callback_(edp_cb)
@@ -456,7 +456,7 @@ struct Snapshot : public std::set<ParticipantDiscoveryDatabase>
             std::string& des,
             bool someone = true,
             bool show_liveliness = false)
-        : process_startup_(Snapshot::_st_ck)
+        : process_startup_(Snapshot::_steady_clock)
         , _time(t)
         , last_PDP_callback_(pdp_cb)
         , last_EDP_callback_(edp_cb)
@@ -503,7 +503,7 @@ class DiscoveryItemDatabase
     Snapshot image; // each participant database info
     mutable std::mutex database_mutex; // atomic database operation
 
-    // AddSubscriber and AddPublisher common implementation
+    // AddDataReader and AddDataWriter common implementation
 
     template<
         class T>
@@ -536,7 +536,7 @@ public:
         return image._time;
     }
 
-    //! Returns a pointer to the PtDI or null if not found
+    //! Returns a pointer to the ParticipantDiscoveryItem or null if not found
     std::vector<const ParticipantDiscoveryItem*> FindParticipant(
             const GUID_t& ptid) const;
 
@@ -558,7 +558,7 @@ public:
             const GUID_t& deceased);
 
     //! Adds a new Subscriber, returns false if allocation fails
-    bool AddSubscriber(
+    bool AddDataReader(
             const GUID_t& spokesman,
             const GUID_t& ptid,
             const GUID_t& sid,
@@ -566,13 +566,13 @@ public:
             const std::string& topicname,
             const std::chrono::steady_clock::time_point& discovered_timestamp);
 
-    bool RemoveSubscriber(
+    bool RemoveDataReader(
             const GUID_t& spokesman,
             const GUID_t& ptid,
             const GUID_t& sid);
 
     //! Adds a new Publisher, returns false if allocation fails
-    bool AddPublisher(
+    bool AddDataWriter(
             const GUID_t& spokesman,
             const GUID_t& ptid,
             const GUID_t& pid,
@@ -580,7 +580,7 @@ public:
             const std::string& topicname,
             const std::chrono::steady_clock::time_point& discovered_timestamp);
 
-    bool RemovePublisher(
+    bool RemoveDataWriter(
             const GUID_t& spokesman,
             const GUID_t& ptid,
             const GUID_t& pid);
@@ -592,14 +592,14 @@ public:
 
     size_type CountParticipants(
             const GUID_t& spokesman ) const;
-    size_type CountSubscribers(
+    size_type CountDataReaders(
             const GUID_t& spokesman ) const;
-    size_type CountPublishers(
+    size_type CountDataWriters(
             const GUID_t& spokesman ) const;
-    size_type CountSubscribers(
+    size_type CountDataReaders(
             const GUID_t& spokesman,
             const GUID_t& ptid) const;
-    size_type CountPublishers(
+    size_type CountDataWriters(
             const GUID_t& spokesman,
             const GUID_t& ptid) const;
 

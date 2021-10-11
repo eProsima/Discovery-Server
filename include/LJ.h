@@ -24,6 +24,8 @@
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 
 #include "DSManager.h"
+#include "log/DSLog.h"
+#include "../resources/static_types/HelloWorldPubSubTypes.h"
 
 namespace eprosima {
 namespace discovery_server {

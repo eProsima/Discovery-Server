@@ -22,10 +22,6 @@
 #include <regex>
 #include <chrono>
 
-#include <fastrtps/participant/Participant.h>
-#include <fastrtps/participant/ParticipantListener.h>
-#include <fastrtps/subscriber/SubscriberListener.h>
-#include <fastrtps/publisher/PublisherListener.h>
 #include <fastrtps/xmlparser/XMLParser.h>
 
 #include <fastdds/dds/domain/DomainParticipant.hpp>
@@ -38,8 +34,6 @@
 #include <fastdds/dds/publisher/Publisher.hpp>
 
 #include "DI.h"
-#include "log/DSLog.h"
-#include "../resources/static_types/HelloWorldPubSubTypes.h"
 
 using namespace eprosima::fastrtps;
 using namespace eprosima::fastdds;
@@ -104,14 +98,13 @@ class DSManager
 
 {
     typedef std::map<GUID_t, DomainParticipant*> participant_map;
-    typedef std::map<GUID_t, DataReader*> subscriber_map;
-    typedef std::map<GUID_t, DataWriter*> publisher_map;
+    typedef std::map<GUID_t, DataReader*> data_reader_map;
+    typedef std::map<GUID_t, DataWriter*> data_writer_map;
     typedef std::map<std::string, types::DynamicPubSubType*> type_map;
     typedef std::map<GUID_t, std::pair<LocatorList_t, LocatorList_t>> serverLocator_map;  // multi, unicast locator list
     typedef std::vector<LateJoinerData*> event_list;
     typedef std::vector<Snapshot> snapshots_list;
 
-    typedef std::map<GUID_t, GUID_t> children_parent_map;
     typedef std::map<GUID_t, ParticipantCreatedEntityInfo> created_entity_map;
 
     // synch protection
@@ -122,13 +115,13 @@ class DSManager
     participant_map clients;
     participant_map simples;
 
-    // created entity map
+    // Map to hold the information regarding Participants and their associated Publishers, Subscribers and Topics
+    // Indexed by GUID
     created_entity_map entity_map;
-    children_parent_map guid_map;
 
     // endpoints maps
-    subscriber_map subscribers;
-    publisher_map publishers;
+    data_reader_map subscribers;
+    data_writer_map publishers;
 
     // server address info
     serverLocator_map server_locators;
@@ -241,16 +234,16 @@ public:
             DomainParticipant* p);
     void addSimple(
             DomainParticipant* s);
-    void addSubscriber(
+    void addDataReader(
             DataReader*);
-    void addPublisher(
+    void addDataWriter(
             DataWriter*);
 
     DomainParticipant* getParticipant(
             GUID_t& id);
-    DataReader* getSubscriber(
+    DataReader* getDataReader(
             GUID_t& id);
-    DataWriter* getPublisher(
+    DataWriter* getDataWriter(
             GUID_t& id);
 
     DomainParticipant* removeParticipant(
@@ -262,9 +255,9 @@ public:
 
     ReturnCode_t deleteParticipant(
             DomainParticipant* participant);
-    ReturnCode_t deleteSubscriber(
+    ReturnCode_t deleteDataReader(
             DataReader* dr);
-    ReturnCode_t deletePublisher(
+    ReturnCode_t deleteDataWriter(
             DataWriter* dw);
 
 
@@ -337,8 +330,7 @@ public:
         return correctly_created_;
     }
 
-    // default topics
-    static HelloWorldPubSubType builtin_defaultType;
+    // default topic
     static TopicAttributes builtin_defaultTopic;
 
     // parsing regex

@@ -119,11 +119,11 @@ void DelayedParticipantDestruction::SetGuid(
 // static LJD_atts pointer to member
 const std::string LateJoinerDataTraits<DataWriter>::endpoint_type("Publisher");
 const LateJoinerDataTraits<DataWriter>::AddEndpoint LateJoinerDataTraits<DataWriter>::add_endpoint_function =
-        &DSManager::addPublisher;
+        &DSManager::addDataWriter;
 const LateJoinerDataTraits<DataWriter>::GetEndpoint LateJoinerDataTraits<DataWriter>::retrieve_endpoint_function =
         &DSManager::removePublisher;
 const LateJoinerDataTraits<DataWriter>::removeEndpoint LateJoinerDataTraits<DataWriter>::remove_endpoint_function =
-        &DSManager::deletePublisher;
+        &DSManager::deleteDataWriter;
 
 /*static*/
 DataWriter* LateJoinerDataTraits<DataWriter>::createEndpoint(
@@ -170,11 +170,11 @@ DataWriter* LateJoinerDataTraits<DataWriter>::createEndpoint(
 
 const std::string LateJoinerDataTraits<DataReader>::endpoint_type("Subscriber");
 const LateJoinerDataTraits<DataReader>::AddEndpoint LateJoinerDataTraits<DataReader>::add_endpoint_function =
-        &DSManager::addSubscriber;
+        &DSManager::addDataReader;
 const LateJoinerDataTraits<DataReader>::GetEndpoint LateJoinerDataTraits<DataReader>::retrieve_endpoint_function =
         &DSManager::removeSubscriber;
 const LateJoinerDataTraits<DataReader>::removeEndpoint LateJoinerDataTraits<DataReader>::remove_endpoint_function =
-        &DSManager::deleteSubscriber;
+        &DSManager::deleteDataReader;
 
 
 /*static*/

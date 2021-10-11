@@ -147,7 +147,7 @@ int main(int argc, char** argv)
     int count = 20;
     long sleep = 100;
     Locator_t server_address;
-    server_address.port = 60006; // default physical port
+    server_address.port = 16006; // default physical port
 
     if(argc > 1)
     {

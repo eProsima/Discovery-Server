@@ -22,15 +22,23 @@
 
 #include "HelloWorldPubSubTypes.h"
 
-#include <fastrtps/fastrtps_fwd.h>
-#include <fastrtps/attributes/SubscriberAttributes.h>
-#include <fastrtps/subscriber/SubscriberListener.h>
-#include <fastrtps/subscriber/SampleInfo.h>
-
-
-
+#include <fastdds/rtps/attributes/ReaderAttributes.h>
+#include <fastdds/dds/subscriber/DataReaderListener.hpp>
+#include <fastdds/dds/subscriber/SampleInfo.hpp>
 
 #include "HelloWorld.h"
+
+
+namespace eprosima
+{
+    namespace fastdds
+    {
+        namespace dds
+        {
+            class Subscriber;
+        }
+    }
+}
 
 class HelloWorldSubscriber
 {
@@ -44,18 +52,19 @@ public:
     //!Run the subscriber until number samples have been recevied.
     void run(uint32_t number);
 private:
-    eprosima::fastrtps::Participant* mp_participant;
-    eprosima::fastrtps::Subscriber* mp_subscriber;
+    eprosima::fastdds::dds::DomainParticipant* mp_participant;
+    eprosima::fastdds::dds::Subscriber* mp_subscriber;
+    eprosima::fastdds::dds::DataReader* mp_reader;
 public:
-    class SubListener :public eprosima::fastrtps::SubscriberListener
+    class SubListener :public eprosima::fastdds::dds::DataReaderListener
     {
     public:
         SubListener() :n_matched(0), n_samples(0) {};
         ~SubListener() {};
-        void onSubscriptionMatched(eprosima::fastrtps::Subscriber* sub, eprosima::fastrtps::rtps::MatchingInfo& info);
-        void onNewDataMessage(eprosima::fastrtps::Subscriber* sub);
+        void on_subscription_matched(eprosima::fastdds::dds::DataReader* sub, eprosima::fastdds::dds::SubscriptionMatchedStatus& info);
+        void on_new_data_message(eprosima::fastdds::dds::DataReader* sub);
         HelloWorld m_hello;
-        eprosima::fastrtps::SampleInfo_t m_info;
+        eprosima::fastdds::dds::SampleInfo m_info;
         int n_matched;
         uint32_t n_samples;
     }m_listener;

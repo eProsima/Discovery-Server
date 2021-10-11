@@ -23,9 +23,7 @@
 #ifndef _HELLOWORLD_PUBSUBTYPES_H_
 #define _HELLOWORLD_PUBSUBTYPES_H_
 
-#include <fastrtps/TopicDataType.h>
-
-
+#include <fastdds/dds/topic/TopicDataType.hpp>
 
 #include "HelloWorld.h"
 
@@ -33,7 +31,7 @@
  * @brief This class represents the TopicDataType of the type HelloWorld defined by the user in the IDL file.
  * @ingroup HELLOWORLD
  */
-class HelloWorldPubSubType : public  eprosima::fastrtps::TopicDataType {
+class HelloWorldPubSubType : public  eprosima::fastdds::dds::TopicDataType {
 public:
         typedef HelloWorld type;
 

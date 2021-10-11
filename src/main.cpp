@@ -18,7 +18,6 @@
 #if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 1
 #include <fastdds/dds/log/StdoutErrConsumer.hpp>
 #endif // if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 1
-#include <fastrtps/Domain.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 
 #include "DSManager.h"
@@ -37,14 +36,15 @@ int main(
         int argc,
         char* argv[])
 {
-    // Initialize loging
-    #if defined LOG_LEVEL_INFO
-    Log::SetVerbosity(Log::Kind::Info);
-    #elif defined LOG_LEVEL_WARN
-    Log::SetVerbosity(Log::Kind::Warning);
-    #elif defined LOG_LEVEL_ERROR
-    Log::SetVerbosity(Log::Kind::Error);
-    #endif // if defined LOG_LEVEL_INFO
+
+// Initialize loging
+#if defined LOG_LEVEL_INFO
+Log::SetVerbosity(Log::Kind::Info);
+#elif defined LOG_LEVEL_WARN
+Log::SetVerbosity(Log::Kind::Warning);
+#elif defined LOG_LEVEL_ERROR
+Log::SetVerbosity(Log::Kind::Error);
+#endif // if defined LOG_LEVEL_INFO
 
     // Clear all the consumers.
     Log::ClearConsumers();
@@ -158,8 +158,6 @@ int main(
     Log::Flush();
 
     manager.onTerminate();
-
-    Domain::stopAll();
 
     return return_code;
 }

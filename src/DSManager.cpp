@@ -12,26 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "log/DSLog.h"
-
 #include <iostream>
 #include <sstream>
 
 #include <tinyxml2.h>
 
-#include <fastrtps/Domain.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
-#include <fastrtps/subscriber/Subscriber.h>
-#include <fastrtps/publisher/Publisher.h>
-#include <fastrtps/utils/IPLocator.h>
 
 #include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
 #include <fastdds/rtps/transport/TCPv4TransportDescriptor.h>
 #include <fastdds/rtps/transport/TCPv6TransportDescriptor.h>
 
 #include "DSManager.h"
-#include "LJ.h"
 #include "IDs.h"
+#include "LJ.h"
+#include "log/DSLog.h"
+
 
 using namespace eprosima::fastrtps;
 using namespace eprosima::fastdds;
@@ -58,7 +54,6 @@ const char* TOPIC = "topic";
 } // namespace eprosima
 
 /*static members*/
-HelloWorldPubSubType DSManager::builtin_defaultType;
 TopicAttributes DSManager::builtin_defaultTopic("HelloWorldTopic", "HelloWorld");
 const std::regex DSManager::ipv4_regular_expression("^((?:[0-9]{1,3}\\.){3}[0-9]{1,3})?:?(?:(\\d+))?$");
 const std::chrono::seconds DSManager::last_snapshot_delay_ = std::chrono::seconds(1);
@@ -70,8 +65,8 @@ DSManager::DSManager(
     , auto_shutdown(true)
     , enable_prefix_validation(true)
     , correctly_created_(false)
-    , last_PDP_callback_(Snapshot::_st_ck)
-    , last_EDP_callback_(Snapshot::_st_ck)
+    , last_PDP_callback_(Snapshot::_steady_clock)
+    , last_EDP_callback_(Snapshot::_steady_clock)
     , shared_memory_off_(shared_memory_off)
 {
     tinyxml2::XMLDocument doc;
@@ -215,8 +210,8 @@ DSManager::DSManager(
     : no_callbacks(true)
     , auto_shutdown(true)
     , enable_prefix_validation(true)
-    , last_PDP_callback_(Snapshot::_st_ck)
-    , last_EDP_callback_(Snapshot::_st_ck)
+    , last_PDP_callback_(Snapshot::_steady_clock)
+    , last_EDP_callback_(Snapshot::_steady_clock)
 {
     // validating snapshots files
     validate_ = true;
@@ -343,17 +338,17 @@ DomainParticipant* DSManager::removeParticipant(
     }
     // remove any related pubs-subs
     {
-        publisher_map paux;
+        data_writer_map paux;
         std::remove_copy_if(publishers.begin(), publishers.end(), std::inserter(paux, paux.begin()),
-                [&id](publisher_map::value_type it)
+                [&id](data_writer_map::value_type it)
                 {
                     return id.guidPrefix == it.first.guidPrefix;
                 });
         publishers.swap(paux);
 
-        subscriber_map saux;
+        data_reader_map saux;
         std::remove_copy_if(subscribers.begin(), subscribers.end(), std::inserter(saux, saux.begin()),
-                [&id](subscriber_map::value_type it)
+                [&id](data_reader_map::value_type it)
                 {
                     return id.guidPrefix == it.first.guidPrefix;
                 });
@@ -381,7 +376,7 @@ DomainParticipant* DSManager::removeParticipant(
     return ret;
 }
 
-void DSManager::addSubscriber(
+void DSManager::addDataReader(
         DataReader* sub)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -389,12 +384,12 @@ void DSManager::addSubscriber(
     subscribers[sub->guid()] = sub;
 }
 
-DataReader* DSManager::getSubscriber(
+DataReader* DSManager::getDataReader(
         GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
-    subscriber_map::iterator it = subscribers.find(id);
+    data_reader_map::iterator it = subscribers.find(id);
     if (it != subscribers.end())
     {
         return it->second;
@@ -410,7 +405,7 @@ DataReader* DSManager::removeSubscriber(
 
     DataReader* ret = nullptr;
 
-    subscriber_map::iterator it = subscribers.find(id);
+    data_reader_map::iterator it = subscribers.find(id);
     if (it != subscribers.end())
     {
         ret = it->second;
@@ -420,7 +415,7 @@ DataReader* DSManager::removeSubscriber(
     return ret;
 }
 
-ReturnCode_t DSManager::deleteSubscriber(
+ReturnCode_t DSManager::deleteDataReader(
         DataReader* dr)
 {
     fastdds::dds::Subscriber* sub = nullptr;
@@ -433,7 +428,7 @@ ReturnCode_t DSManager::deleteSubscriber(
 
 }
 
-ReturnCode_t DSManager::deletePublisher(
+ReturnCode_t DSManager::deleteDataWriter(
         DataWriter* dw)
 {
     fastdds::dds::Publisher* pub = nullptr;
@@ -453,74 +448,15 @@ ReturnCode_t DSManager::deleteParticipant(
 
         std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
-        auto& entity = entity_map[participant->guid()];
-
-        std::vector<DataWriter*> writers;
-        std::vector<DataReader*> readers;
-
-        entity.publisher->get_datawriters(writers);
-        entity.subscriber->get_datareaders(readers);
-
-        // First we clear the DataReaders/DataWriters
-        ReturnCode_t ret;
-
-        for (const auto& writer: writers)
-        {
-            ret = entity.publisher->delete_datawriter(writer);
-            if (ReturnCode_t::RETCODE_OK != ret)
-            {
-                LOG_ERROR("Error deleting Data Writer");
-            }
-            auto topic = writer->get_topic();
-
-            entity.participant->unregister_type(topic->get_type_name());
-
-        }
-        for (const auto& reader: readers)
-        {
-            //auto listener = reader->get_listener();
-            ret = entity.subscriber->delete_datareader(reader);
-            if (ReturnCode_t::RETCODE_OK != ret)
-            {
-                LOG_ERROR("Error deleting Data Reader");
-            }
-
-            auto topic = reader->get_topicdescription();
-
-            entity.participant->unregister_type(topic->get_type_name());
-
-        }
-
-        // Now we can delete the Publishers/Subscribers
-
-        ret = entity.participant->delete_publisher(entity.publisher);
-        if (ReturnCode_t::RETCODE_OK != ret)
-        {
-            LOG_ERROR("Error deleting Publisher");
-        }
-        ret = entity.participant->delete_subscriber(entity.subscriber);
-        if (ReturnCode_t::RETCODE_OK != ret)
-        {
-            LOG_ERROR("Error deleting Subscriber");
-        }
-
-
-        // Now we delete the associated participant
-
-
-        entity.participant->set_listener(nullptr);
-
-
-        for (auto topic: entity.registeredTopics )
-        {
-            entity.participant->delete_topic(topic.second);
-            if (ReturnCode_t::RETCODE_OK != ret)
-            {
-                LOG_ERROR("Error deleting Topic");
-            }
-        }
+        participant->set_listener(nullptr);
 
         entity_map.erase(participant->guid());
+
+        ReturnCode_t ret = participant->delete_contained_entities();
+        if (ret != ReturnCode_t::RETCODE_OK)
+        {
+            LOG_ERROR("Error cleaning up participant entities");   
+        }
 
     }
 
@@ -568,7 +504,7 @@ void DSManager::setDomainEntityType(
     entity_map[entity->get_participant()->guid()].subscriberType = t;
 }
 
-void DSManager::addPublisher(
+void DSManager::addDataWriter(
         DataWriter* pub)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -576,12 +512,12 @@ void DSManager::addPublisher(
     publishers[pub->guid()] = pub;
 }
 
-DataWriter* DSManager::getPublisher(
+DataWriter* DSManager::getDataWriter(
         GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
-    publisher_map::iterator it = publishers.find(id);
+    data_writer_map::iterator it = publishers.find(id);
     if (it != publishers.end())
     {
         return it->second;
@@ -597,7 +533,7 @@ DataWriter* DSManager::removePublisher(
 
     DataWriter* ret = nullptr;
 
-    publisher_map::iterator it = publishers.find(id);
+    data_writer_map::iterator it = publishers.find(id);
     if (it != publishers.end())
     {
         ret = it->second;
@@ -670,21 +606,6 @@ void DSManager::setParticipantInfo(
     entity_map[guid] = info;
 }
 
-void DSManager::setParentGUID(
-        GUID_t parent,
-        GUID_t child)
-{
-    std::lock_guard<std::recursive_mutex> lock(management_mutex);
-    guid_map[child] = parent;
-}
-
-GUID_t DSManager::getParentGUID(
-        GUID_t child)
-{
-    std::lock_guard<std::recursive_mutex> lock(management_mutex);
-    return guid_map[child];
-}
-
 void DSManager::setParticipantTopic(
         DomainParticipant* p,
         Topic* t)
@@ -740,85 +661,19 @@ void DSManager::onTerminate()
 
     for (const auto& entity: entity_map )
     {
-        std::vector<DataWriter*> writers;
-        std::vector<DataReader*> readers;
-
-        entity.second.publisher->get_datawriters(writers);
-        entity.second.subscriber->get_datareaders(readers);
-
-        // First we clear the DataReaders/DataWriters
-        ReturnCode_t ret;
-
-        for (const auto& writer: writers)
-        {
-            ret = entity.second.publisher->delete_datawriter(writer);
-            if (ReturnCode_t::RETCODE_OK != ret)
-            {
-                LOG_ERROR("Error deleting Data Writer");
-            }
-            auto topic = writer->get_topic();
-
-            entity.second.participant->unregister_type(topic->get_type_name());
-
-        }
-        for (const auto& reader: readers)
-        {
-
-            ret = entity.second.subscriber->delete_datareader(reader);
-            if (ReturnCode_t::RETCODE_OK != ret)
-            {
-                LOG_ERROR("Error deleting Data Reader");
-            }
-
-            auto topic = reader->get_topicdescription();
-
-            entity.second.participant->unregister_type(topic->get_type_name());
-
-        }
-
-        //unregister the types
-        for (const auto& t : loaded_types)
-        {
-            xmlparser::XMLProfileManager::DeleteDynamicPubSubType(t.second);
-        }
-
-        loaded_types.clear();
-
-        // Now we can delete the Publishers/Subscribers
-
-        ret = entity.second.participant->delete_publisher(entity.second.publisher);
-        if (ReturnCode_t::RETCODE_OK != ret)
-        {
-            LOG_ERROR("Error deleting Publisher");
-        }
-        ret = entity.second.participant->delete_subscriber(entity.second.subscriber);
-        if (ReturnCode_t::RETCODE_OK != ret)
-        {
-            LOG_ERROR("Error deleting Subscriber");
-        }
-
-        // Now we delete the topics
-
-        for (auto topic: entity.second.registeredTopics )
-        {
-            entity.second.participant->delete_topic(topic.second);
-            if (ReturnCode_t::RETCODE_OK != ret)
-            {
-                LOG_ERROR("Error deleting Topic");
-            }
-        }
-
-        // Now we delete the associated participant
-
-
         entity.second.participant->set_listener(nullptr);
+
+        ReturnCode_t ret = entity.second.participant->delete_contained_entities();
+        if (ReturnCode_t::RETCODE_OK != ret)
+        {
+            LOG_ERROR("Error cleaning up participant entities");
+        }
 
         ret = DomainParticipantFactory::get_instance()->delete_participant(entity.second.participant);
         if (ReturnCode_t::RETCODE_OK != ret)
         {
             LOG_ERROR("Error deleting Participant");
         }
-        //}
     }
 
     entity_map.clear();
@@ -1876,11 +1731,11 @@ void DSManager::on_subscriber_discovery(
     switch (info.status)
     {
         case DS::DISCOVERED_READER:
-            state.AddSubscriber(srcGuid, partid, subsid, info.info.typeName().to_string(),
+            state.AddDataReader(srcGuid, partid, subsid, info.info.typeName().to_string(),
                     info.info.topicName().to_string(), callback_time);
             break;
         case DS::REMOVED_READER:
-            state.RemoveSubscriber(srcGuid, partid, subsid);
+            state.RemoveDataReader(srcGuid, partid, subsid);
             break;
         default:
             break;
@@ -1953,7 +1808,7 @@ void DSManager::on_publisher_discovery(
     {
         case DS::DISCOVERED_WRITER:
 
-            state.AddPublisher(srcGuid,
+            state.AddDataWriter(srcGuid,
                     partid,
                     pubsid,
                     info.info.typeName().to_string(),
@@ -1962,7 +1817,7 @@ void DSManager::on_publisher_discovery(
             break;
         case DS::REMOVED_WRITER:
 
-            state.RemovePublisher(srcGuid, partid, pubsid);
+            state.RemoveDataWriter(srcGuid, partid, pubsid);
             break;
         default:
             break;

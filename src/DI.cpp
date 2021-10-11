@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "log/DSLog.h"
-
 #include <algorithm>
 #include <cassert>
 #include <iomanip>
@@ -26,7 +24,7 @@
 
 #include "DI.h"
 #include "IDs.h"
-
+#include "log/DSLog.h"
 
 #ifndef XMLCheckResult
 #define XMLCheckResult(a_eResult) if (a_eResult != XML_SUCCESS){ printf("Error: %i\n", a_eResult); \
@@ -197,12 +195,12 @@ void ParticipantDiscoveryItem::acknowledge(
     part.is_alive = alive;
 }
 
-ParticipantDiscoveryItem::size_type ParticipantDiscoveryItem::CountSubscribers() const
+ParticipantDiscoveryItem::size_type ParticipantDiscoveryItem::CountDataReaders() const
 {
     return subscribers.size();
 }
 
-ParticipantDiscoveryItem::size_type ParticipantDiscoveryItem::CountPublishers() const
+ParticipantDiscoveryItem::size_type ParticipantDiscoveryItem::CountDataWriters() const
 {
     return publishers.size();
 }
@@ -217,22 +215,22 @@ ParticipantDiscoveryDatabase::size_type ParticipantDiscoveryDatabase::CountParti
     return size();
 }
 
-ParticipantDiscoveryDatabase::size_type ParticipantDiscoveryDatabase::CountSubscribers() const
+ParticipantDiscoveryDatabase::size_type ParticipantDiscoveryDatabase::CountDataReaders() const
 {
     return std::accumulate(begin(), end(), size_type(0),
                    [](size_type subs, const ParticipantDiscoveryItem& part)
                    {
-                       return subs + part.CountSubscribers();
+                       return subs + part.CountDataReaders();
                    }
                    );
 }
 
-ParticipantDiscoveryDatabase::size_type ParticipantDiscoveryDatabase::CountPublishers() const
+ParticipantDiscoveryDatabase::size_type ParticipantDiscoveryDatabase::CountDataWriters() const
 {
     return std::accumulate(begin(), end(), size_type(0),
                    [](size_type pubs, const ParticipantDiscoveryItem& part)
                    {
-                       return pubs + part.CountPublishers();
+                       return pubs + part.CountDataWriters();
                    }
                    );
 }
@@ -242,7 +240,7 @@ std::ostream& eprosima::discovery_server::operator <<(
         const ParticipantDiscoveryDatabase& db)
 {
     os << "Participant " << db.endpoint_guid << " discovered " << db.CountParticipants() << " participants, ";
-    os << db.CountPublishers() << " publishers and " << db.CountSubscribers() << " subscribers:" << std::endl;
+    os << db.CountDataWriters() << " publishers and " << db.CountDataReaders() << " subscribers:" << std::endl;
 
     for (const ParticipantDiscoveryItem& pt : db)
     {
@@ -338,15 +336,15 @@ ParticipantDiscoveryDatabase::smart_iterator ParticipantDiscoveryDatabase::smart
 std::chrono::milliseconds Snapshot::aceptable_offset_ = std::chrono::milliseconds(400);
 
 // Time conversion auxiliary
-std::chrono::system_clock::time_point Snapshot::_sy_ck(std::chrono::system_clock::now());
-std::chrono::steady_clock::time_point Snapshot::_st_ck(std::chrono::steady_clock::now());
+std::chrono::system_clock::time_point Snapshot::_system_clock(std::chrono::system_clock::now());
+std::chrono::steady_clock::time_point Snapshot::_steady_clock(std::chrono::steady_clock::now());
 
 std::chrono::system_clock::time_point Snapshot::getSystemTime(
         std::chrono::steady_clock::time_point tp)
 {
     using namespace std::chrono;
 
-    return _sy_ck + duration_cast<system_clock::duration>(tp - _st_ck);
+    return _system_clock + duration_cast<system_clock::duration>(tp - _steady_clock);
 }
 
 std::string Snapshot::getTimeStamp(
@@ -542,7 +540,7 @@ bool DiscoveryItemDatabase::RemoveEndPoint(
     return true;
 }
 
-bool DiscoveryItemDatabase::AddSubscriber(
+bool DiscoveryItemDatabase::AddDataReader(
         const GUID_t& spokesman,
         const GUID_t& ptid,
         const GUID_t& sid,
@@ -554,7 +552,7 @@ bool DiscoveryItemDatabase::AddSubscriber(
                    discovered_timestamp);
 }
 
-bool DiscoveryItemDatabase::RemoveSubscriber(
+bool DiscoveryItemDatabase::RemoveDataReader(
         const GUID_t& spokesman,
         const GUID_t& ptid,
         const GUID_t& sid)
@@ -562,7 +560,7 @@ bool DiscoveryItemDatabase::RemoveSubscriber(
     return RemoveEndPoint(&ParticipantDiscoveryItem::getSubscribers, spokesman, ptid, sid);
 }
 
-bool DiscoveryItemDatabase::AddPublisher(
+bool DiscoveryItemDatabase::AddDataWriter(
         const GUID_t& spokesman,
         const GUID_t& ptid,
         const GUID_t& pid,
@@ -574,7 +572,7 @@ bool DiscoveryItemDatabase::AddPublisher(
                    discovered_timestamp);
 }
 
-bool DiscoveryItemDatabase::RemovePublisher(
+bool DiscoveryItemDatabase::RemoveDataWriter(
         const GUID_t& spokesman,
         const GUID_t& ptid,
         const GUID_t& pid)
@@ -652,7 +650,7 @@ DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountParticipants(
     return 0;
 }
 
-DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountSubscribers(
+DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountDataReaders(
         const GUID_t& spokesman) const
 {
     std::lock_guard<std::mutex> lock(database_mutex);
@@ -680,7 +678,7 @@ DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountSubscribers(
     return 0;
 }
 
-DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountPublishers(
+DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountDataWriters(
         const GUID_t& spokesman) const
 {
     std::lock_guard<std::mutex> lock(database_mutex);
@@ -708,7 +706,7 @@ DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountPublishers(
     return 0;
 }
 
-DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountSubscribers(
+DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountDataReaders(
         const GUID_t& spokesman,
         const GUID_t& ptid) const
 {
@@ -739,7 +737,7 @@ DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountSubscribers(
     return 0;
 }
 
-DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountPublishers(
+DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountDataWriters(
         const GUID_t& spokesman,
         const GUID_t& ptid) const
 {
@@ -1018,7 +1016,7 @@ void Snapshot::from_xml(
             milliseconds d_edp_cb(pRoot->Int64Attribute(s_sLastEdpCallback.c_str()));
 
             // recreate the steady_clock::time_point from the timestamp
-            _time = (system_clock::time_point() + dts) - _sy_ck + _st_ck;
+            _time = (system_clock::time_point() + dts) - _system_clock + _steady_clock;
 
             // update the original process startup time for this snapshot
             process_startup_ = _time - dpt;
