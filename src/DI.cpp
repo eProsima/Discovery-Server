@@ -72,9 +72,9 @@ bool DiscoveryItem::operator <(
     return endpoint_guid < d.endpoint_guid;
 }
 
-// publisher discovery item operations
-bool PublisherDiscoveryItem::operator ==(
-        const PublisherDiscoveryItem& p) const
+// DataWriter discovery item operations
+bool DataWriterDiscoveryItem::operator ==(
+        const DataWriterDiscoveryItem& p) const
 {
     return DiscoveryItem::operator ==(p)
            && type_name == p.type_name
@@ -83,15 +83,15 @@ bool PublisherDiscoveryItem::operator ==(
 
 std::ostream& eprosima::discovery_server::operator <<(
         std::ostream& os,
-        const PublisherDiscoveryItem& di)
+        const DataWriterDiscoveryItem& di)
 {
-    return os << "Publisher " << di.endpoint_guid << " TypeName: " << di.type_name
+    return os << "DataWriter " << di.endpoint_guid << " TypeName: " << di.type_name
               << " TopicName: " << di.topic_name;
 }
 
-// subscriber discovery item operations
-bool SubscriberDiscoveryItem::operator ==(
-        const SubscriberDiscoveryItem& p) const
+// DataReader discovery item operations
+bool DataReaderDiscoveryItem::operator ==(
+        const DataReaderDiscoveryItem& p) const
 {
     return DiscoveryItem::operator ==(p)
            && type_name == p.type_name
@@ -100,9 +100,9 @@ bool SubscriberDiscoveryItem::operator ==(
 
 std::ostream& eprosima::discovery_server::operator <<(
         std::ostream& os,
-        const SubscriberDiscoveryItem& di)
+        const DataReaderDiscoveryItem& di)
 {
-    return os << "Subscriber " << di.endpoint_guid << " TypeName: " << di.type_name
+    return os << "DataReader " << di.endpoint_guid << " TypeName: " << di.type_name
               << " TopicName: " << di.topic_name << " liveliness, alive_count: " << di.alive_count
               << " not_alive_count: " << di.not_alive_count;
 }
@@ -113,11 +113,8 @@ bool ParticipantDiscoveryItem::operator ==(
         const ParticipantDiscoveryItem& p) const
 {
     return DiscoveryItem::operator ==(p)
-           // && this->is_alive == p.is_alive // own participant may not be aware
-           // && this->is_server == p.is_server // only in-process participants may be aware of this
-           // && this->participant_name == p.participant_name // own participant may not be aware
-           && this->publishers == p.publishers
-           && this->subscribers == p.subscribers;
+           && this->datawriters == p.datawriters
+           && this->datareaders == p.datareaders;
 }
 
 bool ParticipantDiscoveryItem::operator !=(
@@ -127,8 +124,8 @@ bool ParticipantDiscoveryItem::operator !=(
            // || this->is_alive != p.is_alive // own participant may not be aware
            // || this->is_server != p.is_server // only in-process participants may be aware of this
            // || this->participant_name != p.participant_name // own participant may not be aware
-           || this->publishers != p.publishers
-           || this->subscribers != p.subscribers;
+           || this->datawriters != p.datawriters
+           || this->datareaders != p.datareaders;
 }
 
 std::ostream& eprosima::discovery_server::operator <<(
@@ -149,21 +146,21 @@ std::ostream& eprosima::discovery_server::operator <<(
         os << " has:" << std::endl;
     }
 
-    if (di.publishers.size())
+    if (di.datawriters.size())
     {
-        os << "\t\t" << di.publishers.size() << " publishers:" << std::endl;
+        os << "\t\t" << di.datawriters.size() << " datawriters:" << std::endl;
 
-        for ( const PublisherDiscoveryItem& pdi : di.publishers )
+        for ( const DataWriterDiscoveryItem& pdi : di.datawriters )
         {
             os << "\t\t\t" << pdi << std::endl;
         }
     }
 
-    if (di.subscribers.size())
+    if (di.datareaders.size())
     {
-        os << "\t\t" << di.subscribers.size() << " subscribers:" << std::endl;
+        os << "\t\t" << di.datareaders.size() << " datareaders:" << std::endl;
 
-        for (const SubscriberDiscoveryItem& sdi : di.subscribers)
+        for (const DataReaderDiscoveryItem& sdi : di.datareaders)
         {
             os << "\t\t\t" << sdi << std::endl;
         }
@@ -173,17 +170,17 @@ std::ostream& eprosima::discovery_server::operator <<(
 }
 
 bool ParticipantDiscoveryItem::operator [](
-        const PublisherDiscoveryItem& p) const
+        const DataWriterDiscoveryItem& p) const
 {
     // search the list
-    return publishers.end() != publishers.find(p);
+    return datawriters.end() != datawriters.find(p);
 }
 
 bool ParticipantDiscoveryItem::operator [](
-        const SubscriberDiscoveryItem& p) const
+        const DataReaderDiscoveryItem& p) const
 {
     // search the list
-    return subscribers.end() != subscribers.find(p);
+    return datareaders.end() != datareaders.find(p);
 }
 
 void ParticipantDiscoveryItem::acknowledge(
@@ -197,17 +194,17 @@ void ParticipantDiscoveryItem::acknowledge(
 
 ParticipantDiscoveryItem::size_type ParticipantDiscoveryItem::CountDataReaders() const
 {
-    return subscribers.size();
+    return datareaders.size();
 }
 
 ParticipantDiscoveryItem::size_type ParticipantDiscoveryItem::CountDataWriters() const
 {
-    return publishers.size();
+    return datawriters.size();
 }
 
 ParticipantDiscoveryItem::size_type ParticipantDiscoveryItem::CountEndpoints() const
 {
-    return publishers.size() + subscribers.size();
+    return datawriters.size() + datareaders.size();
 }
 
 ParticipantDiscoveryDatabase::size_type ParticipantDiscoveryDatabase::CountParticipants() const
@@ -240,7 +237,7 @@ std::ostream& eprosima::discovery_server::operator <<(
         const ParticipantDiscoveryDatabase& db)
 {
     os << "Participant " << db.endpoint_guid << " discovered " << db.CountParticipants() << " participants, ";
-    os << db.CountDataWriters() << " publishers and " << db.CountDataReaders() << " subscribers:" << std::endl;
+    os << db.CountDataWriters() << " datawriters and " << db.CountDataReaders() << " datareaders:" << std::endl;
 
     for (const ParticipantDiscoveryItem& pt : db)
     {
@@ -548,7 +545,7 @@ bool DiscoveryItemDatabase::AddDataReader(
         const std::string& topicname,
         const std::chrono::steady_clock::time_point& discovered_timestamp)
 {
-    return AddEndPoint(&ParticipantDiscoveryItem::getSubscribers, spokesman, ptid, sid, _typename, topicname,
+    return AddEndPoint(&ParticipantDiscoveryItem::getDataReaders, spokesman, ptid, sid, _typename, topicname,
                    discovered_timestamp);
 }
 
@@ -557,7 +554,7 @@ bool DiscoveryItemDatabase::RemoveDataReader(
         const GUID_t& ptid,
         const GUID_t& sid)
 {
-    return RemoveEndPoint(&ParticipantDiscoveryItem::getSubscribers, spokesman, ptid, sid);
+    return RemoveEndPoint(&ParticipantDiscoveryItem::getDataReaders, spokesman, ptid, sid);
 }
 
 bool DiscoveryItemDatabase::AddDataWriter(
@@ -568,7 +565,7 @@ bool DiscoveryItemDatabase::AddDataWriter(
         const std::string& topicname,
         const std::chrono::steady_clock::time_point& discovered_timestamp)
 {
-    return AddEndPoint(&ParticipantDiscoveryItem::getPublishers, spokesman, ptid, pid, _typename, topicname,
+    return AddEndPoint(&ParticipantDiscoveryItem::getDataWriters, spokesman, ptid, pid, _typename, topicname,
                    discovered_timestamp);
 }
 
@@ -577,7 +574,7 @@ bool DiscoveryItemDatabase::RemoveDataWriter(
         const GUID_t& ptid,
         const GUID_t& pid)
 {
-    return RemoveEndPoint(&ParticipantDiscoveryItem::getPublishers, spokesman, ptid, pid);
+    return RemoveEndPoint(&ParticipantDiscoveryItem::getDataWriters, spokesman, ptid, pid);
 }
 
 void DiscoveryItemDatabase::UpdateSubLiveliness(
@@ -608,7 +605,7 @@ void DiscoveryItemDatabase::UpdateSubLiveliness(
     }
 
     // Locate the SDI associated with the subscriber
-    ParticipantDiscoveryItem::subscriber_set& ss = it->getSubscribers();
+    ParticipantDiscoveryItem::subscriber_set& ss = it->getDataReaders();
     ParticipantDiscoveryItem::subscriber_set::iterator sit = std::lower_bound(ss.begin(), ss.end(), subs);
 
     if (sit == ss.end() || *sit != subs)
@@ -619,7 +616,7 @@ void DiscoveryItemDatabase::UpdateSubLiveliness(
     }
 
     // Update the liveliness info
-    SubscriberDiscoveryItem& sub = const_cast<SubscriberDiscoveryItem&>(*sit);
+    DataReaderDiscoveryItem& sub = const_cast<DataReaderDiscoveryItem&>(*sit);
 
     sub.alive_count = alive_count;
     sub.not_alive_count = not_alive_count;
@@ -669,7 +666,7 @@ DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountDataReaders(
 
         for (const ParticipantDiscoveryItem& part : *p)
         {
-            count += part.subscribers.size();
+            count += part.datareaders.size();
         }
 
         return count;
@@ -697,7 +694,7 @@ DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountDataWriters(
 
         for (const ParticipantDiscoveryItem& part : *p)
         {
-            count += part.publishers.size();
+            count += part.datawriters.size();
         }
 
         return count;
@@ -731,7 +728,7 @@ DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountDataReaders(
             return 0;
         }
 
-        return it->subscribers.size();
+        return it->datareaders.size();
     }
 
     return 0;
@@ -762,7 +759,7 @@ DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountDataWriters(
             return 0;
         }
 
-        return it->publishers.size();
+        return it->datawriters.size();
     }
 
     return 0;
@@ -938,7 +935,7 @@ void Snapshot::to_xml(
                     std::chrono::duration_cast<std::chrono::milliseconds>(
                         ptdi.discovered_timestamp_ - process_startup_).count());
 
-            for (const SubscriberDiscoveryItem& sub : ptdi.subscribers)
+            for (const DataReaderDiscoveryItem& sub : ptdi.datareaders)
             {
                 XMLElement* pSub = xmlDoc.NewElement(s_sSubscriber.c_str());
                 pSub->SetAttribute(s_sType.c_str(), sub.type_name.c_str());
@@ -969,7 +966,7 @@ void Snapshot::to_xml(
                 pPtdi->InsertEndChild(pSub);
             }
 
-            for (const PublisherDiscoveryItem& pub : ptdi.publishers)
+            for (const DataWriterDiscoveryItem& pub : ptdi.datawriters)
             {
                 XMLElement* pPub = xmlDoc.NewElement(s_sPublisher.c_str());
                 pPub->SetAttribute(s_sType.c_str(), pub.type_name.c_str());
@@ -1120,7 +1117,7 @@ void Snapshot::from_xml(
                     }
 
                     std::chrono::milliseconds disc_t(pSub->Int64Attribute(s_sDiscovered_timestamp.c_str()));
-                    SubscriberDiscoveryItem sub(sub_guid, pSub->Attribute(s_sType.c_str()),
+                    DataReaderDiscoveryItem sub(sub_guid, pSub->Attribute(s_sType.c_str()),
                             pSub->Attribute(s_sTopic.c_str()),
                             process_startup_ + disc_t);
 
@@ -1131,7 +1128,7 @@ void Snapshot::from_xml(
                         show_liveliness_ = true; // if present any attributes set liveliness
                     }
 
-                    ptdi.subscribers.insert(std::move(sub));
+                    ptdi.datareaders.insert(std::move(sub));
                 }
 
                 for (XMLElement* pPub = pPtdi->FirstChildElement(s_sPublisher.c_str());
@@ -1159,10 +1156,10 @@ void Snapshot::from_xml(
                     }
 
                     std::chrono::milliseconds disc_t(pPub->Int64Attribute(s_sDiscovered_timestamp.c_str()));
-                    PublisherDiscoveryItem pub(pub_guid, pPub->Attribute(s_sType.c_str()),
+                    DataWriterDiscoveryItem pub(pub_guid, pPub->Attribute(s_sType.c_str()),
                             pPub->Attribute(s_sTopic.c_str()),
                             process_startup_ + disc_t);
-                    ptdi.publishers.insert(std::move(pub));
+                    ptdi.datawriters.insert(std::move(pub));
                 }
 
                 ptdb.insert(std::move(ptdi));

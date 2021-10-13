@@ -339,20 +339,20 @@ DomainParticipant* DSManager::removeParticipant(
     // remove any related pubs-subs
     {
         data_writer_map paux;
-        std::remove_copy_if(publishers.begin(), publishers.end(), std::inserter(paux, paux.begin()),
+        std::remove_copy_if(data_writers.begin(), data_writers.end(), std::inserter(paux, paux.begin()),
                 [&id](data_writer_map::value_type it)
                 {
                     return id.guidPrefix == it.first.guidPrefix;
                 });
-        publishers.swap(paux);
+        data_writers.swap(paux);
 
         data_reader_map saux;
-        std::remove_copy_if(subscribers.begin(), subscribers.end(), std::inserter(saux, saux.begin()),
+        std::remove_copy_if(data_readers.begin(), data_readers.end(), std::inserter(saux, saux.begin()),
                 [&id](data_reader_map::value_type it)
                 {
                     return id.guidPrefix == it.first.guidPrefix;
                 });
-        subscribers.swap(saux);
+        data_readers.swap(saux);
     }
 
     // first in clients
@@ -380,8 +380,8 @@ void DSManager::addDataReader(
         DataReader* sub)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
-    assert(subscribers[sub->guid()] == nullptr);
-    subscribers[sub->guid()] = sub;
+    assert(data_readers[sub->guid()] == nullptr);
+    data_readers[sub->guid()] = sub;
 }
 
 DataReader* DSManager::getDataReader(
@@ -389,8 +389,8 @@ DataReader* DSManager::getDataReader(
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
-    data_reader_map::iterator it = subscribers.find(id);
-    if (it != subscribers.end())
+    data_reader_map::iterator it = data_readers.find(id);
+    if (it != data_readers.end())
     {
         return it->second;
     }
@@ -405,11 +405,11 @@ DataReader* DSManager::removeSubscriber(
 
     DataReader* ret = nullptr;
 
-    data_reader_map::iterator it = subscribers.find(id);
-    if (it != subscribers.end())
+    data_reader_map::iterator it = data_readers.find(id);
+    if (it != data_readers.end())
     {
         ret = it->second;
-        subscribers.erase(it);
+        data_readers.erase(it);
     }
 
     return ret;
@@ -424,8 +424,11 @@ ReturnCode_t DSManager::deleteDataReader(
         GUID_t participant_guid = dr->get_subscriber()->get_participant()->guid();
         sub = entity_map[participant_guid].subscriber;
     }
-    return sub->delete_datareader(dr);
-
+    if (sub != nullptr)
+    {
+        return sub->delete_datareader(dr);
+    }
+    return ReturnCode_t::RETCODE_ERROR;
 }
 
 ReturnCode_t DSManager::deleteDataWriter(
@@ -437,8 +440,11 @@ ReturnCode_t DSManager::deleteDataWriter(
         GUID_t participant_guid = dw->get_publisher()->get_participant()->guid();
         pub = entity_map[participant_guid].publisher;
     }
-    return pub->delete_datawriter(dw);
-
+    if (pub != nullptr)
+    {
+        return pub->delete_datawriter(dw);
+    }
+    return ReturnCode_t::RETCODE_ERROR;
 }
 
 ReturnCode_t DSManager::deleteParticipant(
@@ -470,7 +476,7 @@ void DSManager::setDomainEntityTopic(
         Topic* t)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
-
+    
     entity_map[entity->get_publisher()->get_participant()->guid()].publisherTopic = t;
 }
 
@@ -505,11 +511,11 @@ void DSManager::setDomainEntityType(
 }
 
 void DSManager::addDataWriter(
-        DataWriter* pub)
+        DataWriter* dw)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
-    assert(publishers[pub->guid()] == nullptr);
-    publishers[pub->guid()] = pub;
+    assert(data_writers[dw->guid()] == nullptr);
+    data_writers[dw->guid()] = dw;
 }
 
 DataWriter* DSManager::getDataWriter(
@@ -517,8 +523,8 @@ DataWriter* DSManager::getDataWriter(
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
-    data_writer_map::iterator it = publishers.find(id);
-    if (it != publishers.end())
+    data_writer_map::iterator it = data_writers.find(id);
+    if (it != data_writers.end())
     {
         return it->second;
     }
@@ -533,11 +539,11 @@ DataWriter* DSManager::removePublisher(
 
     DataWriter* ret = nullptr;
 
-    data_writer_map::iterator it = publishers.find(id);
-    if (it != publishers.end())
+    data_writer_map::iterator it = data_writers.find(id);
+    if (it != data_writers.end())
     {
         ret = it->second;
-        publishers.erase(it);
+        data_writers.erase(it);
     }
 
     return ret;
@@ -563,12 +569,12 @@ types::DynamicPubSubType* DSManager::setType(
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
     // Create dynamic type
-    types::DynamicPubSubType*& pDt = loaded_types[type_name];
+    types::DynamicPubSubType*& dynamic_type = loaded_types[type_name];
 
-    if (pDt == nullptr)
+    if (dynamic_type == nullptr)
     {
-        pDt = xmlparser::XMLProfileManager::CreateDynamicPubSubType(type_name);
-        if (pDt == nullptr)
+        dynamic_type = xmlparser::XMLProfileManager::CreateDynamicPubSubType(type_name);
+        if (dynamic_type == nullptr)
         {
             loaded_types.erase(type_name);
 
@@ -577,7 +583,7 @@ types::DynamicPubSubType* DSManager::setType(
         }
     }
 
-    return pDt;
+    return dynamic_type;
 }
 
 template<>
@@ -611,7 +617,12 @@ void DSManager::setParticipantTopic(
         Topic* t)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
-    entity_map[p->guid()].registeredTopics[t->get_name()] = t;
+    
+    created_entity_map::iterator it = entity_map.find(p->guid());
+    if (it != entity_map.end())
+    {
+        entity_map[p->guid()].registeredTopics[t->get_name()] = t;
+    }
 }
 
 Topic* DSManager::getParticipantTopicByName(
@@ -621,8 +632,15 @@ Topic* DSManager::getParticipantTopicByName(
     Topic* returnTopic = nullptr;
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
-    returnTopic = entity_map[p->guid()].registeredTopics[name];
-
+    created_entity_map::iterator it = entity_map.find(p->guid());
+    if (it != entity_map.end())
+    {
+        returnTopic = entity_map[p->guid()].registeredTopics[name];
+    }
+    else
+    {
+        return nullptr;
+    }
 
     return returnTopic;
 }
@@ -678,9 +696,9 @@ void DSManager::onTerminate()
 
     entity_map.clear();
 
-    subscribers.clear();
+    data_readers.clear();
 
-    publishers.clear();
+    data_writers.clear();
 
     // remove all events
     for (auto ptr : events)
@@ -1313,7 +1331,7 @@ void DSManager::loadSubscriber(
         }
     }
 
-    // subscribers are created for debugging purposes
+    // data_readers are created for debugging purposes
     // default topic is the static HelloWorld one
     const char* profile_name = sub->Attribute(DSxmlparser::PROFILE_NAME);
 
@@ -1423,7 +1441,7 @@ void DSManager::loadPublisher(
         }
     }
 
-    // subscribers are created for debugging purposes
+    // data_readers are created for debugging purposes
     // default topic is the static HelloWorld one
     const char* profile_name = sub->Attribute(DSxmlparser::PROFILE_NAME);
 

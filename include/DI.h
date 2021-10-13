@@ -86,9 +86,9 @@ struct DiscoveryItem
 };
 
 //! publisher specific info
-struct PublisherDiscoveryItem : public DiscoveryItem
+struct DataWriterDiscoveryItem : public DiscoveryItem
 {
-    PublisherDiscoveryItem(
+    DataWriterDiscoveryItem(
             const GUID_t& id,
             const std::string& type,
             const std::string& topic,
@@ -100,7 +100,7 @@ struct PublisherDiscoveryItem : public DiscoveryItem
     {
     }
 
-    PublisherDiscoveryItem(
+    DataWriterDiscoveryItem(
             GUID_t&& id,
             std::string&& type,
             std::string&& topic,
@@ -112,19 +112,19 @@ struct PublisherDiscoveryItem : public DiscoveryItem
     {
     }
 
-    PublisherDiscoveryItem() = delete;
-    PublisherDiscoveryItem(
-            const PublisherDiscoveryItem&) = default;
-    PublisherDiscoveryItem(
-            PublisherDiscoveryItem&&) = default;
-    PublisherDiscoveryItem& operator =(
-            const PublisherDiscoveryItem&) = default;
-    PublisherDiscoveryItem& operator =(
-            PublisherDiscoveryItem&&) = default;
+    DataWriterDiscoveryItem() = delete;
+    DataWriterDiscoveryItem(
+            const DataWriterDiscoveryItem&) = default;
+    DataWriterDiscoveryItem(
+            DataWriterDiscoveryItem&&) = default;
+    DataWriterDiscoveryItem& operator =(
+            const DataWriterDiscoveryItem&) = default;
+    DataWriterDiscoveryItem& operator =(
+            DataWriterDiscoveryItem&&) = default;
 
     //! comparissons
     bool operator ==(
-            const PublisherDiscoveryItem&) const;
+            const DataWriterDiscoveryItem&) const;
 
     //!Type name
     std::string type_name;
@@ -138,12 +138,12 @@ struct PublisherDiscoveryItem : public DiscoveryItem
 
 std::ostream& operator <<(
         std::ostream&,
-        const PublisherDiscoveryItem&);
+        const DataWriterDiscoveryItem&);
 
 //! subscriber specific info
-struct SubscriberDiscoveryItem : public DiscoveryItem
+struct DataReaderDiscoveryItem : public DiscoveryItem
 {
-    SubscriberDiscoveryItem(
+    DataReaderDiscoveryItem(
             const GUID_t& id,
             const std::string& type,
             const std::string& topic,
@@ -155,7 +155,7 @@ struct SubscriberDiscoveryItem : public DiscoveryItem
     {
     }
 
-    SubscriberDiscoveryItem(
+    DataReaderDiscoveryItem(
             GUID_t&& id,
             std::string&& type,
             std::string&& topic,
@@ -167,15 +167,15 @@ struct SubscriberDiscoveryItem : public DiscoveryItem
     {
     }
 
-    SubscriberDiscoveryItem() = delete;
-    SubscriberDiscoveryItem(
-            const SubscriberDiscoveryItem&) = default;
-    SubscriberDiscoveryItem(
-            SubscriberDiscoveryItem&&) = default;
-    SubscriberDiscoveryItem& operator =(
-            const SubscriberDiscoveryItem&) = default;
-    SubscriberDiscoveryItem& operator =(
-            SubscriberDiscoveryItem&&) = default;
+    DataReaderDiscoveryItem() = delete;
+    DataReaderDiscoveryItem(
+            const DataReaderDiscoveryItem&) = default;
+    DataReaderDiscoveryItem(
+            DataReaderDiscoveryItem&&) = default;
+    DataReaderDiscoveryItem& operator =(
+            const DataReaderDiscoveryItem&) = default;
+    DataReaderDiscoveryItem& operator =(
+            DataReaderDiscoveryItem&&) = default;
 
     //!Type name
     std::string type_name;
@@ -192,18 +192,18 @@ struct SubscriberDiscoveryItem : public DiscoveryItem
 
     //! comparissons
     bool operator ==(
-            const SubscriberDiscoveryItem&) const;
+            const DataReaderDiscoveryItem&) const;
 };
 
 std::ostream& operator <<(
         std::ostream&,
-        const SubscriberDiscoveryItem&);
+        const DataReaderDiscoveryItem&);
 
 //! participant discovery info
 struct ParticipantDiscoveryItem : public DiscoveryItem
 {
-    typedef std::set<PublisherDiscoveryItem> publisher_set;
-    typedef std::set<SubscriberDiscoveryItem> subscriber_set;
+    typedef std::set<DataWriterDiscoveryItem> publisher_set;
+    typedef std::set<DataReaderDiscoveryItem> subscriber_set;
 
     // identity
     bool is_server; // false -> client
@@ -212,8 +212,8 @@ struct ParticipantDiscoveryItem : public DiscoveryItem
     std::chrono::steady_clock::time_point discovered_timestamp_;
 
     // local user entities
-    publisher_set publishers;
-    subscriber_set subscribers;
+    publisher_set datawriters;
+    subscriber_set datareaders;
 
     ParticipantDiscoveryItem(
             const GUID_t& id,
@@ -267,11 +267,11 @@ struct ParticipantDiscoveryItem : public DiscoveryItem
 
     //! verifies if the given publisher was discovered by the participant
     bool operator [](
-            const PublisherDiscoveryItem&) const;
+            const DataWriterDiscoveryItem&) const;
 
     //! verifies if the given subscriber was discovered by the participant
     bool operator [](
-            const SubscriberDiscoveryItem&) const;
+            const DataReaderDiscoveryItem&) const;
 
     //! modify death acknowledge state
     void acknowledge(
@@ -280,16 +280,16 @@ struct ParticipantDiscoveryItem : public DiscoveryItem
     // the get methods allows us to workaround STL constrain on sets
     // that makes all its iterators constant
 
-    //! get publishers
-    publisher_set& getPublishers() const
+    //! get datawriters
+    publisher_set& getDataWriters() const
     {
-        return const_cast<publisher_set&>(publishers);
+        return const_cast<publisher_set&>(datawriters);
     }
 
-    //! get subscribers
-    subscriber_set& getSubscribers() const
+    //! get datareaders
+    subscriber_set& getDataReaders() const
     {
-        return const_cast<subscriber_set&>(subscribers);
+        return const_cast<subscriber_set&>(datareaders);
     }
 
     void setName(

@@ -120,8 +120,8 @@ class DSManager
     created_entity_map entity_map;
 
     // endpoints maps
-    data_reader_map subscribers;
-    data_writer_map publishers;
+    data_reader_map data_readers;
+    data_writer_map data_writers;
 
     // server address info
     serverLocator_map server_locators;
