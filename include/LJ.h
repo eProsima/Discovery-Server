@@ -167,7 +167,7 @@ public:
 
 };
 
-template<class PublisherSubscriber> struct LateJoinerDataTraits
+template<class ReaderWriter> struct LateJoinerDataTraits
 {
 };
 
@@ -216,16 +216,16 @@ template<> struct LateJoinerDataTraits<DataReader>
             fastdds::dds::SubscriberListener* = nullptr);
 };
 
-template<class PublisherSubscriber> class DelayedEndpointDestruction;
+template<class ReaderWriter> class DelayedEndpointDestruction;
 
-template<class PublisherSubscriber>
+template<class ReaderWriter>
 class DelayedEndpointCreation
     : public LateJoinerData // Delayed Enpoint Creation
 {
-    typedef typename LateJoinerDataTraits<PublisherSubscriber>::Attributes Attributes;
+    typedef typename LateJoinerDataTraits<ReaderWriter>::Attributes Attributes;
     Attributes* participant_attributes;
     GUID_t participant_guid;
-    DelayedEndpointDestruction<PublisherSubscriber>* linked_destruction_event;
+    DelayedEndpointDestruction<ReaderWriter>* linked_destruction_event;
     DelayedParticipantCreation* owner_event;  // associated participant event
 
 public:
@@ -234,7 +234,7 @@ public:
             const std::chrono::steady_clock::time_point tp,
             Attributes* atts,
             GUID_t& pid,
-            DelayedEndpointDestruction<PublisherSubscriber>* p = nullptr,
+            DelayedEndpointDestruction<ReaderWriter>* p = nullptr,
             DelayedParticipantCreation* part = nullptr)
         : LateJoinerData(tp)
         , participant_attributes(atts)
@@ -261,7 +261,7 @@ public:
 
 };
 
-template<class PublisherSubscriber>
+template<class ReaderWriter>
 class DelayedEndpointDestruction
     : public LateJoinerData // Delayed Endpoint Destruction
 {
@@ -338,8 +338,8 @@ public:
 };
 
 // delayed construction of a new subscriber or publisher
-template<class PublisherSubscriber>
-void DelayedEndpointCreation<PublisherSubscriber>::operator ()(
+template<class ReaderWriter>
+void DelayedEndpointCreation<ReaderWriter>::operator ()(
         DSManager& man)  /*override*/
 {
     // Retrieve the corresponding participant
@@ -347,7 +347,7 @@ void DelayedEndpointCreation<PublisherSubscriber>::operator ()(
 
     DomainEntity* pubsub = nullptr;
 
-    man.getPubSubEntityFromParticipantGuid<PublisherSubscriber>(participant_guid, pubsub);
+    man.getPubSubEntityFromParticipantGuid<ReaderWriter>(participant_guid, pubsub);
 
     if (part == nullptr && owner_event != nullptr)
     {
@@ -358,8 +358,8 @@ void DelayedEndpointCreation<PublisherSubscriber>::operator ()(
     {
         // invalid participant
         LOG_ERROR(
-            LateJoinerDataTraits<PublisherSubscriber>::endpoint_type <<
-                " cannot be created because no participant assign.");
+            LateJoinerDataTraits<ReaderWriter>::endpoint_type <<
+                " cannot be created because no participant is assigned.");
         return;
     }
 
@@ -376,8 +376,8 @@ void DelayedEndpointCreation<PublisherSubscriber>::operator ()(
         if (part->find_type(participant_attributes->topic.topicDataType.c_str()).empty())
         {
 
-            TypeSupport ts(new HelloWorldPubSubType());
-            ts.register_type(part);
+            TypeSupport hello_world_type_support(new HelloWorldPubSubType());
+            hello_world_type_support.register_type(part);
         }
 
         topic = man.getParticipantTopicByName(part, DSManager::builtin_defaultTopic.getTopicName().to_string());
@@ -394,17 +394,17 @@ void DelayedEndpointCreation<PublisherSubscriber>::operator ()(
         std::string type_name = participant_attributes->topic.topicDataType.to_string();
         if (part->find_type(participant_attributes->topic.topicDataType.c_str()).empty())
         {
-            eprosima::fastrtps::types::DynamicPubSubType* pDt = man.setType(type_name);
+            eprosima::fastrtps::types::DynamicPubSubType* dynamic_type = man.setType(type_name);
 
-            if (pDt)
+            if (dynamic_type)
             {
 
                 eprosima::fastrtps::types::DynamicType_ptr dyn_type =
                         eprosima::fastrtps::xmlparser::XMLProfileManager::getDynamicTypeByName(
                     participant_attributes->topic.topicDataType.to_string())->build();
 
-                TypeSupport ts(dyn_type);
-                ts.register_type(part);
+                TypeSupport dynamic_type_support(dyn_type);
+                dynamic_type_support.register_type(part);
             }
         }
 
@@ -419,60 +419,60 @@ void DelayedEndpointCreation<PublisherSubscriber>::operator ()(
     }
 
     // Now we create the endpoint: Domain::createSubscriber or createPublisher
-    PublisherSubscriber* pEp = LateJoinerDataTraits<PublisherSubscriber>::createEndpoint(pubsub, topic,
+    ReaderWriter* endpoint = LateJoinerDataTraits<ReaderWriter>::createEndpoint(pubsub, topic,
                     *participant_attributes, &man);
 
-    man.setDomainEntityTopic(pEp, topic);
+    man.setDomainEntityTopic(endpoint, topic);
 
 
 
-    if (pEp)
+    if (endpoint)
     {
         // update the associated DED if exists
         if (linked_destruction_event)
         {
-            linked_destruction_event->SetGuid(pEp->guid());
+            linked_destruction_event->SetGuid(endpoint->guid());
         }
         // and we update the state: DSManager::addPublisher or DSManager::addSubscriber
-        (man.*LateJoinerDataTraits<PublisherSubscriber>::add_endpoint_function)(pEp);
+        (man.*LateJoinerDataTraits<ReaderWriter>::add_endpoint_function)(endpoint);
 
         LOG_INFO(
-            "New " << LateJoinerDataTraits<PublisherSubscriber>::endpoint_type << " created on participant " <<
+            "New " << LateJoinerDataTraits<ReaderWriter>::endpoint_type << " created on participant " <<
                 part->guid())
     }
 
 }
 
-template<class PublisherSubscriber>
-void DelayedEndpointDestruction<PublisherSubscriber>::operator ()(
+template<class ReaderWriter>
+void DelayedEndpointDestruction<ReaderWriter>::operator ()(
         DSManager& man)  /*override*/
 {
     // now we get the endpoint: DSManager::removePublisher or DSManager::removeSubscriber
-    PublisherSubscriber* p =
-            (man.*LateJoinerDataTraits<PublisherSubscriber>::retrieve_endpoint_function)(endpoint_guid);
+    ReaderWriter* endpoint =
+            (man.*LateJoinerDataTraits<ReaderWriter>::retrieve_endpoint_function)(endpoint_guid);
 
-    if (p)
+    if (endpoint)
     {
-        GUID_t guid = p->guid();
+        GUID_t guid = endpoint->guid();
         (void)guid;
 
         ReturnCode_t ret;
 
         // and we removed the endpoint: Domain::removePublisher or Domain::removeSubscriber
-        ret = (man.*LateJoinerDataTraits<PublisherSubscriber>::remove_endpoint_function)(p);
+        ret = (man.*LateJoinerDataTraits<ReaderWriter>::remove_endpoint_function)(endpoint);
         if (ReturnCode_t::RETCODE_OK != ret)
         {
             LOG_ERROR("Error deleting Endpoint");
         }
 
 
-        LOG_INFO(LateJoinerDataTraits<PublisherSubscriber>::endpoint_type << " called " << guid  << " destroyed ")
+        LOG_INFO(LateJoinerDataTraits<ReaderWriter>::endpoint_type << " called " << guid  << " destroyed ")
     }
 }
 
-// DED only knows its linked object guid after its creation
-template<class PublisherSubscriber>
-void DelayedEndpointDestruction<PublisherSubscriber>::SetGuid(
+// DelayedEndpointDestruction only knows its linked object guid after its creation
+template<class ReaderWriter>
+void DelayedEndpointDestruction<ReaderWriter>::SetGuid(
         const GUID_t& id)
 {
     if (endpoint_guid == GUID_t::unknown())
@@ -481,9 +481,9 @@ void DelayedEndpointDestruction<PublisherSubscriber>::SetGuid(
     }
 }
 
-template<class PublisherSubscriber>
-DelayedEndpointCreation<PublisherSubscriber>& DelayedEndpointCreation<PublisherSubscriber>::operator =(
-        DelayedEndpointCreation<PublisherSubscriber>&& d)
+template<class ReaderWriter>
+DelayedEndpointCreation<ReaderWriter>& DelayedEndpointCreation<ReaderWriter>::operator =(
+        DelayedEndpointCreation<ReaderWriter>&& d)
 {
     LateJoinerData::operator =(d);
     participant_guid = std::move(d.participant_guid);
@@ -495,9 +495,9 @@ DelayedEndpointCreation<PublisherSubscriber>& DelayedEndpointCreation<PublisherS
     return *this;
 }
 
-template<class PublisherSubscriber>
-DelayedEndpointCreation<PublisherSubscriber>::DelayedEndpointCreation(
-        DelayedEndpointCreation<PublisherSubscriber>&& d)
+template<class ReaderWriter>
+DelayedEndpointCreation<ReaderWriter>::DelayedEndpointCreation(
+        DelayedEndpointCreation<ReaderWriter>&& d)
     : LateJoinerData(std::move(d))
 {
     participant_guid = std::move(d.participant_guid);
@@ -507,8 +507,8 @@ DelayedEndpointCreation<PublisherSubscriber>::DelayedEndpointCreation(
     d.participant_attributes = nullptr;
 }
 
-template<class PublisherSubscriber>
-DelayedEndpointCreation<PublisherSubscriber>::~DelayedEndpointCreation() /*override*/
+template<class ReaderWriter>
+DelayedEndpointCreation<ReaderWriter>::~DelayedEndpointCreation() /*override*/
 {
     if (participant_attributes)
     {
