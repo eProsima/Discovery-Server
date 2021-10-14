@@ -124,8 +124,8 @@ Log::SetVerbosity(Log::Kind::Error);
     // Load Default XML files
     eprosima::fastrtps::xmlparser::XMLProfileManager::loadDefaultXMLFile();
 
-    // Create DSManager
-    DSManager manager(path_to_config, options[SHM]);
+    // Create DiscoveryServerManager
+    DiscoveryServerManager manager(path_to_config, options[SHM]);
     if (!manager.correctly_created())
     {
         return_code = 1;

@@ -19,9 +19,12 @@
 #include <string>
 #include <thread>
 
-#include <fastrtps/rtps/common/Guid.h>
 #include <fastrtps/types/DynamicPubSubType.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
+
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/subscriber/DataReaderListener.hpp>
+#include <fastdds/rtps/common/Guid.h>
 
 #include "DSManager.h"
 #include "log/DSLog.h"
@@ -31,9 +34,6 @@ namespace eprosima {
 namespace discovery_server {
 
 using eprosima::fastrtps::rtps::GUID_t;
-using eprosima::fastrtps::PublisherAttributes;
-using eprosima::fastrtps::SubscriberAttributes;
-using eprosima::fastrtps::ParticipantAttributes;
 
 class DelayedParticipantDestruction;
 
@@ -66,7 +66,7 @@ public:
 
     // Which operation should I do
     virtual void operator ()(
-            DSManager& ) = 0;
+            DiscoveryServerManager& ) = 0;
 
     bool operator <(
             const LateJoinerData& event) const
@@ -90,10 +90,9 @@ public:
 class DelayedParticipantCreation
     : public LateJoinerData // Delayed Participant Creation
 {
-    typedef void (DSManager::* AddParticipant)(
+    typedef void (DiscoveryServerManager::* AddParticipant)(
             fastdds::dds::DomainParticipant*);
-
-    ParticipantAttributes attributes;
+    DomainParticipantQos qos;
     AddParticipant participant_creation_function;
     DelayedParticipantDestruction* removal_event;
 
@@ -103,11 +102,11 @@ public:
 
     DelayedParticipantCreation(
             const std::chrono::steady_clock::time_point tp,
-            fastrtps::ParticipantAttributes&& atts,
+            DomainParticipantQos&& qos,
             AddParticipant m,
             DelayedParticipantDestruction* pD = nullptr)
         : LateJoinerData(tp)
-        , attributes(std::move(atts))
+        , qos(std::move(qos))
         , participant_creation_function(m)
         , removal_event(pD)
     {
@@ -128,7 +127,7 @@ public:
             DelayedParticipantCreation&&) = default;
 
     void operator ()(
-            DSManager& ) override;
+            DiscoveryServerManager& ) override;
 };
 
 class DelayedParticipantDestruction
@@ -161,7 +160,7 @@ public:
             DelayedParticipantDestruction&&) = default;
 
     void operator ()(
-            DSManager&) override;
+            DiscoveryServerManager&) override;
     void SetGuid(
             const GUID_t&);
 
@@ -173,12 +172,11 @@ template<class ReaderWriter> struct LateJoinerDataTraits
 
 template<> struct LateJoinerDataTraits<DataWriter>
 {
-    typedef PublisherAttributes Attributes;
-    typedef void (DSManager::* AddEndpoint)(
+    typedef void (DiscoveryServerManager::* AddEndpoint)(
             DataWriter*);
-    typedef DataWriter* (DSManager::* GetEndpoint)(
+    typedef DataWriter* (DiscoveryServerManager::* GetEndpoint)(
             GUID_t&);
-    typedef ReturnCode_t (DSManager::* removeEndpoint)(
+    typedef ReturnCode_t (DiscoveryServerManager::* removeEndpoint)(
             DataWriter*);
 
     static const std::string endpoint_type;
@@ -188,20 +186,19 @@ template<> struct LateJoinerDataTraits<DataWriter>
 
     // we don't want yet to listen on publisher callbacks
     static DataWriter* createEndpoint(
-            fastdds::dds::DomainEntity* part,
+            fastdds::dds::DomainEntity* publisher,
             fastdds::dds::Topic* topic,
-            const PublisherAttributes&,
+            const std::string& profile_name,
             void* = nullptr);
 };
 
 template<> struct LateJoinerDataTraits<DataReader>
 {
-    typedef SubscriberAttributes Attributes;
-    typedef void (DSManager::* AddEndpoint)(
+    typedef void (DiscoveryServerManager::* AddEndpoint)(
             DataReader*);
-    typedef DataReader* (DSManager::* GetEndpoint)(
+    typedef DataReader* (DiscoveryServerManager::* GetEndpoint)(
             GUID_t&);
-    typedef ReturnCode_t (DSManager::* removeEndpoint)(
+    typedef ReturnCode_t (DiscoveryServerManager::* removeEndpoint)(
             DataReader*);
 
     static const std::string endpoint_type;
@@ -210,9 +207,9 @@ template<> struct LateJoinerDataTraits<DataReader>
     static const removeEndpoint remove_endpoint_function;
 
     static DataReader* createEndpoint(
-            fastdds::dds::DomainEntity* part,
+            fastdds::dds::DomainEntity* subscriber,
             fastdds::dds::Topic* topic,
-            const SubscriberAttributes&,
+            const std::string& profile_name,
             fastdds::dds::SubscriberListener* = nullptr);
 };
 
@@ -222,8 +219,10 @@ template<class ReaderWriter>
 class DelayedEndpointCreation
     : public LateJoinerData // Delayed Enpoint Creation
 {
-    typedef typename LateJoinerDataTraits<ReaderWriter>::Attributes Attributes;
-    Attributes* participant_attributes;
+    std::string topic_name;
+    std::string type_name;
+    std::string topic_profile_name;
+    std::string endpoint_profile_name;
     GUID_t participant_guid;
     DelayedEndpointDestruction<ReaderWriter>* linked_destruction_event;
     DelayedParticipantCreation* owner_event;  // associated participant event
@@ -232,12 +231,18 @@ public:
 
     DelayedEndpointCreation(
             const std::chrono::steady_clock::time_point tp,
-            Attributes* atts,
+            const std::string& topic_name,
+            const std::string& type_name,
+            const std::string& topic_profile_name,
+            const std::string& endpoint_profile_name,
             GUID_t& pid,
             DelayedEndpointDestruction<ReaderWriter>* p = nullptr,
             DelayedParticipantCreation* part = nullptr)
         : LateJoinerData(tp)
-        , participant_attributes(atts)
+        , topic_name(topic_name)
+        , type_name(type_name)
+        , topic_profile_name(topic_profile_name)
+        , endpoint_profile_name(endpoint_profile_name)
         , participant_guid(pid)
         , linked_destruction_event(p)
         , owner_event(part)
@@ -257,7 +262,7 @@ public:
             const DelayedEndpointCreation&) = default;
 
     void operator ()(
-            DSManager&) override;
+            DiscoveryServerManager&) override;
 
 };
 
@@ -292,7 +297,7 @@ public:
             DelayedEndpointDestruction&&) = default;
 
     void operator ()(
-            DSManager&) override;
+            DiscoveryServerManager&) override;
     void SetGuid(
             const GUID_t& id);
 
@@ -334,24 +339,24 @@ public:
             DelayedSnapshot&&) = default;
 
     void operator ()(
-            DSManager&) override;
+            DiscoveryServerManager&) override;
 };
 
 // delayed construction of a new subscriber or publisher
 template<class ReaderWriter>
 void DelayedEndpointCreation<ReaderWriter>::operator ()(
-        DSManager& man)  /*override*/
+        DiscoveryServerManager& manager)  /*override*/
 {
     // Retrieve the corresponding participant
-    DomainParticipant* part = man.getParticipant(participant_guid);
+    DomainParticipant* part = manager.getParticipant(participant_guid);
 
     DomainEntity* pubsub = nullptr;
 
-    man.getPubSubEntityFromParticipantGuid<ReaderWriter>(participant_guid, pubsub);
+    manager.getPubSubEntityFromParticipantGuid<ReaderWriter>(participant_guid, pubsub);
 
     if (part == nullptr && owner_event != nullptr)
     {
-        part = man.getParticipant(owner_event->participant_guid);
+        part = manager.getParticipant(owner_event->participant_guid);
     }
 
     if (!part)
@@ -363,68 +368,61 @@ void DelayedEndpointCreation<ReaderWriter>::operator ()(
         return;
     }
 
-    Topic* topic = nullptr;
+    Topic * topic;
 
     // First we must register the type in the associated participant
-    if (participant_attributes->topic.getTopicName() == "UNDEF")
+    if (type_name == "UNDEF")
     {
 
-        // fill in default topic
-        participant_attributes->topic = DSManager::builtin_defaultTopic;
-
         // assure the participant has default type registered
-        if (part->find_type(participant_attributes->topic.topicDataType.c_str()).empty())
+        if (part->find_type(DiscoveryServerManager::builtin_defaultTopic.topicDataType.c_str()).empty())
         {
-
             TypeSupport hello_world_type_support(new HelloWorldPubSubType());
             hello_world_type_support.register_type(part);
         }
 
-        topic = man.getParticipantTopicByName(part, DSManager::builtin_defaultTopic.getTopicName().to_string());
+        topic = manager.getParticipantTopicByName(part, DiscoveryServerManager::builtin_defaultTopic.getTopicName().to_string());
         if ( nullptr == topic)
         {
-            topic = part->create_topic(DSManager::builtin_defaultTopic.getTopicName().to_string(),
-                            DSManager::builtin_defaultTopic.topicDataType.to_string(), part->get_default_topic_qos());
-            man.setParticipantTopic(part, topic);
+            topic = part->create_topic(DiscoveryServerManager::builtin_defaultTopic.getTopicName().to_string(),
+                            DiscoveryServerManager::builtin_defaultTopic.topicDataType.to_string(), part->get_default_topic_qos());
+            manager.setParticipantTopic(part, topic);
         }
     }
     else
     {
 
-        std::string type_name = participant_attributes->topic.topicDataType.to_string();
-        if (part->find_type(participant_attributes->topic.topicDataType.c_str()).empty())
+        if (part->find_type(type_name).empty())
         {
-            eprosima::fastrtps::types::DynamicPubSubType* dynamic_type = man.setType(type_name);
+            eprosima::fastrtps::types::DynamicPubSubType* dynamic_type = manager.setType(type_name);
 
             if (dynamic_type)
             {
 
                 eprosima::fastrtps::types::DynamicType_ptr dyn_type =
                         eprosima::fastrtps::xmlparser::XMLProfileManager::getDynamicTypeByName(
-                    participant_attributes->topic.topicDataType.to_string())->build();
+                    type_name)->build();
 
                 TypeSupport dynamic_type_support(dyn_type);
                 dynamic_type_support.register_type(part);
             }
         }
 
-        topic = man.getParticipantTopicByName(part, participant_attributes->topic.getTopicName().to_string());
+        topic = manager.getParticipantTopicByName(part, topic_name);
         if ( nullptr == topic)
         {
-            topic = part->create_topic(participant_attributes->topic.getTopicName().to_string(),
-                            participant_attributes->topic.topicDataType.to_string(), part->get_default_topic_qos());
-            man.setParticipantTopic(part, topic);
+            topic = part->create_topic_with_profile(topic_name,
+                            type_name, topic_profile_name);
+            manager.setParticipantTopic(part, topic);
         }
 
     }
 
-    // Now we create the endpoint: Domain::createSubscriber or createPublisher
+    // Now we create the endpoint
     ReaderWriter* endpoint = LateJoinerDataTraits<ReaderWriter>::createEndpoint(pubsub, topic,
-                    *participant_attributes, &man);
+                    endpoint_profile_name, &manager);
 
-    man.setDomainEntityTopic(endpoint, topic);
-
-
+    manager.setDomainEntityTopic(endpoint, topic);
 
     if (endpoint)
     {
@@ -433,8 +431,8 @@ void DelayedEndpointCreation<ReaderWriter>::operator ()(
         {
             linked_destruction_event->SetGuid(endpoint->guid());
         }
-        // and we update the state: DSManager::addPublisher or DSManager::addSubscriber
-        (man.*LateJoinerDataTraits<ReaderWriter>::add_endpoint_function)(endpoint);
+        // and we update the state: DiscoveryServerManager::addPublisher or DiscoveryServerManager::addSubscriber
+        (manager.*LateJoinerDataTraits<ReaderWriter>::add_endpoint_function)(endpoint);
 
         LOG_INFO(
             "New " << LateJoinerDataTraits<ReaderWriter>::endpoint_type << " created on participant " <<
@@ -445,11 +443,11 @@ void DelayedEndpointCreation<ReaderWriter>::operator ()(
 
 template<class ReaderWriter>
 void DelayedEndpointDestruction<ReaderWriter>::operator ()(
-        DSManager& man)  /*override*/
+        DiscoveryServerManager& manager)  /*override*/
 {
-    // now we get the endpoint: DSManager::removePublisher or DSManager::removeSubscriber
+    // now we get the endpoint: DiscoveryServerManager::removePublisher or DiscoveryServerManager::removeSubscriber
     ReaderWriter* endpoint =
-            (man.*LateJoinerDataTraits<ReaderWriter>::retrieve_endpoint_function)(endpoint_guid);
+            (manager.*LateJoinerDataTraits<ReaderWriter>::retrieve_endpoint_function)(endpoint_guid);
 
     if (endpoint)
     {
@@ -459,7 +457,7 @@ void DelayedEndpointDestruction<ReaderWriter>::operator ()(
         ReturnCode_t ret;
 
         // and we removed the endpoint: Domain::removePublisher or Domain::removeSubscriber
-        ret = (man.*LateJoinerDataTraits<ReaderWriter>::remove_endpoint_function)(endpoint);
+        ret = (manager.*LateJoinerDataTraits<ReaderWriter>::remove_endpoint_function)(endpoint);
         if (ReturnCode_t::RETCODE_OK != ret)
         {
             LOG_ERROR("Error deleting Endpoint");
@@ -488,9 +486,11 @@ DelayedEndpointCreation<ReaderWriter>& DelayedEndpointCreation<ReaderWriter>::op
     LateJoinerData::operator =(d);
     participant_guid = std::move(d.participant_guid);
     linked_destruction_event = d.linked_destruction_event;
-    participant_attributes = d.participant_attributes;
     owner_event = d.owner_event;
-    d.participant_attributes = nullptr;
+    topic_name = d.topic_name;
+    type_name = d.type_name;
+    topic_profile_name = d.topic_profile_name;
+    endpoint_profile_name = d.endpoint_profile_name;
 
     return *this;
 }
@@ -502,18 +502,17 @@ DelayedEndpointCreation<ReaderWriter>::DelayedEndpointCreation(
 {
     participant_guid = std::move(d.participant_guid);
     linked_destruction_event = d.linked_destruction_event;
-    participant_attributes = d.participant_attributes;
     owner_event = d.owner_event;
-    d.participant_attributes = nullptr;
+    topic_name = d.topic_name;
+    type_name = d.type_name;
+    topic_profile_name = d.topic_profile_name;
+    endpoint_profile_name = d.endpoint_profile_name;
 }
 
 template<class ReaderWriter>
 DelayedEndpointCreation<ReaderWriter>::~DelayedEndpointCreation() /*override*/
 {
-    if (participant_attributes)
-    {
-        delete participant_attributes;
-    }
+
 }
 
 } // fastrtps

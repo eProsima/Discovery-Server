@@ -121,9 +121,6 @@ bool ParticipantDiscoveryItem::operator !=(
         const ParticipantDiscoveryItem& p) const
 {
     return DiscoveryItem::operator !=(p)
-           // || this->is_alive != p.is_alive // own participant may not be aware
-           // || this->is_server != p.is_server // only in-process participants may be aware of this
-           // || this->participant_name != p.participant_name // own participant may not be aware
            || this->datawriters != p.datawriters
            || this->datareaders != p.datareaders;
 }
@@ -310,14 +307,14 @@ ParticipantDiscoveryDatabase::smart_iterator::pointer ParticipantDiscoveryDataba
 bool ParticipantDiscoveryDatabase::smart_iterator::operator ==(
         const smart_iterator& it) const
 {
-    // note that zombies are skip, that simplifies comparison
+    // note that zombies are skipped, that simplifies comparison
     return wrap_it_ == it.wrap_it_;
 }
 
 bool ParticipantDiscoveryDatabase::smart_iterator::operator !=(
         const smart_iterator& it) const
 {
-    // note that zombies are skip, that simplifies comparison
+    // note that zombies are skipped, that simplifies comparison
     return !(*this == it);
 }
 
@@ -422,8 +419,6 @@ bool DiscoveryItemDatabase::RemoveParticipant(
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    //std::cout << "EraseParticipant:: " << deceased << " - " << image.size() << std::endl;
-
     return image.erase(deceased) != 0;
 }
 
@@ -441,7 +436,7 @@ bool DiscoveryItemDatabase::RemoveParticipant(
         return false; // is no there
     }
 
-    // If isn't empty, mark as death, otherwise remove
+    // If it isn't empty, mark as dead, otherwise remove
     if (it->CountEndpoints() > 0)
     {
         // participant death acknowledge but not their owned endpoints
@@ -514,7 +509,7 @@ bool DiscoveryItemDatabase::RemoveEndPoint(
 
     if (it == database.end() || *it != ptid)
     {
-        // participant is no there, should be a zombie
+        // participant is not there, should be a zombie
         return false;
     }
 
@@ -592,7 +587,6 @@ void DiscoveryItemDatabase::UpdateSubLiveliness(
     {
         return;
     }
-
     // Locate the PtDI associated with the subscriber
     ParticipantDiscoveryDatabase& database = image[pguid];
     ParticipantDiscoveryDatabase::iterator it = std::lower_bound(database.begin(), database.end(), pguid);
@@ -631,12 +625,6 @@ DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountParticipants(
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    Snapshot::iterator snap_it = image.find(spokesman);
-    if ( snap_it == image.end())
-    {
-        return 0;
-    }
-
     const ParticipantDiscoveryDatabase* p = image[spokesman];
 
     if (p != nullptr)
@@ -651,12 +639,6 @@ DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountDataReaders(
         const GUID_t& spokesman) const
 {
     std::lock_guard<std::mutex> lock(database_mutex);
-
-    Snapshot::iterator snap_it = image.find(spokesman);
-    if ( snap_it == image.end())
-    {
-        return 0;
-    }
 
     const ParticipantDiscoveryDatabase* p = image[spokesman];
 
@@ -680,12 +662,6 @@ DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountDataWriters(
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    Snapshot::iterator snap_it = image.find(spokesman);
-    if ( snap_it == image.end())
-    {
-        return 0;
-    }
-
     const ParticipantDiscoveryDatabase* p = image[spokesman];
 
     if (p != nullptr)
@@ -708,12 +684,6 @@ DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountDataReaders(
         const GUID_t& ptid) const
 {
     std::lock_guard<std::mutex> lock(database_mutex);
-
-    Snapshot::iterator snap_it = image.find(spokesman);
-    if ( snap_it == image.end())
-    {
-        return 0;
-    }
 
     const ParticipantDiscoveryDatabase* p = image[spokesman];
 
@@ -850,7 +820,7 @@ ParticipantDiscoveryDatabase& Snapshot::operator [](
 
     if (it == end() || *it != id)
     {
-        // no there, emplace
+        // not there, emplace
         p = &(*emplace(id).first);
     }
     else
@@ -868,7 +838,7 @@ const ParticipantDiscoveryDatabase* Snapshot::operator [](
 
     if (it == end() || *it != id)
     {
-        return nullptr; // no there
+        return nullptr; // not there
     }
 
     return &*it;
@@ -900,42 +870,42 @@ void Snapshot::to_xml(
     pDescription->SetText(this->_des.c_str());
     pRoot->InsertEndChild(pDescription);
 
-    for (const ParticipantDiscoveryDatabase& ptdb : *this)
+    for (const ParticipantDiscoveryDatabase& discovery_database : *this)
     {
         XMLElement* pPtdb = xmlDoc.NewElement(s_sPtDB.c_str());
         {
             std::stringstream sstream;
-            sstream << ptdb.endpoint_guid.guidPrefix;
+            sstream << discovery_database.endpoint_guid.guidPrefix;
             pPtdb->SetAttribute(s_sGUID_prefix.c_str(), sstream.str().c_str());
         }
         {
             std::stringstream sstream;
-            sstream << ptdb.endpoint_guid.entityId;
+            sstream << discovery_database.endpoint_guid.entityId;
             pPtdb->SetAttribute(s_sGUID_entity.c_str(), sstream.str().c_str());
         }
 
-        for (const ParticipantDiscoveryItem& ptdi : ptdb)
+        for (const ParticipantDiscoveryItem& discovery_item : discovery_database)
         {
             XMLElement* pPtdi = xmlDoc.NewElement(s_sPtDI.c_str());
             {
                 std::stringstream sstream;
-                sstream << ptdi.endpoint_guid.guidPrefix;
+                sstream << discovery_item.endpoint_guid.guidPrefix;
                 pPtdi->SetAttribute(s_sGUID_prefix.c_str(), sstream.str().c_str());
             }
             {
                 std::stringstream sstream;
-                sstream << ptdi.endpoint_guid.entityId;
+                sstream << discovery_item.endpoint_guid.entityId;
                 pPtdi->SetAttribute(s_sGUID_entity.c_str(), sstream.str().c_str());
             }
 
-            pPtdi->SetAttribute(s_sServer.c_str(), ptdi.is_server);
-            pPtdi->SetAttribute(s_sAlive.c_str(), ptdi.is_alive);
-            pPtdi->SetAttribute(s_sName.c_str(), ptdi.participant_name.c_str());
+            pPtdi->SetAttribute(s_sServer.c_str(), discovery_item.is_server);
+            pPtdi->SetAttribute(s_sAlive.c_str(), discovery_item.is_alive);
+            pPtdi->SetAttribute(s_sName.c_str(), discovery_item.participant_name.c_str());
             pPtdi->SetAttribute(s_sDiscovered_timestamp.c_str(),
                     std::chrono::duration_cast<std::chrono::milliseconds>(
-                        ptdi.discovered_timestamp_ - process_startup_).count());
+                        discovery_item.discovered_timestamp_ - process_startup_).count());
 
-            for (const DataReaderDiscoveryItem& sub : ptdi.datareaders)
+            for (const DataReaderDiscoveryItem& sub : discovery_item.datareaders)
             {
                 XMLElement* pSub = xmlDoc.NewElement(s_sSubscriber.c_str());
                 pSub->SetAttribute(s_sType.c_str(), sub.type_name.c_str());
@@ -957,7 +927,7 @@ void Snapshot::to_xml(
                 // Show liveliness callback info if requested, only makes sense to show
                 // liveliness on this participant endpoints
                 if (show_liveliness_ &&
-                        (sub.endpoint_guid.guidPrefix == ptdb.endpoint_guid.guidPrefix))
+                        (sub.endpoint_guid.guidPrefix == discovery_database.endpoint_guid.guidPrefix))
                 {
                     pSub->SetAttribute(s_sAliveCount.c_str(), sub.alive_count);
                     pSub->SetAttribute(s_sNotAliveCount.c_str(), sub.not_alive_count);
@@ -966,7 +936,7 @@ void Snapshot::to_xml(
                 pPtdi->InsertEndChild(pSub);
             }
 
-            for (const DataWriterDiscoveryItem& pub : ptdi.datawriters)
+            for (const DataWriterDiscoveryItem& pub : discovery_item.datawriters)
             {
                 XMLElement* pPub = xmlDoc.NewElement(s_sPublisher.c_str());
                 pPub->SetAttribute(s_sType.c_str(), pub.type_name.c_str());
@@ -1056,7 +1026,7 @@ void Snapshot::from_xml(
                 ptdb_guid.entityId = entityId;
             }
 
-            ParticipantDiscoveryDatabase ptdb(ptdb_guid);
+            ParticipantDiscoveryDatabase discovery_database(ptdb_guid);
 
             for (XMLElement* pPtdi = pPtdb->FirstChildElement(s_sPtDI.c_str());
                     pPtdi != nullptr;
@@ -1082,14 +1052,14 @@ void Snapshot::from_xml(
                     ptdi_guid.entityId = entityId;
                 }
 
-                ParticipantDiscoveryItem ptdi(
+                ParticipantDiscoveryItem discovery_item(
                     ptdi_guid,
                     pPtdi->Attribute(s_sName.c_str()),
                     pPtdi->BoolAttribute(s_sServer.c_str()),
                     process_startup_ + std::chrono::milliseconds(pPtdi->Int64Attribute(s_sDiscovered_timestamp.c_str()))
                     );
 
-                pPtdi->QueryBoolAttribute(s_sAlive.c_str(), &ptdi.is_alive);
+                pPtdi->QueryBoolAttribute(s_sAlive.c_str(), &discovery_item.is_alive);
                
                 for (XMLElement* pSub = pPtdi->FirstChildElement(s_sSubscriber.c_str());
                         pSub != nullptr;
@@ -1128,7 +1098,7 @@ void Snapshot::from_xml(
                         show_liveliness_ = true; // if present any attributes set liveliness
                     }
 
-                    ptdi.datareaders.insert(std::move(sub));
+                    discovery_item.datareaders.insert(std::move(sub));
                 }
 
                 for (XMLElement* pPub = pPtdi->FirstChildElement(s_sPublisher.c_str());
@@ -1159,13 +1129,13 @@ void Snapshot::from_xml(
                     DataWriterDiscoveryItem pub(pub_guid, pPub->Attribute(s_sType.c_str()),
                             pPub->Attribute(s_sTopic.c_str()),
                             process_startup_ + disc_t);
-                    ptdi.datawriters.insert(std::move(pub));
+                    discovery_item.datawriters.insert(std::move(pub));
                 }
 
-                ptdb.insert(std::move(ptdi));
+                discovery_database.insert(std::move(discovery_item));
             }
 
-            this->insert(std::move(ptdb));
+            this->insert(std::move(discovery_database));
 
         }
     }

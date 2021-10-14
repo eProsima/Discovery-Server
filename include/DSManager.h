@@ -16,22 +16,20 @@
 #ifndef _DSMANAGER_H_
 #define _DSMANAGER_H_
 
-#include <map>
-#include <vector>
-#include <iostream>
-#include <regex>
 #include <chrono>
-
-#include <fastrtps/xmlparser/XMLParser.h>
+#include <iostream>
+#include <map>
+#include <regex>
+#include <vector>
 
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
-#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-#include <fastdds/dds/subscriber/DataReaderListener.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 #include <fastdds/dds/publisher/DataWriter.hpp>
 #include <fastdds/dds/publisher/Publisher.hpp>
+
+#include <fastrtps/xmlparser/XMLParser.h>
 
 #include "DI.h"
 
@@ -91,7 +89,7 @@ class LateJoinerData;
 class DelayedParticipantCreation;
 class DelayedParticipantDestruction;
 
-class DSManager
+class DiscoveryServerManager
     : public xmlparser::XMLParser      // access to parsing protected functions
     , public eprosima::fastdds::dds::DomainParticipantListener // receive discovery callback information and 
                                                                // subscriber lifeliness information
@@ -140,7 +138,7 @@ class DSManager
     volatile bool no_callbacks;      // ongoing participant destruction
     bool auto_shutdown;         // close when event processing is finished?
     bool enable_prefix_validation; // allow multiple servers share the same prefix? (only for testing purposes)
-    bool correctly_created_;     // store false if the DSManager has not been successfully created
+    bool correctly_created_;     // store false if the DiscoveryServerManager has not been successfully created
 
     void loadProfiles(
             tinyxml2::XMLElement* profiles);
@@ -190,18 +188,18 @@ class DSManager
 
 public:
 
-    DSManager(
+    DiscoveryServerManager(
             const std::string& xml_file_path,
             const bool shared_memory_off);
 #if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 2
-    FASTDDS_DEPRECATED_UNTIL(3, "eprosima::discovery_server::DSManager(const std::set<std::string>& xml_snapshot_files,"
+    FASTDDS_DEPRECATED_UNTIL(3, "eprosima::discovery_server::DiscoveryServerManager(const std::set<std::string>& xml_snapshot_files,"
             "const std::string & output_file)",
             "Old Discovery Server v1 constructor to validate.")
 #endif // if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 2
-    DSManager(
+    DiscoveryServerManager(
             const std::set<std::string>& xml_snapshot_files,
             const std::string& output_file);
-    ~DSManager();
+    ~DiscoveryServerManager();
 
     // testing database
     bool shouldValidate() const
@@ -272,8 +270,8 @@ public:
             TopicDataType* topic);
 
     void setParticipantInfo(
-            GUID_t,
-            ParticipantCreatedEntityInfo info);
+            GUID_t&,
+            ParticipantCreatedEntityInfo& info);
 
     void setParticipantTopic(
             DomainParticipant* p,
@@ -283,10 +281,10 @@ public:
             std::string name);
 
     void setParentGUID(
-            GUID_t parent,
-            GUID_t child);
+            GUID_t& parent,
+            GUID_t& child);
     GUID_t getParentGUID(
-            GUID_t child);
+            GUID_t& child);
 
     types::DynamicPubSubType* getType(
             std::string& name);
@@ -319,10 +317,10 @@ public:
     void onTerminate();
 
     std::string getEndPointName(
-            const std::string& partName,
-            const std::string& epName)
+            const std::string& participant_name,
+            const std::string& endpoint_name)
     {
-        return partName + "." + epName;
+        return participant_name + "." + endpoint_name;
     }
 
     bool correctly_created()

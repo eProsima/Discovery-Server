@@ -54,11 +54,11 @@ const char* TOPIC = "topic";
 } // namespace eprosima
 
 /*static members*/
-TopicAttributes DSManager::builtin_defaultTopic("HelloWorldTopic", "HelloWorld");
-const std::regex DSManager::ipv4_regular_expression("^((?:[0-9]{1,3}\\.){3}[0-9]{1,3})?:?(?:(\\d+))?$");
-const std::chrono::seconds DSManager::last_snapshot_delay_ = std::chrono::seconds(1);
+TopicAttributes DiscoveryServerManager::builtin_defaultTopic("HelloWorldTopic", "HelloWorld");
+const std::regex DiscoveryServerManager::ipv4_regular_expression("^((?:[0-9]{1,3}\\.){3}[0-9]{1,3})?:?(?:(\\d+))?$");
+const std::chrono::seconds DiscoveryServerManager::last_snapshot_delay_ = std::chrono::seconds(1);
 
-DSManager::DSManager(
+DiscoveryServerManager::DiscoveryServerManager(
         const std::string& xml_file_path,
         const bool shared_memory_off)
     : no_callbacks(false)
@@ -70,6 +70,13 @@ DSManager::DSManager(
     , shared_memory_off_(shared_memory_off)
 {
     tinyxml2::XMLDocument doc;
+
+    /*if (ReturnCode_t::RETCODE_OK != DomainParticipantFactory::get_instance()->load_XML_profiles_file(xml_file_path.c_str()))
+    {
+        LOG_ERROR("Invalid config or snapshot file");
+                return;
+    }*/
+
     if (tinyxml2::XMLError::XML_SUCCESS == doc.LoadFile(xml_file_path.c_str()))
     {
         tinyxml2::XMLElement* root = doc.FirstChildElement(s_sDS.c_str());
@@ -204,7 +211,7 @@ DSManager::DSManager(
     LOG_INFO("File " << xml_file_path << " parsed successfully.");
 }
 
-DSManager::DSManager(
+DiscoveryServerManager::DiscoveryServerManager(
         const std::set<std::string>& xml_snapshot_files,
         const std::string& output_file)
     : no_callbacks(true)
@@ -232,7 +239,7 @@ DSManager::DSManager(
     }
 }
 
-void DSManager::runEvents(
+void DiscoveryServerManager::runEvents(
         std::istream& in /*= std::cin*/,
         std::ostream& out /*= std::cout*/)
 {
@@ -266,7 +273,7 @@ void DSManager::runEvents(
     }
 }
 
-void DSManager::addServer(
+void DiscoveryServerManager::addServer(
         DomainParticipant* s)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -274,7 +281,7 @@ void DSManager::addServer(
     servers[s->guid()] = s;
 }
 
-void DSManager::addClient(
+void DiscoveryServerManager::addClient(
         DomainParticipant* c)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -282,7 +289,7 @@ void DSManager::addClient(
     clients[c->guid()] = c;
 }
 
-void DSManager::addSimple(
+void DiscoveryServerManager::addSimple(
         DomainParticipant* s)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -290,7 +297,7 @@ void DSManager::addSimple(
     simples[s->guid()] = s;
 }
 
-DomainParticipant* DSManager::getParticipant(
+DomainParticipant* DiscoveryServerManager::getParticipant(
         GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -323,7 +330,7 @@ DomainParticipant* DSManager::getParticipant(
     return nullptr;
 }
 
-DomainParticipant* DSManager::removeParticipant(
+DomainParticipant* DiscoveryServerManager::removeParticipant(
         GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -376,7 +383,7 @@ DomainParticipant* DSManager::removeParticipant(
     return ret;
 }
 
-void DSManager::addDataReader(
+void DiscoveryServerManager::addDataReader(
         DataReader* sub)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -384,7 +391,7 @@ void DSManager::addDataReader(
     data_readers[sub->guid()] = sub;
 }
 
-DataReader* DSManager::getDataReader(
+DataReader* DiscoveryServerManager::getDataReader(
         GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -398,7 +405,7 @@ DataReader* DSManager::getDataReader(
     return nullptr;
 }
 
-DataReader* DSManager::removeSubscriber(
+DataReader* DiscoveryServerManager::removeSubscriber(
         GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -415,7 +422,7 @@ DataReader* DSManager::removeSubscriber(
     return ret;
 }
 
-ReturnCode_t DSManager::deleteDataReader(
+ReturnCode_t DiscoveryServerManager::deleteDataReader(
         DataReader* dr)
 {
     fastdds::dds::Subscriber* sub = nullptr;
@@ -431,7 +438,7 @@ ReturnCode_t DSManager::deleteDataReader(
     return ReturnCode_t::RETCODE_ERROR;
 }
 
-ReturnCode_t DSManager::deleteDataWriter(
+ReturnCode_t DiscoveryServerManager::deleteDataWriter(
         DataWriter* dw)
 {
     fastdds::dds::Publisher* pub = nullptr;
@@ -447,7 +454,7 @@ ReturnCode_t DSManager::deleteDataWriter(
     return ReturnCode_t::RETCODE_ERROR;
 }
 
-ReturnCode_t DSManager::deleteParticipant(
+ReturnCode_t DiscoveryServerManager::deleteParticipant(
         DomainParticipant* participant)
 {
     {
@@ -471,7 +478,7 @@ ReturnCode_t DSManager::deleteParticipant(
 }
 
 template<>
-void DSManager::setDomainEntityTopic(
+void DiscoveryServerManager::setDomainEntityTopic(
         fastdds::dds::DataWriter* entity,
         Topic* t)
 {
@@ -481,7 +488,7 @@ void DSManager::setDomainEntityTopic(
 }
 
 template<>
-void DSManager::setDomainEntityTopic(
+void DiscoveryServerManager::setDomainEntityTopic(
         fastdds::dds::DataReader* entity,
         Topic* t)
 {
@@ -491,7 +498,7 @@ void DSManager::setDomainEntityTopic(
 }
 
 template<>
-void DSManager::setDomainEntityType(
+void DiscoveryServerManager::setDomainEntityType(
         fastdds::dds::Publisher* entity,
         TopicDataType* t)
 {
@@ -501,7 +508,7 @@ void DSManager::setDomainEntityType(
 }
 
 template<>
-void DSManager::setDomainEntityType(
+void DiscoveryServerManager::setDomainEntityType(
         fastdds::dds::Subscriber* entity,
         TopicDataType* t)
 {
@@ -510,7 +517,7 @@ void DSManager::setDomainEntityType(
     entity_map[entity->get_participant()->guid()].subscriberType = t;
 }
 
-void DSManager::addDataWriter(
+void DiscoveryServerManager::addDataWriter(
         DataWriter* dw)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -518,7 +525,7 @@ void DSManager::addDataWriter(
     data_writers[dw->guid()] = dw;
 }
 
-DataWriter* DSManager::getDataWriter(
+DataWriter* DiscoveryServerManager::getDataWriter(
         GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -532,7 +539,7 @@ DataWriter* DSManager::getDataWriter(
     return nullptr;
 }
 
-DataWriter* DSManager::removePublisher(
+DataWriter* DiscoveryServerManager::removePublisher(
         GUID_t& id)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -549,7 +556,7 @@ DataWriter* DSManager::removePublisher(
     return ret;
 }
 
-types::DynamicPubSubType* DSManager::getType(
+types::DynamicPubSubType* DiscoveryServerManager::getType(
         std::string& name)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -563,7 +570,7 @@ types::DynamicPubSubType* DSManager::getType(
     return nullptr;
 }
 
-types::DynamicPubSubType* DSManager::setType(
+types::DynamicPubSubType* DiscoveryServerManager::setType(
         std::string& type_name)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -578,7 +585,7 @@ types::DynamicPubSubType* DSManager::setType(
         {
             loaded_types.erase(type_name);
 
-            LOG_ERROR("DSManager::setType couldn't create type " << type_name);
+            LOG_ERROR("DiscoveryServerManager::setType couldn't create type " << type_name);
             return nullptr;
         }
     }
@@ -587,7 +594,7 @@ types::DynamicPubSubType* DSManager::setType(
 }
 
 template<>
-void DSManager::getPubSubEntityFromParticipantGuid< eprosima::fastdds::dds::DataWriter >(
+void DiscoveryServerManager::getPubSubEntityFromParticipantGuid< eprosima::fastdds::dds::DataWriter >(
         GUID_t& id,
         DomainEntity*& pubsub)
 {
@@ -596,7 +603,7 @@ void DSManager::getPubSubEntityFromParticipantGuid< eprosima::fastdds::dds::Data
 }
 
 template<>
-void DSManager::getPubSubEntityFromParticipantGuid< eprosima::fastdds::dds::DataReader >(
+void DiscoveryServerManager::getPubSubEntityFromParticipantGuid< eprosima::fastdds::dds::DataReader >(
         GUID_t& id,
         DomainEntity*& pubsub)
 {
@@ -604,15 +611,15 @@ void DSManager::getPubSubEntityFromParticipantGuid< eprosima::fastdds::dds::Data
     pubsub = entity_map[id].subscriber;
 }
 
-void DSManager::setParticipantInfo(
-        GUID_t guid,
-        ParticipantCreatedEntityInfo info)
+void DiscoveryServerManager::setParticipantInfo(
+        GUID_t& guid,
+        ParticipantCreatedEntityInfo& info)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
     entity_map[guid] = info;
 }
 
-void DSManager::setParticipantTopic(
+void DiscoveryServerManager::setParticipantTopic(
         DomainParticipant* p,
         Topic* t)
 {
@@ -625,7 +632,7 @@ void DSManager::setParticipantTopic(
     }
 }
 
-Topic* DSManager::getParticipantTopicByName(
+Topic* DiscoveryServerManager::getParticipantTopicByName(
         DomainParticipant* p,
         std::string name)
 {
@@ -645,7 +652,7 @@ Topic* DSManager::getParticipantTopicByName(
     return returnTopic;
 }
 
-void DSManager::loadProfiles(
+void DiscoveryServerManager::loadProfiles(
         tinyxml2::XMLElement* profiles)
 {
     xmlparser::XMLP_ret ret = xmlparser::XMLProfileManager::loadXMLProfiles(*profiles);
@@ -660,7 +667,7 @@ void DSManager::loadProfiles(
     }
 }
 
-void DSManager::onTerminate()
+void DiscoveryServerManager::onTerminate()
 {
     {
         // make sure all other threads don't modify the state
@@ -668,14 +675,12 @@ void DSManager::onTerminate()
 
         if (no_callbacks)
         {
-            return; // DSManager already terminated
+            return; // DiscoveryServerManager already terminated
         }
 
         no_callbacks = true;
 
     }
-
-    // Since we cannot use delete_contained_enttities for now...
 
     for (const auto& entity: entity_map )
     {
@@ -709,7 +714,7 @@ void DSManager::onTerminate()
     events.clear();
 }
 
-DSManager::~DSManager()
+DiscoveryServerManager::~DiscoveryServerManager()
 {
     if (!snapshots_output_file.empty())
     {
@@ -717,7 +722,7 @@ DSManager::~DSManager()
     }
 }
 
-void DSManager::loadServer(
+void DiscoveryServerManager::loadServer(
         tinyxml2::XMLElement* server)
 {
     // check if we need to create an event
@@ -764,11 +769,13 @@ void DSManager::loadServer(
     }
 
     // retrieve profile attributes
-    ParticipantAttributes atts;
-    if (xmlparser::XMLP_ret::XML_OK !=
-            xmlparser::XMLProfileManager::fillParticipantAttributes(std::string(profile_name), atts))
+    //ParticipantAttributes atts;
+    DomainParticipantQos dpQOS;
+    //if (xmlparser::XMLP_ret::XML_OK !=
+    //        xmlparser::XMLProfileManager::fillParticipantAttributes(std::string(profile_name), atts))
+    if (ReturnCode_t::RETCODE_OK != DomainParticipantFactory::get_instance()->get_participant_qos_from_profile(std::string(profile_name), dpQOS))
     {
-        LOG_ERROR("DSManager::loadServer couldn't load profile " << profile_name);
+        LOG_ERROR("DiscoveryServerManager::loadServer couldn't load profile " << profile_name);
         return;
     }
 
@@ -776,12 +783,12 @@ void DSManager::loadServer(
     const char* name = server->Attribute(DSxmlparser::NAME);
     if (name != nullptr)
     {
-        atts.rtps.setName(name);
+        dpQOS.name() = name;
     }
 
     // server GuidPrefix is either pass as an attribute (preferred to allow profile reuse)
     // or inside the profile.
-    GuidPrefix_t& prefix = atts.rtps.prefix;
+    GuidPrefix_t& prefix = dpQOS.wire_protocol().prefix;
     const char* cprefix = server->Attribute(DSxmlparser::PREFIX);
 
     if (cprefix != nullptr &&
@@ -798,28 +805,28 @@ void DSManager::loadServer(
     if (enable_prefix_validation &&
             servers.find(guid) != servers.end())
     {
-        LOG_ERROR("DSManager detected two servers sharing the same prefix " << prefix);
+        LOG_ERROR("DiscoveryServerManager detected two servers sharing the same prefix " << prefix);
         return;
     }
 
-    // replace the atts.rtps.builtin lists with the ones from server_locators (if present)
-    // note that a previous call to DSManager::MapServerInfo
+    // replace the DomainParticipantQOS builtin lists with the ones from server_locators (if present)
+    // note that a previous call to DiscoveryServerManager::MapServerInfo
     serverLocator_map::mapped_type& lists = server_locators[guid];
     if (!lists.first.empty() ||
             !lists.second.empty())
     {
         // server elements take precedence over profile ones
         // I copy them because other servers may need this values
-        atts.rtps.builtin.metatrafficMulticastLocatorList = lists.first;
-        atts.rtps.builtin.metatrafficUnicastLocatorList = lists.second;
+        dpQOS.wire_protocol().builtin.metatrafficMulticastLocatorList = lists.first;
+        dpQOS.wire_protocol().builtin.metatrafficUnicastLocatorList = lists.second;
     }
 
-    // load the server list (if present) and update the atts.rtps.builtin
+    // load the server list (if present) and update the DomainParticipantQOS builtin
     tinyxml2::XMLElement* server_list = server->FirstChildElement(s_sSL.c_str());
 
     if (server_list != nullptr)
     {
-        RemoteServerList_t& list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
+        RemoteServerList_t& list = dpQOS.wire_protocol().builtin.discovery_config.m_DiscoveryServers;
         list.clear(); // server elements take precedence over profile ones
 
         tinyxml2::XMLElement* rserver = server_list->FirstChildElement(s_sRServer.c_str());
@@ -854,20 +861,19 @@ void DSManager::loadServer(
     if (shared_memory_off_)
     {
         // Desactivate transport by default
-        atts.rtps.useBuiltinTransports = false;
+        dpQOS.transport().use_builtin_transports = false;
 
         auto udp_transport = std::make_shared<UDPv4TransportDescriptor>();
-        atts.rtps.userTransports.push_back(udp_transport);
+        dpQOS.transport().user_transports.push_back(udp_transport);
     }
 
     // We define the PDP as external (when moved to fast library it would be SERVER)
-    DiscoverySettings& b = atts.rtps.builtin.discovery_config;
+    DiscoverySettings& b = dpQOS.wire_protocol().builtin.discovery_config;
     (void)b;
     assert(b.discoveryProtocol == SERVER || b.discoveryProtocol == BACKUP);
 
     // Create the participant or the associated events
-    DelayedParticipantCreation event(creation_time, std::move(atts), &DSManager::addServer);
-
+    DelayedParticipantCreation event(creation_time, std::move(dpQOS), &DiscoveryServerManager::addServer);
     if (creation_time == getTime())
     {
         event(*this);
@@ -900,7 +906,7 @@ void DSManager::loadServer(
     }
 }
 
-void DSManager::loadClient(
+void DiscoveryServerManager::loadClient(
         tinyxml2::XMLElement* client)
 {
     // check if we need to create an event
@@ -936,23 +942,23 @@ void DSManager::loadClient(
     }
 
     // retrieve profile attributes
-    ParticipantAttributes atts;
-    if (xmlparser::XMLP_ret::XML_OK !=
-            xmlparser::XMLProfileManager::fillParticipantAttributes(std::string(profile_name), atts))
+    DomainParticipantQos dpQOS;
+    //ParticipantAttributes atts;
+    if (ReturnCode_t::RETCODE_OK != DomainParticipantFactory::get_instance()->get_participant_qos_from_profile(std::string(profile_name), dpQOS))
     {
-        LOG_ERROR("DSManager::loadClient couldn't load profile " << profile_name);
+        LOG_ERROR("DiscoveryServerManager::loadClient couldn't load profile " << profile_name);
         return;
     }
 
     // we must assert that DiscoveryProtocol is CLIENT
 #if FASTRTPS_VERSION_MAJOR >= 2
-    if (atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::CLIENT &&
-            atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::SUPER_CLIENT)
+    if (dpQOS.wire_protocol().builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::CLIENT &&
+            dpQOS.wire_protocol().builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::SUPER_CLIENT)
 #else
     if (atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::CLIENT)
 #endif // if FASTRTPS_VERSION_MAJOR >= 2
     {
-        LOG_ERROR("DSManager::loadClient try to create a client with an incompatible profile: " << profile_name);
+        LOG_ERROR("DiscoveryServerManager::loadClient try to create a client with an incompatible profile: " << profile_name);
         return;
     }
 
@@ -960,7 +966,7 @@ void DSManager::loadClient(
     const char* name = client->Attribute(DSxmlparser::NAME);
     if (name != nullptr)
     {
-        atts.rtps.setName(name);
+        dpQOS.name() = name;
     }
 
     // server may be provided by prefix (takes precedence) or by list
@@ -977,7 +983,7 @@ void DSManager::loadClient(
             return;
         }
 
-        RemoteServerList_t& list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
+        RemoteServerList_t& list = dpQOS.wire_protocol().builtin.discovery_config.m_DiscoveryServers;
         list.clear(); // server elements take precedence over profile ones
 
         // load the locator lists
@@ -989,12 +995,12 @@ void DSManager::loadClient(
     }
     else
     {
-        // load the server list (if present) and update the atts.rtps.builtin
+        // load the server list (if present) and update the builtin
         tinyxml2::XMLElement* server_list = client->FirstChildElement(s_sSL.c_str());
 
         if (server_list != nullptr)
         {
-            RemoteServerList_t& list = atts.rtps.builtin.discovery_config.m_DiscoveryServers;
+            RemoteServerList_t& list = dpQOS.wire_protocol().builtin.discovery_config.m_DiscoveryServers;
             list.clear(); // server elements take precedence over profile ones
 
             tinyxml2::XMLElement* rserver = server_list->FirstChildElement(s_sRServer.c_str());
@@ -1044,7 +1050,7 @@ void DSManager::loadClient(
         }
         else
         {
-            LOG_ERROR("invalid listening port for server (" << atts.rtps.getName() << ")"); // at least for now
+            LOG_ERROR("invalid listening port for server (" << dpQOS.name() << ")"); // at least for now
             return;
         }
 
@@ -1054,7 +1060,7 @@ void DSManager::loadClient(
         std::shared_ptr<TCPv6TransportDescriptor> p6;
 
         // Supossed to be only one transport of each class
-        for (auto sp : atts.rtps.userTransports)
+        for (auto sp : dpQOS.transport().user_transports)
         {
             pT = dynamic_cast<TCPTransportDescriptor*>(sp.get());
 
@@ -1084,12 +1090,12 @@ void DSManager::loadClient(
             pT = p4.get();
 
             // update participant attributes
-            atts.rtps.userTransports.push_back(p4);
+            dpQOS.transport().user_transports.push_back(p4);
         }
         else if (p4)
         {
             // create a copy of a tcp4 and replace in transports
-            for (std::shared_ptr<TransportDescriptorInterface>& sp : atts.rtps.userTransports)
+            for (std::shared_ptr<TransportDescriptorInterface>& sp : dpQOS.transport().user_transports)
             {
                 if (p4 == sp)
                 {
@@ -1102,7 +1108,7 @@ void DSManager::loadClient(
         else
         {
             // create a copy of a tcp6 and replace in transports
-            for (std::shared_ptr<TransportDescriptorInterface>& sp : atts.rtps.userTransports)
+            for (std::shared_ptr<TransportDescriptorInterface>& sp : dpQOS.transport().user_transports)
             {
                 if (p6 == sp)
                 {
@@ -1126,13 +1132,13 @@ void DSManager::loadClient(
     if (shared_memory_off_)
     {
         // Desactivate transport by default
-        atts.rtps.useBuiltinTransports = false;
+        dpQOS.transport().use_builtin_transports = false;
 
         auto udp_transport = std::make_shared<UDPv4TransportDescriptor>();
-        atts.rtps.userTransports.push_back(udp_transport);
+        dpQOS.transport().user_transports.push_back(udp_transport);
     }
 
-    GUID_t guid(atts.rtps.prefix, c_EntityId_RTPSParticipant);
+    GUID_t guid(dpQOS.wire_protocol().prefix, c_EntityId_RTPSParticipant);
     DelayedParticipantDestruction* pD = nullptr;
     DelayedParticipantCreation* pC = nullptr;
 
@@ -1144,7 +1150,7 @@ void DSManager::loadClient(
     }
 
     // Create the participant or the associated events
-    DelayedParticipantCreation event(creation_time, std::move(atts), &DSManager::addClient, pD);
+    DelayedParticipantCreation event(creation_time, std::move(dpQOS), &DiscoveryServerManager::addClient, pD);
 
     if (creation_time == getTime())
     {
@@ -1176,7 +1182,7 @@ void DSManager::loadClient(
     }
 }
 
-void DSManager::loadSimple(
+void DiscoveryServerManager::loadSimple(
         tinyxml2::XMLElement* simple)
 {
     // check if we need to create an event
@@ -1205,23 +1211,23 @@ void DSManager::loadSimple(
     // profile name is not mandatory
     const char* profile_name = simple->Attribute(DSxmlparser::PROFILE_NAME);
 
-    ParticipantAttributes atts;
+    DomainParticipantQos dpQOS;
+    //ParticipantAttributes atts;
 
     if (profile_name != nullptr)
     {
         // retrieve profile attributes
-        if (xmlparser::XMLP_ret::XML_OK !=
-                xmlparser::XMLProfileManager::fillParticipantAttributes(std::string(profile_name), atts))
+        if (ReturnCode_t::RETCODE_OK != DomainParticipantFactory::get_instance()->get_participant_qos_from_profile(std::string(profile_name), dpQOS))
         {
-            LOG_ERROR("DSManager::loadSimple couldn't load profile " << profile_name);
+            LOG_ERROR("DiscoveryServerManager::loadSimple couldn't load profile " << profile_name);
             return;
         }
 
         // we must assert that DiscoveryProtocol is CLIENT
-        if (atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::SIMPLE)
+        if (dpQOS.wire_protocol().builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::SIMPLE)
         {
             LOG_ERROR(
-                "DSManager::loadSimple try to create a simple participant with an incompatible profile: " <<
+                "DiscoveryServerManager::loadSimple try to create a simple participant with an incompatible profile: " <<
                     profile_name);
             return;
         }
@@ -1232,10 +1238,10 @@ void DSManager::loadSimple(
     const char* name = simple->Attribute(DSxmlparser::NAME);
     if (name != nullptr)
     {
-        atts.rtps.setName(name);
+        dpQOS.name() = name;
     }
 
-    GUID_t guid(atts.rtps.prefix, c_EntityId_RTPSParticipant);
+    GUID_t guid(dpQOS.wire_protocol().prefix, c_EntityId_RTPSParticipant);
     DelayedParticipantDestruction* pD = nullptr;
     DelayedParticipantCreation* pC = nullptr;
 
@@ -1247,7 +1253,7 @@ void DSManager::loadSimple(
     }
 
     // Create the participant or the associated events
-    DelayedParticipantCreation event(creation_time, std::move(atts), &DSManager::addSimple, pD);
+    DelayedParticipantCreation event(creation_time, std::move(dpQOS), &DiscoveryServerManager::addSimple, pD);
 
     if (creation_time == getTime())
     {
@@ -1279,7 +1285,7 @@ void DSManager::loadSimple(
     }
 }
 
-void DSManager::loadSubscriber(
+void DiscoveryServerManager::loadSubscriber(
         GUID_t& part_guid,
         tinyxml2::XMLElement* sub,
         DelayedParticipantCreation* pPC /*= nullptr*/,
@@ -1348,7 +1354,7 @@ void DSManager::loadSubscriber(
         if (xmlparser::XMLP_ret::XML_OK !=
                 xmlparser::XMLProfileManager::fillSubscriberAttributes(std::string(profile_name), *subatts))
         {
-            LOG_ERROR("DSManager::loadSubscriber couldn't load profile " << profile_name);
+            LOG_ERROR("DiscoveryServerManager::loadSubscriber couldn't load profile " << profile_name);
             return;
         }
     }
@@ -1361,9 +1367,10 @@ void DSManager::loadSubscriber(
         if (xmlparser::XMLP_ret::XML_OK !=
                 xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), subatts->topic))
         {
-            LOG_ERROR("DSManager::loadSubscriber couldn't load topic profile ");
+            LOG_ERROR("DiscoveryServerManager::loadSubscriber couldn't load topic profile ");
             return;
         }
+
     }
 
     DelayedEndpointDestruction<DataReader>* pDE = nullptr; // subscriber destruction event
@@ -1375,8 +1382,17 @@ void DSManager::loadSubscriber(
         pDE = new DelayedEndpointDestruction<DataReader>(removal_time);
         events.push_back(pDE);
     }
+    std::string endpoint_profile;
+    if (profile_name == nullptr)
+    {
+        endpoint_profile = std::string("");
+    }
+    else
+    {
+        endpoint_profile = std::string(profile_name);
+    }
 
-    DelayedEndpointCreation<DataReader> event(creation_time, subatts, part_guid, pDE, pPC);
+    DelayedEndpointCreation<DataReader> event(creation_time, subatts->topic.getTopicName().to_string(), subatts->topic.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE, pPC);
 
     if (creation_time == getTime())
     {
@@ -1389,7 +1405,7 @@ void DSManager::loadSubscriber(
     }
 }
 
-void DSManager::loadPublisher(
+void DiscoveryServerManager::loadPublisher(
         GUID_t& part_guid,
         tinyxml2::XMLElement* sub,
         DelayedParticipantCreation* pPC /*= nullptr*/,
@@ -1458,7 +1474,7 @@ void DSManager::loadPublisher(
         if (xmlparser::XMLP_ret::XML_OK !=
                 xmlparser::XMLProfileManager::fillPublisherAttributes(std::string(profile_name), *pubatts))
         {
-            LOG_ERROR("DSManager::loadPublisher couldn't load profile " << profile_name);
+            LOG_ERROR("DiscoveryServerManager::loadPublisher couldn't load profile " << profile_name);
             return;
         }
     }
@@ -1471,7 +1487,7 @@ void DSManager::loadPublisher(
         if (xmlparser::XMLP_ret::XML_OK !=
                 xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), pubatts->topic))
         {
-            LOG_ERROR("DSManager::loadPublisher couldn't load topic profile ");
+            LOG_ERROR("DiscoveryServerManager::loadPublisher couldn't load topic profile ");
             return;
         }
     }
@@ -1486,7 +1502,18 @@ void DSManager::loadPublisher(
         events.push_back(pDE);
     }
 
-    DelayedEndpointCreation<DataWriter> event(creation_time, pubatts, part_guid, pDE, pPC);
+    std::string endpoint_profile;
+    if (profile_name == nullptr)
+    {
+        endpoint_profile = std::string("");
+    }
+    else
+    {
+        endpoint_profile = std::string(profile_name);
+    }
+
+    DelayedEndpointCreation<DataWriter> event(creation_time, pubatts->topic.getTopicName().to_string(), pubatts->topic.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE, pPC);
+
 
     if (creation_time == getTime())
     {
@@ -1499,12 +1526,12 @@ void DSManager::loadPublisher(
     }
 }
 
-std::chrono::steady_clock::time_point DSManager::getTime() const
+std::chrono::steady_clock::time_point DiscoveryServerManager::getTime() const
 {
     return state.getTime();
 }
 
-void DSManager::loadSnapshot(
+void DiscoveryServerManager::loadSnapshot(
         tinyxml2::XMLElement* snapshot)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -1539,7 +1566,7 @@ void DSManager::loadSnapshot(
     events.push_back(new DelayedSnapshot(time, description, someone, show_liveliness));
 }
 
-void DSManager::MapServerInfo(
+void DiscoveryServerManager::MapServerInfo(
         tinyxml2::XMLElement* server)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -1551,7 +1578,7 @@ void DSManager::MapServerInfo(
 
     if (profile_name.empty())
     {
-        // its doesn't log as error because may be empty on purpose
+        // it doesn't log as error because may be empty on purpose
         LOG_INFO(DSxmlparser::PROFILE_NAME << " is a mandatory attribute of server tag");
         return;
     }
@@ -1575,7 +1602,7 @@ void DSManager::MapServerInfo(
         if (xmlparser::XMLP_ret::XML_OK !=
                 xmlparser::XMLProfileManager::fillParticipantAttributes(profile_name, *atts))
         {
-            LOG_ERROR("DSManager::loadServer couldn't load profile " << profile_name);
+            LOG_ERROR("DiscoveryServerManager::loadServer couldn't load profile " << profile_name);
             return;
         }
 
@@ -1621,7 +1648,7 @@ void DSManager::MapServerInfo(
             if (xmlparser::XMLP_ret::XML_OK !=
                     xmlparser::XMLProfileManager::fillParticipantAttributes(profile_name, *atts))
             {
-                LOG_ERROR("DSManager::loadServer couldn't load profile " << profile_name);
+                LOG_ERROR("DiscoveryServerManager::loadServer couldn't load profile " << profile_name);
                 return;
             }
         }
@@ -1634,7 +1661,7 @@ void DSManager::MapServerInfo(
     server_locators[GUID_t(prefix, c_EntityId_RTPSParticipant)] = std::move(pair);
 }
 
-void DSManager::on_participant_discovery(
+void DiscoveryServerManager::on_participant_discovery(
         DomainParticipant* participant,
         ParticipantDiscoveryInfo&& info)
 {
@@ -1661,7 +1688,7 @@ void DSManager::on_participant_discovery(
 
         if (!no_callbacks)
         {
-            // DSManager info still valid
+            // DiscoveryServerManager info still valid
             server = servers.end() != servers.find(partid);
         }
     }
@@ -1688,7 +1715,7 @@ void DSManager::on_participant_discovery(
     }
 }
 
-void DSManager::on_subscriber_discovery(
+void DiscoveryServerManager::on_subscriber_discovery(
         DomainParticipant* participant,
         ReaderDiscoveryInfo&& info)
 {
@@ -1729,7 +1756,7 @@ void DSManager::on_subscriber_discovery(
         }
         else
         {
-            // stick to non-DSManager info
+            // stick to non-DiscoveryServerManager info
             for (const ParticipantDiscoveryItem* p : state.FindParticipant(partid))
             {
                 if (!p->participant_name.empty())
@@ -1764,7 +1791,7 @@ void DSManager::on_subscriber_discovery(
                             << " topic: " << info.info.topicName() << " GUID: " << subsid);
 }
 
-void DSManager::on_publisher_discovery(
+void DiscoveryServerManager::on_publisher_discovery(
         DomainParticipant* participant,
         WriterDiscoveryInfo&& info)
 {
@@ -1805,7 +1832,7 @@ void DSManager::on_publisher_discovery(
         }
         else
         {
-            // stick to non-DSManager info
+            // stick to non-DiscoveryServerManager info
             for (const ParticipantDiscoveryItem* p : state.FindParticipant(partid))
             {
                 if (!p->participant_name.empty())
@@ -1846,7 +1873,7 @@ void DSManager::on_publisher_discovery(
                             << " topic: " << info.info.topicName() << " GUID: " << pubsid);
 }
 
-void DSManager::on_liveliness_changed(
+void DiscoveryServerManager::on_liveliness_changed(
         DataReader* sub,
         const LivelinessChangedStatus& status)
 {
@@ -1918,14 +1945,14 @@ std::ostream& eprosima::discovery_server::operator <<(
     return o;
 }
 
-bool DSManager::allKnowEachOther() const
+bool DiscoveryServerManager::allKnowEachOther() const
 {
     // Get a copy of current state
     Snapshot shot = state.GetState();
     return allKnowEachOther(shot);
 }
 
-Snapshot& DSManager::takeSnapshot(
+Snapshot& DiscoveryServerManager::takeSnapshot(
         const std::chrono::steady_clock::time_point tp,
         const std::string& desc /* = std::string()*/,
         bool someone,
@@ -1971,7 +1998,7 @@ Snapshot& DSManager::takeSnapshot(
 }
 
 /*static*/
-bool DSManager::allKnowEachOther(
+bool DiscoveryServerManager::allKnowEachOther(
         const Snapshot& shot)
 {
     // nobody discovered is bad?
@@ -2004,14 +2031,14 @@ bool DSManager::allKnowEachOther(
 
 }
 
-bool DSManager::validateAllSnapshots() const
+bool DiscoveryServerManager::validateAllSnapshots() const
 {
     // traverse the list of snapshots validating then
     bool work_it_all = true;
 
     for (const Snapshot& sh : snapshots)
     {
-        if (DSManager::allKnowEachOther(sh))
+        if (DiscoveryServerManager::allKnowEachOther(sh))
         {
             LOG_INFO(sh)
         }
@@ -2025,7 +2052,7 @@ bool DSManager::validateAllSnapshots() const
     return work_it_all;
 }
 
-std::string DSManager::successMessage()
+std::string DiscoveryServerManager::successMessage()
 {
     if (snapshots.empty())
     {
@@ -2036,7 +2063,7 @@ std::string DSManager::successMessage()
     return "Output file validation succeeded!";
 }
 
-bool DSManager::loadSnapshots(
+bool DiscoveryServerManager::loadSnapshots(
         const std::string& file)
 {
     using namespace tinyxml2;
@@ -2088,7 +2115,7 @@ bool DSManager::loadSnapshots(
     return true;
 }
 
-void DSManager::saveSnapshots(
+void DiscoveryServerManager::saveSnapshots(
         const std::string& file) const
 {
     using namespace tinyxml2;
