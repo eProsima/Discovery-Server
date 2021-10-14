@@ -24,21 +24,10 @@
 
 #include <fastdds/rtps/attributes/ReaderAttributes.h>
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
+#include <fastdds/dds/subscriber/Subscriber.hpp>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
 
 #include "HelloWorld.h"
-
-
-namespace eprosima
-{
-    namespace fastdds
-    {
-        namespace dds
-        {
-            class Subscriber;
-        }
-    }
-}
 
 class HelloWorldSubscriber
 {
@@ -46,7 +35,7 @@ public:
     HelloWorldSubscriber();
     virtual ~HelloWorldSubscriber();
     //!Initialize the subscriber
-    bool init(eprosima::fastrtps::rtps::Locator_t server_address);
+    bool init(eprosima::fastdds::rtps::Locator server_address);
     //!RUN the subscriber
     void run();
     //!Run the subscriber until number samples have been recevied.
@@ -61,15 +50,13 @@ public:
     public:
         SubListener() :n_matched(0), n_samples(0) {};
         ~SubListener() {};
-        void on_subscription_matched(eprosima::fastdds::dds::DataReader* sub, eprosima::fastdds::dds::SubscriptionMatchedStatus& info);
-        void on_new_data_message(eprosima::fastdds::dds::DataReader* sub);
+        void on_subscription_matched(eprosima::fastdds::dds::DataReader* sub, const eprosima::fastdds::dds::SubscriptionMatchedStatus& info);
+        void on_data_available(eprosima::fastdds::dds::DataReader* sub);
         HelloWorld m_hello;
         eprosima::fastdds::dds::SampleInfo m_info;
         int n_matched;
         uint32_t n_samples;
     }m_listener;
-private:
-    HelloWorldPubSubType m_type;
 };
 
 #endif /* HELLOWORLDSUBSCRIBER_H_ */

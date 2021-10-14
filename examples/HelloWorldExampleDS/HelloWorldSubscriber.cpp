@@ -19,22 +19,16 @@
 
 #include "HelloWorldSubscriber.h"
 
-#include <fastdds/rtps/attributes/RTPSParticipantAttributes.h>
-#include <fastdds/rtps/attributes/ReaderAttributes.h>
+#include <random>
+#include <chrono>
+
 #include <fastdds/rtps/transport/TCPv4TransportDescriptor.h>
-#include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
-
-#include <fastrtps/utils/IPLocator.h>
-#include <fastrtps/utils/System.h>
-
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
 
-#include <random>
-#include <chrono>
+#include <fastrtps/utils/IPLocator.h>
 
 using namespace eprosima::fastdds;
 using namespace eprosima::fastrtps::rtps;
@@ -49,12 +43,11 @@ HelloWorldSubscriber::HelloWorldSubscriber()
 }
 
 bool HelloWorldSubscriber::init(
-        Locator_t server_address)
+        Locator server_address)
 {
 
     RemoteServerAttributes ratt;
-
-    ratt.ReadguidPrefix("4d.49.47.55.45.4c.5f.42.41.52.52.4f");
+    ratt.ReadguidPrefix("44.49.53.43.53.45.52.56.45.52.5F.31");
 
     DomainParticipantQos participant_qos = PARTICIPANT_QOS_DEFAULT;
 
@@ -72,12 +65,14 @@ bool HelloWorldSubscriber::init(
         // server logical port is not customizable in this example
         IPLocator::setPhysicalPort(server_address, default_port);
         IPLocator::setLogicalPort(server_address, 65215);
+        
 
         participant_qos.wire_protocol().builtin.metatrafficUnicastLocatorList.push_back(server_address);
         ratt.metatrafficUnicastLocatorList.push_back(server_address);
         participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
         participant_qos.transport().use_builtin_transports = false;
         std::shared_ptr<TCPv4TransportDescriptor> descriptor = std::make_shared<TCPv4TransportDescriptor>();
+
         // Generate a listening port for the client
         std::default_random_engine gen(std::chrono::system_clock::now().time_since_epoch().count());
         std::uniform_int_distribution<int> rdn(49152, 57343);
@@ -96,10 +91,6 @@ bool HelloWorldSubscriber::init(
 
         ratt.metatrafficUnicastLocatorList.push_back(server_address);
         participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
-
-        //auto descriptor = std::make_shared<UDPv4TransportDescriptor>();
-        //participant_qos.transport().use_builtin_transports = false;
-        //participant_qos.transport().user_transports.push_back(descriptor);
     }
 
     participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::CLIENT;
@@ -107,7 +98,7 @@ bool HelloWorldSubscriber::init(
     participant_qos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastrtps::c_TimeInfinite;
     participant_qos.name("Participant_sub");
 
-    mp_participant = DomainParticipantFactory::get_instance()->create_participant(10, participant_qos);
+    mp_participant = DomainParticipantFactory::get_instance()->create_participant(0, participant_qos);
 
     if (mp_participant == nullptr)
     {
@@ -153,7 +144,7 @@ HelloWorldSubscriber::~HelloWorldSubscriber()
 
 void HelloWorldSubscriber::SubListener::on_subscription_matched(
         DataReader* /*sub*/,
-        SubscriptionMatchedStatus& info)
+        const SubscriptionMatchedStatus& info)
 {
     if (info.current_count_change == 1)
     {
@@ -167,7 +158,7 @@ void HelloWorldSubscriber::SubListener::on_subscription_matched(
     }
 }
 
-void HelloWorldSubscriber::SubListener::on_new_data_message(
+void HelloWorldSubscriber::SubListener::on_data_available(
         DataReader* sub)
 {
     if (sub->take_next_sample((void*)&m_hello, &m_info) == ReturnCode_t::RETCODE_OK)

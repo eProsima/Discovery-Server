@@ -22,26 +22,10 @@
 
 #include "HelloWorldPubSubTypes.h"
 
-#include <fastdds/rtps/attributes/WriterAttributes.h>
 #include <fastdds/dds/publisher/DataWriterListener.hpp>
-#include <fastdds/dds/domain/DomainParticipantListener.hpp>
-
+#include <fastdds/dds/publisher/Publisher.hpp>
 
 #include "HelloWorld.h"
-
-
-namespace eprosima
-{
-    namespace fastdds
-    {
-        namespace dds
-        {
-            class Publisher;
-        }
-    }
-}
-
-
 
 class HelloWorldPublisher 
 {
@@ -49,7 +33,7 @@ public:
     HelloWorldPublisher();
     virtual ~HelloWorldPublisher();
     //!Initialize
-    bool init(eprosima::fastrtps::rtps::Locator_t server_address);
+    bool init(eprosima::fastdds::rtps::Locator server_address);
     //!Publish a sample
     bool publish(bool waitForListener = true);
     //!Run for number samples
@@ -60,22 +44,17 @@ private:
     eprosima::fastdds::dds::Publisher*  mp_publisher;
     eprosima::fastdds::dds::DataWriter* mp_writer;
 
-
     bool stop;
-    class PubListener :public eprosima::fastdds::dds::DomainParticipantListener
+    class PubListener :public eprosima::fastdds::dds::DataWriterListener
     {
     public:
         PubListener() :n_matched(0), firstConnected(false) {};
         ~PubListener() {};
-        void on_publication_matched(eprosima::fastdds::dds::DataWriter* dataWriter, eprosima::fastdds::dds::PublicationMatchedStatus& info);   
-        void on_participant_discovery(eprosima::fastdds::dds::DomainParticipant* participant, eprosima::fastrtps::rtps::ParticipantDiscoveryInfo& info);
+        void on_publication_matched(eprosima::fastdds::dds::DataWriter* dataWriter, const eprosima::fastdds::dds::PublicationMatchedStatus& info);   
         int n_matched;
         bool firstConnected;
     }m_listener;
     void runThread(uint32_t number, uint32_t sleep);
-    HelloWorldPubSubType m_type;
 };
-
-//eprosima::fastdds::dds::DataWriterListener, 
 
 #endif /* HELLOWORLDPUBLISHER_H_ */

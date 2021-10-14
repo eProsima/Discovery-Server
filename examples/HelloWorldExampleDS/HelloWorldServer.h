@@ -20,7 +20,6 @@
 #ifndef HELLOWORLDSERVER_H_
 #define HELLOWORLDSERVER_H_
 
-//#include <fastrtps/fastrtps_fwd.h>
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
 #include <fastdds/rtps/common/Locator.h>
 
@@ -41,18 +40,17 @@ public:
     HelloWorldServer();
     virtual ~HelloWorldServer();
     //!Initialize the subscriber
-    bool init(eprosima::fastrtps::rtps::Locator_t server_address);
+    bool init(eprosima::fastdds::rtps::Locator server_address);
     //!RUN the subscriber
     void run();
 
 private:
-    //eprosima::fastrtps::Participant* mp_participant;
     class PubListener :public eprosima::fastdds::dds::DomainParticipantListener
     {
     public:
         PubListener() :n_matched(0), firstConnected(false) {};
         ~PubListener() {};
-        void on_participant_discovery(eprosima::fastdds::dds::DomainParticipant* participant, eprosima::fastrtps::rtps::ParticipantDiscoveryInfo& info);
+        void on_participant_discovery(eprosima::fastdds::dds::DomainParticipant* participant, eprosima::fastrtps::rtps::ParticipantDiscoveryInfo&& info);
         int n_matched;
         bool firstConnected;
     } * m_listener;

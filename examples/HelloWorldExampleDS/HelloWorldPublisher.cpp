@@ -18,29 +18,25 @@
  */
 
 #include "HelloWorldPublisher.h"
-#include <fastdds/rtps/attributes/RTPSParticipantAttributes.h>
-#include <fastdds/rtps/attributes/WriterAttributes.h>
+
+#include <chrono>
+#include <random>
+#include <thread>
+
 #include <fastdds/rtps/transport/TCPv4TransportDescriptor.h>
-#include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
-
-#include <fastrtps/utils/IPLocator.h>
-#include <fastrtps/utils/System.h>
-
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-
 #include <fastdds/dds/publisher/Publisher.hpp>
 #include <fastdds/dds/publisher/DataWriter.hpp>
 
-#include <thread>
-#include <random>
-#include <chrono>
+#include <fastrtps/utils/IPLocator.h>
 
-//using namespace eprosima::fastrtps;
 using namespace eprosima::fastdds;
-using namespace eprosima::fastrtps::rtps;
 using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::dds;
+
+using namespace eprosima::fastrtps::rtps; 
+
 
 HelloWorldPublisher::HelloWorldPublisher()
     : mp_participant(nullptr)
@@ -52,14 +48,14 @@ HelloWorldPublisher::HelloWorldPublisher()
 }
 
 bool HelloWorldPublisher::init(
-        Locator_t server_address)
+        Locator server_address)
 {
     m_hello.index(0);
     m_hello.message("HelloWorld");
 
     RemoteServerAttributes ratt;
     
-    ratt.ReadguidPrefix("4d.49.47.55.45.4c.5f.42.41.52.52.4f");
+    ratt.ReadguidPrefix("44.49.53.43.53.45.52.56.45.52.5F.31");
 
     DomainParticipantQos participant_qos = PARTICIPANT_QOS_DEFAULT;
 
@@ -78,11 +74,11 @@ bool HelloWorldPublisher::init(
         IPLocator::setPhysicalPort(server_address, default_port);
         IPLocator::setLogicalPort(server_address, 65215);
 
-        //participant_qos.wire_protocol().builtin.metatrafficUnicastLocatorList.push_back(server_address);
         ratt.metatrafficUnicastLocatorList.push_back(server_address);
         participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
         participant_qos.transport().use_builtin_transports = false;
         std::shared_ptr<TCPv4TransportDescriptor> descriptor = std::make_shared<TCPv4TransportDescriptor>();
+        
         // Generate a listening port for the client
         std::default_random_engine gen(std::chrono::system_clock::now().time_since_epoch().count());
         std::uniform_int_distribution<int> rdn(57344, 65535);
@@ -101,11 +97,6 @@ bool HelloWorldPublisher::init(
 
         ratt.metatrafficUnicastLocatorList.push_back(server_address);
         participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
-
-                //auto descriptor = std::make_shared<UDPv4TransportDescriptor>();
-        //participant_qos.transport().use_builtin_transports = false;
-        //participant_qos.transport().user_transports.push_back(descriptor);
-
     }
 
     participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::CLIENT;
@@ -113,7 +104,7 @@ bool HelloWorldPublisher::init(
     participant_qos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastrtps::c_TimeInfinite;
     participant_qos.name("Participant_pub");
 
-    mp_participant = DomainParticipantFactory::get_instance()->create_participant(10, participant_qos, &m_listener);
+    mp_participant = DomainParticipantFactory::get_instance()->create_participant(0, participant_qos);
 
     if (mp_participant == nullptr)
     {
@@ -160,7 +151,7 @@ HelloWorldPublisher::~HelloWorldPublisher()
 
 void HelloWorldPublisher::PubListener::on_publication_matched(
         DataWriter* /*pub*/,
-        PublicationMatchedStatus& info)
+        const PublicationMatchedStatus& info)
 {
     if (info.current_count_change == 1)
     {
@@ -173,14 +164,6 @@ void HelloWorldPublisher::PubListener::on_publication_matched(
         std::cout << "DataWriter unmatched." << std::endl;
     }
 }
-
-void HelloWorldPublisher::PubListener::on_participant_discovery(
-        DomainParticipant* /*pub*/,
-        ParticipantDiscoveryInfo& info)
-{
-   std::cout << "Participant discovered." << info.info.m_participantName << std::endl;
-}
-
 
 void HelloWorldPublisher::runThread(
         uint32_t samples,

@@ -19,17 +19,14 @@
 
 #include "HelloWorldServer.h"
 
+#include <sstream>
+
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
-
-#include <fastdds/rtps/attributes/RTPSParticipantAttributes.h>
 #include <fastdds/rtps/transport/TCPv4TransportDescriptor.h>
-#include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
 #include <fastdds/rtps/transport/TCPv6TransportDescriptor.h>
 
 #include <fastrtps/utils/IPLocator.h>
-
-#include <sstream>
 
 using namespace eprosima::fastrtps;
 using namespace eprosima::fastrtps::rtps;
@@ -43,13 +40,13 @@ HelloWorldServer::HelloWorldServer()
 {
 }
 
-bool HelloWorldServer::init(Locator_t server_address)
+bool HelloWorldServer::init(Locator server_address)
 {
 
     eprosima::fastdds::dds::DomainParticipantQos participant_qos = eprosima::fastdds::dds::PARTICIPANT_QOS_DEFAULT;
 
     participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::SERVER;
-    std::istringstream iss("4d.49.47.55.45.4c.5f.42.41.52.52.4f");
+    std::istringstream iss("44.49.53.43.53.45.52.56.45.52.5F.31");
     iss >> participant_qos.wire_protocol().prefix ;
     participant_qos.wire_protocol().builtin.discovery_config.leaseDuration = c_TimeInfinite;
     participant_qos.wire_protocol().builtin.discovery_config.initial_announcements.count = 0;
@@ -92,15 +89,10 @@ bool HelloWorldServer::init(Locator_t server_address)
         server_address.port = default_port;
         IPLocator::setIPv4(server_address, 127,0,0,1);
         participant_qos.wire_protocol().builtin.metatrafficUnicastLocatorList.push_back(server_address);
-
-        //auto descriptor = std::make_shared<UDPv4TransportDescriptor>();
-        //participant_qos.transport().use_builtin_transports = false;
-        //participant_qos.transport().user_transports.push_back(descriptor);
     }
 
-    m_listener = new PubListener();
-    participant_qos.wire_protocol().participant_id = 3;
-    mp_participant = DomainParticipantFactory::get_instance()->create_participant(10, participant_qos, m_listener);
+    participant_qos.wire_protocol().participant_id = 1;
+    mp_participant = DomainParticipantFactory::get_instance()->create_participant(0, participant_qos);
 
 
     if (mp_participant==nullptr)
@@ -113,15 +105,6 @@ HelloWorldServer::~HelloWorldServer()
 {
     DomainParticipantFactory::get_instance()->delete_participant(mp_participant);
 }
-
-void HelloWorldServer::PubListener::on_participant_discovery(
-        DomainParticipant* /*pub*/,
-        ParticipantDiscoveryInfo& info)
-{
-   std::cout << "Participant discovered." << info.info.m_participantName << std::endl;
-}
-
-
 
 void HelloWorldServer::run()
 {
