@@ -23,8 +23,10 @@
 #include "HelloWorldPubSubTypes.h"
 
 #include <fastdds/rtps/attributes/ReaderAttributes.h>
+#include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
+#include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
 
 #include "HelloWorld.h"
@@ -32,31 +34,51 @@
 class HelloWorldSubscriber
 {
 public:
+
     HelloWorldSubscriber();
     virtual ~HelloWorldSubscriber();
     //!Initialize the subscriber
-    bool init(eprosima::fastdds::rtps::Locator server_address);
+    bool init(
+            eprosima::fastdds::rtps::Locator server_address);
     //!RUN the subscriber
     void run();
     //!Run the subscriber until number samples have been recevied.
-    void run(uint32_t number);
+    void run(
+            uint32_t number);
+
 private:
+
     eprosima::fastdds::dds::DomainParticipant* mp_participant;
     eprosima::fastdds::dds::Subscriber* mp_subscriber;
     eprosima::fastdds::dds::DataReader* mp_reader;
+
 public:
-    class SubListener :public eprosima::fastdds::dds::DataReaderListener
+
+    class SubListener : public eprosima::fastdds::dds::DataReaderListener
     {
     public:
-        SubListener() :n_matched(0), n_samples(0) {};
-        ~SubListener() {};
-        void on_subscription_matched(eprosima::fastdds::dds::DataReader* sub, const eprosima::fastdds::dds::SubscriptionMatchedStatus& info);
-        void on_data_available(eprosima::fastdds::dds::DataReader* sub);
+
+        SubListener()
+            : n_matched(0)
+            , n_samples(0)
+        {
+        }
+
+        ~SubListener()
+        {
+        }
+
+        void on_subscription_matched(
+                eprosima::fastdds::dds::DataReader* sub,
+                const eprosima::fastdds::dds::SubscriptionMatchedStatus& info);
+        void on_data_available(
+                eprosima::fastdds::dds::DataReader* sub);
         HelloWorld m_hello;
         eprosima::fastdds::dds::SampleInfo m_info;
         int n_matched;
         uint32_t n_samples;
-    }m_listener;
+    }
+    m_listener;
 };
 
 #endif /* HELLOWORLDSUBSCRIBER_H_ */

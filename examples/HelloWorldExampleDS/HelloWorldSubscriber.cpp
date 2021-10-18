@@ -65,7 +65,7 @@ bool HelloWorldSubscriber::init(
         // server logical port is not customizable in this example
         IPLocator::setPhysicalPort(server_address, default_port);
         IPLocator::setLogicalPort(server_address, 65215);
-        
+
 
         participant_qos.wire_protocol().builtin.metatrafficUnicastLocatorList.push_back(server_address);
         ratt.metatrafficUnicastLocatorList.push_back(server_address);
@@ -124,7 +124,7 @@ bool HelloWorldSubscriber::init(
 
     mp_subscriber = mp_participant->create_subscriber(subscriber_qos);
 
-    Topic* topic = mp_participant->create_topic("HelloWorldTopic", "HelloWorld", topic_qos);
+    Topic* topic = mp_participant->create_topic("HelloWorldTopic", ts.get_type_name(), topic_qos);
 
     mp_reader = mp_subscriber->create_datareader(topic, datareader_qos, &m_listener);
 

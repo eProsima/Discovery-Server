@@ -26,8 +26,11 @@
 #include <fastdds/rtps/transport/TCPv4TransportDescriptor.h>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #include <fastdds/dds/publisher/Publisher.hpp>
 #include <fastdds/dds/publisher/DataWriter.hpp>
+#include <fastdds/dds/publisher/qos/PublisherQos.hpp>
+#include <fastdds/dds/publisher/qos/DataWriterQos.hpp>
 
 #include <fastrtps/utils/IPLocator.h>
 
@@ -35,7 +38,7 @@ using namespace eprosima::fastdds;
 using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::dds;
 
-using namespace eprosima::fastrtps::rtps; 
+using namespace eprosima::fastrtps::rtps;
 
 
 HelloWorldPublisher::HelloWorldPublisher()
@@ -43,8 +46,6 @@ HelloWorldPublisher::HelloWorldPublisher()
     , mp_publisher(nullptr)
     , mp_writer(nullptr)
 {
-
-
 }
 
 bool HelloWorldPublisher::init(
@@ -54,7 +55,7 @@ bool HelloWorldPublisher::init(
     m_hello.message("HelloWorld");
 
     RemoteServerAttributes ratt;
-    
+
     ratt.ReadguidPrefix("44.49.53.43.53.45.52.56.45.52.5F.31");
 
     DomainParticipantQos participant_qos = PARTICIPANT_QOS_DEFAULT;
@@ -78,7 +79,7 @@ bool HelloWorldPublisher::init(
         participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
         participant_qos.transport().use_builtin_transports = false;
         std::shared_ptr<TCPv4TransportDescriptor> descriptor = std::make_shared<TCPv4TransportDescriptor>();
-        
+
         // Generate a listening port for the client
         std::default_random_engine gen(std::chrono::system_clock::now().time_since_epoch().count());
         std::uniform_int_distribution<int> rdn(57344, 65535);
@@ -131,7 +132,7 @@ bool HelloWorldPublisher::init(
 
     mp_publisher = mp_participant->create_publisher(publisher_qos);
 
-    Topic* topic = mp_participant->create_topic("HelloWorldTopic", "HelloWorld", topic_qos);
+    Topic* topic = mp_participant->create_topic("HelloWorldTopic", ts.get_type_name(), topic_qos);
 
     mp_writer = mp_publisher->create_datawriter(topic, datawriter_qos, &m_listener);
 
@@ -146,6 +147,7 @@ bool HelloWorldPublisher::init(
 
 HelloWorldPublisher::~HelloWorldPublisher()
 {
+    mp_participant->delete_contained_entities();
     DomainParticipantFactory::get_instance()->delete_participant(mp_participant);
 }
 
@@ -155,12 +157,12 @@ void HelloWorldPublisher::PubListener::on_publication_matched(
 {
     if (info.current_count_change == 1)
     {
-        n_matched = info.total_count;
+        n_matched = info.current_count;
         std::cout << "DataWriter matched." << std::endl;
     }
     else if (info.current_count_change == -1)
     {
-        n_matched = info.total_count;
+        n_matched = info.current_count;
         std::cout << "DataWriter unmatched." << std::endl;
     }
 }
@@ -176,7 +178,7 @@ void HelloWorldPublisher::runThread(
             if (publish(false))
             {
                 std::cout << "Message: " << m_hello.message() << " with index: " << m_hello.index() << " SENT" <<
-                        std::endl;
+                    std::endl;
             }
             std::this_thread::sleep_for(std::chrono::duration<uint32_t, std::milli>(sleep));
         }
@@ -192,7 +194,7 @@ void HelloWorldPublisher::runThread(
             else
             {
                 std::cout << "Message: " << m_hello.message() << " with index: " << m_hello.index() << " SENT" <<
-                        std::endl;
+                    std::endl;
             }
             std::this_thread::sleep_for(std::chrono::duration<uint32_t, std::milli>(sleep));
         }
@@ -221,7 +223,7 @@ void HelloWorldPublisher::run(
 bool HelloWorldPublisher::publish(
         bool waitForListener)
 {
-    if (m_listener.firstConnected || !waitForListener || m_listener.n_matched > 0)
+    if (!waitForListener || m_listener.n_matched > 0)
     {
         m_hello.index(m_hello.index() + 1);
         mp_writer->write((void*)&m_hello);
