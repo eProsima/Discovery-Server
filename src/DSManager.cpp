@@ -28,7 +28,6 @@
 #include "LJ.h"
 #include "log/DSLog.h"
 
-
 using namespace eprosima::fastrtps;
 using namespace eprosima::fastdds;
 using namespace eprosima::fastrtps::rtps;
@@ -70,12 +69,6 @@ DiscoveryServerManager::DiscoveryServerManager(
     , shared_memory_off_(shared_memory_off)
 {
     tinyxml2::XMLDocument doc;
-
-    /*if (ReturnCode_t::RETCODE_OK != DomainParticipantFactory::get_instance()->load_XML_profiles_file(xml_file_path.c_str()))
-    {
-        LOG_ERROR("Invalid config or snapshot file");
-                return;
-    }*/
 
     if (tinyxml2::XMLError::XML_SUCCESS == doc.LoadFile(xml_file_path.c_str()))
     {
@@ -343,7 +336,7 @@ DomainParticipant* DiscoveryServerManager::removeParticipant(
     {
         LOG_ERROR("Error during database deletion" << id);
     }
-    // remove any related pubs-subs
+    // remove any related datareaders/writers
     {
         data_writer_map paux;
         std::remove_copy_if(data_writers.begin(), data_writers.end(), std::inserter(paux, paux.begin()),
@@ -384,11 +377,16 @@ DomainParticipant* DiscoveryServerManager::removeParticipant(
 }
 
 void DiscoveryServerManager::addDataReader(
-        DataReader* sub)
+        DataReader* dr)
 {
+    if (dr == nullptr)
+    {
+        LOG_ERROR("Error adding DataReader. Null pointer");
+        return;
+    }
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
-    assert(data_readers[sub->guid()] == nullptr);
-    data_readers[sub->guid()] = sub;
+    assert(data_readers[dr->guid()] == nullptr);
+    data_readers[dr->guid()] = dr;
 }
 
 DataReader* DiscoveryServerManager::getDataReader(
@@ -425,6 +423,10 @@ DataReader* DiscoveryServerManager::removeSubscriber(
 ReturnCode_t DiscoveryServerManager::deleteDataReader(
         DataReader* dr)
 {
+    if (dr == nullptr)
+    {
+        return ReturnCode_t::RETCODE_ERROR;
+    }
     fastdds::dds::Subscriber* sub = nullptr;
     {
         std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -441,6 +443,10 @@ ReturnCode_t DiscoveryServerManager::deleteDataReader(
 ReturnCode_t DiscoveryServerManager::deleteDataWriter(
         DataWriter* dw)
 {
+    if (dw == nullptr)
+    {
+        return ReturnCode_t::RETCODE_ERROR;
+    }
     fastdds::dds::Publisher* pub = nullptr;
     {
         std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -461,6 +467,11 @@ ReturnCode_t DiscoveryServerManager::deleteParticipant(
 
         std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
+        if (participant == nullptr)
+        {
+            return ReturnCode_t::RETCODE_ERROR;
+        }
+
         participant->set_listener(nullptr);
 
         entity_map.erase(participant->guid());
@@ -468,7 +479,7 @@ ReturnCode_t DiscoveryServerManager::deleteParticipant(
         ReturnCode_t ret = participant->delete_contained_entities();
         if (ret != ReturnCode_t::RETCODE_OK)
         {
-            LOG_ERROR("Error cleaning up participant entities");   
+            LOG_ERROR("Error cleaning up participant entities");
         }
 
     }
@@ -483,7 +494,17 @@ void DiscoveryServerManager::setDomainEntityTopic(
         Topic* t)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
-    
+
+    if (entity == nullptr)
+    {
+        LOG_ERROR("Error setting Domain Entity Topic. Null DataWriter");
+        return;
+    }
+    if (t == nullptr)
+    {
+        LOG_ERROR("Error setting Domain Entity Topic. Null DataWriter Topic");
+        return;
+    }
     entity_map[entity->get_publisher()->get_participant()->guid()].publisherTopic = t;
 }
 
@@ -494,6 +515,16 @@ void DiscoveryServerManager::setDomainEntityTopic(
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
+    if (entity == nullptr)
+    {
+        LOG_ERROR("Error setting Domain Entity Topic. Null DataReader");
+        return;
+    }
+    if (t == nullptr)
+    {
+        LOG_ERROR("Error setting Domain Entity Topic. Null DataReader Topic");
+        return;
+    }
     entity_map[entity->get_subscriber()->get_participant()->guid()].subscriberTopic = t;
 }
 
@@ -503,6 +534,17 @@ void DiscoveryServerManager::setDomainEntityType(
         TopicDataType* t)
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
+
+    if (entity == nullptr)
+    {
+        LOG_ERROR("Error setting Domain Entity Topic. Null Publisher");
+        return;
+    }
+    if (t == nullptr)
+    {
+        LOG_ERROR("Error setting Domain Entity Topic. Null Publisher Topic Datatype");
+        return;
+    }
 
     entity_map[entity->get_participant()->guid()].publisherType = t;
 }
@@ -514,12 +556,28 @@ void DiscoveryServerManager::setDomainEntityType(
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
+    if (entity == nullptr)
+    {
+        LOG_ERROR("Error setting Domain Entity Topic. Null Subscriber");
+        return;
+    }
+    if (t == nullptr)
+    {
+        LOG_ERROR("Error setting Domain Entity Topic. Null Subscriber Topic Datatype");
+        return;
+    }
+
     entity_map[entity->get_participant()->guid()].subscriberType = t;
 }
 
 void DiscoveryServerManager::addDataWriter(
         DataWriter* dw)
 {
+    if (dw == nullptr)
+    {
+        LOG_ERROR("Error adding DataWriter. Null pointer");
+        return;
+    }
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
     assert(data_writers[dw->guid()] == nullptr);
     data_writers[dw->guid()] = dw;
@@ -623,8 +681,18 @@ void DiscoveryServerManager::setParticipantTopic(
         DomainParticipant* p,
         Topic* t)
 {
+    if (p == nullptr)
+    {
+        LOG_ERROR("Error setting Participant Topic. Null Participant");
+        return;
+    }
+    if (t == nullptr)
+    {
+        LOG_ERROR("Error setting Participant Topic. Null Topic");
+        return;
+    }
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
-    
+
     created_entity_map::iterator it = entity_map.find(p->guid());
     if (it != entity_map.end())
     {
@@ -634,8 +702,13 @@ void DiscoveryServerManager::setParticipantTopic(
 
 Topic* DiscoveryServerManager::getParticipantTopicByName(
         DomainParticipant* p,
-        std::string name)
+        std::string const& name)
 {
+    if (p == nullptr)
+    {
+        LOG_ERROR("Error getting Participant Topic. Null Participant");
+        return nullptr;
+    }
     Topic* returnTopic = nullptr;
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
@@ -769,11 +842,10 @@ void DiscoveryServerManager::loadServer(
     }
 
     // retrieve profile attributes
-    //ParticipantAttributes atts;
     DomainParticipantQos dpQOS;
-    //if (xmlparser::XMLP_ret::XML_OK !=
-    //        xmlparser::XMLProfileManager::fillParticipantAttributes(std::string(profile_name), atts))
-    if (ReturnCode_t::RETCODE_OK != DomainParticipantFactory::get_instance()->get_participant_qos_from_profile(std::string(profile_name), dpQOS))
+    if (ReturnCode_t::RETCODE_OK !=
+            DomainParticipantFactory::get_instance()->get_participant_qos_from_profile(std::string(profile_name),
+            dpQOS))
     {
         LOG_ERROR("DiscoveryServerManager::loadServer couldn't load profile " << profile_name);
         return;
@@ -943,8 +1015,9 @@ void DiscoveryServerManager::loadClient(
 
     // retrieve profile attributes
     DomainParticipantQos dpQOS;
-    //ParticipantAttributes atts;
-    if (ReturnCode_t::RETCODE_OK != DomainParticipantFactory::get_instance()->get_participant_qos_from_profile(std::string(profile_name), dpQOS))
+    if (ReturnCode_t::RETCODE_OK !=
+            DomainParticipantFactory::get_instance()->get_participant_qos_from_profile(std::string(profile_name),
+            dpQOS))
     {
         LOG_ERROR("DiscoveryServerManager::loadClient couldn't load profile " << profile_name);
         return;
@@ -958,7 +1031,9 @@ void DiscoveryServerManager::loadClient(
     if (atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::CLIENT)
 #endif // if FASTRTPS_VERSION_MAJOR >= 2
     {
-        LOG_ERROR("DiscoveryServerManager::loadClient try to create a client with an incompatible profile: " << profile_name);
+        LOG_ERROR(
+            "DiscoveryServerManager::loadClient try to create a client with an incompatible profile: " <<
+                profile_name);
         return;
     }
 
@@ -1212,12 +1287,13 @@ void DiscoveryServerManager::loadSimple(
     const char* profile_name = simple->Attribute(DSxmlparser::PROFILE_NAME);
 
     DomainParticipantQos dpQOS;
-    //ParticipantAttributes atts;
 
     if (profile_name != nullptr)
     {
         // retrieve profile attributes
-        if (ReturnCode_t::RETCODE_OK != DomainParticipantFactory::get_instance()->get_participant_qos_from_profile(std::string(profile_name), dpQOS))
+        if (ReturnCode_t::RETCODE_OK !=
+                DomainParticipantFactory::get_instance()->get_participant_qos_from_profile(std::string(profile_name),
+                dpQOS))
         {
             LOG_ERROR("DiscoveryServerManager::loadSimple couldn't load profile " << profile_name);
             return;
@@ -1392,7 +1468,8 @@ void DiscoveryServerManager::loadSubscriber(
         endpoint_profile = std::string(profile_name);
     }
 
-    DelayedEndpointCreation<DataReader> event(creation_time, subatts->topic.getTopicName().to_string(), subatts->topic.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE, pPC);
+    DelayedEndpointCreation<DataReader> event(creation_time, subatts->topic.getTopicName().to_string(),
+            subatts->topic.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE, pPC);
 
     if (creation_time == getTime())
     {
@@ -1512,8 +1589,8 @@ void DiscoveryServerManager::loadPublisher(
         endpoint_profile = std::string(profile_name);
     }
 
-    DelayedEndpointCreation<DataWriter> event(creation_time, pubatts->topic.getTopicName().to_string(), pubatts->topic.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE, pPC);
-
+    DelayedEndpointCreation<DataWriter> event(creation_time, pubatts->topic.getTopicName().to_string(),
+            pubatts->topic.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE, pPC);
 
     if (creation_time == getTime())
     {

@@ -39,7 +39,6 @@ using namespace eprosima::fastrtps::rtps;
 using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::dds;
 
-
 namespace tinyxml2 {
 class XMLElement;
 } // namespace tinyxml2
@@ -84,14 +83,13 @@ struct ParticipantCreatedEntityInfo
 
 };
 
-
 class LateJoinerData;
 class DelayedParticipantCreation;
 class DelayedParticipantDestruction;
 
 class DiscoveryServerManager
     : public xmlparser::XMLParser      // access to parsing protected functions
-    , public eprosima::fastdds::dds::DomainParticipantListener // receive discovery callback information and 
+    , public eprosima::fastdds::dds::DomainParticipantListener // receive discovery callback information and
                                                                // subscriber lifeliness information
 
 {
@@ -258,7 +256,6 @@ public:
     ReturnCode_t deleteDataWriter(
             DataWriter* dw);
 
-
     template <class Entity>
     void setDomainEntityTopic(
             Entity* entity,
@@ -276,9 +273,10 @@ public:
     void setParticipantTopic(
             DomainParticipant* p,
             Topic* t);
+
     Topic* getParticipantTopicByName(
             DomainParticipant* p,
-            std::string name);
+            std::string const& name);
 
     void setParentGUID(
             GUID_t& parent,
@@ -351,7 +349,6 @@ public:
     }
 
 };
-
 
 std::ostream& operator <<(
         std::ostream&,

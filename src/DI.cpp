@@ -710,12 +710,6 @@ DiscoveryItemDatabase::size_type DiscoveryItemDatabase::CountDataWriters(
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    if (image.find(spokesman) == image.end())
-    {
-        return 0;
-    }
-
-
     const ParticipantDiscoveryDatabase* p = image[spokesman];
 
     if (p != nullptr)
@@ -1060,7 +1054,7 @@ void Snapshot::from_xml(
                     );
 
                 pPtdi->QueryBoolAttribute(s_sAlive.c_str(), &discovery_item.is_alive);
-               
+
                 for (XMLElement* pSub = pPtdi->FirstChildElement(s_sSubscriber.c_str());
                         pSub != nullptr;
                         pSub = pSub->NextSiblingElement(s_sSubscriber.c_str()))

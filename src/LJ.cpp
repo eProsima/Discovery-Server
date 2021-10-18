@@ -63,8 +63,6 @@ void DelayedParticipantDestruction::operator ()(
         DiscoveryServerManager& manager) /*override*/
 {
     DomainParticipant* p = manager.removeParticipant(participant_id);
-
-
     if (p)
     {
         std::string name = p->get_qos().name().to_string();
@@ -126,7 +124,6 @@ const LateJoinerDataTraits<DataReader>::GetEndpoint LateJoinerDataTraits<DataRea
         &DiscoveryServerManager::removeSubscriber;
 const LateJoinerDataTraits<DataReader>::removeEndpoint LateJoinerDataTraits<DataReader>::remove_endpoint_function =
         &DiscoveryServerManager::deleteDataReader;
-
 
 /*static*/
 DataReader* LateJoinerDataTraits<DataReader>::createEndpoint(

@@ -342,7 +342,7 @@ public:
             DiscoveryServerManager&) override;
 };
 
-// delayed construction of a new subscriber or publisher
+// delayed construction of a new DataReader or DataWriter
 template<class ReaderWriter>
 void DelayedEndpointCreation<ReaderWriter>::operator ()(
         DiscoveryServerManager& manager)  /*override*/
@@ -368,7 +368,7 @@ void DelayedEndpointCreation<ReaderWriter>::operator ()(
         return;
     }
 
-    Topic * topic;
+    Topic* topic;
 
     // First we must register the type in the associated participant
     if (type_name == "UNDEF")
@@ -381,11 +381,13 @@ void DelayedEndpointCreation<ReaderWriter>::operator ()(
             hello_world_type_support.register_type(part);
         }
 
-        topic = manager.getParticipantTopicByName(part, DiscoveryServerManager::builtin_defaultTopic.getTopicName().to_string());
+        topic = manager.getParticipantTopicByName(part,
+                        DiscoveryServerManager::builtin_defaultTopic.getTopicName().to_string());
         if ( nullptr == topic)
         {
             topic = part->create_topic(DiscoveryServerManager::builtin_defaultTopic.getTopicName().to_string(),
-                            DiscoveryServerManager::builtin_defaultTopic.topicDataType.to_string(), part->get_default_topic_qos());
+                            DiscoveryServerManager::builtin_defaultTopic.topicDataType.to_string(),
+                            part->get_default_topic_qos());
             manager.setParticipantTopic(part, topic);
         }
     }
@@ -431,7 +433,7 @@ void DelayedEndpointCreation<ReaderWriter>::operator ()(
         {
             linked_destruction_event->SetGuid(endpoint->guid());
         }
-        // and we update the state: DiscoveryServerManager::addPublisher or DiscoveryServerManager::addSubscriber
+        // and we update the state: DiscoveryServerManager::addDataWriter or DiscoveryServerManager::addDataReader
         (manager.*LateJoinerDataTraits<ReaderWriter>::add_endpoint_function)(endpoint);
 
         LOG_INFO(
@@ -445,7 +447,7 @@ template<class ReaderWriter>
 void DelayedEndpointDestruction<ReaderWriter>::operator ()(
         DiscoveryServerManager& manager)  /*override*/
 {
-    // now we get the endpoint: DiscoveryServerManager::removePublisher or DiscoveryServerManager::removeSubscriber
+    // now we get the endpoint: DiscoveryServerManager::removeDataWriter or DiscoveryServerManager::removeDataReader
     ReaderWriter* endpoint =
             (manager.*LateJoinerDataTraits<ReaderWriter>::retrieve_endpoint_function)(endpoint_guid);
 
@@ -456,7 +458,7 @@ void DelayedEndpointDestruction<ReaderWriter>::operator ()(
 
         ReturnCode_t ret;
 
-        // and we removed the endpoint: Domain::removePublisher or Domain::removeSubscriber
+        // and we removed the endpoint: Domain::removeDataWriter or Domain::removeDataReader
         ret = (manager.*LateJoinerDataTraits<ReaderWriter>::remove_endpoint_function)(endpoint);
         if (ReturnCode_t::RETCODE_OK != ret)
         {
