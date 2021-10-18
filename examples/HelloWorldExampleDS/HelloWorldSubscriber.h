@@ -22,7 +22,6 @@
 
 #include "HelloWorldPubSubTypes.h"
 
-#include <fastdds/rtps/attributes/ReaderAttributes.h>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
