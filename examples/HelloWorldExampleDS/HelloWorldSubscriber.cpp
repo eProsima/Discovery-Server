@@ -66,7 +66,6 @@ bool HelloWorldSubscriber::init(
         IPLocator::setPhysicalPort(server_address, default_port);
         IPLocator::setLogicalPort(server_address, 65215);
 
-
         participant_qos.wire_protocol().builtin.metatrafficUnicastLocatorList.push_back(server_address);
         ratt.metatrafficUnicastLocatorList.push_back(server_address);
         participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
@@ -128,7 +127,6 @@ bool HelloWorldSubscriber::init(
 
     mp_reader = mp_subscriber->create_datareader(topic, datareader_qos, &m_listener);
 
-
     if (mp_reader == nullptr)
     {
         return false;
@@ -148,12 +146,12 @@ void HelloWorldSubscriber::SubListener::on_subscription_matched(
 {
     if (info.current_count_change == 1)
     {
-        n_matched = info.total_count;
+        n_matched = info.current_count;
         std::cout << "Subscriber matched" << std::endl;
     }
     else if (info.current_count_change == -1)
     {
-        n_matched = info.total_count;
+        n_matched = info.current_count;
         std::cout << "Subscriber unmatched" << std::endl;
     }
 }
