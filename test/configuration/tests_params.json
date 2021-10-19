@@ -1519,6 +1519,59 @@
             }
         },
 
+        "test_39_environment_modification":
+        {
+            "description": [ 
+                "Test to check the consequences of modifying the file referenced by FASTDDS_ENVIRONMENT_FILE on the ",
+                "Discovery Server behaviour. SERVER and SIMPLE participants will change their discovery information ",
+                "aligned with the changes introduced in the environment file" 
+            ],
+
+            "processes":
+            {
+                "main":
+                {
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS_DISCOVERY_SERVER",
+                            "value": ";;localhost:65000"
+                        }
+                        ,
+                        {
+                            "name":"FASTDDS_ENVIRONMENT_FILE",
+                            "value": "<CONFIG_RELATIVE_PATH>/environment.json"
+                        }
+                    ],
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_39_environment_modification.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_environment_modification.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_environment_modification.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
         "test_99_tcp":
         {
             "processes":

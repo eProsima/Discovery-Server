@@ -1019,6 +1019,15 @@
         </xs:simpleContent>
     </xs:complexType>
 
+    <xs:complexType name="EnvironmentChangeType">
+        <xs:simpleContent>
+            <xs:extension base="descriptionType">
+                <xs:attribute name="time" type="uint32Type" use="required" />
+                <xs:attribute name="key" type="stringType" use="required" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
     <xs:element name="DS">
         <xs:complexType>
             <xs:all>
@@ -1051,6 +1060,13 @@
                             <xs:element name="snapshot" type="SnapShotType" minOccurs="1" maxOccurs="unbounded"/>
                         </xs:sequence>
                         <xs:attribute name="file" type="stringType" use="optional" />
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="environment" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="change" type="EnvironmentChangeType" minOccurs="1" maxOccurs="unbounded"/>
+                        </xs:sequence>
                     </xs:complexType>
                 </xs:element>
             </xs:all>

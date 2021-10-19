@@ -115,6 +115,12 @@ list(APPEND TEST_LIST
     test_38_self_connection
 )
 
+# These tests run in all Fast DDS 2.x branches
+list(APPEND TEST_LIST
+    test_39_environment_modification
+)
+
+
 # The above TEST_LIST has tests that spawn multiple test cases, we need a new variable to enumerate them
 set(TEST_CASE_LIST)
 

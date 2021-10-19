@@ -161,6 +161,8 @@ class DiscoveryServerManager
 
     void loadSnapshot(
             tinyxml2::XMLElement* snapshot);
+    void loadEnvironmentChange(
+            tinyxml2::XMLElement* snapshot);
     void MapServerInfo(
             tinyxml2::XMLElement* server);
 

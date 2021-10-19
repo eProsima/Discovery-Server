@@ -44,6 +44,11 @@ static const std::string s_sFile("file");
 static const std::string s_sUserShutdown("user_shutdown");
 static const std::string s_sPrefixValidation("prefix_validation");
 static const std::string s_sListeningPort("listening_port");
+static const std::string s_sEnvironment("environment");
+static const std::string s_sChange("change");
+static const std::string s_sVariable("variable");
+static const std::string s_sKey("key");
+static const std::string s_sValue("value");
 
 // specific Snapshot schema string literals
 static const std::string s_sDS_Snapshots("DS_Snapshots");
