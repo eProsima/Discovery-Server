@@ -37,13 +37,13 @@ int main(
         char* argv[])
 {
 
-// Initialize loging
+    // Initialize loging
 #if defined LOG_LEVEL_INFO
-Log::SetVerbosity(Log::Kind::Info);
+    Log::SetVerbosity(Log::Kind::Info);
 #elif defined LOG_LEVEL_WARN
-Log::SetVerbosity(Log::Kind::Warning);
+    Log::SetVerbosity(Log::Kind::Warning);
 #elif defined LOG_LEVEL_ERROR
-Log::SetVerbosity(Log::Kind::Error);
+    Log::SetVerbosity(Log::Kind::Error);
 #endif // if defined LOG_LEVEL_INFO
 
     // Clear all the consumers.

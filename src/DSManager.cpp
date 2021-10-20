@@ -464,14 +464,12 @@ ReturnCode_t DiscoveryServerManager::deleteParticipant(
         DomainParticipant* participant)
 {
     {
-
-        std::lock_guard<std::recursive_mutex> lock(management_mutex);
-
         if (participant == nullptr)
         {
             return ReturnCode_t::RETCODE_ERROR;
         }
 
+        std::lock_guard<std::recursive_mutex> lock(management_mutex);
         participant->set_listener(nullptr);
 
         entity_map.erase(participant->guid());
@@ -493,8 +491,6 @@ void DiscoveryServerManager::setDomainEntityTopic(
         fastdds::dds::DataWriter* entity,
         Topic* t)
 {
-    std::lock_guard<std::recursive_mutex> lock(management_mutex);
-
     if (entity == nullptr)
     {
         LOG_ERROR("Error setting Domain Entity Topic. Null DataWriter");
@@ -505,6 +501,7 @@ void DiscoveryServerManager::setDomainEntityTopic(
         LOG_ERROR("Error setting Domain Entity Topic. Null DataWriter Topic");
         return;
     }
+    std::lock_guard<std::recursive_mutex> lock(management_mutex);
     entity_map[entity->get_publisher()->get_participant()->guid()].publisherTopic = t;
 }
 
@@ -513,8 +510,6 @@ void DiscoveryServerManager::setDomainEntityTopic(
         fastdds::dds::DataReader* entity,
         Topic* t)
 {
-    std::lock_guard<std::recursive_mutex> lock(management_mutex);
-
     if (entity == nullptr)
     {
         LOG_ERROR("Error setting Domain Entity Topic. Null DataReader");
@@ -525,6 +520,7 @@ void DiscoveryServerManager::setDomainEntityTopic(
         LOG_ERROR("Error setting Domain Entity Topic. Null DataReader Topic");
         return;
     }
+    std::lock_guard<std::recursive_mutex> lock(management_mutex);
     entity_map[entity->get_subscriber()->get_participant()->guid()].subscriberTopic = t;
 }
 
@@ -533,8 +529,6 @@ void DiscoveryServerManager::setDomainEntityType(
         fastdds::dds::Publisher* entity,
         TopicDataType* t)
 {
-    std::lock_guard<std::recursive_mutex> lock(management_mutex);
-
     if (entity == nullptr)
     {
         LOG_ERROR("Error setting Domain Entity Topic. Null Publisher");
@@ -545,7 +539,7 @@ void DiscoveryServerManager::setDomainEntityType(
         LOG_ERROR("Error setting Domain Entity Topic. Null Publisher Topic Datatype");
         return;
     }
-
+    std::lock_guard<std::recursive_mutex> lock(management_mutex);
     entity_map[entity->get_participant()->guid()].publisherType = t;
 }
 
@@ -554,8 +548,6 @@ void DiscoveryServerManager::setDomainEntityType(
         fastdds::dds::Subscriber* entity,
         TopicDataType* t)
 {
-    std::lock_guard<std::recursive_mutex> lock(management_mutex);
-
     if (entity == nullptr)
     {
         LOG_ERROR("Error setting Domain Entity Topic. Null Subscriber");
@@ -566,7 +558,7 @@ void DiscoveryServerManager::setDomainEntityType(
         LOG_ERROR("Error setting Domain Entity Topic. Null Subscriber Topic Datatype");
         return;
     }
-
+    std::lock_guard<std::recursive_mutex> lock(management_mutex);
     entity_map[entity->get_participant()->guid()].subscriberType = t;
 }
 
@@ -702,7 +694,7 @@ void DiscoveryServerManager::setParticipantTopic(
 
 Topic* DiscoveryServerManager::getParticipantTopicByName(
         DomainParticipant* p,
-        std::string const& name)
+        const std::string& name)
 {
     if (p == nullptr)
     {
@@ -1214,18 +1206,19 @@ void DiscoveryServerManager::loadClient(
     }
 
     GUID_t guid(dpQOS.wire_protocol().prefix, c_EntityId_RTPSParticipant);
-    DelayedParticipantDestruction* pD = nullptr;
-    DelayedParticipantCreation* pC = nullptr;
+    DelayedParticipantDestruction* destruction_event = nullptr;
+    DelayedParticipantCreation* creation_event = nullptr;
 
     if (removal_time != getTime())
     {
         // early leaver
-        pD = new DelayedParticipantDestruction(removal_time, guid);
-        events.push_back(pD);
+        destruction_event = new DelayedParticipantDestruction(removal_time, guid);
+        events.push_back(destruction_event);
     }
 
     // Create the participant or the associated events
-    DelayedParticipantCreation event(creation_time, std::move(dpQOS), &DiscoveryServerManager::addClient, pD);
+    DelayedParticipantCreation event(creation_time, std::move(dpQOS), &DiscoveryServerManager::addClient,
+            destruction_event);
 
     if (creation_time == getTime())
     {
@@ -1237,22 +1230,22 @@ void DiscoveryServerManager::loadClient(
     else
     {
         // late joiner
-        pC = new DelayedParticipantCreation(std::move(event));
-        events.push_back(pC);
+        creation_event = new DelayedParticipantCreation(std::move(event));
+        events.push_back(creation_event);
     }
 
     // Once the participant is created we create the associated endpoints
     tinyxml2::XMLElement* pub = client->FirstChildElement(DSxmlparser::PUBLISHER);
     while (pub != nullptr)
     {
-        loadPublisher(guid, pub, pC);
+        loadPublisher(guid, pub, creation_event);
         pub = pub->NextSiblingElement(DSxmlparser::PUBLISHER);
     }
 
     tinyxml2::XMLElement* sub = client->FirstChildElement(DSxmlparser::SUBSCRIBER);
     while (sub != nullptr)
     {
-        loadSubscriber(guid, sub, pC);
+        loadSubscriber(guid, sub, creation_event);
         sub = sub->NextSiblingElement(DSxmlparser::SUBSCRIBER);
     }
 }
@@ -1318,18 +1311,19 @@ void DiscoveryServerManager::loadSimple(
     }
 
     GUID_t guid(dpQOS.wire_protocol().prefix, c_EntityId_RTPSParticipant);
-    DelayedParticipantDestruction* pD = nullptr;
-    DelayedParticipantCreation* pC = nullptr;
+    DelayedParticipantDestruction* destruction_event = nullptr;
+    DelayedParticipantCreation* creation_event = nullptr;
 
     if (removal_time != getTime())
     {
         // early leaver
-        pD = new DelayedParticipantDestruction(removal_time, guid);
-        events.push_back(pD);
+        destruction_event = new DelayedParticipantDestruction(removal_time, guid);
+        events.push_back(destruction_event);
     }
 
     // Create the participant or the associated events
-    DelayedParticipantCreation event(creation_time, std::move(dpQOS), &DiscoveryServerManager::addSimple, pD);
+    DelayedParticipantCreation event(creation_time, std::move(dpQOS), &DiscoveryServerManager::addSimple,
+            destruction_event);
 
     if (creation_time == getTime())
     {
@@ -1341,22 +1335,22 @@ void DiscoveryServerManager::loadSimple(
     else
     {
         // late joiner
-        pC = new DelayedParticipantCreation(std::move(event));
-        events.push_back(pC);
+        creation_event = new DelayedParticipantCreation(std::move(event));
+        events.push_back(creation_event);
     }
 
     // Once the participant is created we create the associated endpoints
     tinyxml2::XMLElement* pub = simple->FirstChildElement(DSxmlparser::PUBLISHER);
     while (pub != nullptr)
     {
-        loadPublisher(guid, pub, pC);
+        loadPublisher(guid, pub, creation_event);
         pub = pub->NextSiblingElement(DSxmlparser::PUBLISHER);
     }
 
     tinyxml2::XMLElement* sub = simple->FirstChildElement(DSxmlparser::SUBSCRIBER);
     while (sub != nullptr)
     {
-        loadSubscriber(guid, sub, pC);
+        loadSubscriber(guid, sub, creation_event);
         sub = sub->NextSiblingElement(DSxmlparser::SUBSCRIBER);
     }
 }
@@ -1364,8 +1358,8 @@ void DiscoveryServerManager::loadSimple(
 void DiscoveryServerManager::loadSubscriber(
         GUID_t& part_guid,
         tinyxml2::XMLElement* sub,
-        DelayedParticipantCreation* pPC /*= nullptr*/,
-        DelayedParticipantDestruction* pPD /*= nullptr*/)
+        DelayedParticipantCreation* participant_creation_event /*= nullptr*/,
+        DelayedParticipantDestruction* participant_destruction_event /*= nullptr*/)
 {
     assert(sub != nullptr);
 
@@ -1373,9 +1367,9 @@ void DiscoveryServerManager::loadSubscriber(
     std::chrono::steady_clock::time_point creation_time, removal_time;
 
     // Match the creation and destruction times to the participant
-    if (nullptr != pPC)
+    if (nullptr != participant_creation_event)
     {
-        creation_time = pPC->executionTime();
+        creation_time = participant_creation_event->executionTime();
         // prevent creation before the participant
         creation_time += std::chrono::nanoseconds(1);
     }
@@ -1384,9 +1378,9 @@ void DiscoveryServerManager::loadSubscriber(
         creation_time = getTime();
     }
 
-    if (nullptr != pPD)
+    if (nullptr != participant_destruction_event)
     {
-        removal_time = pPC->executionTime();
+        removal_time = participant_creation_event->executionTime();
         // prevent destruction after the participant
         creation_time -= std::chrono::nanoseconds(1);
     }
@@ -1469,7 +1463,8 @@ void DiscoveryServerManager::loadSubscriber(
     }
 
     DelayedEndpointCreation<DataReader> event(creation_time, subatts->topic.getTopicName().to_string(),
-            subatts->topic.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE, pPC);
+            subatts->topic.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE,
+            participant_creation_event);
 
     if (creation_time == getTime())
     {
@@ -1485,8 +1480,8 @@ void DiscoveryServerManager::loadSubscriber(
 void DiscoveryServerManager::loadPublisher(
         GUID_t& part_guid,
         tinyxml2::XMLElement* sub,
-        DelayedParticipantCreation* pPC /*= nullptr*/,
-        DelayedParticipantDestruction* pPD /*= nullptr*/)
+        DelayedParticipantCreation* participant_creation_event /*= nullptr*/,
+        DelayedParticipantDestruction* participant_destruction_event /*= nullptr*/)
 {
     assert(sub != nullptr);
 
@@ -1494,9 +1489,9 @@ void DiscoveryServerManager::loadPublisher(
     std::chrono::steady_clock::time_point creation_time, removal_time;
 
     // Match the creation and destruction times to the participant
-    if ( nullptr != pPC)
+    if ( nullptr != participant_creation_event)
     {
-        creation_time = pPC->executionTime();
+        creation_time = participant_creation_event->executionTime();
         // prevent creation before the participant
         creation_time += std::chrono::nanoseconds(1);
     }
@@ -1505,9 +1500,9 @@ void DiscoveryServerManager::loadPublisher(
         creation_time = getTime();
     }
 
-    if (nullptr != pPD)
+    if (nullptr != participant_destruction_event)
     {
-        removal_time = pPC->executionTime();
+        removal_time = participant_creation_event->executionTime();
         // prevent destruction after the participant
         creation_time -= std::chrono::nanoseconds(1);
     }
@@ -1590,7 +1585,8 @@ void DiscoveryServerManager::loadPublisher(
     }
 
     DelayedEndpointCreation<DataWriter> event(creation_time, pubatts->topic.getTopicName().to_string(),
-            pubatts->topic.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE, pPC);
+            pubatts->topic.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE,
+            participant_creation_event);
 
     if (creation_time == getTime())
     {

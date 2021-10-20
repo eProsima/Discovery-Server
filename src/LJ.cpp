@@ -104,12 +104,12 @@ DataWriter* LateJoinerDataTraits<DataWriter>::createEndpoint(
         const std::string& profile_name,
         void*)
 {
-    
+
     fastdds::dds::Publisher* pub = static_cast<fastdds::dds::Publisher*>(publisher);
 
     if (profile_name.empty())
     {
-        return pub->create_datawriter(topic, DATAWRITER_QOS_DEFAULT); 
+        return pub->create_datawriter(topic, DATAWRITER_QOS_DEFAULT);
     }
     else
     {
@@ -136,13 +136,13 @@ DataReader* LateJoinerDataTraits<DataReader>::createEndpoint(
 
     if (profile_name.empty())
     {
-        return sub->create_datareader(topic, DATAREADER_QOS_DEFAULT); 
+        return sub->create_datareader(topic, DATAREADER_QOS_DEFAULT);
     }
     else
     {
         return sub->create_datareader_with_profile(topic, profile_name, list);
     }
-   
+
 }
 
 void DelayedSnapshot::operator ()(

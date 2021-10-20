@@ -514,7 +514,6 @@ DelayedEndpointCreation<ReaderWriter>::DelayedEndpointCreation(
 template<class ReaderWriter>
 DelayedEndpointCreation<ReaderWriter>::~DelayedEndpointCreation() /*override*/
 {
-
 }
 
 } // fastrtps

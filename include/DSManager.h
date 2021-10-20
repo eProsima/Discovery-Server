@@ -150,14 +150,14 @@ class DiscoveryServerManager
     void loadSubscriber(
             GUID_t& part_guid,
             tinyxml2::XMLElement* subs,
-            DelayedParticipantCreation* pPC = nullptr,
-            DelayedParticipantDestruction* pPD = nullptr);
+            DelayedParticipantCreation* participant_creation_event = nullptr,
+            DelayedParticipantDestruction* participant_destruction_event = nullptr);
 
     void loadPublisher(
             GUID_t& part_guid,
             tinyxml2::XMLElement* pubs,
-            DelayedParticipantCreation* pPC = nullptr,
-            DelayedParticipantDestruction* pPD = nullptr);
+            DelayedParticipantCreation* participant_creation_event = nullptr,
+            DelayedParticipantDestruction* participant_destruction_event = nullptr);
 
     void loadSnapshot(
             tinyxml2::XMLElement* snapshot);
@@ -276,7 +276,7 @@ public:
 
     Topic* getParticipantTopicByName(
             DomainParticipant* p,
-            std::string const& name);
+            const std::string& name);
 
     void setParentGUID(
             GUID_t& parent,
