@@ -40,14 +40,15 @@ HelloWorldServer::HelloWorldServer()
 {
 }
 
-bool HelloWorldServer::init(Locator server_address)
+bool HelloWorldServer::init(
+        Locator server_address)
 {
 
     eprosima::fastdds::dds::DomainParticipantQos participant_qos = eprosima::fastdds::dds::PARTICIPANT_QOS_DEFAULT;
 
     participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::SERVER;
     std::istringstream iss("44.49.53.43.53.45.52.56.45.52.5F.31");
-    iss >> participant_qos.wire_protocol().prefix ;
+    iss >> participant_qos.wire_protocol().prefix;
     participant_qos.wire_protocol().builtin.discovery_config.leaseDuration = c_TimeInfinite;
     participant_qos.wire_protocol().builtin.discovery_config.initial_announcements.count = 0;
     participant_qos.name("Participant_server");
@@ -58,11 +59,11 @@ bool HelloWorldServer::init(Locator server_address)
     // all local interfaces
 
     if (server_address.kind == LOCATOR_KIND_TCPv4 ||
-        server_address.kind == LOCATOR_KIND_TCPv6)
+            server_address.kind == LOCATOR_KIND_TCPv6)
     {
 
         // logical port cannot be customize in this example
-        IPLocator::setIPv4(server_address, 127,0,0,1);
+        IPLocator::setIPv4(server_address, 127, 0, 0, 1);
         IPLocator::setLogicalPort(server_address, 65215);
         IPLocator::setPhysicalPort(server_address, default_port); // redundant is already in the transport descriptor
 
@@ -70,7 +71,7 @@ bool HelloWorldServer::init(Locator server_address)
 
         std::shared_ptr<TCPTransportDescriptor> descriptor;
 
-        if(server_address.kind == LOCATOR_KIND_TCPv4)
+        if (server_address.kind == LOCATOR_KIND_TCPv4)
         {
             descriptor = std::make_shared<TCPv4TransportDescriptor>();
         }
@@ -87,16 +88,17 @@ bool HelloWorldServer::init(Locator server_address)
     else
     {
         server_address.port = default_port;
-        IPLocator::setIPv4(server_address, 127,0,0,1);
+        IPLocator::setIPv4(server_address, 127, 0, 0, 1);
         participant_qos.wire_protocol().builtin.metatrafficUnicastLocatorList.push_back(server_address);
     }
 
     participant_qos.wire_protocol().participant_id = 1;
     mp_participant = DomainParticipantFactory::get_instance()->create_participant(0, participant_qos);
 
-
-    if (mp_participant==nullptr)
+    if (mp_participant == nullptr)
+    {
         return false;
+    }
 
     return true;
 }
@@ -111,4 +113,3 @@ void HelloWorldServer::run()
     std::cout << "Server running. Please press enter to stop the server" << std::endl;
     std::cin.ignore();
 }
-

@@ -25,8 +25,11 @@
 #include <fastdds/rtps/transport/TCPv4TransportDescriptor.h>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
+#include <fastdds/dds/subscriber/qos/SubscriberQos.hpp>
+#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
 
 #include <fastrtps/utils/IPLocator.h>
 
@@ -137,6 +140,7 @@ bool HelloWorldSubscriber::init(
 
 HelloWorldSubscriber::~HelloWorldSubscriber()
 {
+    mp_participant->delete_contained_entities();
     DomainParticipantFactory::get_instance()->delete_participant(mp_participant);
 }
 

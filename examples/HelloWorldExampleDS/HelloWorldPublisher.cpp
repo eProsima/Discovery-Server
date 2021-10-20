@@ -37,9 +37,7 @@
 using namespace eprosima::fastdds;
 using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::dds;
-
 using namespace eprosima::fastrtps::rtps;
-
 
 HelloWorldPublisher::HelloWorldPublisher()
     : mp_participant(nullptr)
