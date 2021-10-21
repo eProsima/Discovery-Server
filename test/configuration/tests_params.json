@@ -1534,11 +1534,6 @@
                     "environment_variables":
                     [
                         {
-                            "name": "ROS_DISCOVERY_SERVER",
-                            "value": ";;localhost:65000"
-                        }
-                        ,
-                        {
                             "name":"FASTDDS_ENVIRONMENT_FILE",
                             "value": "<CONFIG_RELATIVE_PATH>/environment.json"
                         }

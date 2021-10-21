@@ -201,19 +201,9 @@ DiscoveryServerManager::DiscoveryServerManager(
                 data = getenv("FASTDDS_ENVIRONMENT_FILE");
                 if (nullptr != data)
                 {
-                    char* ros_discovery_data;
-                    ros_discovery_data = getenv("ROS_DISCOVERY_SERVER");
                     std::ofstream output_file(data);
                     output_file << "{" << std::endl;
-                    if (ros_discovery_data)
-                    {
-                        output_file << "\t\"" << "ROS_DISCOVERY_SERVER\"" << ": \"" << ros_discovery_data << "\"" <<
-                                std::endl;
-                    }
-                    else
-                    {
-                        output_file << '\t' << std::endl;
-                    }
+                    output_file << '\t' << std::endl;
                     output_file << "}" << std::endl;
                 }
                 else

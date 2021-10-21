@@ -1,38 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+    <!-- 
+        This tests validates the modification and proper discovery of participants when using the
+        FASTDDS_ENVIRONMENT_FILE to change the discovery server list.
 
+        On startup there is only one server (UDP_server_1) with one connected Client (UDP_client1_server1) 
+        and a promoted simple participant not disvoered by anyone. 
+
+        First modification of the environment file adds UDP_server_2 to the discovery server list and
+        keep everything as is.
+
+        Second modification of the environment file adds UDP_server_1 to the discovery server list causing
+        the discovery of the promoted simple participant (UDP_client1_server2) by both UDP_server_1 and 
+        UDP_client1_server1. 
+
+        UDP_server_2 and UDP_client1_server_2 are created and discovered by the other participants. 
+    -->
     <servers>
-        <server name="server_1" profile_name="UDP_server_1" creation_time="5" />
-        <server name="server_2" profile_name="UDP_server_2" creation_time="18" />
+        <server name="server_1" profile_name="UDP_server_1" creation_time="2" />
+        <server name="server_2" profile_name="UDP_server_2" creation_time="12" />
     </servers>
 
     <clients>
-        <client name="client1" profile_name="UDP_client1_server1" creation_time="5">
+        <client name="client1" profile_name="UDP_client1_server1" creation_time="2">
             <publisher topic="topic1" />
         </client>
-        <client name="client3" profile_name="UDP_client1_server2" creation_time="18">
+        <client name="client3" profile_name="UDP_client1_server2" creation_time="12">
             <subscriber topic="topic1" />
         </client>
     </clients>
 
     <simples>
-        <simple name="client2" profile_name="UDP_client2_server1" creation_time="5">
+        <simple name="client2" profile_name="UDP_client2_server1" creation_time="2">
             <subscriber topic="topic1" />
         </simple>
     </simples>
 
 
     <snapshots file="./test_39_environment_modification~">
-        <snapshot time="8">test_39_environment_modification_initial</snapshot>
-        <snapshot time="12">test_39_environment_modification_add_server2</snapshot>
-        <snapshot time="16">test_39_environment_modification_add_server1</snapshot>
-        <snapshot time="22">test_39_environment_modification_final</snapshot>
+        <snapshot time="4">test_39_environment_modification_initial</snapshot>
+        <snapshot time="7">test_39_environment_modification_add_server2</snapshot>
+        <snapshot time="10">test_39_environment_modification_add_server1</snapshot>
+        <snapshot time="14">test_39_environment_modification_final</snapshot>
     </snapshots>
 
     <environment>
-        <change time="3" key="ROS_DISCOVERY_SERVER">;;localhost:65000</change>
-        <change time="9" key="ROS_DISCOVERY_SERVER">;localhost:38812;localhost:65000</change>
-        <change time="13" key="ROS_DISCOVERY_SERVER">localhost:38811;localhost:38812;localhost:65000</change>
+        <change time="1" key="ROS_DISCOVERY_SERVER">;;localhost:65000</change>
+        <change time="5" key="ROS_DISCOVERY_SERVER">;localhost:38812;localhost:65000</change>
+        <change time="8" key="ROS_DISCOVERY_SERVER">localhost:38811;localhost:38812;localhost:65000</change>
     </environment>
 
     <profiles>
