@@ -69,7 +69,6 @@ bool HelloWorldSubscriber::init(
         IPLocator::setPhysicalPort(server_address, default_port);
         IPLocator::setLogicalPort(server_address, 65215);
 
-        participant_qos.wire_protocol().builtin.metatrafficUnicastLocatorList.push_back(server_address);
         ratt.metatrafficUnicastLocatorList.push_back(server_address);
         participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
         participant_qos.transport().use_builtin_transports = false;
