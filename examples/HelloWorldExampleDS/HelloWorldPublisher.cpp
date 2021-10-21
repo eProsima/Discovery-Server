@@ -18,50 +18,52 @@
  */
 
 #include "HelloWorldPublisher.h"
-#include <fastrtps/participant/Participant.h>
-#include <fastrtps/attributes/ParticipantAttributes.h>
-#include <fastrtps/attributes/PublisherAttributes.h>
-#include <fastrtps/publisher/Publisher.h>
-#include <fastrtps/transport/TCPv4TransportDescriptor.h>
-#include <fastrtps/Domain.h>
-#include <fastrtps/utils/IPLocator.h>
-#include <fastrtps/utils/System.h>
 
-#include <thread>
+#include <chrono>
 #include <random>
+#include <thread>
 
-using namespace eprosima::fastrtps;
+#include <fastdds/rtps/transport/TCPv4TransportDescriptor.h>
+#include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
+#include <fastdds/dds/publisher/Publisher.hpp>
+#include <fastdds/dds/publisher/DataWriter.hpp>
+#include <fastdds/dds/publisher/qos/PublisherQos.hpp>
+#include <fastdds/dds/publisher/qos/DataWriterQos.hpp>
+
+#include <fastrtps/utils/IPLocator.h>
+
 using namespace eprosima::fastdds;
-using namespace eprosima::fastrtps::rtps;
 using namespace eprosima::fastdds::rtps;
+using namespace eprosima::fastdds::dds;
+using namespace eprosima::fastrtps::rtps;
 
 HelloWorldPublisher::HelloWorldPublisher()
     : mp_participant(nullptr)
     , mp_publisher(nullptr)
+    , mp_writer(nullptr)
 {
-
-
 }
 
-bool HelloWorldPublisher::init(Locator_t server_address)
+bool HelloWorldPublisher::init(
+        Locator server_address)
 {
     m_hello.index(0);
     m_hello.message("HelloWorld");
 
     RemoteServerAttributes ratt;
-    ratt.ReadguidPrefix("4D.49.47.55.45.4c.5f.42.41.52.52.4f");
 
-    ParticipantAttributes PParam;
-    PParam.rtps.builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::CLIENT;
-    PParam.rtps.builtin.discovery_config.leaseDuration = c_TimeInfinite;
-    PParam.rtps.setName("Participant_pub");
+    ratt.ReadguidPrefix("44.49.53.43.53.45.52.56.45.52.5F.31");
+
+    DomainParticipantQos participant_qos = PARTICIPANT_QOS_DEFAULT;
 
     uint16_t default_port = IPLocator::getPhysicalPort(server_address.port);
 
-    if(server_address.kind == LOCATOR_KIND_TCPv4 ||
-        server_address.kind == LOCATOR_KIND_TCPv6)
+    if (server_address.kind == LOCATOR_KIND_TCPv4 ||
+            server_address.kind == LOCATOR_KIND_TCPv6)
     {
-        if(!IsAddressDefined(server_address))
+        if (!IsAddressDefined(server_address))
         {
             server_address.kind = LOCATOR_KIND_TCPv4;
             IPLocator::setIPv4(server_address, 127, 0, 0, 1);
@@ -72,22 +74,20 @@ bool HelloWorldPublisher::init(Locator_t server_address)
         IPLocator::setLogicalPort(server_address, 65215);
 
         ratt.metatrafficUnicastLocatorList.push_back(server_address);
-        PParam.rtps.builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
-
-        PParam.rtps.useBuiltinTransports = false;
+        participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
+        participant_qos.transport().use_builtin_transports = false;
         std::shared_ptr<TCPv4TransportDescriptor> descriptor = std::make_shared<TCPv4TransportDescriptor>();
 
         // Generate a listening port for the client
-        std::default_random_engine gen(System::GetPID());
-        std::uniform_int_distribution<int> rdn(49152, 65535);
+        std::default_random_engine gen(std::chrono::system_clock::now().time_since_epoch().count());
+        std::uniform_int_distribution<int> rdn(57344, 65535);
         descriptor->add_listener_port(rdn(gen)); // IANA ephemeral port number
-
         descriptor->wait_for_tcp_negotiation = false;
-        PParam.rtps.userTransports.push_back(descriptor);
+        participant_qos.transport().user_transports.push_back(descriptor);
     }
     else
     {
-        if(!IsAddressDefined(server_address))
+        if (!IsAddressDefined(server_address))
         {
             server_address.kind = LOCATOR_KIND_UDPv4;
             server_address.port = default_port;
@@ -95,34 +95,46 @@ bool HelloWorldPublisher::init(Locator_t server_address)
         }
 
         ratt.metatrafficUnicastLocatorList.push_back(server_address);
-        PParam.rtps.builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
+        participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
     }
 
-    mp_participant = Domain::createParticipant(PParam);
+    participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::CLIENT;
+    participant_qos.wire_protocol().participant_id = 2;
+    participant_qos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastrtps::c_TimeInfinite;
+    participant_qos.name("Participant_pub");
+
+    mp_participant = DomainParticipantFactory::get_instance()->create_participant(0, participant_qos);
 
     if (mp_participant == nullptr)
     {
         return false;
     }
 
-    //REGISTER THE TYPE
-    Domain::registerType(mp_participant,&m_type);
+    TypeSupport ts(new HelloWorldPubSubType());
 
-    //CREATE THE PUBLISHER
-    PublisherAttributes Wparam;
-    Wparam.topic.topicKind = NO_KEY;
-    Wparam.topic.topicDataType = "HelloWorld";
-    Wparam.topic.topicName = "HelloWorldTopic";
-    Wparam.topic.historyQos.kind = KEEP_LAST_HISTORY_QOS;
-    Wparam.topic.historyQos.depth = 30;
-    Wparam.topic.resourceLimitsQos.max_samples = 50;
-    Wparam.topic.resourceLimitsQos.allocated_samples = 20;
-    Wparam.times.heartbeatPeriod.seconds = 2;
-    Wparam.times.heartbeatPeriod.nanosec = 0;
-    Wparam.qos.m_reliability.kind = RELIABLE_RELIABILITY_QOS;
-    mp_publisher = Domain::createPublisher(mp_participant,Wparam,(PublisherListener*)&m_listener);
+    mp_participant->register_type(ts);
 
-    if (mp_publisher == nullptr)
+    TopicQos topic_qos = TOPIC_QOS_DEFAULT;
+
+    topic_qos.history().depth = 30;
+    topic_qos.history().kind = KEEP_LAST_HISTORY_QOS;
+    topic_qos.resource_limits().max_samples = 50;
+    topic_qos.resource_limits().allocated_samples = 20;
+
+    PublisherQos publisher_qos = PUBLISHER_QOS_DEFAULT;
+    DataWriterQos datawriter_qos = DATAWRITER_QOS_DEFAULT;
+
+    datawriter_qos.reliable_writer_qos().times.heartbeatPeriod.seconds = 2;
+    datawriter_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 0;
+    datawriter_qos.reliability().kind = RELIABLE_RELIABILITY_QOS;
+
+    mp_publisher = mp_participant->create_publisher(publisher_qos);
+
+    Topic* topic = mp_participant->create_topic("HelloWorldTopic", ts.get_type_name(), topic_qos);
+
+    mp_writer = mp_publisher->create_datawriter(topic, datawriter_qos, &m_listener);
+
+    if (mp_writer == nullptr)
     {
         return false;
     }
@@ -133,44 +145,45 @@ bool HelloWorldPublisher::init(Locator_t server_address)
 
 HelloWorldPublisher::~HelloWorldPublisher()
 {
-    Domain::removeParticipant(mp_participant);
+    mp_participant->delete_contained_entities();
+    DomainParticipantFactory::get_instance()->delete_participant(mp_participant);
 }
 
-void HelloWorldPublisher::PubListener::onPublicationMatched(
-    Publisher* /*pub*/,
-    MatchingInfo& info)
+void HelloWorldPublisher::PubListener::on_publication_matched(
+        DataWriter* /*pub*/,
+        const PublicationMatchedStatus& info)
 {
-    if (info.status == MATCHED_MATCHING)
+    if (info.current_count_change == 1)
     {
-        n_matched++;
-        firstConnected = true;
-        std::cout << "Publisher matched" << std::endl;
+        n_matched = info.current_count;
+        std::cout << "DataWriter matched." << std::endl;
     }
-    else
+    else if (info.current_count_change == -1)
     {
-        n_matched--;
-        std::cout << "Publisher unmatched" << std::endl;
+        n_matched = info.current_count;
+        std::cout << "DataWriter unmatched." << std::endl;
     }
 }
 
 void HelloWorldPublisher::runThread(
-    uint32_t samples,
-    uint32_t sleep)
+        uint32_t samples,
+        uint32_t sleep)
 {
     if (samples == 0)
     {
-        while(!stop)
+        while (!stop)
         {
             if (publish(false))
             {
-                std::cout << "Message: " << m_hello.message() << " with index: " << m_hello.index() << " SENT" << std::endl;
+                std::cout << "Message: " << m_hello.message() << " with index: " << m_hello.index() << " SENT" <<
+                    std::endl;
             }
             std::this_thread::sleep_for(std::chrono::duration<uint32_t, std::milli>(sleep));
         }
     }
     else
     {
-        for(uint32_t i = 0;i<samples;++i)
+        for (uint32_t i = 0; i < samples; ++i)
         {
             if (!publish())
             {
@@ -178,16 +191,17 @@ void HelloWorldPublisher::runThread(
             }
             else
             {
-                std::cout << "Message: " << m_hello.message() << " with index: " << m_hello.index() << " SENT" << std::endl;
+                std::cout << "Message: " << m_hello.message() << " with index: " << m_hello.index() << " SENT" <<
+                    std::endl;
             }
-            std::this_thread::sleep_for(std::chrono::duration<uint32_t,std::milli>(sleep));
+            std::this_thread::sleep_for(std::chrono::duration<uint32_t, std::milli>(sleep));
         }
     }
 }
 
 void HelloWorldPublisher::run(
-    uint32_t samples,
-    uint32_t sleep)
+        uint32_t samples,
+        uint32_t sleep)
 {
     stop = false;
     std::thread thread(&HelloWorldPublisher::runThread, this, samples, sleep);
@@ -204,12 +218,13 @@ void HelloWorldPublisher::run(
     thread.join();
 }
 
-bool HelloWorldPublisher::publish(bool waitForListener)
+bool HelloWorldPublisher::publish(
+        bool waitForListener)
 {
-    if (m_listener.firstConnected || !waitForListener || m_listener.n_matched>0)
+    if (!waitForListener || m_listener.n_matched > 0)
     {
-        m_hello.index(m_hello.index()+1);
-        mp_publisher->write((void*)&m_hello);
+        m_hello.index(m_hello.index() + 1);
+        mp_writer->write((void*)&m_hello);
         return true;
     }
     return false;

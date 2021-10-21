@@ -12,52 +12,75 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "log/DSLog.h"
 #include "LJ.h"
+
+#include "log/DSLog.h"
 #include "DSManager.h"
 
 using namespace eprosima::fastrtps;
 using namespace eprosima::discovery_server;
+// New API
+using namespace eprosima::fastdds::dds;
 
 // delayed creation of a new participant
-void DPC::operator()(
-        DSManager& man ) /*override*/
+void DelayedParticipantCreation::operator ()(
+        DiscoveryServerManager& manager ) /*override*/
 {
-    Participant * p = Domain::createParticipant(attributes, &man);
+
+    DomainParticipant* p = DomainParticipantFactory::get_instance()->create_participant(0, qos, &manager);
+
+    fastdds::dds::Publisher* publisher_ = p->create_publisher(PUBLISHER_QOS_DEFAULT);
+    fastdds::dds::Subscriber* subscriber_ = p->create_subscriber(SUBSCRIBER_QOS_DEFAULT);
+
+    ParticipantCreatedEntityInfo info;
+
+    info.participant = p;
+    info.publisher = publisher_;
+    info.subscriber = subscriber_;
+
     if (p)
     {
-        (man.*participant_creation_function)(p); // addServer or addClient
-        participant_guid = p->getGuid();
-        // update the associated DPD
+        (manager.*participant_creation_function)(p); // addServer or addClient
+        participant_guid = p->guid();
+        // update the associated DelayedParticipantDestruction
         if (removal_event)
         {
             removal_event->SetGuid(participant_guid);
         }
 
-        LOG_INFO("New participant called " << attributes.rtps.getName() << " with prefix " << p->getGuid() );
+        manager.setParticipantInfo(participant_guid, info);
+
+        LOG_INFO("New participant called " << qos.name() << " with prefix " << p->guid());
     }
     else
     {
-        LOG_ERROR("DSManager couldn't create the participant " << attributes.rtps.prefix  );
+        LOG_ERROR("DiscoveryServerManager couldn't create the participant " << qos.wire_protocol().prefix);
     }
 }
 
 // delayed destruction of a new participant
-void DPD::operator()(
-        DSManager& man) /*override*/
+void DelayedParticipantDestruction::operator ()(
+        DiscoveryServerManager& manager) /*override*/
 {
-    Participant * p = man.removeParticipant(participant_id);
+    DomainParticipant* p = manager.removeParticipant(participant_id);
     if (p)
     {
-        std::string name = p->getAttributes().rtps.getName();
+        std::string name = p->get_qos().name().to_string();
 
-        Domain::removeParticipant(p);
-
+        ReturnCode_t ret = manager.deleteParticipant(p);
+        if (ReturnCode_t::RETCODE_OK != ret)
+        {
+            LOG_ERROR("Error during delayed deletion of Participant");
+        }
         LOG_INFO("Removed participant called " << name << " with prefix " << participant_id );
+    }
+    else
+    {
+        LOG_ERROR("Destroying nonexisting participant");
     }
 }
 
-void DPD::SetGuid(
+void DelayedParticipantDestruction::SetGuid(
         const GUID_t& id)
 {
     if (id != GUID_t::unknown())
@@ -66,37 +89,64 @@ void DPD::SetGuid(
     }
 }
 
-// static LJD_atts pointer to member
-const std::string LJD_traits<Publisher>::endpoint_type("Publisher");
-const LJD_traits<Publisher>::AddEndpoint LJD_traits<Publisher>::add_endpoint_function = &DSManager::addPublisher;
-const LJD_traits<Publisher>::GetEndpoint LJD_traits<Publisher>::retrieve_endpoint_function = &DSManager::removePublisher;
-const LJD_traits<Publisher>::removeEndpoint LJD_traits<Publisher>::remove_endpoint_function = &Domain::removePublisher;
-
-/*static*/ 
-Publisher * LJD_traits<Publisher>::createEndpoint(
-    Participant* part,
-    const PublisherAttributes& pa,
-    void *)
-{
-    return Domain::createPublisher(part, pa);
-}
-
-const std::string LJD_traits<Subscriber>::endpoint_type("Subscriber");
-const LJD_traits<Subscriber>::AddEndpoint LJD_traits<Subscriber>::add_endpoint_function = &DSManager::addSubscriber;
-const LJD_traits<Subscriber>::GetEndpoint LJD_traits<Subscriber>::retrieve_endpoint_function = &DSManager::removeSubscriber;
-const LJD_traits<Subscriber>::removeEndpoint LJD_traits<Subscriber>::remove_endpoint_function = &Domain::removeSubscriber;
+const std::string LateJoinerDataTraits<DataWriter>::endpoint_type("DataWriter");
+const LateJoinerDataTraits<DataWriter>::AddEndpoint LateJoinerDataTraits<DataWriter>::add_endpoint_function =
+        &DiscoveryServerManager::addDataWriter;
+const LateJoinerDataTraits<DataWriter>::GetEndpoint LateJoinerDataTraits<DataWriter>::retrieve_endpoint_function =
+        &DiscoveryServerManager::removePublisher;
+const LateJoinerDataTraits<DataWriter>::removeEndpoint LateJoinerDataTraits<DataWriter>::remove_endpoint_function =
+        &DiscoveryServerManager::deleteDataWriter;
 
 /*static*/
-Subscriber * LJD_traits<Subscriber>::createEndpoint(
-    Participant* part,
-    const SubscriberAttributes& sa,
-    SubscriberListener * list/* = nullptr*/)
+DataWriter* LateJoinerDataTraits<DataWriter>::createEndpoint(
+        fastdds::dds::DomainEntity* publisher,
+        Topic* topic,
+        const std::string& profile_name,
+        void*)
 {
-    return Domain::createSubscriber(part, sa, list);
+
+    fastdds::dds::Publisher* pub = static_cast<fastdds::dds::Publisher*>(publisher);
+
+    if (profile_name.empty())
+    {
+        return pub->create_datawriter(topic, DATAWRITER_QOS_DEFAULT);
+    }
+    else
+    {
+        return pub->create_datawriter_with_profile(topic, profile_name);
+    }
 }
 
-void DS::operator()(
-        DSManager & man) /*override*/
+const std::string LateJoinerDataTraits<DataReader>::endpoint_type("DataReader");
+const LateJoinerDataTraits<DataReader>::AddEndpoint LateJoinerDataTraits<DataReader>::add_endpoint_function =
+        &DiscoveryServerManager::addDataReader;
+const LateJoinerDataTraits<DataReader>::GetEndpoint LateJoinerDataTraits<DataReader>::retrieve_endpoint_function =
+        &DiscoveryServerManager::removeSubscriber;
+const LateJoinerDataTraits<DataReader>::removeEndpoint LateJoinerDataTraits<DataReader>::remove_endpoint_function =
+        &DiscoveryServerManager::deleteDataReader;
+
+/*static*/
+DataReader* LateJoinerDataTraits<DataReader>::createEndpoint(
+        fastdds::dds::DomainEntity* subscriber,
+        Topic* topic,
+        const std::string& profile_name,
+        fastdds::dds::SubscriberListener* list /* = nullptr*/)
 {
-    man.takeSnapshot(std::chrono::steady_clock::now(), description, if_someone, show_liveliness_);
+    fastdds::dds::Subscriber* sub = static_cast<fastdds::dds::Subscriber*>(subscriber);
+
+    if (profile_name.empty())
+    {
+        return sub->create_datareader(topic, DATAREADER_QOS_DEFAULT);
+    }
+    else
+    {
+        return sub->create_datareader_with_profile(topic, profile_name, list);
+    }
+
+}
+
+void DelayedSnapshot::operator ()(
+        DiscoveryServerManager& manager)  /*override*/
+{
+    manager.takeSnapshot(std::chrono::steady_clock::now(), description, if_someone, show_liveliness_);
 }

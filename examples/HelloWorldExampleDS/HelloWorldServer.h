@@ -20,21 +20,32 @@
 #ifndef HELLOWORLDSERVER_H_
 #define HELLOWORLDSERVER_H_
 
-#include <fastrtps/fastrtps_fwd.h>
-#include <fastrtps/rtps/common/Locator.h>
+#include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/rtps/common/Locator.h>
+
+namespace eprosima {
+namespace fastdds {
+namespace dds {
+class DomainParticipant;
+} // namespace dds
+} // namespace fastdds
+} // namespace eprosima
 
 class HelloWorldServer
 {
 public:
+
     HelloWorldServer();
     virtual ~HelloWorldServer();
     //!Initialize the subscriber
-    bool init(eprosima::fastrtps::rtps::Locator_t server_address);
+    bool init(
+            eprosima::fastdds::rtps::Locator server_address);
     //!RUN the subscriber
     void run();
 
 private:
-    eprosima::fastrtps::Participant* mp_participant;
+
+    eprosima::fastdds::dds::DomainParticipant* mp_participant;
 };
 
 #endif /* HELLOWORLDSERVER_H_ */

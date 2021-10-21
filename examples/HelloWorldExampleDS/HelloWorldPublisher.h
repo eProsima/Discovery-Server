@@ -22,42 +22,60 @@
 
 #include "HelloWorldPubSubTypes.h"
 
-#include <fastrtps/fastrtps_fwd.h>
-#include <fastrtps/attributes/PublisherAttributes.h>
-#include <fastrtps/publisher/PublisherListener.h>
-
+#include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/dds/publisher/DataWriter.hpp>
+#include <fastdds/dds/publisher/DataWriterListener.hpp>
+#include <fastdds/dds/publisher/Publisher.hpp>
 
 #include "HelloWorld.h"
 
-class HelloWorldPublisher 
+class HelloWorldPublisher
 {
 public:
+
     HelloWorldPublisher();
     virtual ~HelloWorldPublisher();
     //!Initialize
-    bool init(eprosima::fastrtps::rtps::Locator_t server_address);
+    bool init(
+            eprosima::fastdds::rtps::Locator server_address);
     //!Publish a sample
-    bool publish(bool waitForListener = true);
+    bool publish(
+            bool waitForListener = true);
     //!Run for number samples
-    void run(uint32_t number, uint32_t sleep);
+    void run(
+            uint32_t number,
+            uint32_t sleep);
+
 private:
+
     HelloWorld m_hello;
-    eprosima::fastrtps::Participant* mp_participant;
-    eprosima::fastrtps::Publisher* mp_publisher;
+    eprosima::fastdds::dds::DomainParticipant* mp_participant;
+    eprosima::fastdds::dds::Publisher*  mp_publisher;
+    eprosima::fastdds::dds::DataWriter* mp_writer;
+
     bool stop;
-    class PubListener :public eprosima::fastrtps::PublisherListener
+    class PubListener : public eprosima::fastdds::dds::DataWriterListener
     {
     public:
-        PubListener() :n_matched(0), firstConnected(false) {};
-        ~PubListener() {};
-        void onPublicationMatched(eprosima::fastrtps::Publisher* pub, eprosima::fastrtps::rtps::MatchingInfo& info);   
+
+        PubListener()
+            : n_matched(0)
+        {
+        }
+
+        ~PubListener()
+        {
+        }
+
+        void on_publication_matched(
+                eprosima::fastdds::dds::DataWriter* dataWriter,
+                const eprosima::fastdds::dds::PublicationMatchedStatus& info);
         int n_matched;
-        bool firstConnected;
-    }m_listener;
-    void runThread(uint32_t number, uint32_t sleep);
-    HelloWorldPubSubType m_type;
+    }
+    m_listener;
+    void runThread(
+            uint32_t number,
+            uint32_t sleep);
 };
-
-
 
 #endif /* HELLOWORLDPUBLISHER_H_ */

@@ -17,59 +17,65 @@
 #define _LJ_H_
 
 #include <string>
-#include <fastrtps/rtps/common/Guid.h>
-#include <fastrtps/types/DynamicPubSubType.h>
-#include <fastrtps/Domain.h>
-#include "DSManager.h"
-
 #include <thread>
+
+#include <fastrtps/types/DynamicPubSubType.h>
+#include <fastrtps/xmlparser/XMLProfileManager.h>
+
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/subscriber/DataReaderListener.hpp>
+#include <fastdds/rtps/common/Guid.h>
+
+#include "DSManager.h"
+#include "log/DSLog.h"
+#include "../resources/static_types/HelloWorldPubSubTypes.h"
 
 namespace eprosima {
 namespace discovery_server {
 
 using eprosima::fastrtps::rtps::GUID_t;
-using eprosima::fastrtps::Participant;
-using eprosima::fastrtps::Publisher;
-using eprosima::fastrtps::Subscriber;
-using eprosima::fastrtps::SubscriberListener;
-using eprosima::fastrtps::PublisherListener;
-using eprosima::fastrtps::PublisherAttributes;
-using eprosima::fastrtps::SubscriberAttributes;
-using eprosima::fastrtps::ParticipantAttributes;
 
-class DPD;
+class DelayedParticipantDestruction;
 
-class LJD // Late Joiner Data basic class
+class LateJoinerData // Late Joiner Data basic class
 {
     // When the late joiner should be added
     std::chrono::steady_clock::time_point time;
 
 public:
 
-    LJD(
-        const std::chrono::steady_clock::time_point& tp)
+    LateJoinerData(
+            const std::chrono::steady_clock::time_point& tp)
         : time(tp)
     {
     }
 
-    virtual ~LJD() {};
+    virtual ~LateJoinerData()
+    {
+    }
 
-    LJD() = delete;
-    LJD(const LJD&) = default;
-    LJD(LJD&&) = default;
-    LJD& operator=(const LJD&) = default;
-    LJD& operator=(LJD&&) = default;
+    LateJoinerData() = delete;
+    LateJoinerData(
+            const LateJoinerData&) = default;
+    LateJoinerData(
+            LateJoinerData&&) = default;
+    LateJoinerData& operator =(
+            const LateJoinerData&) = default;
+    LateJoinerData& operator =(
+            LateJoinerData&&) = default;
 
     // Which operation should I do
-    virtual void operator()(DSManager& ) = 0;
+    virtual void operator ()(
+            DiscoveryServerManager& ) = 0;
 
-    bool operator<(const LJD & event) const
+    bool operator <(
+            const LateJoinerData& event) const
     {
         return time < event.time;
     }
 
     void Wait() const
-     {
+    {
         std::this_thread::sleep_until(time);
     }
 
@@ -78,78 +84,100 @@ public:
     {
         return time;
     }
+
 };
 
-class DPC
-    : public LJD // Delayed Participant Creation
+class DelayedParticipantCreation
+    : public LateJoinerData // Delayed Participant Creation
 {
-    typedef void (DSManager::* AddParticipant)(fastrtps::Participant *);
-
-    ParticipantAttributes attributes;
+    typedef void (DiscoveryServerManager::* AddParticipant)(
+            fastdds::dds::DomainParticipant*);
+    DomainParticipantQos qos;
     AddParticipant participant_creation_function;
-    DPD * removal_event;
+    DelayedParticipantDestruction* removal_event;
 
 public:
 
     GUID_t participant_guid; // participant GUID_t
 
-    DPC(
+    DelayedParticipantCreation(
             const std::chrono::steady_clock::time_point tp,
-            fastrtps::ParticipantAttributes&& atts,
+            DomainParticipantQos&& qos,
             AddParticipant m,
-            DPD* pD = nullptr)
-        : LJD(tp)
-        , attributes(std::move(atts))
+            DelayedParticipantDestruction* pD = nullptr)
+        : LateJoinerData(tp)
+        , qos(std::move(qos))
         , participant_creation_function(m)
-        , removal_event(pD) {}
+        , removal_event(pD)
+    {
+    }
 
-    ~DPC() override {}
+    ~DelayedParticipantCreation() override
+    {
+    }
 
-    DPC() = delete;
-    DPC(const DPC&) = default;
-    DPC(DPC&&) = default;
-    DPC& operator=(const DPC&) = default;
-    DPC& operator=(DPC&&) = default;
+    DelayedParticipantCreation() = delete;
+    DelayedParticipantCreation(
+            const DelayedParticipantCreation&) = default;
+    DelayedParticipantCreation(
+            DelayedParticipantCreation&&) = default;
+    DelayedParticipantCreation& operator =(
+            const DelayedParticipantCreation&) = default;
+    DelayedParticipantCreation& operator =(
+            DelayedParticipantCreation&&) = default;
 
-    void operator()(DSManager& ) override;
+    void operator ()(
+            DiscoveryServerManager& ) override;
 };
 
-class DPD
-    : public LJD // Delayed Participant Destruction
+class DelayedParticipantDestruction
+    : public LateJoinerData // Delayed Participant Destruction
 {
     GUID_t participant_id; // participant to remove
 
 public:
 
-    DPD(
-        const std::chrono::steady_clock::time_point tp,
-        GUID_t & id)
-        : LJD(tp)
-        , participant_id(id) {}
+    DelayedParticipantDestruction(
+            const std::chrono::steady_clock::time_point tp,
+            GUID_t& id)
+        : LateJoinerData(tp)
+        , participant_id(id)
+    {
+    }
 
-    ~DPD() override {}
+    ~DelayedParticipantDestruction() override
+    {
+    }
 
-    DPD() = delete;
-    DPD(const DPD&) = default;
-    DPD(DPD&&) = default;
-    DPD& operator=(const DPD&) = default;
-    DPD& operator=(DPD&&) = default;
+    DelayedParticipantDestruction() = delete;
+    DelayedParticipantDestruction(
+            const DelayedParticipantDestruction&) = default;
+    DelayedParticipantDestruction(
+            DelayedParticipantDestruction&&) = default;
+    DelayedParticipantDestruction& operator =(
+            const DelayedParticipantDestruction&) = default;
+    DelayedParticipantDestruction& operator =(
+            DelayedParticipantDestruction&&) = default;
 
-    void operator()(DSManager &) override;
-    void SetGuid(const GUID_t &);
+    void operator ()(
+            DiscoveryServerManager&) override;
+    void SetGuid(
+            const GUID_t&);
 
 };
 
-template<class PS> struct LJD_traits
+template<class ReaderWriter> struct LateJoinerDataTraits
 {
 };
 
-template<> struct LJD_traits<Publisher>
+template<> struct LateJoinerDataTraits<DataWriter>
 {
-    typedef PublisherAttributes Attributes;
-    typedef void (DSManager::* AddEndpoint)(Publisher *);
-    typedef Publisher * (DSManager::* GetEndpoint)(GUID_t &);
-    typedef bool(*removeEndpoint)(Publisher*);
+    typedef void (DiscoveryServerManager::* AddEndpoint)(
+            DataWriter*);
+    typedef DataWriter* (DiscoveryServerManager::* GetEndpoint)(
+            GUID_t&);
+    typedef ReturnCode_t (DiscoveryServerManager::* removeEndpoint)(
+            DataWriter*);
 
     static const std::string endpoint_type;
     static const AddEndpoint add_endpoint_function;
@@ -157,212 +185,294 @@ template<> struct LJD_traits<Publisher>
     static const removeEndpoint remove_endpoint_function;
 
     // we don't want yet to listen on publisher callbacks
-    static Publisher * createEndpoint(Participant* part, const PublisherAttributes&, void * = nullptr);
+    static DataWriter* createEndpoint(
+            fastdds::dds::DomainEntity* publisher,
+            fastdds::dds::Topic* topic,
+            const std::string& profile_name,
+            void* = nullptr);
 };
 
-template<> struct LJD_traits<Subscriber>
+template<> struct LateJoinerDataTraits<DataReader>
 {
-    typedef SubscriberAttributes Attributes;
-    typedef void (DSManager::* AddEndpoint)(Subscriber *);
-    typedef Subscriber * (DSManager::* GetEndpoint)(GUID_t &);
-    typedef bool(*removeEndpoint)(Subscriber*);
+    typedef void (DiscoveryServerManager::* AddEndpoint)(
+            DataReader*);
+    typedef DataReader* (DiscoveryServerManager::* GetEndpoint)(
+            GUID_t&);
+    typedef ReturnCode_t (DiscoveryServerManager::* removeEndpoint)(
+            DataReader*);
 
     static const std::string endpoint_type;
     static const AddEndpoint add_endpoint_function;
     static const GetEndpoint retrieve_endpoint_function;
     static const removeEndpoint remove_endpoint_function;
 
-    static Subscriber * createEndpoint(Participant* part, const SubscriberAttributes&, SubscriberListener * = nullptr);
+    static DataReader* createEndpoint(
+            fastdds::dds::DomainEntity* subscriber,
+            fastdds::dds::Topic* topic,
+            const std::string& profile_name,
+            fastdds::dds::SubscriberListener* = nullptr);
 };
 
-template<class PS> class DED;
+template<class ReaderWriter> class DelayedEndpointDestruction;
 
-template<class PS>
-class DEC
-    : public LJD // Delayed Enpoint Creation
+template<class ReaderWriter>
+class DelayedEndpointCreation
+    : public LateJoinerData // Delayed Enpoint Creation
 {
-    typedef typename LJD_traits<PS>::Attributes Attributes;
-    Attributes * participant_attributes;
+    std::string topic_name;
+    std::string type_name;
+    std::string topic_profile_name;
+    std::string endpoint_profile_name;
     GUID_t participant_guid;
-    DED<PS> * linked_destruction_event;
-    DPC * owner_event; // associated participant event
+    DelayedEndpointDestruction<ReaderWriter>* linked_destruction_event;
+    DelayedParticipantCreation* owner_event;  // associated participant event
 
 public:
-    DEC(
-        const std::chrono::steady_clock::time_point tp,
-        Attributes * atts,
-        GUID_t & pid,
-        DED<PS> * p = nullptr,
-        DPC * part = nullptr)
-        : LJD(tp)
-        , participant_attributes(atts)
+
+    DelayedEndpointCreation(
+            const std::chrono::steady_clock::time_point tp,
+            const std::string& topic_name,
+            const std::string& type_name,
+            const std::string& topic_profile_name,
+            const std::string& endpoint_profile_name,
+            GUID_t& pid,
+            DelayedEndpointDestruction<ReaderWriter>* p = nullptr,
+            DelayedParticipantCreation* part = nullptr)
+        : LateJoinerData(tp)
+        , topic_name(topic_name)
+        , type_name(type_name)
+        , topic_profile_name(topic_profile_name)
+        , endpoint_profile_name(endpoint_profile_name)
         , participant_guid(pid)
         , linked_destruction_event(p)
         , owner_event(part)
     {
     }
 
-    DEC(DEC&&);
-    ~DEC() override;
-    DEC& operator=(DEC&& d);
+    DelayedEndpointCreation(
+            DelayedEndpointCreation&&);
+    ~DelayedEndpointCreation() override;
+    DelayedEndpointCreation& operator =(
+            DelayedEndpointCreation&& d);
 
-    DEC() = delete;
-    DEC(const DEC&) = default;
-    DEC& operator=(const DEC&) = default;
+    DelayedEndpointCreation() = delete;
+    DelayedEndpointCreation(
+            const DelayedEndpointCreation&) = default;
+    DelayedEndpointCreation& operator =(
+            const DelayedEndpointCreation&) = default;
 
-    void operator()(DSManager &) override;
+    void operator ()(
+            DiscoveryServerManager&) override;
 
 };
 
-template<class PS>
-class DED
-    : public LJD // Delayed Endpoint Destruction
+template<class ReaderWriter>
+class DelayedEndpointDestruction
+    : public LateJoinerData // Delayed Endpoint Destruction
 {
     GUID_t endpoint_guid; // endpoint to remove
 
 public:
 
-    DED(
+    DelayedEndpointDestruction(
             const std::chrono::steady_clock::time_point& tp,
             GUID_t id = GUID_t::unknown())
-        : LJD(tp)
-        , endpoint_guid(id) 
-    {}
+        : LateJoinerData(tp)
+        , endpoint_guid(id)
+    {
+    }
 
-    ~DED() override {}
+    ~DelayedEndpointDestruction() override
+    {
+    }
 
-    DED() = delete;
-    DED(const DED&) = default;
-    DED(DED&&) = default;
-    DED& operator=(const DED&) = default;
-    DED& operator=(DED&&) = default;
+    DelayedEndpointDestruction() = delete;
+    DelayedEndpointDestruction(
+            const DelayedEndpointDestruction&) = default;
+    DelayedEndpointDestruction(
+            DelayedEndpointDestruction&&) = default;
+    DelayedEndpointDestruction& operator =(
+            const DelayedEndpointDestruction&) = default;
+    DelayedEndpointDestruction& operator =(
+            DelayedEndpointDestruction&&) = default;
 
-    void operator()(DSManager &) override;
-    void SetGuid(const GUID_t& id);
+    void operator ()(
+            DiscoveryServerManager&) override;
+    void SetGuid(
+            const GUID_t& id);
 
 };
 
-class DS
-    : public LJD // Delayed Snapshot
+class DelayedSnapshot
+    : public LateJoinerData // Delayed Snapshot
 {
     std::string description;
     bool if_someone;
     bool show_liveliness_;
 
 public:
-    DS(
-        const std::chrono::steady_clock::time_point tp,
-        const std::string& desc,
-        bool someone = true,
-        bool show_liveliness = false)
-        : LJD(tp)
+
+    DelayedSnapshot(
+            const std::chrono::steady_clock::time_point tp,
+            const std::string& desc,
+            bool someone = true,
+            bool show_liveliness = false)
+        : LateJoinerData(tp)
         , description(desc)
         , if_someone(someone)
         , show_liveliness_(show_liveliness)
     {
     }
 
-    ~DS() override {}
+    ~DelayedSnapshot() override
+    {
+    }
 
-    DS() = delete;
-    DS(const DS&) = default;
-    DS(DS&&) = default;
-    DS& operator=(const DS&) = default;
-    DS& operator=(DS&&) = default;
+    DelayedSnapshot() = delete;
+    DelayedSnapshot(
+            const DelayedSnapshot&) = default;
+    DelayedSnapshot(
+            DelayedSnapshot&&) = default;
+    DelayedSnapshot& operator =(
+            const DelayedSnapshot&) = default;
+    DelayedSnapshot& operator =(
+            DelayedSnapshot&&) = default;
 
-    void operator()(DSManager &) override;
+    void operator ()(
+            DiscoveryServerManager&) override;
 };
 
-// delayed construction of a new subscriber or publisher
-template<class PS>
-void DEC<PS>::operator()(
-        DSManager & man) /*override*/
+// delayed construction of a new DataReader or DataWriter
+template<class ReaderWriter>
+void DelayedEndpointCreation<ReaderWriter>::operator ()(
+        DiscoveryServerManager& manager)  /*override*/
 {
     // Retrieve the corresponding participant
-    Participant* part = man.getParticipant(participant_guid);
+    DomainParticipant* part = manager.getParticipant(participant_guid);
+
+    DomainEntity* pubsub = nullptr;
+
+    manager.getPubSubEntityFromParticipantGuid<ReaderWriter>(participant_guid, pubsub);
 
     if (part == nullptr && owner_event != nullptr)
     {
-        part = man.getParticipant(owner_event->participant_guid);
+        part = manager.getParticipant(owner_event->participant_guid);
     }
 
     if (!part)
-    {   // invalid participant
-        LOG_ERROR(LJD_traits<PS>::endpoint_type << " cannot be created because no participant assign.");
+    {
+        // invalid participant
+        LOG_ERROR(
+            LateJoinerDataTraits<ReaderWriter>::endpoint_type <<
+                " cannot be created because no participant is assigned.");
         return;
     }
 
+    Topic* topic;
+
     // First we must register the type in the associated participant
-    if (participant_attributes->topic.getTopicName() == "UNDEF")
+    if (type_name == "UNDEF")
     {
-        // fill in default topic
-        participant_attributes->topic = DSManager::builtin_defaultTopic;
 
         // assure the participant has default type registered
-        TopicDataType* pT = nullptr;
-        if (!Domain::getRegisteredType(part, participant_attributes->topic.topicDataType.c_str(), &pT))
+        if (part->find_type(DiscoveryServerManager::builtin_defaultTopic.topicDataType.c_str()).empty())
         {
-            Domain::registerType(part, &DSManager::builtin_defaultType);
+            TypeSupport hello_world_type_support(new HelloWorldPubSubType());
+            hello_world_type_support.register_type(part);
+        }
+
+        topic = manager.getParticipantTopicByName(part,
+                        DiscoveryServerManager::builtin_defaultTopic.getTopicName().to_string());
+        if ( nullptr == topic)
+        {
+            topic = part->create_topic(DiscoveryServerManager::builtin_defaultTopic.getTopicName().to_string(),
+                            DiscoveryServerManager::builtin_defaultTopic.topicDataType.to_string(),
+                            part->get_default_topic_qos());
+            manager.setParticipantTopic(part, topic);
         }
     }
     else
     {
-        // assure the participant has the type registered
-        TopicDataType* pT = nullptr;
-        std::string type_name = participant_attributes->topic.topicDataType.to_string();
-        if (!Domain::getRegisteredType(part, type_name.c_str(), &pT))
-        {
-            eprosima::fastrtps::types::DynamicPubSubType* pDt = man.setType(type_name);
 
-            if (pDt)
+        if (part->find_type(type_name).empty())
+        {
+            eprosima::fastrtps::types::DynamicPubSubType* dynamic_type = manager.setType(type_name);
+
+            if (dynamic_type)
             {
-                // register it
-                // Domain::registerDynamicType(part, pDt);
-                Domain::registerType(part, static_cast<TopicDataType*>(pDt));
+
+                eprosima::fastrtps::types::DynamicType_ptr dyn_type =
+                        eprosima::fastrtps::xmlparser::XMLProfileManager::getDynamicTypeByName(
+                    type_name)->build();
+
+                TypeSupport dynamic_type_support(dyn_type);
+                dynamic_type_support.register_type(part);
             }
         }
+
+        topic = manager.getParticipantTopicByName(part, topic_name);
+        if ( nullptr == topic)
+        {
+            topic = part->create_topic_with_profile(topic_name,
+                            type_name, topic_profile_name);
+            manager.setParticipantTopic(part, topic);
+        }
+
     }
 
-    // Now we create the endpoint: Domain::createSubscriber or createPublisher
-    PS * pEp = LJD_traits<PS>::createEndpoint(part, *participant_attributes, &man);
+    // Now we create the endpoint
+    ReaderWriter* endpoint = LateJoinerDataTraits<ReaderWriter>::createEndpoint(pubsub, topic,
+                    endpoint_profile_name, &manager);
 
-    if (pEp)
+    manager.setDomainEntityTopic(endpoint, topic);
+
+    if (endpoint)
     {
         // update the associated DED if exists
         if (linked_destruction_event)
         {
-            linked_destruction_event->SetGuid(pEp->getGuid());
+            linked_destruction_event->SetGuid(endpoint->guid());
         }
-        // and we update the state: DSManager::addPublisher or DSManager::addSubscriber
-        (man.*LJD_traits<PS>::add_endpoint_function)(pEp);
+        // and we update the state: DiscoveryServerManager::addDataWriter or DiscoveryServerManager::addDataReader
+        (manager.*LateJoinerDataTraits<ReaderWriter>::add_endpoint_function)(endpoint);
 
-        LOG_INFO("New " << LJD_traits<PS>::endpoint_type << " created on participant " << part->getGuid() )
+        LOG_INFO(
+            "New " << LateJoinerDataTraits<ReaderWriter>::endpoint_type << " created on participant " <<
+                part->guid())
     }
 
 }
 
-template<class PS>
-void DED<PS>::operator()(
-        DSManager & man) /*override*/
+template<class ReaderWriter>
+void DelayedEndpointDestruction<ReaderWriter>::operator ()(
+        DiscoveryServerManager& manager)  /*override*/
 {
-    // now we get the endpoint: DSManager::removePublisher or DSManager::removeSubscriber
-    PS * p = (man.*LJD_traits<PS>::retrieve_endpoint_function)(endpoint_guid);
+    // now we get the endpoint: DiscoveryServerManager::removeDataWriter or DiscoveryServerManager::removeDataReader
+    ReaderWriter* endpoint =
+            (manager.*LateJoinerDataTraits<ReaderWriter>::retrieve_endpoint_function)(endpoint_guid);
 
-    if (p)
+    if (endpoint)
     {
-        GUID_t guid = p->getGuid();
+        GUID_t guid = endpoint->guid();
         (void)guid;
 
-        // and we removed the endpoint: Domain::removePublisher or Domain::removeSubscriber
-        (*LJD_traits<PS>::remove_endpoint_function)(p);
+        ReturnCode_t ret;
 
-        LOG_INFO(LJD_traits<PS>::endpoint_type << " called " << guid  << " destroyed ")
+        // and we removed the endpoint: Domain::removeDataWriter or Domain::removeDataReader
+        ret = (manager.*LateJoinerDataTraits<ReaderWriter>::remove_endpoint_function)(endpoint);
+        if (ReturnCode_t::RETCODE_OK != ret)
+        {
+            LOG_ERROR("Error deleting Endpoint");
+        }
+
+
+        LOG_INFO(LateJoinerDataTraits<ReaderWriter>::endpoint_type << " called " << guid  << " destroyed ")
     }
 }
 
-// DED only knows its linked object guid after its creation
-template<class PS>
-void DED<PS>::SetGuid(
+// DelayedEndpointDestruction only knows its linked object guid after its creation
+template<class ReaderWriter>
+void DelayedEndpointDestruction<ReaderWriter>::SetGuid(
         const GUID_t& id)
 {
     if (endpoint_guid == GUID_t::unknown())
@@ -371,39 +481,39 @@ void DED<PS>::SetGuid(
     }
 }
 
-template<class PS>
-DEC<PS>& DEC<PS>::operator=(
-        DEC<PS>&& d)
+template<class ReaderWriter>
+DelayedEndpointCreation<ReaderWriter>& DelayedEndpointCreation<ReaderWriter>::operator =(
+        DelayedEndpointCreation<ReaderWriter>&& d)
 {
-    LJD::operator=(d);
+    LateJoinerData::operator =(d);
     participant_guid = std::move(d.participant_guid);
     linked_destruction_event = d.linked_destruction_event;
-    participant_attributes = d.participant_attributes;
     owner_event = d.owner_event;
-    d.participant_attributes = nullptr;
+    topic_name = d.topic_name;
+    type_name = d.type_name;
+    topic_profile_name = d.topic_profile_name;
+    endpoint_profile_name = d.endpoint_profile_name;
 
     return *this;
 }
 
-template<class PS>
-DEC<PS>::DEC(
-        DEC<PS>&& d)
-    : LJD(std::move(d))
+template<class ReaderWriter>
+DelayedEndpointCreation<ReaderWriter>::DelayedEndpointCreation(
+        DelayedEndpointCreation<ReaderWriter>&& d)
+    : LateJoinerData(std::move(d))
 {
     participant_guid = std::move(d.participant_guid);
     linked_destruction_event = d.linked_destruction_event;
-    participant_attributes = d.participant_attributes;
     owner_event = d.owner_event;
-    d.participant_attributes = nullptr;
+    topic_name = d.topic_name;
+    type_name = d.type_name;
+    topic_profile_name = d.topic_profile_name;
+    endpoint_profile_name = d.endpoint_profile_name;
 }
 
-template<class PS>
-DEC<PS>::~DEC() /*override*/
+template<class ReaderWriter>
+DelayedEndpointCreation<ReaderWriter>::~DelayedEndpointCreation() /*override*/
 {
-    if (participant_attributes)
-    {
-        delete participant_attributes;
-    }
 }
 
 } // fastrtps

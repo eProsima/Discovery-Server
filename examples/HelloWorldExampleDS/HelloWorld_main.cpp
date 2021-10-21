@@ -16,17 +16,13 @@
  * @file HelloWorld_main.cpp
  *
  */
+#include <regex>
+
+#include <fastdds/dds/log/Log.hpp>
 
 #include "HelloWorldPublisher.h"
 #include "HelloWorldSubscriber.h"
 #include "HelloWorldServer.h"
-
-#include <fastrtps/Domain.h>
-
-#include <fastrtps/log/Log.h>
-
-#include <regex>
-
 #include "optionparser.h"
 
 struct Arg : public option::Arg
@@ -119,9 +115,9 @@ const option::Descriptor usage[] = {
 /*static*/ const std::regex Arg::ipv4(R"(^((?:[0-9]{1,3}\.){3}[0-9]{1,3})?:?(?:(\d+))?$)");
 /*static*/ const std::regex Arg::ipv6(R"(^\[?((?:[0-9a-fA-F]{0,4}\:){7}[0-9a-fA-F]{0,4})?(?:\]:)?(?:(\d+))?$)");
 
-using namespace eprosima;
-using namespace fastrtps;
-using namespace rtps;
+using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds::dds;
+
 int main(int argc, char** argv)
 {
     int columns;
@@ -146,8 +142,8 @@ int main(int argc, char** argv)
     int type = 1;
     int count = 20;
     long sleep = 100;
-    Locator_t server_address;
-    server_address.port = 60006; // default physical port
+    eprosima::fastdds::rtps::Locator server_address;
+    server_address.port = 1811; // default physical port
 
     if(argc > 1)
     {
@@ -306,6 +302,5 @@ int main(int argc, char** argv)
         }
     }
     Log::Flush();
-    Domain::stopAll();
     return 0;
 }
