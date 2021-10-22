@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
     <!-- 
-        This tests validates the modification and proper discovery of participants when using the
+        This test validates the modification and proper discovery of participants when using the
         FASTDDS_ENVIRONMENT_FILE to change the discovery server list.
 
         On startup there is only one server (UDP_server_1) with one connected Client (UDP_client1_server1) 
-        and a promoted simple participant not disvoered by anyone. 
+        and a promoted simple participant not discovered by anyone.
 
         First modification of the environment file adds UDP_server_2 to the discovery server list and
-        keep everything as is.
+        keeps everything as is.
 
         Second modification of the environment file adds UDP_server_1 to the discovery server list causing
         the discovery of the promoted simple participant (UDP_client1_server2) by both UDP_server_1 and 
