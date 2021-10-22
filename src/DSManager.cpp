@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <fstream>
 
 #include <tinyxml2.h>
 
@@ -192,6 +193,33 @@ DiscoveryServerManager::DiscoveryServerManager(
                     snapshot = snapshot->NextSiblingElement(s_sSnapshot.c_str());
                 }
             }
+
+            tinyxml2::XMLElement* environment = child->FirstChildElement(s_sEnvironment.c_str());
+            if (environment)
+            {
+                char* data;
+                data = getenv("FASTDDS_ENVIRONMENT_FILE");
+                if (nullptr != data)
+                {
+                    std::ofstream output_file(data);
+                    output_file << "{" << std::endl;
+                    output_file << '\t' << std::endl;
+                    output_file << "}" << std::endl;
+                }
+                else
+                {
+                    LOG_ERROR("Empty FASTDDS_ENVIRONMENT_FILE variable");
+                    return;
+                }
+
+                tinyxml2::XMLElement* change = environment->FirstChildElement(s_sChange.c_str());
+                while (change != nullptr)
+                {
+                    loadEnvironmentChange(change);
+                    change = change->NextSiblingElement(s_sChange.c_str());
+                }
+            }
+
         }
     }
     else
@@ -1637,6 +1665,40 @@ void DiscoveryServerManager::loadSnapshot(
 
     // Add the event
     events.push_back(new DelayedSnapshot(time, description, someone, show_liveliness));
+}
+
+void DiscoveryServerManager::loadEnvironmentChange(
+        tinyxml2::XMLElement* change)
+{
+    std::lock_guard<std::recursive_mutex> lock(management_mutex);
+
+    // snapshots are created for debugging purposes
+    // time is mandatory
+    const char* time_str = change->Attribute(s_sTime.c_str());
+
+    if (time_str == nullptr)
+    {
+        LOG_ERROR(s_sTime << " is a mandatory attribute of " << s_sChange << " tag");
+        return;
+    }
+
+    std::chrono::steady_clock::time_point time(getTime());
+    {
+        int aux;
+        std::istringstream(time_str) >> aux;
+        time += std::chrono::seconds(aux);
+    }
+
+    const char* key = change->Attribute(s_sKey.c_str());
+    if (key == nullptr)
+    {
+        LOG_ERROR(s_sKey << " is a mandatory attribute of " << s_sChange << " tag");
+        return;
+    }
+    const char* value = change->GetText();
+
+    // Add the event
+    events.push_back(new DelayedEnvironmentModification(time, key, value));
 }
 
 void DiscoveryServerManager::MapServerInfo(

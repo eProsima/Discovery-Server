@@ -14,6 +14,8 @@
 
 #include "LJ.h"
 
+#include <fstream>
+
 #include "log/DSLog.h"
 #include "DSManager.h"
 
@@ -149,4 +151,25 @@ void DelayedSnapshot::operator ()(
         DiscoveryServerManager& manager)  /*override*/
 {
     manager.takeSnapshot(std::chrono::steady_clock::now(), description, if_someone, show_liveliness_);
+}
+
+void DelayedEnvironmentModification::operator ()(
+        DiscoveryServerManager& man)  /*override*/
+{
+    (void)man;
+
+    char* data;
+    data = getenv("FASTDDS_ENVIRONMENT_FILE");
+    if (nullptr != data)
+    {
+        std::ofstream output_file(data);
+        output_file << "{" << std::endl;
+        output_file << "\t\"" << attributes.first << "\" :\"" << attributes.second << "\"" << std::endl;
+        output_file << "}" << std::endl;
+    }
+    else
+    {
+        LOG_ERROR("Empty FASTDDS_ENVIRONMENT_FILE variable");
+        return;
+    }
 }

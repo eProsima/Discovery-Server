@@ -115,6 +115,13 @@ list(APPEND TEST_LIST
     test_38_self_connection
 )
 
+# FASTDDS_ENVIRONMENT_FILE was introduced in Fast DDS v2.4.0
+if(fastrtps_VERSION VERSION_GREATER_EQUAL "2.4.0")
+    list(APPEND TEST_LIST
+        test_39_environment_modification
+    )
+endif()
+
 # The above TEST_LIST has tests that spawn multiple test cases, we need a new variable to enumerate them
 set(TEST_CASE_LIST)
 

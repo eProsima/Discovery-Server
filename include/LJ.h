@@ -516,6 +516,43 @@ DelayedEndpointCreation<ReaderWriter>::~DelayedEndpointCreation() /*override*/
 {
 }
 
+class DelayedEnvironmentModification
+    : public LateJoinerData // Delayed Environment Creation
+{
+    std::string new_value;
+    std::pair<std::string, std::string> attributes;
+
+public:
+
+    GUID_t participant_guid; // participant GUID_t
+
+    DelayedEnvironmentModification(
+            const std::chrono::steady_clock::time_point tp,
+            std::string key,
+            std::string value)
+        : LateJoinerData(tp)
+        , attributes({key, value})
+    {
+    }
+
+    ~DelayedEnvironmentModification() override
+    {
+    }
+
+    DelayedEnvironmentModification() = delete;
+    DelayedEnvironmentModification(
+            const DelayedEnvironmentModification&) = default;
+    DelayedEnvironmentModification(
+            DelayedEnvironmentModification&&) = default;
+    DelayedEnvironmentModification& operator =(
+            const DelayedEnvironmentModification&) = default;
+    DelayedEnvironmentModification& operator =(
+            DelayedEnvironmentModification&&) = default;
+
+    void operator ()(
+            DiscoveryServerManager& ) override;
+};
+
 } // fastrtps
 } // discovery_server
 
