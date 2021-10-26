@@ -1984,6 +1984,79 @@
             }
         },
 
+        "test_44_fast_discovery_server_tool_reconnect":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_44_fast_discovery_server_tool_reconnect.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_44_fast_discovery_server_tool_reconnect.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_44_fast_discovery_server_tool_reconnect.snapshot"
+                        }
+                    }
+                },
+                "fastddstool_0":
+                {
+                    "kill_time": 4,
+                    "tool_config":
+                    {
+                        "id" : 0,
+                        "address": "127.0.0.1",
+                        "port": 44811
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "fastddstool_reconnect":
+                {
+                    "creation_time": 9,
+                    "kill_time": 19,
+                    "tool_config":
+                    {
+                        "id" : 0,
+                        "address": "127.0.0.1",
+                        "port": 44811
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
         "test_99_tcp":
         {
             "processes":
