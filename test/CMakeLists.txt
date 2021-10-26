@@ -91,6 +91,7 @@ list(APPEND TEST_LIST
         test_41_reconnect_with_clients
         test_42_server_reconnect_with_clients
         test_43_complex_reconnect
+        test_44_fast_discovery_server_tool_reconnect
 
         test_60_disconnection
     )
