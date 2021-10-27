@@ -2281,13 +2281,6 @@
             {
                 "main":
                 {
-                    "environment_variables":
-                    [
-                        {
-                            "name":"FASTDDS_ENVIRONMENT_FILE",
-                            "value": "<CONFIG_RELATIVE_PATH>/environment.json"
-                        }
-                    ],
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_99_tcp.xml",
                     "validation":
                     {
@@ -2306,7 +2299,7 @@
                         "generate_validation":
                         {
                             "disposals": false,
-                            "server_endpoints": true
+                            "server_endpoints": false
                         },
                         "ground_truth_validation":
                         {
