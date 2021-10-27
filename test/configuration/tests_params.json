@@ -2229,14 +2229,65 @@
                 }
             }
         },
+        "test_51_discovery_server_list_api":
+        {
+            "description": [
+                "Test to check the consequences of modifying the Discovery Server list of several participants ",
+                "using Qos modification API"
+            ],
 
-
+            "processes":
+            {
+                "main":
+                {
+                    "environment_variables":
+                    [
+                        {
+                            "name":"FASTDDS_ENVIRONMENT_FILE",
+                            "value": "<CONFIG_RELATIVE_PATH>/environment.json"
+                        }
+                    ],
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_51_discovery_server_list_api.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_51_discovery_server_list_api.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_51_discovery_server_list_api.snapshot"
+                        }
+                    }
+                }
+            }
+        },
         "test_99_tcp":
         {
             "processes":
             {
                 "main":
                 {
+                    "environment_variables":
+                    [
+                        {
+                            "name":"FASTDDS_ENVIRONMENT_FILE",
+                            "value": "<CONFIG_RELATIVE_PATH>/environment.json"
+                        }
+                    ],
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_99_tcp.xml",
                     "validation":
                     {
@@ -2255,7 +2306,7 @@
                         "generate_validation":
                         {
                             "disposals": false,
-                            "server_endpoints": false
+                            "server_endpoints": true
                         },
                         "ground_truth_validation":
                         {

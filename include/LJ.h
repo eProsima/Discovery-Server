@@ -553,6 +553,41 @@ public:
             DiscoveryServerManager& ) override;
 };
 
+class DelayedServerListChange
+    : public LateJoinerData // Delayed Server List Change via API
+{
+    std::string prefix;
+    RemoteServerAttributes attributes;
+
+public:
+
+    DelayedServerListChange(
+            const std::chrono::steady_clock::time_point tp,
+            std::string client_prefix,
+            RemoteServerAttributes attr)
+        : LateJoinerData(tp)
+        , prefix(client_prefix)
+        , attributes(attr)
+    {
+    }
+
+    ~DelayedServerListChange() override
+    {
+    }
+
+    DelayedServerListChange() = delete;
+    DelayedServerListChange(
+            const DelayedServerListChange&) = default;
+    DelayedServerListChange(
+            DelayedServerListChange&&) = default;
+    DelayedServerListChange& operator =(
+            const DelayedServerListChange&) = default;
+    DelayedServerListChange& operator =(
+            DelayedServerListChange&&) = default;
+
+    void operator ()(
+            DiscoveryServerManager& ) override;
+};
 } // fastrtps
 } // discovery_server
 

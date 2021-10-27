@@ -219,6 +219,16 @@ DiscoveryServerManager::DiscoveryServerManager(
                     change = change->NextSiblingElement(s_sChange.c_str());
                 }
             }
+            tinyxml2::XMLElement* serverchange = child->FirstChildElement(s_sAPIChange.c_str());
+            if (serverchange)
+            {
+                tinyxml2::XMLElement* change = serverchange->FirstChildElement(s_sChange.c_str());
+                while (change != nullptr)
+                {
+                    loadAPIChange(change);
+                    change = change->NextSiblingElement(s_sChange.c_str());
+                }
+            }
 
         }
     }
@@ -1738,6 +1748,55 @@ void DiscoveryServerManager::loadEnvironmentChange(
 
     // Add the event
     events.push_back(new DelayedEnvironmentModification(time, key, value));
+}
+
+void DiscoveryServerManager::loadAPIChange(
+        tinyxml2::XMLElement* change)
+{
+    std::lock_guard<std::recursive_mutex> lock(management_mutex);
+
+    // snapshots are created for debugging purposes
+    // time is mandatory
+    const char* time_str = change->Attribute(s_sTime.c_str());
+
+    if (time_str == nullptr)
+    {
+        LOG_ERROR(s_sTime << " is a mandatory attribute of " << s_sChange << " tag");
+        return;
+    }
+
+    const char* client_prefix = change->Attribute(s_sPrefix.c_str());
+    if (client_prefix == nullptr)
+    {
+        LOG_ERROR(s_sPrefix << " is a mandatory attribute of " << s_sChange << " tag");
+        return;
+    }
+
+    std::chrono::steady_clock::time_point time(getTime());
+    {
+        int aux;
+        std::istringstream(time_str) >> aux;
+        time += std::chrono::seconds(aux);
+    }
+
+    RemoteServerAttributes remote_server_att;
+
+    tinyxml2::XMLElement* remote_server = change->FirstChildElement(s_sRemoteServer.c_str());
+    while (remote_server != nullptr)
+    {
+        std::string address(remote_server->Attribute(s_sAddress.c_str()));
+        uint32_t port(remote_server->IntAttribute(s_sPort.c_str()));
+
+        remote_server_att.ReadguidPrefix(remote_server->Attribute(s_sPrefix.c_str()));
+        Locator locator;
+        IPLocator::setIPv4(locator, address);
+        locator.port = port;
+        remote_server_att.metatrafficUnicastLocatorList.push_back(locator);
+        remote_server = remote_server->NextSiblingElement(s_sRemoteServer.c_str());
+    }
+
+    // Add the event
+    events.push_back(new DelayedServerListChange(time, client_prefix, remote_server_att));
 }
 
 void DiscoveryServerManager::MapServerInfo(
