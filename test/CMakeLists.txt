@@ -85,6 +85,7 @@ list(APPEND TEST_LIST
         test_34_connect_locally_with_remote_server
 
         test_38_self_connection
+        test_60_disconnection
     )
 
 # This test does not run in Fast DDS 2.0.x because signal handling for closing the tool was not
