@@ -92,6 +92,7 @@ list(APPEND TEST_LIST
         test_42_server_reconnect_with_clients
         test_43_complex_reconnect
         test_44_fast_discovery_server_tool_reconnect
+        test_45_trivial_client_reconnect
 
         test_60_disconnection
     )
@@ -126,22 +127,22 @@ set(TEST_CASE_LIST)
 
 foreach(TEST IN LISTS TEST_LIST)
 
-    unset(TEST_NAME)
-    set(TEST_NAME "discovery_server_test.${TEST}.SHM_ON")
-    list(APPEND TEST_CASE_LIST ${TEST_NAME})
-    # Test with shared memory
-    add_test(NAME ${TEST_NAME}
-        COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
-        -e $<TARGET_FILE:${PROJECT_NAME}>
-        -p ${TESTS_PARAMS}
-        -f $<$<TARGET_EXISTS:fastdds::fast-discovery-server>:$<TARGET_FILE:fastdds::fast-discovery-server>>
-        -t ${TEST}
-        -s true
-        -i false) # Remove this argument to execute test with and without intraprocess
-        # --force-remove # Add this argument to erase every file generated during test execution
-    set_tests_properties(${TEST_NAME} PROPERTIES
-        REQUIRED_FILES ${RUN_TEST}
-        REQUIRED_FILES ${TESTS_PARAMS})
+    # unset(TEST_NAME)
+    # set(TEST_NAME "discovery_server_test.${TEST}.SHM_ON")
+    # list(APPEND TEST_CASE_LIST ${TEST_NAME})
+    # # Test with shared memory
+    # add_test(NAME ${TEST_NAME}
+    #     COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+    #     -e $<TARGET_FILE:${PROJECT_NAME}>
+    #     -p ${TESTS_PARAMS}
+    #     -f $<$<TARGET_EXISTS:fastdds::fast-discovery-server>:$<TARGET_FILE:fastdds::fast-discovery-server>>
+    #     -t ${TEST}
+    #     -s true
+    #     -i false) # Remove this argument to execute test with and without intraprocess
+    #     # --force-remove # Add this argument to erase every file generated during test execution
+    # set_tests_properties(${TEST_NAME} PROPERTIES
+    #     REQUIRED_FILES ${RUN_TEST}
+    #     REQUIRED_FILES ${TESTS_PARAMS})
 
     unset(TEST_NAME)
     set(TEST_NAME "discovery_server_test.${TEST}.SHM_OFF")

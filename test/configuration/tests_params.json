@@ -2057,6 +2057,74 @@
             }
         },
 
+
+        "test_45_trivial_client_reconnect":
+        {
+            "description": [
+                "Client connects with Server. Server leaves. Server turns back with same configuration."
+            ],
+
+            "processes":
+            {
+                "client":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_45_trivial_client_reconnect_client.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_45_trivial_client_reconnect_client.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_45_trivial_client_reconnect_client.snapshot"
+                        }
+                    }
+                },
+
+                "server_0":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_45_trivial_client_reconnect_server.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+
+                "server_1":
+                {
+                    "creation_time": 6,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_45_trivial_client_reconnect_server.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
         "test_50_environment_modification":
         {
             "description": [
