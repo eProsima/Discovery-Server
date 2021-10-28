@@ -775,20 +775,58 @@ void DiscoveryServerManager::onTerminate()
 
     }
 
-    for (const auto& entity: entity_map )
+    // IMPORTANT: Clear first all clients and the all servers
+    // Remove all clients
+    for (const auto& entity: clients)
     {
-        entity.second.participant->set_listener(nullptr);
+        entity.second->set_listener(nullptr);
 
-        ReturnCode_t ret = entity.second.participant->delete_contained_entities();
+        ReturnCode_t ret = entity.second->delete_contained_entities();
         if (ReturnCode_t::RETCODE_OK != ret)
         {
-            LOG_ERROR("Error cleaning up participant entities");
+            LOG_ERROR("Error cleaning up client entities");
         }
 
-        ret = DomainParticipantFactory::get_instance()->delete_participant(entity.second.participant);
+        ret = DomainParticipantFactory::get_instance()->delete_participant(entity.second);
         if (ReturnCode_t::RETCODE_OK != ret)
         {
-            LOG_ERROR("Error deleting Participant");
+            LOG_ERROR("Error deleting Client");
+        }
+    }
+
+    // Remove all servers
+    for (const auto& entity: servers)
+    {
+        entity.second->set_listener(nullptr);
+
+        ReturnCode_t ret = entity.second->delete_contained_entities();
+        if (ReturnCode_t::RETCODE_OK != ret)
+        {
+            LOG_ERROR("Error cleaning up client entities");
+        }
+
+        ret = DomainParticipantFactory::get_instance()->delete_participant(entity.second);
+        if (ReturnCode_t::RETCODE_OK != ret)
+        {
+            LOG_ERROR("Error deleting Client");
+        }
+    }
+
+    // Remove all simple participants
+    for (const auto& entity: simples)
+    {
+        entity.second->set_listener(nullptr);
+
+        ReturnCode_t ret = entity.second->delete_contained_entities();
+        if (ReturnCode_t::RETCODE_OK != ret)
+        {
+            LOG_ERROR("Error cleaning up client entities");
+        }
+
+        ret = DomainParticipantFactory::get_instance()->delete_participant(entity.second);
+        if (ReturnCode_t::RETCODE_OK != ret)
+        {
+            LOG_ERROR("Error deleting Client");
         }
     }
 
