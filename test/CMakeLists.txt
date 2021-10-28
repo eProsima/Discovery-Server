@@ -69,6 +69,22 @@ list(APPEND TEST_LIST
         test_20_break_builtin_connections
         test_21_disposals_remote_server_trivial
         test_22_environment_variable_setup
+
+        # Backup tests are disabled until backup feature is fixed.
+        # test_24_backup
+        # test_25_backup_compatibility
+        # test_26_backup_restore
+
+        test_27_slow_arise
+        test_28_slow_arise_interconnection
+        test_29_server_ping_late_joiner
+        test_30_connect_locally_with_remote_entity
+        test_31_matched_servers_not_share_info
+        test_32_superclient_trivial
+        test_33_superclient_complex
+        test_34_connect_locally_with_remote_server
+
+        test_38_self_connection
     )
 
 # This test does not run in Fast DDS 2.0.x because signal handling for closing the tool was not
@@ -78,22 +94,6 @@ if(fastrtps_VERSION VERSION_GREATER_EQUAL "2.1.0")
     test_23_fast_discovery_server_tool
     )
 endif()
-
-# These tests run in all Fast DDS 2.x branches
-list(APPEND TEST_LIST
-    # Backup tests are disabled until backup feature is fixed.
-    # test_24_backup
-    # test_25_backup_compatibility
-    # test_26_backup_restore
-    test_27_slow_arise
-    test_28_slow_arise_interconnection
-    test_29_server_ping_late_joiner
-    test_30_connect_locally_with_remote_entity
-    test_31_matched_servers_not_share_info
-    test_32_superclient_trivial
-    test_33_superclient_complex
-    test_34_connect_locally_with_remote_server
-)
 
 # Adding remote servers to the server using env var was introduced in Fast DDS v2.3.
 if(fastrtps_VERSION VERSION_GREATER_EQUAL "2.3.0")
@@ -107,17 +107,7 @@ if(fastrtps_VERSION VERSION_GREATER_EQUAL "2.4.0")
     list(APPEND TEST_LIST
         test_36_dns_environment_variable_setup
         test_37_dns_fast_discovery_server_tool
-    )
-endif()
 
-# These tests run in all Fast DDS 2.x branches
-list(APPEND TEST_LIST
-    test_38_self_connection
-)
-
-# FASTDDS_ENVIRONMENT_FILE was introduced in Fast DDS v2.4.0
-if(fastrtps_VERSION VERSION_GREATER_EQUAL "2.4.0")
-    list(APPEND TEST_LIST
         test_39_environment_modification
     )
 endif()
