@@ -1521,10 +1521,10 @@
 
         "test_39_environment_modification":
         {
-            "description": [ 
+            "description": [
                 "Test to check the consequences of modifying the file referenced by FASTDDS_ENVIRONMENT_FILE on the ",
                 "Discovery Server behaviour. SERVER and SIMPLE participants will change their discovery information ",
-                "aligned with the changes introduced in the environment file" 
+                "aligned with the changes introduced in the environment file"
             ],
 
             "processes":
@@ -1566,6 +1566,64 @@
                 }
             }
         },
+
+        "test_60_disconnection":
+        {
+            "description": [
+                "Test that when a process stops, all DATA(Up) of all Participants in it are sent"
+            ],
+
+            "processes":
+            {
+                "server_A":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_60_disconnection_A.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_60_disconnection_A.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_60_disconnection_A.snapshot"
+                        }
+                    }
+                },
+                "server_B":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_60_disconnection_B.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_60_disconnection_B.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_60_disconnection_B.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
 
         "test_99_tcp":
         {

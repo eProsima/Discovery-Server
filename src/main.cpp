@@ -36,21 +36,22 @@ int main(
         int argc,
         char* argv[])
 {
-
-    // Initialize loging
-#if defined LOG_LEVEL_INFO
-    Log::SetVerbosity(Log::Kind::Info);
-#elif defined LOG_LEVEL_WARN
-    Log::SetVerbosity(Log::Kind::Warning);
-#elif defined LOG_LEVEL_ERROR
-    Log::SetVerbosity(Log::Kind::Error);
-#endif // if defined LOG_LEVEL_INFO
-
     // Clear all the consumers.
     Log::ClearConsumers();
 
+    // Initialize loging
+#if LOG_LEVEL_INFO
+    Log::SetVerbosity(Log::Kind::Info);
+#elif LOG_LEVEL_WARN
+    Log::SetVerbosity(Log::Kind::Warning);
+#elif LOG_LEVEL_ERROR
     Log::SetVerbosity(Log::Kind::Error);
-    // Log::SetCategoryFilter(std::regex("(INTRAPROCESS)"));
+#else
+    Log::SetVerbosity(Log::Kind::Error);
+#endif // if defined LOG_LEVEL_INFO
+
+
+    // Log::SetCategoryFilter(std::regex("(DISCOVERY_SERVER)"));
 
 #if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 1
     // Create a StdoutErrConsumer consumer that logs entries to stderr only when the Log::Kind is equal to WARNING
