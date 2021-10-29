@@ -775,7 +775,7 @@ void DiscoveryServerManager::onTerminate()
 
     }
 
-    // IMPORTANT: Clear first all clients and the all servers
+    // IMPORTANT: Clear first all clients before cleaning servers
     // Remove all clients
     for (const auto& entity: clients)
     {
@@ -794,6 +794,25 @@ void DiscoveryServerManager::onTerminate()
         }
     }
 
+    // Remove all simple participants
+    // Simple participants could become Clients, so they should be deleted before Servers
+    for (const auto& entity: simples)
+    {
+        entity.second->set_listener(nullptr);
+
+        ReturnCode_t ret = entity.second->delete_contained_entities();
+        if (ReturnCode_t::RETCODE_OK != ret)
+        {
+            LOG_ERROR("Error cleaning up simple entities");
+        }
+
+        ret = DomainParticipantFactory::get_instance()->delete_participant(entity.second);
+        if (ReturnCode_t::RETCODE_OK != ret)
+        {
+            LOG_ERROR("Error deleting Simple Discovery Entity");
+        }
+    }
+
     // Remove all servers
     for (const auto& entity: servers)
     {
@@ -802,31 +821,13 @@ void DiscoveryServerManager::onTerminate()
         ReturnCode_t ret = entity.second->delete_contained_entities();
         if (ReturnCode_t::RETCODE_OK != ret)
         {
-            LOG_ERROR("Error cleaning up client entities");
+            LOG_ERROR("Error cleaning up server entities");
         }
 
         ret = DomainParticipantFactory::get_instance()->delete_participant(entity.second);
         if (ReturnCode_t::RETCODE_OK != ret)
         {
-            LOG_ERROR("Error deleting Client");
-        }
-    }
-
-    // Remove all simple participants
-    for (const auto& entity: simples)
-    {
-        entity.second->set_listener(nullptr);
-
-        ReturnCode_t ret = entity.second->delete_contained_entities();
-        if (ReturnCode_t::RETCODE_OK != ret)
-        {
-            LOG_ERROR("Error cleaning up client entities");
-        }
-
-        ret = DomainParticipantFactory::get_instance()->delete_participant(entity.second);
-        if (ReturnCode_t::RETCODE_OK != ret)
-        {
-            LOG_ERROR("Error deleting Client");
+            LOG_ERROR("Error deleting Server");
         }
     }
 
