@@ -13,8 +13,8 @@
 
     <snapshots file="./test_43_complex_reconnect_B2.snapshot~">
         <snapshot time="4">Knows server A, client A and client B</snapshot>
-        <snapshot time="8">Not know server A</snapshot>
-        <snapshot time="14">Knows server A, client A and client B</snapshot>
+        <snapshot time="9">Not know server A</snapshot>
+        <snapshot time="15">Knows server A, client A and client B</snapshot>
     </snapshots>
 
     <profiles>
