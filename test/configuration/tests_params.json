@@ -1816,7 +1816,7 @@
 
                 "serverB_2":
                 {
-                    "creation_time": 9,
+                    "creation_time": 13,
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_42_server_reconnect_with_clients_B.xml",
                     "validation":
                     {
