@@ -70,10 +70,9 @@ list(APPEND TEST_LIST
         test_21_disposals_remote_server_trivial
         test_22_environment_variable_setup
 
-        # Backup tests are disabled until backup feature is fixed.
-        # test_24_backup
-        # test_25_backup_compatibility
-        # test_26_backup_restore
+        test_24_backup
+        test_25_backup_compatibility
+        test_26_backup_restore
 
         test_27_slow_arise
         test_28_slow_arise_interconnection
@@ -82,10 +81,13 @@ list(APPEND TEST_LIST
         test_31_matched_servers_not_share_info
         test_32_superclient_trivial
         test_33_superclient_complex
+
         test_34_connect_locally_with_remote_server
 
         test_38_self_connection
         test_60_disconnection
+
+        test_99_tcp
     )
 
 # This test does not run in Fast DDS 2.0.x because signal handling for closing the tool was not
@@ -116,6 +118,15 @@ endif()
 # The above TEST_LIST has tests that spawn multiple test cases, we need a new variable to enumerate them
 set(TEST_CASE_LIST)
 
+# Test that are leaky and may fail
+set(FAIL_TEST_CASES
+    test_24_backup
+    test_25_backup_compatibility
+    test_26_backup_restore
+    test_33_superclient_complex
+    test_99_tcp)
+
+# For each test case, create different executables for each configuration
 foreach(TEST IN LISTS TEST_LIST)
 
     unset(TEST_NAME)
@@ -135,6 +146,10 @@ foreach(TEST IN LISTS TEST_LIST)
         REQUIRED_FILES ${RUN_TEST}
         REQUIRED_FILES ${TESTS_PARAMS})
 
+    if("${TEST}" IN_LIST FAIL_TEST_CASES)
+        set_property(TEST ${TEST_NAME} PROPERTY LABELS xfail)
+    endif()
+
     unset(TEST_NAME)
     set(TEST_NAME "discovery_server_test.${TEST}.SHM_OFF")
     list(APPEND TEST_CASE_LIST ${TEST_NAME})
@@ -152,8 +167,11 @@ foreach(TEST IN LISTS TEST_LIST)
         REQUIRED_FILES ${RUN_TEST}
         REQUIRED_FILES ${TESTS_PARAMS})
 
-endforeach()
+    if({TEST} IN_LIST FAIL_TEST_CASES)
+        set_property(TEST ${TEST_NAME} PROPERTY LABELS xfail)
+    endif()
 
+endforeach()
 
 # Windows requires an special treatment of environmental variables
 if(WIN32)
