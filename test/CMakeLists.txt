@@ -167,7 +167,7 @@ foreach(TEST IN LISTS TEST_LIST)
         REQUIRED_FILES ${RUN_TEST}
         REQUIRED_FILES ${TESTS_PARAMS})
 
-    if({TEST} IN_LIST FAIL_TEST_CASES)
+    if("${TEST}" IN_LIST FAIL_TEST_CASES)
         set_property(TEST ${TEST_NAME} PROPERTY LABELS xfail)
     endif()
 
