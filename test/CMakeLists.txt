@@ -118,7 +118,7 @@ if(fastrtps_VERSION VERSION_GREATER_EQUAL "2.4.0")
         test_36_dns_environment_variable_setup
         test_37_dns_fast_discovery_server_tool
 
-        test_39_environment_modification
+        test_50_environment_modification
     )
 endif()
 
