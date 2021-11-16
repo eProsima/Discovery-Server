@@ -7,7 +7,7 @@
 
     <snapshots file="./test_39_trivial_reconnect_B.snapshot~">
         <snapshot time="2">Knows A</snapshot>
-        <snapshot time="4">Do not know A</snapshot>
+        <snapshot time="5">Do not know A</snapshot>
     </snapshots>
 
     <profiles>

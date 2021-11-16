@@ -7,8 +7,8 @@
 
     <snapshots file="./test_39_trivial_reconnect_A.snapshot~">
         <snapshot time="2">Knows server B</snapshot>
-        <snapshot time="6">Do not know server B</snapshot>
-        <snapshot time="10">Knows server B</snapshot>
+        <snapshot time="7">Do not know server B</snapshot>
+        <snapshot time="11">Knows server B</snapshot>
     </snapshots>
 
     <profiles>

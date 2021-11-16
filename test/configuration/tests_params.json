@@ -1574,7 +1574,7 @@
 
                 "serverB_2":
                 {
-                    "creation_time": 7,
+                    "creation_time": 8,
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_39_trivial_reconnect_B.xml",
                     "validation":
                     {
