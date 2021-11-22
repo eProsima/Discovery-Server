@@ -15,7 +15,7 @@
 #include "log/DSLog.h"
 #include "version/config.h"
 
-#if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 1
+#if FASTRTPS_VERSION_MAJOR > 2 || (FASTRTPS_VERSION_MAJOR == 2 && FASTRTPS_VERSION_MINOR >= 1)
 #include <fastdds/dds/log/StdoutErrConsumer.hpp>
 #endif // if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 1
 #include <fastrtps/xmlparser/XMLProfileManager.h>
@@ -48,10 +48,7 @@ int main(
     Log::SetVerbosity(Log::Kind::Error);
 #else
     Log::SetVerbosity(Log::Kind::Error);
-#endif // if defined LOG_LEVEL_INFO
-
-
-    // Log::SetCategoryFilter(std::regex("(DISCOVERY_SERVER)"));
+#endif // if LOG_LEVEL_INFO
 
 #if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 1
     // Create a StdoutErrConsumer consumer that logs entries to stderr only when the Log::Kind is equal to WARNING

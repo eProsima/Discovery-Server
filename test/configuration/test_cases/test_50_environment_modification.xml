@@ -18,14 +18,14 @@
     -->
     <servers>
         <server name="server_1" profile_name="UDP_server_1" creation_time="2" />
-        <server name="server_2" profile_name="UDP_server_2" creation_time="12" />
+        <server name="server_2" profile_name="UDP_server_2" creation_time="14" />
     </servers>
 
     <clients>
         <client name="client1" profile_name="UDP_client1_server1" creation_time="2">
             <publisher topic="topic1" />
         </client>
-        <client name="client3" profile_name="UDP_client1_server2" creation_time="12">
+        <client name="client3" profile_name="UDP_client1_server2" creation_time="14">
             <subscriber topic="topic1" />
         </client>
     </clients>
@@ -40,8 +40,8 @@
     <snapshots file="./test_39_environment_modification~">
         <snapshot time="4">test_39_environment_modification_initial</snapshot>
         <snapshot time="7">test_39_environment_modification_add_server2</snapshot>
-        <snapshot time="10">test_39_environment_modification_add_server1</snapshot>
-        <snapshot time="14">test_39_environment_modification_final</snapshot>
+        <snapshot time="12">test_39_environment_modification_add_server1</snapshot>
+        <snapshot time="16">test_39_environment_modification_final</snapshot>
     </snapshots>
 
     <environment>

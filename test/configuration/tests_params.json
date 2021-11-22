@@ -1519,7 +1519,613 @@
             }
         },
 
-        "test_39_environment_modification":
+        "test_39_trivial_reconnect":
+        {
+            "description": [
+                "Server B connects with Server A. Server B leaves. Server B turns back with same configuration"
+            ],
+
+            "processes":
+            {
+                "serverA":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_39_trivial_reconnect_A.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_trivial_reconnect_A.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_trivial_reconnect_A.snapshot"
+                        }
+                    }
+                },
+
+                "serverB_1":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_39_trivial_reconnect_B.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+
+                "serverB_2":
+                {
+                    "creation_time": 8,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_39_trivial_reconnect_B.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_trivial_reconnect_B.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_trivial_reconnect_B.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_40_trivial_server_reconnect":
+        {
+            "description": [
+                "Server A connects with Server B. Server B leaves. Server B turns back with same configuration",
+                "It requires more time than usual in order to announce Server A DATA(P) and receive it and reply in B"
+            ],
+
+            "processes":
+            {
+                "serverA":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_40_trivial_server_reconnect_A.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_40_trivial_server_reconnect_A.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_40_trivial_server_reconnect_A.snapshot"
+                        }
+                    }
+                },
+
+                "serverB_1":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_40_trivial_server_reconnect_B.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+
+                    }
+                },
+
+                "serverB_2":
+                {
+                    "creation_time": 8,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_40_trivial_server_reconnect_B.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_40_trivial_server_reconnect_B.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_40_trivial_server_reconnect_B.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_41_reconnect_with_clients":
+        {
+            "description": [
+                "Server B connects with Server A. Server B leaves. Server B turns back with same configuration"
+            ],
+
+            "processes":
+            {
+                "serverA":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_41_reconnect_with_clients_A.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_41_reconnect_with_clients_A.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_41_reconnect_with_clients_A.snapshot"
+                        }
+                    }
+                },
+
+                "serverB_1":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_41_reconnect_with_clients_B.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+
+                "serverB_2":
+                {
+                    "creation_time": 13,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_41_reconnect_with_clients_B.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_41_reconnect_with_clients_B.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_41_reconnect_with_clients_B.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_42_server_reconnect_with_clients":
+        {
+            "description": [
+                "Server A connects with Server B. Server B leaves. Server B turns back with same configuration"
+            ],
+
+            "processes":
+            {
+                "serverA":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_42_server_reconnect_with_clients_A.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_42_server_reconnect_with_clients_A.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_42_server_reconnect_with_clients_A.snapshot"
+                        }
+                    }
+                },
+
+                "serverB_1":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_42_server_reconnect_with_clients_B.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+
+                "serverB_2":
+                {
+                    "creation_time": 13,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_42_server_reconnect_with_clients_B.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_42_server_reconnect_with_clients_B.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_42_server_reconnect_with_clients_B.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_43_complex_reconnect":
+        {
+            "description": [
+                "Server B connects with server A. Server B leaves. Server B start again. Server A leaves, Server A start again",
+                "Both Servers should know every information from the other before leaving and after restarting",
+                "t = 0  : A1 starts & B1 starts",
+                "t = 2  : A1 snapshot",
+                "t = 3  : B1 snapshot & B1 finish",
+                "t = 7  : A1 snapshot",
+
+                "t = 8  : B2 starts",
+                "t = 12 : B2 snapshot",
+                "t = 13 : A1 snapshot & A1 finish",
+                "t = 17 : B2 snapshot",
+
+                "t = 18 : A2 starts",
+                "t = 22 : A2 snapshot",
+                "t = 23 : B2 snapshot & B2 finish",
+                "t = 27 : A2 snapshot & A2 finish"
+            ],
+
+            "processes":
+            {
+                "serverA_1":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_43_complex_reconnect_A1.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_43_complex_reconnect_A1.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_43_complex_reconnect_A1.snapshot"
+                        }
+                    }
+                },
+
+                "serverA_2":
+                {
+                    "creation_time": 18,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_43_complex_reconnect_A2.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_43_complex_reconnect_A2.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_43_complex_reconnect_A2.snapshot"
+                        }
+                    }
+                },
+
+                "serverB_1":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_43_complex_reconnect_B1.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_43_complex_reconnect_B1.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_43_complex_reconnect_B1.snapshot"
+                        }
+                    }
+                },
+
+                "serverB_2":
+                {
+                    "creation_time": 8,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_43_complex_reconnect_B2.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_43_complex_reconnect_B2.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_43_complex_reconnect_B2.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_44_fast_discovery_server_tool_reconnect":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_44_fast_discovery_server_tool_reconnect.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_44_fast_discovery_server_tool_reconnect.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_44_fast_discovery_server_tool_reconnect.snapshot"
+                        }
+                    }
+                },
+                "fastddstool_0":
+                {
+                    "kill_time": 4,
+                    "tool_config":
+                    {
+                        "id" : 0,
+                        "address": "127.0.0.1",
+                        "port": 44811
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "fastddstool_reconnect":
+                {
+                    "creation_time": 9,
+                    "kill_time": 19,
+                    "tool_config":
+                    {
+                        "id" : 0,
+                        "address": "127.0.0.1",
+                        "port": 44811
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
+
+        "test_45_trivial_client_reconnect":
+        {
+            "description": [
+                "Client connects with Server. Server leaves. Server turns back with same configuration."
+            ],
+
+            "processes":
+            {
+                "client":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_45_trivial_client_reconnect_client.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_45_trivial_client_reconnect_client.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_45_trivial_client_reconnect_client.snapshot"
+                        }
+                    }
+                },
+
+                "server_0":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_45_trivial_client_reconnect_server.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+
+                "server_1":
+                {
+                    "creation_time": 6,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_45_trivial_client_reconnect_server.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_50_environment_modification":
         {
             "description": [
                 "Test to check the consequences of modifying the file referenced by FASTDDS_ENVIRONMENT_FILE on the ",
@@ -1538,12 +2144,12 @@
                             "value": "<CONFIG_RELATIVE_PATH>/environment.json"
                         }
                     ],
-                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_39_environment_modification.xml",
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_50_environment_modification.xml",
                     "validation":
                     {
                         "count_lines_validation":
                         {
-                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_environment_modification.snapshot"
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_50_environment_modification.snapshot"
                         },
                         "exit_code_validation":
                         {
@@ -1560,7 +2166,7 @@
                         },
                         "ground_truth_validation":
                         {
-                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_environment_modification.snapshot"
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_50_environment_modification.snapshot"
                         }
                     }
                 }
