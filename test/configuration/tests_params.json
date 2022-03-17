@@ -2141,7 +2141,7 @@
                     [
                         {
                             "name":"FASTDDS_ENVIRONMENT_FILE",
-                            "value": "<CONFIG_RELATIVE_PATH>/environment.json"
+                            "value": "<CONFIG_RELATIVE_PATH>/environment_files/environment.json"
                         }
                     ],
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_50_environment_modification.xml",
