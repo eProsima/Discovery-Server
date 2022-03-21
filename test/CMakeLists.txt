@@ -124,6 +124,13 @@ if(fastrtps_VERSION VERSION_GREATER_EQUAL "2.4.0")
     )
 endif()
 
+# Modifying remote server locator list was introduced in Fast DDS v2.6.0
+if (fastrtps_VERSION VERSION_GREATER_EQUAL "2.6.0")
+    list(APPEND TEST_LIST
+        test_51_remote_server_locator_client_modification
+    )
+endif()
+
 # The above TEST_LIST has tests that spawn multiple test cases, we need a new variable to enumerate them
 set(TEST_CASE_LIST)
 

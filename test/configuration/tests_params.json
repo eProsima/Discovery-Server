@@ -2173,6 +2173,85 @@
             }
         },
 
+        "test_51_remote_server_locator_client_modification":
+        {
+            "description": [
+                "Check that CLIENTs may change its remote server locator and reconnect with the SERVER when it is",
+                "relaunched in that locator",
+                "t = 0 : Server_1 (S1) and Client_1 (C1) starts",
+                "t = 2 : C1 snapshot",
+                "t = 3 : C1 modifies its remote server locator",
+                "t = 10 : C1 snapshot",
+                "t = 12 : S1 is stopped",
+                "t = 14 : C1 snapshot",
+                "t = 17 : Server_1 is relaunched with the new locator (S2)",
+                "t = 19 : C1 snapshot"
+            ],
+
+            "processes":
+            {
+                "client_1_C1":
+                {
+                    "environment_variables":
+                    [
+                        {
+                            "name": "FASTDDS_ENVIRONMENT_FILE",
+                            "value": "<CONFIG_RELATIVE_PATH>/environment_files/DS_client_1.json"
+                        }
+                    ],
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_51_remote_server_locator_client_modification_C1.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_51_remote_server_locator_client_modification_C1.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+
+                "server_1_S1":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_51_remote_server_locator_client_modification_S1.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+
+                "server_1_S2":
+                {
+                    "creation_time": 17,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_51_remote_server_locator_client_modification_S2.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
         "test_60_disconnection":
         {
             "description": [
