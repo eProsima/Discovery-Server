@@ -1735,6 +1735,10 @@ void DiscoveryServerManager::loadEnvironmentChange(
         return;
     }
     const char* value = change->GetText();
+    if (nullptr == value)
+    {
+        value = "";
+    }
 
     // Add the event
     events.push_back(new DelayedEnvironmentModification(time, key, value));
