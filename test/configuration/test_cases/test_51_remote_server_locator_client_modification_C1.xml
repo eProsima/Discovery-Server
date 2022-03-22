@@ -22,8 +22,8 @@
         Therefore, the participant is launched after modifying the file setting the correct initial value.
     -->
     <environment>
-        <change time="0" key="ROS_DISCOVERY_SERVER">localhost:12811</change>
-        <change time="3" key="ROS_DISCOVERY_SERVER">localhost:12812</change>
+        <change time="0" key="ROS_DISCOVERY_SERVER">localhost:11811</change>
+        <change time="3" key="ROS_DISCOVERY_SERVER">localhost:11812</change>
     </environment>
 
     <profiles>
