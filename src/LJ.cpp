@@ -15,6 +15,7 @@
 #include "LJ.h"
 
 #include <fstream>
+#include <sstream>
 
 #include "log/DSLog.h"
 #include "DSManager.h"
@@ -171,5 +172,25 @@ void DelayedEnvironmentModification::operator ()(
     {
         LOG_ERROR("Empty FASTDDS_ENVIRONMENT_FILE variable");
         return;
+    }
+}
+
+void DelayedServerListChange::operator ()(
+        DiscoveryServerManager& man)  /*override*/
+{
+    GuidPrefix_t participant_prefix;
+    std::istringstream(prefix) >> participant_prefix;
+    GUID_t participant_guid (participant_prefix, ENTITYID_RTPSParticipant);
+    DomainParticipant* participant = man.getParticipant(participant_guid);
+
+    if (nullptr != participant)
+    {
+        DomainParticipantQos qos = participant->get_qos();
+        qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(attributes);
+        participant->set_qos(qos);
+    }
+    else
+    {
+        LOG_ERROR("Tried to modify Discovery Servers list of undiscovered participant: " << participant_guid);
     }
 }

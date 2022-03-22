@@ -49,6 +49,11 @@ static const std::string s_sChange("change");
 static const std::string s_sVariable("variable");
 static const std::string s_sKey("key");
 static const std::string s_sValue("value");
+static const std::string s_sAPIChange("serverchange");
+static const std::string s_sPrefix("prefix");
+static const std::string s_sRemoteServer("RemoteServer");
+static const std::string s_sAddress("address");
+static const std::string s_sPort("port");
 
 // specific Snapshot schema string literals
 static const std::string s_sDS_Snapshots("DS_Snapshots");

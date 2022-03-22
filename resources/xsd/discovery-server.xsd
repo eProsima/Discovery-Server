@@ -1028,6 +1028,20 @@
         </xs:simpleContent>
     </xs:complexType>
 
+    <xs:complexType name="RemoteServerChangeType">
+        <xs:attribute name="prefix" type="stringType" use="required" />
+        <xs:attribute name="addess" type="stringType" use="required" />
+        <xs:attribute name="port" type="uint32Type" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="ServerListChangeType">
+        <xs:sequence>
+            <xs:element name="RemoteServer" type="RemoteServerChangeType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="time" type="uint32Type" use="required" />
+        <xs:attribute name="prefix" type="stringType" use="required" />
+    </xs:complexType>
+
     <xs:element name="DS">
         <xs:complexType>
             <xs:all>
@@ -1066,6 +1080,13 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="change" type="EnvironmentChangeType" minOccurs="1" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="serverchange" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="change" type="ServerListChangeType" minOccurs="1" maxOccurs="unbounded"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
