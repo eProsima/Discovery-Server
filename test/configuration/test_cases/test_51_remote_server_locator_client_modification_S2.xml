@@ -3,6 +3,7 @@
     <servers>
         <server removal_time="2" name="server_1" profile_name="server_1" creation_time="0">
             <publisher topic="topic_1" />
+            <subscriber topic="topic_2" />
         </server>
     </servers>
 
@@ -28,6 +29,11 @@
 
         <topic profile_name="topic_1">
             <name>topic_1</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <topic profile_name="topic_2">
+            <name>topic_2</name>
             <dataType>sample_type_1</dataType>
         </topic>
 

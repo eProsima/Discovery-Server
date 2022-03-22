@@ -5,6 +5,7 @@
     -->
     <simples>
         <simple name="client_1" profile_name="client_1" creation_time="1">
+            <publisher topic="topic_2" />
             <subscriber topic="topic_1" />
         </simple>
     </simples>
@@ -12,8 +13,8 @@
     <snapshots file="./test_51_remote_server_locator_client_modification_C1~">
         <snapshot time="2">Initial, C1 knows Server_1 (S1)</snapshot>
         <snapshot time="10">Remote server locator modified, C1 has dropped S1</snapshot>
-        <snapshot time="14">S1 has been shutdown</snapshot>
-        <snapshot time="19">Reconnection, C1 knows Server_1 (S2)</snapshot>
+        <snapshot time="13">S1 has been shutdown</snapshot>
+        <snapshot time="18">Reconnection, C1 knows Server_1 (S2)</snapshot>
     </snapshots>
 
     <!--
@@ -34,6 +35,11 @@
 
         <topic profile_name="topic_1">
             <name>topic_1</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <topic profile_name="topic_2">
+            <name>topic_2</name>
             <dataType>sample_type_1</dataType>
         </topic>
 
