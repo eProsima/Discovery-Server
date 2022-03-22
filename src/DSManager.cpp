@@ -1025,14 +1025,14 @@ void DiscoveryServerManager::loadServer(
     tinyxml2::XMLElement* pub = server->FirstChildElement(DSxmlparser::PUBLISHER);
     while (pub != nullptr)
     {
-        loadPublisher(guid, pub);
+        loadPublisher(guid, pub, &event);
         pub = pub->NextSiblingElement(DSxmlparser::PUBLISHER);
     }
 
     tinyxml2::XMLElement* sub = server->FirstChildElement(DSxmlparser::SUBSCRIBER);
     while (sub != nullptr)
     {
-        loadSubscriber(guid, sub);
+        loadSubscriber(guid, sub, &event);
         sub = sub->NextSiblingElement(DSxmlparser::SUBSCRIBER);
     }
 }
