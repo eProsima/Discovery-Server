@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DS_Snapshots xmlns="http://www.eprosima.com/XMLSchemas/ds-snapshot">
     <DS_Snapshot timestamp="1647932867222" process_time="2000" last_pdp_callback_time="1151" last_edp_callback_time="1495" someone="true">
-        <description>Initial, C1 knows Server_1 (S1)</description>
+        <description>Initial, C1 knows Server_1 (S1_1)</description>
         <ptdb guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1">
             <ptdi guid_prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41" guid_entity="0.0.1.c1" server="false" alive="true" name="server_1" discovered_timestamp="1151">
                 <subscriber type="sample_type_1" topic="topic_2" guid_prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41" guid_entity="0.0.2.4" discovered_timestamp="1493"/>
@@ -14,7 +14,7 @@
         </ptdb>
     </DS_Snapshot>
     <DS_Snapshot timestamp="1647932875222" process_time="10000" last_pdp_callback_time="4193" last_edp_callback_time="4008" someone="true">
-        <description>Remote server locator modified, C1 has dropped S1</description>
+        <description>Remote server locator modified, C1 has dropped S1_1</description>
         <ptdb guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1">
             <ptdi guid_prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41" guid_entity="0.0.1.c1" server="false" alive="true" name="server_1" discovered_timestamp="4193"/>
             <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="1038">
@@ -24,7 +24,7 @@
         </ptdb>
     </DS_Snapshot>
     <DS_Snapshot timestamp="1647932878222" process_time="13000" last_pdp_callback_time="11008" last_edp_callback_time="4008" someone="true">
-        <description>S1 has been shutdown</description>
+        <description>S1_1 has been shutdown</description>
         <ptdb guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1">
             <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="1038">
                 <subscriber type="sample_type_1" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.2.4" discovered_timestamp="1040"/>
@@ -33,7 +33,7 @@
         </ptdb>
     </DS_Snapshot>
     <DS_Snapshot timestamp="1647932883222" process_time="18000" last_pdp_callback_time="16455" last_edp_callback_time="16869" someone="true">
-        <description>Reconnection, C1 knows Server_1 (S2)</description>
+        <description>Reconnection, C1 knows Server_1 (S1_2)</description>
         <ptdb guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1">
             <ptdi guid_prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41" guid_entity="0.0.1.c1" server="false" alive="true" name="server_1" discovered_timestamp="16455">
                 <subscriber type="sample_type_1" topic="topic_2" guid_prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41" guid_entity="0.0.2.4" discovered_timestamp="16868"/>

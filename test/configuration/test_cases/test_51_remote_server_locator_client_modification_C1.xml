@@ -11,10 +11,10 @@
     </simples>
 
     <snapshots file="./test_51_remote_server_locator_client_modification_C1~">
-        <snapshot time="2">Initial, C1 knows Server_1 (S1)</snapshot>
-        <snapshot time="10">Remote server locator modified, C1 has dropped S1</snapshot>
-        <snapshot time="13">S1 has been shutdown</snapshot>
-        <snapshot time="18">Reconnection, C1 knows Server_1 (S2)</snapshot>
+        <snapshot time="2">Initial, C1 knows Server_1 (S1_1)</snapshot>
+        <snapshot time="10">Remote server locator modified, C1 has dropped S1_1</snapshot>
+        <snapshot time="13">S1_1 has been shutdown</snapshot>
+        <snapshot time="18">Reconnection, C1 knows Server_1 (S1_2)</snapshot>
     </snapshots>
 
     <!--

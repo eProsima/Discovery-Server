@@ -19,7 +19,7 @@
         </ptdb>
     </DS_Snapshot>
     <DS_Snapshot timestamp="1647947036055" process_time="16000" last_pdp_callback_time="14719" last_edp_callback_time="15171" someone="true">
-        <description>C3 knows C1 thorugh S2</description>
+        <description>C3 knows C1 thorugh S1_2</description>
         <ptdb guid_prefix="63.6c.69.65.6e.74.33.5f.73.31.5f.5f" guid_entity="0.0.1.c1">
             <ptdi guid_prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41" guid_entity="0.0.1.c1" server="false" alive="true" name="eProsima Default Server number 0" discovered_timestamp="14142"/>
             <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="client_1" discovered_timestamp="14716">
@@ -33,7 +33,7 @@
         </ptdb>
     </DS_Snapshot>
     <DS_Snapshot timestamp="1647947044055" process_time="24000" last_pdp_callback_time="18321" last_edp_callback_time="18776" someone="true">
-        <description>C3 knows C2 through S2</description>
+        <description>C3 knows C2 through S1_2</description>
         <ptdb guid_prefix="63.6c.69.65.6e.74.33.5f.73.31.5f.5f" guid_entity="0.0.1.c1">
             <ptdi guid_prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41" guid_entity="0.0.1.c1" server="false" alive="true" name="eProsima Default Server number 0" discovered_timestamp="14142"/>
             <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="client_1" discovered_timestamp="14716">

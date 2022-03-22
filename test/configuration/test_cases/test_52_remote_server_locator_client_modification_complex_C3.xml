@@ -13,8 +13,8 @@
     <snapshots file="./test_52_remote_server_locator_client_modification_complex_C3~">
         <snapshot time="3">C3 knows only itself</snapshot>
         <snapshot time="11">Same situation as the previous snapshot</snapshot>
-        <snapshot time="16">C3 knows C1 thorugh S2</snapshot>
-        <snapshot time="24">C3 knows C2 through S2</snapshot>
+        <snapshot time="16">C3 knows C1 thorugh S1_2</snapshot>
+        <snapshot time="24">C3 knows C2 through S1_2</snapshot>
     </snapshots>
 
     <!--

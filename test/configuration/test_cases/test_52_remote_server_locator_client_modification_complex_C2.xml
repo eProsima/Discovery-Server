@@ -11,10 +11,10 @@
     </simples>
 
     <snapshots file="./test_52_remote_server_locator_client_modification_complex_C2~">
-        <snapshot time="3">Initial, C2 knows C1 through Server_1 (S1)</snapshot>
+        <snapshot time="3">Initial, C2 knows C1 through Server_1 (S1_1)</snapshot>
         <snapshot time="11">C2 keeps knowing C1 even though C1 has changed its locators</snapshot>
         <snapshot time="16">Same situation as the previous snapshot</snapshot>
-        <snapshot time="24">C2 discovers C3 through S2 after modifying its remote server locator</snapshot>
+        <snapshot time="24">C2 discovers C3 through S1_2 after modifying its remote server locator</snapshot>
     </snapshots>
 
     <!--

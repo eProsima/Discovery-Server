@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DS_Snapshots xmlns="http://www.eprosima.com/XMLSchemas/ds-snapshot">
     <DS_Snapshot timestamp="1647944989086" process_time="3000" last_pdp_callback_time="1518" last_edp_callback_time="1970" someone="true">
-        <description>Initial, C1 knows C2 through Server_1 (S1)</description>
+        <description>Initial, C1 knows C2 through Server_1 (S1_1)</description>
         <ptdb guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1">
             <ptdi guid_prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41" guid_entity="0.0.1.c1" server="false" alive="true" name="eProsima Default Server number 0" discovered_timestamp="1154"/>
             <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="1042">
@@ -29,7 +29,7 @@
         </ptdb>
     </DS_Snapshot>
     <DS_Snapshot timestamp="1647945002086" process_time="16000" last_pdp_callback_time="12472" last_edp_callback_time="12925" someone="true">
-        <description>C1 knows C3 through Server_1 (S2) and still knows C2</description>
+        <description>C1 knows C3 through Server_1 (S1_2) and still knows C2</description>
         <ptdb guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1">
             <ptdi guid_prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41" guid_entity="0.0.1.c1" server="false" alive="true" name="eProsima Default Server number 0" discovered_timestamp="12198"/>
             <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="1042">

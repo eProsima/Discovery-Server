@@ -2179,14 +2179,14 @@
                 "This test is described with detail in Redmine task #13912",
                 "Check that CLIENTs may change its remote server locator and reconnect with the SERVER when it is",
                 "relaunched in that locator",
-                "t = 0 : Server_1 (S1)",
+                "t = 0 : Server_1 (S1_1)",
                 "t = 1 : Client_1 (C1) starts",
-                "t = 2 : C1 and S1 snapshot",
+                "t = 2 : C1 and S1_1 snapshot",
                 "t = 3 : C1 modifies its remote server locator",
-                "t = 10 : C1 and S1 snapshots",
-                "t = 11 : S1 is stopped",
+                "t = 10 : C1 and S1_1 snapshots",
+                "t = 11 : S1_1 is stopped",
                 "t = 13 : C1 snapshot",
-                "t = 16 : Server_1 is relaunched with the new locator (S2)",
+                "t = 16 : Server_1 is relaunched with the new locator (S1_2)",
                 "t = 18 : C1 snapshot"
             ],
 
@@ -2223,9 +2223,9 @@
                     }
                 },
 
-                "server_1_S1":
+                "server_1_S1_1":
                 {
-                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_51_remote_server_locator_client_modification_S1.xml",
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_51_remote_server_locator_client_modification_S1_1.xml",
                     "validation":
                     {
                         "count_lines_validation":
@@ -2247,10 +2247,10 @@
                     }
                 },
 
-                "server_1_S2":
+                "server_1_S1_2":
                 {
                     "creation_time": 16,
-                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_51_remote_server_locator_client_modification_S2.xml",
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_51_remote_server_locator_client_modification_S1_2.xml",
                     "validation":
                     {
                         "exit_code_validation":
@@ -2275,12 +2275,12 @@
                 "Both Client_1 and Client_2 are connected from the beginning to Server_1",
                 "Client_3 is pinging the locator where the Server_1 is going to be at the end",
                 "Server_1 is launched using the CLI",
-                "t = 1 : Server_1 (S1), Client_1 (C1), Client_2 (C2), and Client_3 (C3) are launched",
+                "t = 1 : Server_1 (S1_1), Client_1 (C1), Client_2 (C2), and Client_3 (C3) are launched",
                 "t = 3 : C1, C2, C3 snapshots",
                 "t = 4 : C1 modifies its remote server locator",
                 "t = 11 : C1, C2, C3 snapshots",
-                "t = 12 : S1 is stopped",
-                "t = 14 : Server_1 is relaunched (S2) listening in the new locator",
+                "t = 12 : S1_1 is stopped",
+                "t = 14 : Server_1 is relaunched (S1_2) listening in the new locator",
                 "t = 16 : C1, C2, C3 snapshots",
                 "t = 17 : C2 modifies its remote server locator",
                 "t = 24 : C1, C2, C3 snapshots"
@@ -2288,7 +2288,7 @@
 
             "processes":
             {
-                "server_1_S1":
+                "server_1_S1_1":
                 {
                     "kill_time": 12,
                     "tool_config":
@@ -2310,7 +2310,7 @@
                     }
                 },
 
-                "server_1_S2":
+                "server_1_S1_2":
                 {
                     "creation_time": 14,
                     "kill_time": 11,
@@ -2426,6 +2426,29 @@
                     }
                 }
             }
+        },
+
+        "test_53_remote_server_locator_server_client_modification":
+        {
+            "description": [
+                "This test is described with detail in Redmine task #13912",
+                "Check that SERVERs and CLIENTs may change its remote server locator and reconnect with the remote",
+                "SERVER when it is relaunched listening in that new locator",
+                "Client_1 is connected to Server_1",
+                "Client_2 is connected to Server_2",
+                "Client_3 is pinging the locator where the Server_1 is going to be at the end",
+                "t = 1 : Server_1 (S1), Server_2 (S2), Client_1 (C1), Client_2 (C2), and Client_3 (C3) starts",
+                "t = 3 : C1, C2, C3 snapshots",
+                "t = 4 : S2 adds S1 as remote server",
+                "t = 11 : C1, C2, C3 snapshots",
+                "t = 12 : S1_1 is stopped",
+                "t = 14 : Server_1 is relaunched (S1_2) listening in the new locator",
+                "t = 16 : C1, C2, C3 snapshots",
+                "t = 17 : C1 modifies its remote server locator",
+                "t = 24 : C1, C2, C3 snapshots",
+                "t = 25 : S2 modifies its remote server locator",
+                "t = 32 : C1, C2, C3 snapshots"
+            ]
         },
 
         "test_60_disconnection":
