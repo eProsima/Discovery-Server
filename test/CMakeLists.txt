@@ -128,6 +128,7 @@ endif()
 if (fastrtps_VERSION VERSION_GREATER_EQUAL "2.6.0")
     list(APPEND TEST_LIST
         test_51_remote_server_locator_client_modification
+        test_52_remote_server_locator_client_modification_complex
     )
 endif()
 
