@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+    <servers>
+        <server removal_time="11" name="server_1" profile_name="server_1" creation_time="0">
+            <publisher topic="topic_1" />
+            <subscriber topic="topic_2" />
+        </server>
+    </servers>
+
+    <snapshots file="./test_51_remote_server_locator_client_modification_S1~">
+        <snapshot time="2">Initial, S1 knows C1</snapshot>
+        <snapshot time="10">C1 has modified remote locator</snapshot>
+    </snapshots>
+
+    <profiles>
+        <participant profile_name="server_1">
+            <rtps>
+                <prefix>44.53.00.5f.45.50.52.4f.53.49.4d.41</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>SERVER</discoveryProtocol>
+                    </discovery_config>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                                <port>11811</port>
+                            </udpv4>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <topic profile_name="topic_1">
+            <name>topic_1</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <topic profile_name="topic_2">
+            <name>topic_2</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <types>
+            <type>
+                <struct name="sample_type_1">
+                    <member name="index" type="uint32" />
+                    <member name="message" type="string" />
+                </struct>
+            </type>
+        </types>    
+    </profiles>
+</DS>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+    <!--
+        Promoted SIMPLE Participant to Client using environment file
+    -->
+    <simples>
+        <simple name="client_1" profile_name="client_1" creation_time="1">
+            <publisher topic="topic_1" />
+            <subscriber topic="topic_1" />
+        </simple>
+    </simples>
+
+    <snapshots file="./test_53_remote_server_locator_server_client_modification_C1~">
+        <snapshot time="3">Initial, C1 knows Server_1 (S1_1)</snapshot>
+        <snapshot time="11">C1 knows C2 after S2 adds S1_1 as remote server</snapshot>
+        <snapshot time="16">C1 does not know S1_1 after the Server_1 modifies its locators</snapshot>
+        <snapshot time="24">C1 knows S1_2 and C3 through S1_2 after updating its remote server locator</snapshot>
+        <snapshot time="32">Nothing has changed with respect to the previous snapshot</snapshot>
+    </snapshots>
+
+    <!--
+        The tool does not save the initial environment file.
+        Therefore, the participant is launched after modifying the file setting the correct initial value.
+        This allows to use the same file in all tests without concerning with the initial values.
+    -->
+    <environment>
+        <change time="0" key="ROS_DISCOVERY_SERVER">localhost:11811</change>
+        <change time="17" key="ROS_DISCOVERY_SERVER">localhost:11813</change>
+    </environment>
+
+    <profiles>
+        <participant profile_name="client_1">
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.31.5f.73.31.5f.5f</prefix>
+            </rtps>
+        </participant>
+
+        <topic profile_name="topic_1">
+            <name>topic_1</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <types>
+            <type>
+                <struct name="sample_type_1">
+                    <member name="index" type="uint32" />
+                    <member name="message" type="string" />
+                </struct>
+            </type>
+        </types>    
+    </profiles>
+</DS>

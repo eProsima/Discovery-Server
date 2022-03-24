@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+    <!--
+        Promoted SIMPLE Participant to Client using environment file
+    -->
+    <simples>
+        <simple name="client_2" profile_name="client_2" creation_time="1">
+            <publisher topic="topic_1" />
+            <subscriber topic="topic_1" />
+        </simple>
+    </simples>
+
+    <snapshots file="./test_53_remote_server_locator_server_client_modification_C2~">
+        <snapshot time="3">Initial, C2 knows Server_2 (S2)</snapshot>
+        <snapshot time="11">C2 knows C1 after S2 adds S1_1 as remote server</snapshot>
+        <snapshot time="16">Nothing has changed with respect to the previous snapshot</snapshot>
+        <snapshot time="24">Nothing has changed with respect to the previous snapshot</snapshot>
+        <snapshot time="32">C2 knows C3 through S2 and S1_2 after updating S2 its remote server locator</snapshot>
+    </snapshots>
+
+    <!--
+        The tool does not save the initial environment file.
+        Therefore, the participant is launched after modifying the file setting the correct initial value.
+        This allows to use the same file in all tests without concerning with the initial values.
+    -->
+    <environment>
+        <change time="0" key="ROS_DISCOVERY_SERVER">;localhost:11812</change>
+    </environment>
+
+    <profiles>
+        <participant profile_name="client_2">
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.32.5f.73.31.5f.5f</prefix>
+            </rtps>
+        </participant>
+
+        <topic profile_name="topic_1">
+            <name>topic_1</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <types>
+            <type>
+                <struct name="sample_type_1">
+                    <member name="index" type="uint32" />
+                    <member name="message" type="string" />
+                </struct>
+            </type>
+        </types>    
+    </profiles>
+</DS>

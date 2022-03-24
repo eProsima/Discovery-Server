@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+    <!--
+        Promoted SIMPLE Participant to Client using environment file
+    -->
+    <simples>
+        <simple name="client_1" profile_name="client_1" creation_time="1">
+            <publisher topic="topic_2" />
+            <subscriber topic="topic_1" />
+        </simple>
+    </simples>
+
+    <snapshots file="./test_51_remote_server_locator_client_modification_C1~">
+        <snapshot time="2">Initial, C1 knows Server_1 (S1_1)</snapshot>
+        <snapshot time="10">Remote server locator modified, C1 has dropped S1_1</snapshot>
+        <snapshot time="13">S1_1 has been shutdown</snapshot>
+        <snapshot time="18">Reconnection, C1 knows Server_1 (S1_2)</snapshot>
+    </snapshots>
+
+    <!--
+        The tool does not save the initial environment file.
+        Therefore, the participant is launched after modifying the file setting the correct initial value.
+    -->
+    <environment>
+        <change time="0" key="ROS_DISCOVERY_SERVER">localhost:11811</change>
+        <change time="3" key="ROS_DISCOVERY_SERVER">localhost:11812</change>
+    </environment>
+
+    <profiles>
+        <participant profile_name="client_1">
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.31.5f.73.31.5f.5f</prefix>
+            </rtps>
+        </participant>
+
+        <topic profile_name="topic_1">
+            <name>topic_1</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <topic profile_name="topic_2">
+            <name>topic_2</name>
+            <dataType>sample_type_1</dataType>
+        </topic>
+
+        <types>
+            <type>
+                <struct name="sample_type_1">
+                    <member name="index" type="uint32" />
+                    <member name="message" type="string" />
+                </struct>
+            </type>
+        </types>    
+    </profiles>
+</DS>
