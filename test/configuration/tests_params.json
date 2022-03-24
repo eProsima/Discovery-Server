@@ -2437,7 +2437,7 @@
                 "Client_1 is connected to Server_1",
                 "Client_2 is connected to Server_2",
                 "Client_3 is pinging the locator where the Server_1 is going to be at the end",
-                "t = 1 : Server_1 (S1), Server_2 (S2), Client_1 (C1), Client_2 (C2), and Client_3 (C3) starts",
+                "t = 1 : Server_1 (S1), Server_2 (S2), Client_1 (C1), Client_2 (C2), and Client_3 (C3) start",
                 "t = 3 : C1, C2, C3, and S2 snapshots",
                 "t = 4 : S2 adds S1 as remote server",
                 "t = 11 : C1, C2, C3, and S2 snapshots",
@@ -2617,6 +2617,232 @@
                         "ground_truth_validation":
                         {
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_53_remote_server_locator_server_client_modification_C3.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_54_remote_server_locator_modification_interconnected_servers":
+        {
+            "description": [
+                "This test is described with detail in Redmine task #13912",
+                "Complex test that checks modify remote server locators feature with several servers and clients",
+                "Server_1 has endpoints",
+                "Client_1 is pinging the locator where the Server_1 is going to be at the end",
+                "Client_2 is connected to Server_2",
+                "Client_3 is connected to Server_3",
+                "Server_2 is connected to Server_1 and Server_3",
+                "Server_3 is connected to Server_1",
+                "t = 1 : Server_1 (S1_1), Server_2 (S2), Server_3 (S3), Client_1 (C1), Client_2 (C2), and Client_3 (C3) starts",
+                "t = 3 : S1, S2, C1, C2, and C3 snapshot",
+                "t = 4 : S2 modifies its remote Server_1 locator",
+                "t = 11 : S1, S2, C1, C2, and C3 snapshot",
+                "t = 12 : S1_1 is stopped",
+                "t = 14 : Server_1 is relaunched (S1_2) listening in the new locator",
+                "t = 16 : S1, S2, C1, C2, and C3 snapshot"
+            ],
+
+            "processes":
+            {
+                "server_1_S1_1":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_54_remote_server_locator_modification_interconnected_servers_S1_1.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_54_remote_server_locator_modification_interconnected_servers_S1_1.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_54_remote_server_locator_modification_interconnected_servers_S1_1.snapshot"
+                        }
+                    }
+                },
+
+                "server_1_S1_2":
+                {
+                    "creation_time": 14,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_54_remote_server_locator_modification_interconnected_servers_S1_2.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_54_remote_server_locator_modification_interconnected_servers_S1_2.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_54_remote_server_locator_modification_interconnected_servers_S1_2.snapshot"
+                        }
+                    }
+                },
+
+                "server_2_S2":
+                {
+                    "environment_variables":
+                    [
+                        {
+                            "name": "FASTDDS_ENVIRONMENT_FILE",
+                            "value": "<CONFIG_RELATIVE_PATH>/environment_files/DS_server_2.json"
+                        }
+                    ],
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_54_remote_server_locator_modification_interconnected_servers_S2.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_54_remote_server_locator_modification_interconnected_servers_S2.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_54_remote_server_locator_modification_interconnected_servers_S2.snapshot"
+                        }
+                    }
+                },
+
+                "server_3_S3":
+                {
+                    "kill_time": 17,
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS_DISCOVERY_SERVER",
+                            "value": "localhost:11811"
+                        }
+                    ],
+                    "tool_config":
+                    {
+                        "id": 2,
+                        "address": "127.0.0.1",
+                        "port": 11813
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+
+                "client_1_C1":
+                {
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS_DISCOVERY_SERVER",
+                            "value": "localhost:11814"
+                        }
+                    ],
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_54_remote_server_locator_modification_interconnected_servers_C1.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_54_remote_server_locator_modification_interconnected_servers_C1.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_54_remote_server_locator_modification_interconnected_servers_C1.snapshot"
+                        }
+                    }
+                },
+
+                "client_2_C2":
+                {
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS_DISCOVERY_SERVER",
+                            "value": ";localhost:11812"
+                        }
+                    ],
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_54_remote_server_locator_modification_interconnected_servers_C2.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_54_remote_server_locator_modification_interconnected_servers_C2.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_54_remote_server_locator_modification_interconnected_servers_C2.snapshot"
+                        }
+                    }
+                },
+
+                "client_3_C3":
+                {
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS_DISCOVERY_SERVER",
+                            "value": ";;localhost:11813"
+                        }
+                    ],
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_54_remote_server_locator_modification_interconnected_servers_C3.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_54_remote_server_locator_modification_interconnected_servers_C3.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_54_remote_server_locator_modification_interconnected_servers_C3.snapshot"
                         }
                     }
                 }

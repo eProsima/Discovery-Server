@@ -130,6 +130,7 @@ if (fastrtps_VERSION VERSION_GREATER_EQUAL "2.6.0")
         test_51_remote_server_locator_client_modification
         test_52_remote_server_locator_client_modification_complex
         test_53_remote_server_locator_server_client_modification
+        test_54_remote_server_locator_modification_interconnected_servers
     )
 endif()
 
