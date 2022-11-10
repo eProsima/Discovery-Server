@@ -67,7 +67,7 @@ struct DiscoveryItem
     DiscoveryItem& operator =(
             DiscoveryItem&&) = default;
 
-    //! comparissons
+    //! comparisons
     bool operator ==(
             const GUID_t&) const;
     bool operator !=(
@@ -121,7 +121,7 @@ struct DataWriterDiscoveryItem : public DiscoveryItem
     DataWriterDiscoveryItem& operator =(
             DataWriterDiscoveryItem&&) = default;
 
-    //! comparissons
+    //! comparisons
     bool operator ==(
             const DataWriterDiscoveryItem&) const;
 
@@ -189,7 +189,7 @@ struct DataReaderDiscoveryItem : public DiscoveryItem
     int32_t alive_count{};
     int32_t not_alive_count{};
 
-    //! comparissons
+    //! comparisons
     bool operator ==(
             const DataReaderDiscoveryItem&) const;
 };
@@ -250,7 +250,7 @@ struct ParticipantDiscoveryItem : public DiscoveryItem
     ParticipantDiscoveryItem& operator =(
             ParticipantDiscoveryItem&&) = default;
 
-    // comparissons:
+    // comparisons:
 
     using DiscoveryItem::operator ==;
     using DiscoveryItem::operator !=;
@@ -428,7 +428,7 @@ struct Snapshot : public std::set<ParticipantDiscoveryDatabase>
             std::chrono::steady_clock::time_point time_point);
 
     // acceptable snapshot missalignment in ms
-    static std::chrono::milliseconds aceptable_offset_;
+    static std::chrono::milliseconds acceptable_offset_;
 
     // description
     std::string _des;

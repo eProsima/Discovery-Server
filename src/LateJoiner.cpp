@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "LJ.h"
+#include "LateJoiner.h"
 
 #include <fstream>
 
 #include "log/DSLog.h"
-#include "DSManager.h"
+#include "DiscoveryServerManager.h"
 
 using namespace eprosima::fastrtps;
 using namespace eprosima::discovery_server;

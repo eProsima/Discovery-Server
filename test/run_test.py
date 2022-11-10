@@ -14,7 +14,7 @@
 """
 Script to execute and validate Discovery Server v2 tests.
 
-This script encapsulate several funciontalities focus on testing the
+This script encapsulate several functionalities focus on testing the
 Discovery Server v2.
 
 These tests are parametrized from tests_params, a file where all
@@ -33,7 +33,7 @@ configurations given: configuration file, environment variable, tool args.
 For each process a validation is run in order to check that the process
 has been executed successfully and has generated a correct output.
 These validators are also parametrized in test_params, because each process
-expects a different behaviour.
+expects a different behavior.
 """
 import argparse
 import asyncio
@@ -59,7 +59,7 @@ import validation.validation as val
 DESCRIPTION = """Script to execute and validate Discovery Server v2 test"""
 USAGE = ('python3 run_test.py -e <path/to/discovery-server/executable>'
          ' [-p <path/to/test/parameteres/file>] [-t LIST[test-name]]'
-         ' [-f <path/to/fastd)ds/tool>] [-d] [-r] [-i <bool>] [-s <bool>]'
+         ' [-f <path/to/fastdds/tool>] [-d] [-r] [-i <bool>] [-s <bool>]'
          ' [--force-remove]')
 
 # Max default time to kill a process in case it gets stucked
@@ -188,7 +188,7 @@ async def read_outputs(proc, num_lines):
 
 async def run_command(process_args, environment, timeout):
     """
-    Execute a process and read its stream outputs asynchronouly.
+    Execute a process and read its stream outputs asynchronously.
 
     :param[in] process_args List of process arguments.
     :param[in] environment List of environment variables to be used when executing the process.
@@ -233,7 +233,7 @@ def pass_shm_contrains():
         proc = subprocess.check_output("df --output=size /dev/shm | tail -n 1", shell=True).decode()
         size = int(proc)
         if 65536 >= size:
-            print('Test cannot run in this system. Contrain shm_size not pass.')
+            print('Test cannot run in this system. Constrain shm_size not pass.')
             ret_value = False
 
     return ret_value
@@ -255,7 +255,7 @@ def execute_validate_thread_test(
     Execute a single process inside a test and validate it.
 
     This function will get all the needed information from a process
-    paramenter json object, and will creat the environment variables, the
+    parameter json object, and will create the environment variables, the
     arguments for the tool and the initial and final time for a single process.
     It will execute the process and validate it afterwards.
 
@@ -266,7 +266,7 @@ def execute_validate_thread_test(
     :param ds_tool_path: path to Discovery-Server tool.
     :param process_params: process parameters.
     :param config_file: xml file for default configuration of FastDDS.
-    :param flags_in: auxiliar flags to use with the DS tool.
+    :param flags_in: auxiliary flags to use with the DS tool.
     :param fds_path: path to fastdds tool. This arg is not needed unless
         test must execute fastdds tool, in which case it will raise an error
         if it is not set (Default: None).
@@ -324,7 +324,7 @@ def execute_validate_thread_test(
         result_file = 'servertool_' + str(server_id)
 
     else:
-        logger.error(f'Incorrect process paramenters: {process_name}')
+        logger.error(f'Incorrect process parameters: {process_name}')
         result_list.append(False)
         return False
 
@@ -504,12 +504,12 @@ def get_configurations(config_params, intraprocess, shm):
     It gets the information related to the test configurations from the
     configuration tag in json parameter file.
     It set the configuration files possible.
-    It also creates the combinatory for flags to use in each call. This means,
+    It also creates the combinators for flags to use in each call. This means,
     it gets all possible flags callable and mix them to test any possible
     case.
 
     :param config_params: dictionary with configurations.
-    :param intraprocess: only use intraprocess as configuration file.
+    :param intraprocess: only use intra-process as configuration file.
     :param shm: only use shared memory as default transport.
 
     :return: tuple of two arrays.
@@ -596,8 +596,8 @@ def create_tests(
     different configurations and flags that are going to take, and it will
     iterate over all of them once to execute and validate each one of them.
 
-    :param params_file_df: tests paramenters.
-    :param config_params: configuration paramenters.
+    :param params_file_df: tests parameters.
+    :param config_params: configuration parameters.
     :param discovery_server_tool_path: discovery server tool path.
     :param tests: array of strings with test names or patterns of test names.
     :param intraprocess: if set it specifies if intraprocess is used or not.

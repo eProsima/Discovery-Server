@@ -802,7 +802,7 @@
     </participant>
     <types>
       <type>
-        <struct name="sample_type_1">
+        <struct name="HelloWorld">
           <member name="index" type="uint32"/>
           <member name="message" type="string"/>
         </struct>
@@ -854,7 +854,7 @@
     </participant>
     <topic profile_name="topic0">
       <name>topic_0</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client2_server1">
       <rtps>
@@ -902,7 +902,7 @@
     </participant>
     <topic profile_name="topic1">
       <name>topic_1</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client4_server1">
       <rtps>
@@ -950,7 +950,7 @@
     </participant>
     <topic profile_name="topic2">
       <name>topic_2</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client6_server1">
       <rtps>
@@ -998,7 +998,7 @@
     </participant>
     <topic profile_name="topic3">
       <name>topic_3</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client8_server1">
       <rtps>
@@ -1046,7 +1046,7 @@
     </participant>
     <topic profile_name="topic4">
       <name>topic_4</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client10_server1">
       <rtps>
@@ -1094,7 +1094,7 @@
     </participant>
     <topic profile_name="topic5">
       <name>topic_5</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client12_server1">
       <rtps>
@@ -1142,7 +1142,7 @@
     </participant>
     <topic profile_name="topic6">
       <name>topic_6</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client14_server1">
       <rtps>
@@ -1190,7 +1190,7 @@
     </participant>
     <topic profile_name="topic7">
       <name>topic_7</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client16_server1">
       <rtps>
@@ -1238,7 +1238,7 @@
     </participant>
     <topic profile_name="topic8">
       <name>topic_8</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client18_server1">
       <rtps>
@@ -1286,7 +1286,7 @@
     </participant>
     <topic profile_name="topic9">
       <name>topic_9</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client20_server1">
       <rtps>
@@ -1334,7 +1334,7 @@
     </participant>
     <topic profile_name="topic10">
       <name>topic_10</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client22_server1">
       <rtps>
@@ -1382,7 +1382,7 @@
     </participant>
     <topic profile_name="topic11">
       <name>topic_11</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client24_server1">
       <rtps>
@@ -1430,7 +1430,7 @@
     </participant>
     <topic profile_name="topic12">
       <name>topic_12</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client26_server1">
       <rtps>
@@ -1478,7 +1478,7 @@
     </participant>
     <topic profile_name="topic13">
       <name>topic_13</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client28_server1">
       <rtps>
@@ -1526,7 +1526,7 @@
     </participant>
     <topic profile_name="topic14">
       <name>topic_14</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client30_server1">
       <rtps>
@@ -1574,7 +1574,7 @@
     </participant>
     <topic profile_name="topic15">
       <name>topic_15</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client32_server1">
       <rtps>
@@ -1622,7 +1622,7 @@
     </participant>
     <topic profile_name="topic16">
       <name>topic_16</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client34_server1">
       <rtps>
@@ -1670,7 +1670,7 @@
     </participant>
     <topic profile_name="topic17">
       <name>topic_17</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client36_server1">
       <rtps>
@@ -1718,7 +1718,7 @@
     </participant>
     <topic profile_name="topic18">
       <name>topic_18</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client38_server1">
       <rtps>
@@ -1766,7 +1766,7 @@
     </participant>
     <topic profile_name="topic19">
       <name>topic_19</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client40_server1">
       <rtps>
@@ -1814,7 +1814,7 @@
     </participant>
     <topic profile_name="topic20">
       <name>topic_20</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client42_server1">
       <rtps>
@@ -1862,7 +1862,7 @@
     </participant>
     <topic profile_name="topic21">
       <name>topic_21</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client44_server1">
       <rtps>
@@ -1910,7 +1910,7 @@
     </participant>
     <topic profile_name="topic22">
       <name>topic_22</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client46_server1">
       <rtps>
@@ -1958,7 +1958,7 @@
     </participant>
     <topic profile_name="topic23">
       <name>topic_23</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client48_server1">
       <rtps>
@@ -2006,7 +2006,7 @@
     </participant>
     <topic profile_name="topic24">
       <name>topic_24</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client50_server1">
       <rtps>
@@ -2054,7 +2054,7 @@
     </participant>
     <topic profile_name="topic25">
       <name>topic_25</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client52_server1">
       <rtps>
@@ -2102,7 +2102,7 @@
     </participant>
     <topic profile_name="topic26">
       <name>topic_26</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client54_server1">
       <rtps>
@@ -2150,7 +2150,7 @@
     </participant>
     <topic profile_name="topic27">
       <name>topic_27</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client56_server1">
       <rtps>
@@ -2198,7 +2198,7 @@
     </participant>
     <topic profile_name="topic28">
       <name>topic_28</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client58_server1">
       <rtps>
@@ -2246,7 +2246,7 @@
     </participant>
     <topic profile_name="topic29">
       <name>topic_29</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client60_server1">
       <rtps>
@@ -2294,7 +2294,7 @@
     </participant>
     <topic profile_name="topic30">
       <name>topic_30</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client62_server1">
       <rtps>
@@ -2342,7 +2342,7 @@
     </participant>
     <topic profile_name="topic31">
       <name>topic_31</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client64_server1">
       <rtps>
@@ -2390,7 +2390,7 @@
     </participant>
     <topic profile_name="topic32">
       <name>topic_32</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client66_server1">
       <rtps>
@@ -2438,7 +2438,7 @@
     </participant>
     <topic profile_name="topic33">
       <name>topic_33</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client68_server1">
       <rtps>
@@ -2486,7 +2486,7 @@
     </participant>
     <topic profile_name="topic34">
       <name>topic_34</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client70_server1">
       <rtps>
@@ -2534,7 +2534,7 @@
     </participant>
     <topic profile_name="topic35">
       <name>topic_35</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client72_server1">
       <rtps>
@@ -2582,7 +2582,7 @@
     </participant>
     <topic profile_name="topic36">
       <name>topic_36</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client74_server1">
       <rtps>
@@ -2630,7 +2630,7 @@
     </participant>
     <topic profile_name="topic37">
       <name>topic_37</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client76_server1">
       <rtps>
@@ -2678,7 +2678,7 @@
     </participant>
     <topic profile_name="topic38">
       <name>topic_38</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client78_server1">
       <rtps>
@@ -2726,7 +2726,7 @@
     </participant>
     <topic profile_name="topic39">
       <name>topic_39</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client80_server1">
       <rtps>
@@ -2774,7 +2774,7 @@
     </participant>
     <topic profile_name="topic40">
       <name>topic_40</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client82_server1">
       <rtps>
@@ -2822,7 +2822,7 @@
     </participant>
     <topic profile_name="topic41">
       <name>topic_41</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client84_server1">
       <rtps>
@@ -2870,7 +2870,7 @@
     </participant>
     <topic profile_name="topic42">
       <name>topic_42</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client86_server1">
       <rtps>
@@ -2918,7 +2918,7 @@
     </participant>
     <topic profile_name="topic43">
       <name>topic_43</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client88_server1">
       <rtps>
@@ -2966,7 +2966,7 @@
     </participant>
     <topic profile_name="topic44">
       <name>topic_44</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client90_server1">
       <rtps>
@@ -3014,7 +3014,7 @@
     </participant>
     <topic profile_name="topic45">
       <name>topic_45</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client92_server1">
       <rtps>
@@ -3062,7 +3062,7 @@
     </participant>
     <topic profile_name="topic46">
       <name>topic_46</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client94_server1">
       <rtps>
@@ -3110,7 +3110,7 @@
     </participant>
     <topic profile_name="topic47">
       <name>topic_47</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client96_server1">
       <rtps>
@@ -3158,7 +3158,7 @@
     </participant>
     <topic profile_name="topic48">
       <name>topic_48</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client98_server1">
       <rtps>
@@ -3206,7 +3206,7 @@
     </participant>
     <topic profile_name="topic49">
       <name>topic_49</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client100_server1">
       <rtps>
@@ -3254,7 +3254,7 @@
     </participant>
     <topic profile_name="topic50">
       <name>topic_50</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client102_server1">
       <rtps>
@@ -3302,7 +3302,7 @@
     </participant>
     <topic profile_name="topic51">
       <name>topic_51</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client104_server1">
       <rtps>
@@ -3350,7 +3350,7 @@
     </participant>
     <topic profile_name="topic52">
       <name>topic_52</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client106_server1">
       <rtps>
@@ -3398,7 +3398,7 @@
     </participant>
     <topic profile_name="topic53">
       <name>topic_53</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client108_server1">
       <rtps>
@@ -3446,7 +3446,7 @@
     </participant>
     <topic profile_name="topic54">
       <name>topic_54</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client110_server1">
       <rtps>
@@ -3494,7 +3494,7 @@
     </participant>
     <topic profile_name="topic55">
       <name>topic_55</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client112_server1">
       <rtps>
@@ -3542,7 +3542,7 @@
     </participant>
     <topic profile_name="topic56">
       <name>topic_56</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client114_server1">
       <rtps>
@@ -3590,7 +3590,7 @@
     </participant>
     <topic profile_name="topic57">
       <name>topic_57</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client116_server1">
       <rtps>
@@ -3638,7 +3638,7 @@
     </participant>
     <topic profile_name="topic58">
       <name>topic_58</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client118_server1">
       <rtps>
@@ -3686,7 +3686,7 @@
     </participant>
     <topic profile_name="topic59">
       <name>topic_59</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client120_server1">
       <rtps>
@@ -3734,7 +3734,7 @@
     </participant>
     <topic profile_name="topic60">
       <name>topic_60</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client122_server1">
       <rtps>
@@ -3782,7 +3782,7 @@
     </participant>
     <topic profile_name="topic61">
       <name>topic_61</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client124_server1">
       <rtps>
@@ -3830,7 +3830,7 @@
     </participant>
     <topic profile_name="topic62">
       <name>topic_62</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client126_server1">
       <rtps>
@@ -3878,7 +3878,7 @@
     </participant>
     <topic profile_name="topic63">
       <name>topic_63</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client128_server1">
       <rtps>
@@ -3926,7 +3926,7 @@
     </participant>
     <topic profile_name="topic64">
       <name>topic_64</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client130_server1">
       <rtps>
@@ -3974,7 +3974,7 @@
     </participant>
     <topic profile_name="topic65">
       <name>topic_65</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client132_server1">
       <rtps>
@@ -4022,7 +4022,7 @@
     </participant>
     <topic profile_name="topic66">
       <name>topic_66</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client134_server1">
       <rtps>
@@ -4070,7 +4070,7 @@
     </participant>
     <topic profile_name="topic67">
       <name>topic_67</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client136_server1">
       <rtps>
@@ -4118,7 +4118,7 @@
     </participant>
     <topic profile_name="topic68">
       <name>topic_68</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client138_server1">
       <rtps>
@@ -4166,7 +4166,7 @@
     </participant>
     <topic profile_name="topic69">
       <name>topic_69</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client140_server1">
       <rtps>
@@ -4214,7 +4214,7 @@
     </participant>
     <topic profile_name="topic70">
       <name>topic_70</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client142_server1">
       <rtps>
@@ -4262,7 +4262,7 @@
     </participant>
     <topic profile_name="topic71">
       <name>topic_71</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client144_server1">
       <rtps>
@@ -4310,7 +4310,7 @@
     </participant>
     <topic profile_name="topic72">
       <name>topic_72</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client146_server1">
       <rtps>
@@ -4358,7 +4358,7 @@
     </participant>
     <topic profile_name="topic73">
       <name>topic_73</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client148_server1">
       <rtps>
@@ -4406,7 +4406,7 @@
     </participant>
     <topic profile_name="topic74">
       <name>topic_74</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client150_server1">
       <rtps>
@@ -4454,7 +4454,7 @@
     </participant>
     <topic profile_name="topic75">
       <name>topic_75</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client152_server1">
       <rtps>
@@ -4502,7 +4502,7 @@
     </participant>
     <topic profile_name="topic76">
       <name>topic_76</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client154_server1">
       <rtps>
@@ -4550,7 +4550,7 @@
     </participant>
     <topic profile_name="topic77">
       <name>topic_77</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client156_server1">
       <rtps>
@@ -4598,7 +4598,7 @@
     </participant>
     <topic profile_name="topic78">
       <name>topic_78</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client158_server1">
       <rtps>
@@ -4646,7 +4646,7 @@
     </participant>
     <topic profile_name="topic79">
       <name>topic_79</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client160_server1">
       <rtps>
@@ -4694,7 +4694,7 @@
     </participant>
     <topic profile_name="topic80">
       <name>topic_80</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client162_server1">
       <rtps>
@@ -4742,7 +4742,7 @@
     </participant>
     <topic profile_name="topic81">
       <name>topic_81</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client164_server1">
       <rtps>
@@ -4790,7 +4790,7 @@
     </participant>
     <topic profile_name="topic82">
       <name>topic_82</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client166_server1">
       <rtps>
@@ -4838,7 +4838,7 @@
     </participant>
     <topic profile_name="topic83">
       <name>topic_83</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client168_server1">
       <rtps>
@@ -4886,7 +4886,7 @@
     </participant>
     <topic profile_name="topic84">
       <name>topic_84</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client170_server1">
       <rtps>
@@ -4934,7 +4934,7 @@
     </participant>
     <topic profile_name="topic85">
       <name>topic_85</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client172_server1">
       <rtps>
@@ -4982,7 +4982,7 @@
     </participant>
     <topic profile_name="topic86">
       <name>topic_86</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client174_server1">
       <rtps>
@@ -5030,7 +5030,7 @@
     </participant>
     <topic profile_name="topic87">
       <name>topic_87</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client176_server1">
       <rtps>
@@ -5078,7 +5078,7 @@
     </participant>
     <topic profile_name="topic88">
       <name>topic_88</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client178_server1">
       <rtps>
@@ -5126,7 +5126,7 @@
     </participant>
     <topic profile_name="topic89">
       <name>topic_89</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client180_server1">
       <rtps>
@@ -5174,7 +5174,7 @@
     </participant>
     <topic profile_name="topic90">
       <name>topic_90</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client182_server1">
       <rtps>
@@ -5222,7 +5222,7 @@
     </participant>
     <topic profile_name="topic91">
       <name>topic_91</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client184_server1">
       <rtps>
@@ -5270,7 +5270,7 @@
     </participant>
     <topic profile_name="topic92">
       <name>topic_92</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client186_server1">
       <rtps>
@@ -5318,7 +5318,7 @@
     </participant>
     <topic profile_name="topic93">
       <name>topic_93</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client188_server1">
       <rtps>
@@ -5366,7 +5366,7 @@
     </participant>
     <topic profile_name="topic94">
       <name>topic_94</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client190_server1">
       <rtps>
@@ -5414,7 +5414,7 @@
     </participant>
     <topic profile_name="topic95">
       <name>topic_95</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client192_server1">
       <rtps>
@@ -5462,7 +5462,7 @@
     </participant>
     <topic profile_name="topic96">
       <name>topic_96</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client194_server1">
       <rtps>
@@ -5510,7 +5510,7 @@
     </participant>
     <topic profile_name="topic97">
       <name>topic_97</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client196_server1">
       <rtps>
@@ -5558,7 +5558,7 @@
     </participant>
     <topic profile_name="topic98">
       <name>topic_98</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client198_server1">
       <rtps>
@@ -5606,7 +5606,7 @@
     </participant>
     <topic profile_name="topic99">
       <name>topic_99</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client200_server1">
       <rtps>
@@ -5654,7 +5654,7 @@
     </participant>
     <topic profile_name="topic100">
       <name>topic_100</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client202_server1">
       <rtps>
@@ -5702,7 +5702,7 @@
     </participant>
     <topic profile_name="topic101">
       <name>topic_101</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client204_server1">
       <rtps>
@@ -5750,7 +5750,7 @@
     </participant>
     <topic profile_name="topic102">
       <name>topic_102</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client206_server1">
       <rtps>
@@ -5798,7 +5798,7 @@
     </participant>
     <topic profile_name="topic103">
       <name>topic_103</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client208_server1">
       <rtps>
@@ -5846,7 +5846,7 @@
     </participant>
     <topic profile_name="topic104">
       <name>topic_104</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client210_server1">
       <rtps>
@@ -5894,7 +5894,7 @@
     </participant>
     <topic profile_name="topic105">
       <name>topic_105</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client212_server1">
       <rtps>
@@ -5942,7 +5942,7 @@
     </participant>
     <topic profile_name="topic106">
       <name>topic_106</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client214_server1">
       <rtps>
@@ -5990,7 +5990,7 @@
     </participant>
     <topic profile_name="topic107">
       <name>topic_107</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client216_server1">
       <rtps>
@@ -6038,7 +6038,7 @@
     </participant>
     <topic profile_name="topic108">
       <name>topic_108</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client218_server1">
       <rtps>
@@ -6086,7 +6086,7 @@
     </participant>
     <topic profile_name="topic109">
       <name>topic_109</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client220_server1">
       <rtps>
@@ -6134,7 +6134,7 @@
     </participant>
     <topic profile_name="topic110">
       <name>topic_110</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client222_server1">
       <rtps>
@@ -6182,7 +6182,7 @@
     </participant>
     <topic profile_name="topic111">
       <name>topic_111</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client224_server1">
       <rtps>
@@ -6230,7 +6230,7 @@
     </participant>
     <topic profile_name="topic112">
       <name>topic_112</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client226_server1">
       <rtps>
@@ -6278,7 +6278,7 @@
     </participant>
     <topic profile_name="topic113">
       <name>topic_113</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client228_server1">
       <rtps>
@@ -6326,7 +6326,7 @@
     </participant>
     <topic profile_name="topic114">
       <name>topic_114</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client230_server1">
       <rtps>
@@ -6374,7 +6374,7 @@
     </participant>
     <topic profile_name="topic115">
       <name>topic_115</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client232_server1">
       <rtps>
@@ -6422,7 +6422,7 @@
     </participant>
     <topic profile_name="topic116">
       <name>topic_116</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client234_server1">
       <rtps>
@@ -6470,7 +6470,7 @@
     </participant>
     <topic profile_name="topic117">
       <name>topic_117</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client236_server1">
       <rtps>
@@ -6518,7 +6518,7 @@
     </participant>
     <topic profile_name="topic118">
       <name>topic_118</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client238_server1">
       <rtps>
@@ -6566,7 +6566,7 @@
     </participant>
     <topic profile_name="topic119">
       <name>topic_119</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client240_server1">
       <rtps>
@@ -6614,7 +6614,7 @@
     </participant>
     <topic profile_name="topic120">
       <name>topic_120</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client242_server1">
       <rtps>
@@ -6662,7 +6662,7 @@
     </participant>
     <topic profile_name="topic121">
       <name>topic_121</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client244_server1">
       <rtps>
@@ -6710,7 +6710,7 @@
     </participant>
     <topic profile_name="topic122">
       <name>topic_122</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client246_server1">
       <rtps>
@@ -6758,7 +6758,7 @@
     </participant>
     <topic profile_name="topic123">
       <name>topic_123</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client248_server1">
       <rtps>
@@ -6806,7 +6806,7 @@
     </participant>
     <topic profile_name="topic124">
       <name>topic_124</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client250_server1">
       <rtps>
@@ -6854,7 +6854,7 @@
     </participant>
     <topic profile_name="topic125">
       <name>topic_125</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client252_server1">
       <rtps>
@@ -6902,7 +6902,7 @@
     </participant>
     <topic profile_name="topic126">
       <name>topic_126</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
     <participant profile_name="UDP_client254_server1">
       <rtps>
@@ -6950,7 +6950,7 @@
     </participant>
     <topic profile_name="topic127">
       <name>topic_127</name>
-      <dataType>sample_type_1</dataType>
+      <dataType>HelloWorld</dataType>
     </topic>
   </profiles>
 </DS>

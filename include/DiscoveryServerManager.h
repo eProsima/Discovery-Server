@@ -31,7 +31,7 @@
 
 #include <fastrtps/xmlparser/XMLParser.h>
 
-#include "DI.h"
+#include "DiscoveryItem.h"
 
 using namespace eprosima::fastrtps;
 using namespace eprosima::fastdds;
@@ -96,7 +96,6 @@ class DiscoveryServerManager
     typedef std::map<GUID_t, DomainParticipant*> participant_map;
     typedef std::map<GUID_t, DataReader*> data_reader_map;
     typedef std::map<GUID_t, DataWriter*> data_writer_map;
-    typedef std::map<std::string, types::DynamicPubSubType*> type_map;
     typedef std::map<GUID_t, std::pair<LocatorList_t, LocatorList_t>> serverLocator_map;  // multi, unicast locator list
     typedef std::vector<LateJoinerData*> event_list;
     typedef std::vector<Snapshot> snapshots_list;
@@ -170,9 +169,6 @@ class DiscoveryServerManager
             const std::string& file);
     void saveSnapshots(
             const std::string& file) const;
-
-    // type handling
-    type_map loaded_types;
 
     // File where to save snapshots
     std::string snapshots_output_file;
@@ -285,11 +281,6 @@ public:
             GUID_t& child);
     GUID_t getParentGUID(
             GUID_t& child);
-
-    types::DynamicPubSubType* getType(
-            std::string& name);
-    types::DynamicPubSubType* setType(
-            std::string& name);
 
     template<class ReaderWriter>
     void getPubSubEntityFromParticipantGuid(

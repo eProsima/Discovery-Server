@@ -226,22 +226,13 @@
 
         <topic profile_name="topic1">
             <name>topic_1</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic2">
             <name>topic_2</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
-
-        <types>
-            <type>
-              <struct name="sample_type_1">
-                <member name="index" type="uint32" />
-                <member name="message" type="string" />
-              </struct>
-            </type>
-        </types>
 
      </profiles>
 </DS>
