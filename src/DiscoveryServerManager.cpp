@@ -1431,18 +1431,18 @@ void DiscoveryServerManager::loadSubscriber(
     // default topic is the static HelloWorld one
     const char* profile_name = sub->Attribute(DSxmlparser::PROFILE_NAME);
 
-    SubscriberAttributes* subatts = new SubscriberAttributes();
+    SubscriberAttributes subatts;
 
     if (profile_name == nullptr)
     {
         // get default subscriber attributes
-        xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(*subatts);
+        xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(subatts);
     }
     else
     {
         // try load from profile
         if (xmlparser::XMLP_ret::XML_OK !=
-                xmlparser::XMLProfileManager::fillSubscriberAttributes(std::string(profile_name), *subatts))
+                xmlparser::XMLProfileManager::fillSubscriberAttributes(std::string(profile_name), subatts))
         {
             LOG_ERROR("DiscoveryServerManager::loadSubscriber couldn't load profile " << profile_name);
             return;
@@ -1455,7 +1455,7 @@ void DiscoveryServerManager::loadSubscriber(
     if (topic_name != nullptr)
     {
         if (xmlparser::XMLP_ret::XML_OK !=
-                xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), subatts->topic))
+                xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), subatts.topic))
         {
             LOG_ERROR("DiscoveryServerManager::loadSubscriber couldn't load topic profile ");
             return;
@@ -1482,8 +1482,8 @@ void DiscoveryServerManager::loadSubscriber(
         endpoint_profile = std::string(profile_name);
     }
 
-    DelayedEndpointCreation<DataReader> event(creation_time, subatts->topic.getTopicName().to_string(),
-            subatts->topic.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE,
+    DelayedEndpointCreation<DataReader> event(creation_time, subatts.topic.getTopicName().to_string(),
+            subatts.topic.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE,
             participant_creation_event);
 
     if (creation_time == getTime())
@@ -1553,18 +1553,18 @@ void DiscoveryServerManager::loadPublisher(
     // default topic is the static HelloWorld one
     const char* profile_name = sub->Attribute(DSxmlparser::PROFILE_NAME);
 
-    PublisherAttributes* pubatts = new PublisherAttributes();
+    PublisherAttributes pubatts;
 
     if (profile_name == nullptr)
     {
         // get default subscriber attributes
-        xmlparser::XMLProfileManager::getDefaultPublisherAttributes(*pubatts);
+        xmlparser::XMLProfileManager::getDefaultPublisherAttributes(pubatts);
     }
     else
     {
         // try load from profile
         if (xmlparser::XMLP_ret::XML_OK !=
-                xmlparser::XMLProfileManager::fillPublisherAttributes(std::string(profile_name), *pubatts))
+                xmlparser::XMLProfileManager::fillPublisherAttributes(std::string(profile_name), pubatts))
         {
             LOG_ERROR("DiscoveryServerManager::loadPublisher couldn't load profile " << profile_name);
             return;
@@ -1577,7 +1577,7 @@ void DiscoveryServerManager::loadPublisher(
     if (topic_name != nullptr)
     {
         if (xmlparser::XMLP_ret::XML_OK !=
-                xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), pubatts->topic))
+                xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), pubatts.topic))
         {
             LOG_ERROR("DiscoveryServerManager::loadPublisher couldn't load topic profile ");
             return;
@@ -1604,8 +1604,8 @@ void DiscoveryServerManager::loadPublisher(
         endpoint_profile = std::string(profile_name);
     }
 
-    DelayedEndpointCreation<DataWriter> event(creation_time, pubatts->topic.getTopicName().to_string(),
-            pubatts->topic.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE,
+    DelayedEndpointCreation<DataWriter> event(creation_time, pubatts.topic.getTopicName().to_string(),
+            pubatts.topic.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE,
             participant_creation_event);
 
     if (creation_time == getTime())
