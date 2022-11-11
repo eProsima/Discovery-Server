@@ -311,20 +311,20 @@ set(${PROJECT_NAME}_header_files
         # application sources
         include/version/config.h
         include/log/DSLog.h
-        include/DSManager.h
+        include/DiscoveryServerManager.h
         # library sources
-        include/DI.h
-        include/LJ.h
+        include/DiscoveryItem.h
+        include/LateJoiner.h
         include/IDs.h
     )
 
 set(${PROJECT_NAME}_source_files
         #application sources
         src/main.cpp
-        src/DSManager.cpp
+        src/DiscoveryServerManager.cpp
         #library sources
-        src/DI.cpp
-        src/LJ.cpp
+        src/DiscoveryItem.cpp
+        src/LateJoiner.cpp
     )
 
 # Executable

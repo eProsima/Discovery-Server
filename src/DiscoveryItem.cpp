@@ -22,7 +22,7 @@
 
 #include <tinyxml2.h>
 
-#include "DI.h"
+#include "DiscoveryItem.h"
 #include "IDs.h"
 #include "log/DSLog.h"
 
@@ -326,8 +326,8 @@ ParticipantDiscoveryDatabase::smart_iterator ParticipantDiscoveryDatabase::smart
     return tmp;
 }
 
-// acceptable snapshot missalignment in ms
-std::chrono::milliseconds Snapshot::aceptable_offset_ = std::chrono::milliseconds(400);
+// acceptable snapshot misalignment in ms
+std::chrono::milliseconds Snapshot::acceptable_offset_ = std::chrono::milliseconds(400);
 
 // Time conversion auxiliary
 std::chrono::system_clock::time_point Snapshot::_system_clock(std::chrono::system_clock::now());
@@ -357,7 +357,7 @@ std::string Snapshot::getTimeStamp(
 
 // DiscoveryItemDatabase methods
 
-// livetime of the return objects is not guaranteed, do not store
+// Lifetime of the return objects is not guaranteed, do not store
 std::vector<const ParticipantDiscoveryItem*> DiscoveryItemDatabase::FindParticipant(
         const GUID_t& ptid) const
 {
@@ -1142,8 +1142,8 @@ Snapshot& Snapshot::operator +=(
     std::chrono::milliseconds offset =
             std::chrono::duration_cast<std::chrono::milliseconds>(_time - sh._time);
 
-    // if( abs(offset) > Snapshot::aceptable_offset_ ) // uses abs(duration< ...) which is a C++17 hack
-    if ( abs(offset.count()) > Snapshot::aceptable_offset_.count())
+    // if( abs(offset) > Snapshot::acceptable_offset_ ) // uses abs(duration< ...) which is a C++17 hack
+    if ( abs(offset.count()) > Snapshot::acceptable_offset_.count())
     {
         LOG_ERROR("Watch out Snapshot sync. They are " << abs(offset.count()) << " ms away.");
     }

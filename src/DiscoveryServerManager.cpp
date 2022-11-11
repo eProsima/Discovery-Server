@@ -24,9 +24,9 @@
 #include <fastdds/rtps/transport/TCPv4TransportDescriptor.h>
 #include <fastdds/rtps/transport/TCPv6TransportDescriptor.h>
 
-#include "DSManager.h"
+#include "DiscoveryServerManager.h"
 #include "IDs.h"
-#include "LJ.h"
+#include "LateJoiner.h"
 #include "log/DSLog.h"
 
 using namespace eprosima::fastrtps;
@@ -111,16 +111,6 @@ DiscoveryServerManager::DiscoveryServerManager(
             if (profiles != nullptr)
             {
                 loadProfiles(profiles);
-            }
-
-            // Types parsing
-            tinyxml2::XMLElement* types = child->FirstChildElement(DSxmlparser::TYPES);
-            if (types != nullptr)
-            {
-                if (xmlparser::XMLP_ret::XML_OK != xmlparser::XMLProfileManager::loadXMLDynamicTypes(*types))
-                {
-                    LOG_INFO("No dynamic type information loaded.");
-                }
             }
 
             // Server processing requires a two pass analysis
@@ -632,43 +622,6 @@ DataWriter* DiscoveryServerManager::removePublisher(
     }
 
     return ret;
-}
-
-types::DynamicPubSubType* DiscoveryServerManager::getType(
-        std::string& name)
-{
-    std::lock_guard<std::recursive_mutex> lock(management_mutex);
-
-    type_map::iterator it = loaded_types.find(name);
-    if (it != loaded_types.end())
-    {
-        return it->second;
-    }
-
-    return nullptr;
-}
-
-types::DynamicPubSubType* DiscoveryServerManager::setType(
-        std::string& type_name)
-{
-    std::lock_guard<std::recursive_mutex> lock(management_mutex);
-
-    // Create dynamic type
-    types::DynamicPubSubType*& dynamic_type = loaded_types[type_name];
-
-    if (dynamic_type == nullptr)
-    {
-        dynamic_type = xmlparser::XMLProfileManager::CreateDynamicPubSubType(type_name);
-        if (dynamic_type == nullptr)
-        {
-            loaded_types.erase(type_name);
-
-            LOG_ERROR("DiscoveryServerManager::setType couldn't create type " << type_name);
-            return nullptr;
-        }
-    }
-
-    return dynamic_type;
 }
 
 template<>

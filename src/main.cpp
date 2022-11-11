@@ -20,7 +20,7 @@
 #endif // if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 1
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 
-#include "DSManager.h"
+#include "DiscoveryServerManager.h"
 #include "arguments.h"
 
 using namespace eprosima;

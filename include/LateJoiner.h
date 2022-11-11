@@ -19,14 +19,13 @@
 #include <string>
 #include <thread>
 
-#include <fastrtps/types/DynamicPubSubType.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
 #include <fastdds/rtps/common/Guid.h>
 
-#include "DSManager.h"
+#include "DiscoveryServerManager.h"
 #include "log/DSLog.h"
 #include "../resources/static_types/HelloWorldPubSubTypes.h"
 
@@ -217,7 +216,7 @@ template<class ReaderWriter> class DelayedEndpointDestruction;
 
 template<class ReaderWriter>
 class DelayedEndpointCreation
-    : public LateJoinerData // Delayed Enpoint Creation
+    : public LateJoinerData // Delayed Endpoint Creation
 {
     std::string topic_name;
     std::string type_name;
@@ -371,16 +370,13 @@ void DelayedEndpointCreation<ReaderWriter>::operator ()(
     Topic* topic;
 
     // First we must register the type in the associated participant
+    // Always register HelloWorld type
+    TypeSupport hello_world_type_support(new HelloWorldPubSubType());
+    hello_world_type_support.register_type(part);
+
+    // If the topic is not defined, use builtin default topic (HelloWorld)
     if (type_name == "UNDEF")
     {
-
-        // assure the participant has default type registered
-        if (part->find_type(DiscoveryServerManager::builtin_defaultTopic.topicDataType.c_str()).empty())
-        {
-            TypeSupport hello_world_type_support(new HelloWorldPubSubType());
-            hello_world_type_support.register_type(part);
-        }
-
         topic = manager.getParticipantTopicByName(part,
                         DiscoveryServerManager::builtin_defaultTopic.getTopicName().to_string());
         if ( nullptr == topic)
@@ -393,23 +389,6 @@ void DelayedEndpointCreation<ReaderWriter>::operator ()(
     }
     else
     {
-
-        if (part->find_type(type_name).empty())
-        {
-            eprosima::fastrtps::types::DynamicPubSubType* dynamic_type = manager.setType(type_name);
-
-            if (dynamic_type)
-            {
-
-                eprosima::fastrtps::types::DynamicType_ptr dyn_type =
-                        eprosima::fastrtps::xmlparser::XMLProfileManager::getDynamicTypeByName(
-                    type_name)->build();
-
-                TypeSupport dynamic_type_support(dyn_type);
-                dynamic_type_support.register_type(part);
-            }
-        }
-
         topic = manager.getParticipantTopicByName(part, topic_name);
         if ( nullptr == topic)
         {

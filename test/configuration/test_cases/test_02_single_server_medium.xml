@@ -1283,112 +1283,103 @@
 
         <topic profile_name="topic1">
             <name>topic_1</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic2">
             <name>topic_2</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic3">
             <name>topic_3</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic4">
             <name>topic_4</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic5">
             <name>topic_5</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic6">
             <name>topic_6</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic7">
             <name>topic_7</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic8">
             <name>topic_8</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic9">
             <name>topic_9</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic10">
             <name>topic_10</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic11">
             <name>topic_11</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic12">
             <name>topic_12</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic13">
             <name>topic_13</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic14">
             <name>topic_14</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic15">
             <name>topic_15</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic16">
             <name>topic_16</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic17">
             <name>topic_17</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic18">
             <name>topic_18</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic19">
             <name>topic_19</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
 
         <topic profile_name="topic20">
             <name>topic_20</name>
-            <dataType>sample_type_1</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
-
-        <types>
-            <type>
-              <struct name="sample_type_1">
-                <member name="index" type="uint32" />
-                <member name="message" type="string" />
-              </struct>
-            </type>
-        </types>
 
      </profiles>
 </DS>
