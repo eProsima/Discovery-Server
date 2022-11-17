@@ -1897,7 +1897,7 @@ void DiscoveryServerManager::on_subscriber_discovery(
     if (part_name.empty())
     {
         // if remote use prefix instead of name
-        part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
+        part_name = static_cast<std::ostringstream>(std::ostringstream() << partid).str();
     }
 
     switch (info.status)
@@ -1973,7 +1973,7 @@ void DiscoveryServerManager::on_publisher_discovery(
     if (part_name.empty())
     {
         // if remote use prefix instead of name
-        part_name = static_cast<std::ostringstream&>(std::ostringstream() << partid).str();
+        part_name = static_cast<std::ostringstream>(std::ostringstream() << partid).str();
     }
 
     switch (info.status)

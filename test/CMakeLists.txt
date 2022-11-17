@@ -96,6 +96,8 @@ list(APPEND TEST_LIST
 
         test_60_disconnection
 
+        test_70_single_server_many_topics
+
         test_99_tcp
     )
 

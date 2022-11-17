@@ -94,7 +94,8 @@ port.text = '03811'
 for index_participant in range(number_of_participants):
     participant = ET.SubElement(profiles,'participant')
     participant_name = 'client' + str(index_participant)
-    participant.attrib = {'profile_name': participant_name}
+    profile_name = 'UDP_' + participant_name + '_server1'
+    participant.attrib = {'profile_name': profile_name}
     rtps = ET.SubElement(participant,'rtps')
     prefix = ET.SubElement(rtps,'prefix')
     hex_client_number = "{:02x}".format(index_participant)
