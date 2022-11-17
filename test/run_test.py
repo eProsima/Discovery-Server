@@ -65,7 +65,7 @@ USAGE = ('python3 run_test.py -e <path/to/discovery-server/executable>'
 # Max default time to kill a process in case it gets stucked
 # This is done by ctest automatically, but this script could be
 # run independently of ctest
-MAX_TIME = 60*5
+MAX_TIME = 10000
 
 
 def parse_options():
