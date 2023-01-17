@@ -166,7 +166,8 @@ async def read_output(output, num_lines, index):
     while True:
         try:
             line = await asyncio.wait_for(output.readline(), timeout=None)
-        except asyncio.CancelledError:
+        except asyncio.CancelledError as e:
+            logger.debug(e)
             pass
         else:
             if line:
@@ -207,18 +208,21 @@ async def run_command(process_args, environment, timeout):
 
     try:
         await asyncio.wait_for(read_outputs(proc, num_lines), timeout)
-    except asyncio.TimeoutError:
+    except asyncio.TimeoutError as e:
+        logger.debug(e)
         pass
 
     try:
         proc.send_signal(signal.SIGINT)
         time.sleep(1)
-    except Exception:
+    except Exception as e:
+        logger.debug(e)
         pass
 
     try:
         proc.kill()
-    except Exception:
+    except Exception as e:
+        logger.debug(e)
         pass
 
     return (await proc.wait(), num_lines[1])
@@ -291,7 +295,8 @@ def execute_validate_thread_test(
     try:
         env_var = [(env['name'], env['value']) for env in
                    process_params['environment_variables']]
-    except KeyError:
+    except KeyError as e:
+        logger.debug(e)
         env_var = []
 
     # Check whether it must execute the DS tool or the fastdds tool
@@ -318,7 +323,8 @@ def execute_validate_thread_test(
             server_id = process_params['tool_config']['id']
             server_address = process_params['tool_config']['address']
             server_port = process_params['tool_config']['port']
-        except KeyError:
+        except KeyError as e:
+            logger.debug(e)
             pass
 
         result_file = 'servertool_' + str(server_id)
@@ -652,7 +658,8 @@ def create_tests(
                         if (params_file[test]['contrains'] and 'shm_size' in params_file[test]['contrains'] and
                                 not pass_shm_contrains()):
                             continue
-                    except KeyError:
+                    except KeyError as e:
+                        logger.debug(e)
                         pass
 
                 # Remove Databases if param <clear> set in test params in order
@@ -661,7 +668,8 @@ def create_tests(
                 try:
                     if params_file[test]['clear']:
                         clear_db(working_directory())
-                except KeyError:
+                except KeyError as e:
+                    logger.debug(e)
                     pass
 
                 test_id = '' + test_name

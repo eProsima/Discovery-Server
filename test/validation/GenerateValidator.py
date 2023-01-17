@@ -520,6 +520,7 @@ class GenerateValidator(validator.Validator):
     def __has_next(self, iterable):
         try:
             content = next(iterable)
-        except StopIteration:
+        except StopIteration as e:
+            self.logger.debug(e)
             return None
         return itertools.chain([content], iterable)

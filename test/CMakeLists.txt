@@ -149,6 +149,7 @@ foreach(TEST IN LISTS TEST_LIST)
         -f $<$<TARGET_EXISTS:fastdds::fast-discovery-server>:$<TARGET_FILE:fastdds::fast-discovery-server>>
         -t ${TEST}
         -s true
+        -d
         -i false) # Remove this argument to execute test with and without intraprocess
         # --force-remove # Add this argument to erase every file generated during test execution
     set_tests_properties(${TEST_NAME} PROPERTIES
@@ -170,6 +171,7 @@ foreach(TEST IN LISTS TEST_LIST)
         -f $<$<TARGET_EXISTS:fastdds::fast-discovery-server>:$<TARGET_FILE:fastdds::fast-discovery-server>>
         -t ${TEST}
         -s false
+        -d
         -i false) # Remove this argument to execute test with and without intraprocess
         # --force-remove # Add this argument to erase every file generated during test execution
     set_tests_properties(${TEST_NAME} PROPERTIES

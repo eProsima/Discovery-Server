@@ -122,38 +122,15 @@
             </rtps>
         </participant>
 
-        <topic profile_name="topic_1">
+        <topic profile_name="topic1">
             <name>topic_1</name>
             <dataType>HelloWorld</dataType>
         </topic>
 
-        <topic profile_name="topic_2">
+        <topic profile_name="topic2">
             <name>topic_2</name>
-            <dataType>sample_type_2</dataType>
+            <dataType>HelloWorld</dataType>
         </topic>
+
     </profiles>
-
-    <types>
-        <type>
-            <struct name="HelloWorld">
-                <member name="index" type="uint32" />
-                <member name="message" type="string" />
-            </struct>
-        </type>
-
-        <type>
-            <union name="sample_type_2">
-                <discriminator type="byte" />
-                <case>
-                    <caseDiscriminator value="0" />
-                    <member name="index" type="uint32" />
-                </case>
-                <case>
-                    <caseDiscriminator value="1" />
-                    <member name="message" type="string" />
-                </case>
-            </union>
-        </type>
-    </types>
-
 </DS>
