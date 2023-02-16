@@ -180,6 +180,29 @@ foreach(TEST IN LISTS TEST_LIST)
         set_property(TEST ${TEST_NAME} PROPERTY LABELS xfail)
     endif()
 
+    unset(TEST_NAME)
+    set(TEST_NAME "discovery_server_test.${TEST}.SECURITY")
+    list(APPEND TEST_CASE_LIST ${TEST_NAME})
+    # Test without shared memory
+    add_test(NAME ${TEST_NAME}
+        COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
+        -e $<TARGET_FILE:${PROJECT_NAME}>
+        -p ${TESTS_PARAMS}
+        -f $<$<TARGET_EXISTS:fastdds::fast-discovery-server>:$<TARGET_FILE:fastdds::fast-discovery-server>>
+        -t ${TEST}
+        -s false
+        -i false
+        -S true
+        -C ${PROJECT_SOURCE_DIR}/test/certs)
+
+    set_tests_properties(${TEST_NAME} PROPERTIES
+        REQUIRED_FILES ${RUN_TEST}
+        REQUIRED_FILES ${TESTS_PARAMS})
+
+    if("${TEST}" IN_LIST FAIL_TEST_CASES)
+        set_property(TEST ${TEST_NAME} PROPERTY LABELS xfail)
+    endif()
+
 endforeach()
 
 # Windows requires an special treatment of environmental variables
