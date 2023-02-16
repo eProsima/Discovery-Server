@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<properties xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" >
+    <!-- Activate Auth:PKI-DH plugin -->
+    <property>
+        <name>dds.sec.auth.plugin</name>
+        <value>builtin.PKI-DH</value>
+    </property>
+    <!-- Configure Auth:PKI-DH plugin -->
+    <property>
+        <name>dds.sec.auth.builtin.PKI-DH.identity_ca</name>
+        <value>file://<CERTS_RELATIVE_PATH>/maincacert.pem</value>
+    </property>
+    <property>
+        <name>dds.sec.auth.builtin.PKI-DH.identity_certificate</name>
+        <value>file://<CERTS_RELATIVE_PATH>/mainpubcert.pem</value>
+    </property>
+    <property>
+        <name>dds.sec.auth.builtin.PKI-DH.private_key</name>
+        <value>file://<CERTS_RELATIVE_PATH>/mainpubkey.pem</value>
+    </property>
+    <!-- Activate Access:Permissions plugin -->
+    <property>
+        <name>dds.sec.access.plugin</name>
+        <value>builtin.Access-Permissions</value>
+    </property>
+    <!-- Configure Access:Permissions plugin -->
+    <property>
+        <name>dds.sec.access.builtin.Access-Permissions.permissions_ca</name>
+        <value>file://<CERTS_RELATIVE_PATH>/maincacert.pem</value>
+    </property>
+    <property>
+        <name>dds.sec.access.builtin.Access-Permissions.governance</name>
+        <value>file://<CERTS_RELATIVE_PATH>/governance_all_enable.smime</value>
+    </property>
+    <property>
+        <name>dds.sec.access.builtin.Access-Permissions.permissions</name>
+        <value>file://<CERTS_RELATIVE_PATH>/permissions.smime</value>
+    </property>
+    <!-- Activate Crypto:AES-GCM-GMAC plugin -->
+    <property>
+        <name>dds.sec.crypto.plugin</name>
+        <value>builtin.AES-GCM-GMAC</value>
+    </property>
+</properties>
+
