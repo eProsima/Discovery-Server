@@ -49,6 +49,9 @@ const char* TYPES = "types";
 const char* PUBLISHER = "publisher";
 const char* SUBSCRIBER = "subscriber";
 const char* TOPIC = "topic";
+const char* PROPERTIES = "properties";
+const char* PROPERTY = "property";
+const char* VALUE = "value";
 } // namespace DSxmlparser
 } // namespace fastrtps
 } // namespace eprosima
@@ -60,6 +63,7 @@ const std::chrono::seconds DiscoveryServerManager::last_snapshot_delay_ = std::c
 
 DiscoveryServerManager::DiscoveryServerManager(
         const std::string& xml_file_path,
+        const std::string& props_file_path,
         const bool shared_memory_off)
     : no_callbacks(false)
     , auto_shutdown(true)
@@ -100,6 +104,35 @@ DiscoveryServerManager::DiscoveryServerManager(
 
         // try load the enable_prefix_validation attribute
         enable_prefix_validation = root->BoolAttribute(s_sPrefixValidation.c_str(), enable_prefix_validation);
+
+        //try load properties
+        if (!props_file_path.empty())
+        {
+            tinyxml2::XMLDocument props_doc;
+
+            if (tinyxml2::XMLError::XML_SUCCESS == props_doc.LoadFile(props_file_path.c_str()))
+            {
+                tinyxml2::XMLElement* root = props_doc.FirstChildElement(eprosima::fastrtps::DSxmlparser::PROPERTIES);
+                if (root != nullptr)
+                {
+                    if (!loadProperties(root))
+                    {
+                        LOG_ERROR("Error loading PropertiesPolicy from properties file");
+                        return;
+                    }
+                }
+                else
+                {
+                    LOG_ERROR("Error retrieving properties element from properties file");
+                    return;
+                }
+            }
+            else
+            {
+                LOG_ERROR("Could not load properties file");
+                return;
+            }
+        }
 
         for (auto child = doc.FirstChildElement(s_sDS.c_str());
                 child != nullptr; child = child->NextSiblingElement(s_sDS.c_str()))
@@ -713,6 +746,29 @@ void DiscoveryServerManager::loadProfiles(
     }
 }
 
+bool DiscoveryServerManager::loadProperties(tinyxml2::XMLElement* props_n)
+{
+    bool ret = true;
+    tinyxml2::XMLElement* prop = props_n->FirstChildElement(eprosima::fastrtps::DSxmlparser::PROPERTY);
+
+    for (;prop != nullptr; prop = prop->NextSiblingElement(eprosima::fastrtps::DSxmlparser::PROPERTY))
+    {
+        tinyxml2::XMLElement* name = prop->FirstChildElement(eprosima::fastrtps::DSxmlparser::NAME);
+        tinyxml2::XMLElement* value = prop->FirstChildElement(eprosima::fastrtps::DSxmlparser::VALUE);
+
+        if (nullptr != name && nullptr != value)
+        {
+            properties_.push_back({name->GetText(), value->GetText()});
+        }
+        else
+        {
+            ret = false;
+        }
+    }
+
+    return ret;
+}
+
 void DiscoveryServerManager::onTerminate()
 {
     {
@@ -955,6 +1011,15 @@ void DiscoveryServerManager::loadServer(
     DiscoverySettings& b = dpQOS.wire_protocol().builtin.discovery_config;
     (void)b;
     assert(b.discoveryProtocol == SERVER || b.discoveryProtocol == BACKUP);
+
+    // Extend Participant properties if applies
+    if (!properties_.empty())
+    {
+        for (auto& prop : properties_)
+        {
+            dpQOS.properties().properties().emplace_back(prop);
+        }
+    }
 
     // Create the participant or the associated events
     DelayedParticipantCreation event(creation_time, std::move(dpQOS), &DiscoveryServerManager::addServer);
@@ -1225,6 +1290,15 @@ void DiscoveryServerManager::loadClient(
         dpQOS.transport().user_transports.push_back(udp_transport);
     }
 
+    // Extend Participant properties if applies
+    if (!properties_.empty())
+    {
+        for (auto& prop : properties_)
+        {
+            dpQOS.properties().properties().emplace_back(prop);
+        }
+    }
+
     GUID_t guid(dpQOS.wire_protocol().prefix, c_EntityId_RTPSParticipant);
     DelayedParticipantDestruction* destruction_event = nullptr;
     DelayedParticipantCreation* creation_event = nullptr;
@@ -1328,6 +1402,15 @@ void DiscoveryServerManager::loadSimple(
     if (name != nullptr)
     {
         dpQOS.name() = name;
+    }
+
+    // Extend Participant properties if applies
+    if (!properties_.empty())
+    {
+        for (auto& prop : properties_)
+        {
+            dpQOS.properties().properties().emplace_back(prop);
+        }
     }
 
     GUID_t guid(dpQOS.wire_protocol().prefix, c_EntityId_RTPSParticipant);

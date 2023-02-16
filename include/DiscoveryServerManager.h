@@ -132,6 +132,9 @@ class DiscoveryServerManager
     // Snapshops container
     snapshots_list snapshots;
 
+    // Participant PropertiesPolicy
+    PropertySeq properties_;
+
     volatile bool no_callbacks;      // ongoing participant destruction
     bool auto_shutdown;         // close when event processing is finished?
     bool enable_prefix_validation; // allow multiple servers share the same prefix? (only for testing purposes)
@@ -170,6 +173,13 @@ class DiscoveryServerManager
     void saveSnapshots(
             const std::string& file) const;
 
+    /**
+    *   @brief: This method loads a set of properties into attributes
+    *   @param [in] props_n: element containig the XML properties
+    */
+    bool loadProperties(
+            tinyxml2::XMLElement* props_n);
+
     // File where to save snapshots
     std::string snapshots_output_file;
     // validation required
@@ -186,6 +196,7 @@ public:
 
     DiscoveryServerManager(
             const std::string& xml_file_path,
+            const std::string& props_file_path,
             const bool shared_memory_off);
 #if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 2
     FASTDDS_DEPRECATED_UNTIL(3, "eprosima::discovery_server::DiscoveryServerManager(const std::set<std::string>& xml_snapshot_files,"
