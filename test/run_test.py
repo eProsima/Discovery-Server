@@ -714,6 +714,8 @@ def create_tests(
 
                 if props_file is not None:
                     logger.info(f'Using properties of file <{props_file}>')
+                    for property in config_params['properties']:
+                        test_id += '.' + property
 
                 test_results &= execute_validate_test(
                         test_name,
