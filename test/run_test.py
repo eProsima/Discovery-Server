@@ -583,14 +583,18 @@ def get_configurations(config_params, intraprocess, shm, security):
 
     if security is not None:
         if os.path.isfile(config_params['properties']['SECURITY']):
-            props_file = open(config_params['properties']['SECURITY'], "r+")
-            data = props_file.read()
-            #Replace all occurrences of the required label
-            data = data.replace('<CERTS_RELATIVE_PATH>', args.certs_path)
-            props_file.seek(0)
-            props_file.write(data)
-            props_file.truncate()
-            props_file.close()
+            if os.path.exists(args.certs_path):
+                props_file = open(config_params['properties']['SECURITY'], "r+")
+                data = props_file.read()
+                #Replace all occurrences of the required label
+                data = data.replace('<CERTS_RELATIVE_PATH>', args.certs_path)
+                props_file.seek(0)
+                props_file.write(data)
+                props_file.truncate()
+                props_file.close()
+            else:
+                logger.error('Certs path not found at ' + args.certs_path)
+                exit(1)
         else:
             logger.error('Properties file not found at ' + config_params['properties']['SECURITY'])
             exit(1)
