@@ -762,6 +762,7 @@ bool DiscoveryServerManager::loadProperties(tinyxml2::XMLElement* props_n)
         }
         else
         {
+            LOG_ERROR("Missing name/value for property");
             ret = false;
         }
     }

@@ -582,14 +582,18 @@ def get_configurations(config_params, intraprocess, shm, security):
         flags = [f for f in flags if f[0] != 'SHM_OFF']
 
     if security is not None:
-        props_file = open(config_params['properties']['SECURITY'], "r+")
-        data = props_file.read()
-        #Replace all occurrences of the required label
-        data = data.replace('<CERTS_RELATIVE_PATH>', args.certs_path)
-        props_file.seek(0)
-        props_file.write(data)
-        props_file.truncate()
-        props_file.close()
+        if os.path.isfile(config_params['properties']['SECURITY']):
+            props_file = open(config_params['properties']['SECURITY'], "r+")
+            data = props_file.read()
+            #Replace all occurrences of the required label
+            data = data.replace('<CERTS_RELATIVE_PATH>', args.certs_path)
+            props_file.seek(0)
+            props_file.write(data)
+            props_file.truncate()
+            props_file.close()
+        else:
+            logger.error('Properties file not found at ' + config_params['properties']['SECURITY'])
+            exit(1)
 
     flags_combinatory = []
     for i in range(1, 1+len(flags)):

@@ -24,15 +24,6 @@
                     <metadata_protection_kind>ENCRYPT</metadata_protection_kind>
                     <data_protection_kind>ENCRYPT</data_protection_kind>
                 </topic_rule>
-                <topic_rule>
-                    <topic_expression>topic*</topic_expression>
-                    <enable_discovery_protection>true</enable_discovery_protection>
-                    <enable_liveliness_protection>true</enable_liveliness_protection>
-                    <enable_read_access_control>false</enable_read_access_control>
-                    <enable_write_access_control>false</enable_write_access_control>
-                    <metadata_protection_kind>ENCRYPT</metadata_protection_kind>
-                    <data_protection_kind>ENCRYPT</data_protection_kind>
-                </topic_rule>
             </topic_access_rules>
         </domain_rule>
     </domain_access_rules>
