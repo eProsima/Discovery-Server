@@ -16,7 +16,7 @@
 # Project and Version information											  #
 ###############################################################################
 
-cmake_minimum_required(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.22)
 
 # Set CMAKE_BUILD_TYPE to Release by default if generator is single config.
 if(NOT GENERATOR_IS_MULTI_CONFIG AND NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)

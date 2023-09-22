@@ -12,11 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 2.8.12)
-
-if(NOT CMAKE_VERSION VERSION_LESS 3.0)
-    cmake_policy(SET CMP0048 NEW)
-endif()
+cmake_minimum_required(VERSION 3.22)
 
 project(HelloWorldExampleDS)
 
@@ -48,7 +44,7 @@ file(GLOB HELLOWORLD_EXAMPLE_HEADERS "*.h")
 
 add_executable(HelloWorldExampleDS ${HELLOWORLD_EXAMPLE_SOURCES_CXX} ${HELLOWORLD_EXAMPLE_SOURCES_CPP}
 	${HELLOWORLD_EXAMPLE_HEADERS} ${ALL_FAST_HEADERS})
-	
+
 target_link_libraries(HelloWorldExampleDS fastrtps fastcdr)
 
 # Properties that change bin names depending on current config.
@@ -57,5 +53,4 @@ set_target_properties(HelloWorldExampleDS PROPERTIES DEBUG_POSTFIX -d)
 
 install(TARGETS HelloWorldExampleDS
     RUNTIME DESTINATION examples/C++/HelloWorldExampleDS/${BIN_INSTALL_DIR})
-	
 
