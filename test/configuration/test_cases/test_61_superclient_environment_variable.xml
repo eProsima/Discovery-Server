@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
 
-    <!-- It checks the SUPER_CLIENT participant type knows every other participant with endpoints
-        and it does not know participants with endpoints -->
+    <!-- It checks if the SUPER_CLIENT participant type knows every other participant with endpoints
+        and it does not know participants without any endpoints -->
 
     <servers>
         <server name="server" profile_name="UDP server" />
@@ -30,7 +30,7 @@
         <client name="client5" profile_name="UDP_client5_server1" />
     </clients>
 
-    <snapshots file="./test_61_superclient_environment_variable.snapshot">
+    <snapshots file="./test_61_superclient_environment_variable.snapshot~">
         <snapshot time="2">test_61_superclient_environment_variable</snapshot>
     </snapshots>
 
