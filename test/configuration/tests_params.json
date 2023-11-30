@@ -2245,7 +2245,7 @@
                         },
                         {
                             "name": "ROS_SUPER_CLIENT",
-                            "value": true
+                            "value": "true"
                         }
                     ],
                     "validation":
