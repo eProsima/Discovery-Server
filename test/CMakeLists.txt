@@ -95,7 +95,7 @@ list(APPEND TEST_LIST
         test_45_trivial_client_reconnect
 
         test_60_disconnection
-
+        test_61_superclient_environment_variable
         test_99_tcp
     )
 
