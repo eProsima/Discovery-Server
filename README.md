@@ -265,7 +265,7 @@ To have the tool accessible in the terminal session it is necessary to source th
 -   Linux
     ```bash
     $ source <path/to/discovery-server-ws>/discovery-server-ws/install/setup.bash
-    $ discovery-server-X.X.X(d) config_file.xml
+    $ discovery-server-X.X.X(d) -c config_file.xml
     ```
 
 -   Windows

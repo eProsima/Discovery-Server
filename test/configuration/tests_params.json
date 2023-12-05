@@ -2230,6 +2230,46 @@
             }
         },
 
+        "test_61_superclient_environment_variable":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_61_superclient_environment_variable.xml",
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS_DISCOVERY_SERVER",
+                            "value": "127.0.0.1:01811"
+                        },
+                        {
+                            "name": "ROS_SUPER_CLIENT",
+                            "value": "true"
+                        }
+                    ],
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_61_superclient_environment_variable.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_61_superclient_environment_variable.snapshot"
+                        }
+                    }
+                }
+            }
+        },
 
         "test_99_tcp":
         {
