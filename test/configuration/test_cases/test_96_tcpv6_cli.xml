@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
+    <clients>
+        <client name="client1" profile_name="TCPv6_client_1" listening_port="0">
+            <subscriber topic="topic1"/>
+        </client>
+        <client name="client2" profile_name="TCPv6_client_2" listening_port="0">
+            <publisher topic="topic1"/>
+        </client>
+    </clients>
+
+    <snapshots file="./test_96_TCPv6_cli.snapshot">
+        <snapshot time="5">Knows all</snapshot>
+    </snapshots>
+
+    <profiles>
+
+        <transport_descriptors>
+            <transport_descriptor>
+                <transport_id>transport_client_1</transport_id>
+                <type>TCPv6</type>
+                <listening_ports>
+                    <port>0</port>
+                </listening_ports>
+            </transport_descriptor>
+            <transport_descriptor>
+                <transport_id>transport_client_2</transport_id>
+                <type>TCPv6</type>
+                <listening_ports>
+                    <port>0</port>
+                </listening_ports>
+            </transport_descriptor>
+        </transport_descriptors>
+
+        <participant profile_name="TCPv6_client_1" is_default_profile="true">
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.31.5f.73.31.5f.5f</prefix>
+                <useBuiltinTransports>false</useBuiltinTransports>
+                <userTransports>
+                    <transport_id>transport_client_1</transport_id>
+                </userTransports>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <tcpv6>
+                                            <address>::1</address>
+                                            <physical_port>42100</physical_port>
+                                            <port>42100</port>
+                                        </tcpv6>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="TCPv6_client_2" is_default_profile="true">
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.32.5f.73.31.5f.5f</prefix>
+                <useBuiltinTransports>false</useBuiltinTransports>
+                <userTransports>
+                    <transport_id>transport_client_2</transport_id>
+                </userTransports>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <RemoteServer prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <tcpv6>
+                                            <address>::1</address>
+                                            <physical_port>42100</physical_port>
+                                            <port>42100</port>
+                                        </tcpv6>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <topic profile_name="topic1">
+            <name>topic_1</name>
+            <dataType>HelloWorld</dataType>
+        </topic>
+
+    </profiles>
+
+</DS>

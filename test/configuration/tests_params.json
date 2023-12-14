@@ -891,8 +891,8 @@
                     "tool_config":
                     {
                         "id" : 0,
-                        "address": "127.0.0.1",
-                        "port": 23811
+                        "udp_address": "127.0.0.1",
+                        "udp_port": 23811
                     },
                     "validation":
                     {
@@ -1340,8 +1340,8 @@
                     "tool_config":
                     {
                         "id" : 0,
-                        "address": "127.0.0.1",
-                        "port": 35811
+                        "udp_address": "127.0.0.1",
+                        "udp_port": 35811
                     },
                     "validation":
                     {
@@ -1368,8 +1368,8 @@
                     "tool_config":
                     {
                         "id" : 1,
-                        "address": "127.0.0.1",
-                        "port": 35812
+                        "udp_address": "127.0.0.1",
+                        "udp_port": 35812
                     },
                     "validation":
                     {
@@ -1461,8 +1461,8 @@
                     "tool_config":
                     {
                         "id" : 0,
-                        "address": "localhost",
-                        "port": 37811
+                        "udp_address": "localhost",
+                        "udp_port": 37811
                     },
                     "validation":
                     {
@@ -2017,8 +2017,8 @@
                     "tool_config":
                     {
                         "id" : 0,
-                        "address": "127.0.0.1",
-                        "port": 44811
+                        "udp_address": "127.0.0.1",
+                        "udp_port": 44811
                     },
                     "validation":
                     {
@@ -2039,8 +2039,8 @@
                     "tool_config":
                     {
                         "id" : 0,
-                        "address": "127.0.0.1",
-                        "port": 44811
+                        "udp_address": "127.0.0.1",
+                        "udp_port": 44811
                     },
                     "validation":
                     {
@@ -2265,6 +2265,198 @@
                         "ground_truth_validation":
                         {
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_61_superclient_environment_variable.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_95_tcpv4_cli":
+        {
+            "description": [
+                "Test that Fast DDS CLI supports the creation of servers using TCPv4 transport"
+            ],
+
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_95_tcpv4_cli.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_95_tcpv4_cli.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_95_tcpv4_cli.snapshot"
+                        }
+                    }
+                },
+                "fastddstool":
+                {
+                    "kill_time": 6,
+                    "tool_config":
+                    {
+                        "id" : 0,
+                        "tcp_address": "127.0.0.1",
+                        "tcp_port": 42100
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_96_tcpv6_cli":
+        {
+            "description": [
+                "Test that Fast DDS CLI supports the creation of servers using TCPv6 transport"
+            ],
+
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_96_tcpv6_cli.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_96_tcpv6_cli.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_96_tcpv6_cli.snapshot"
+                        }
+                    }
+                },
+                "fastddstool":
+                {
+                    "kill_time": 6,
+                    "tool_config":
+                    {
+                        "id" : 0,
+                        "tcp_address": "::1",
+                        "tcp_port": 42100
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_97_tcpv4_env_var":
+        {
+            "description": [
+                "Test that TCPv4 transport is supported by the environment variable"
+            ],
+
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_97_tcpv4_env_var.xml",
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS_DISCOVERY_SERVER",
+                            "value": "TCPv4:[127.0.0.1]:42100"
+                        }
+                    ],
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_97_tcpv4_env_var.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_97_tcpv4_env_var.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_98_tcpv6_env_var":
+        {
+            "description": [
+                "Test that TCPv6 transport is supported by the environment variable"
+            ],
+
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_98_tcpv6_env_var.xml",
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS_DISCOVERY_SERVER",
+                            "value": "TCPv6:[::1]:42100"
+                        }
+                    ],
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_98_tcpv6_env_var.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_98_tcpv6_env_var.snapshot"
                         }
                     }
                 }

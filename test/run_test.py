@@ -305,8 +305,10 @@ def execute_validate_thread_test(
     elif 'tool_config' in process_params.keys():
         # fastdds tool
         server_id = 0
-        server_address = None
-        server_port = None
+        server_udp_address = None
+        server_udp_port = None
+        server_tcp_address = None
+        server_tcp_port = None
         if fds_path is None:
             logger.error('Non tool given and needed')
             result_list.append(False)
@@ -316,8 +318,10 @@ def execute_validate_thread_test(
             # Try to set args for fastdds tool
             # If any is missing could not be an error
             server_id = process_params['tool_config']['id']
-            server_address = process_params['tool_config']['address']
-            server_port = process_params['tool_config']['port']
+            server_udp_address = process_params['tool_config']['udp_address']
+            server_udp_port = process_params['tool_config']['udp_port']
+            server_tcp_port = process_params['tool_config']['tcp_address']
+            server_tcp_port = process_params['tool_config']['tcp_port']
         except KeyError:
             pass
 
@@ -357,12 +361,18 @@ def execute_validate_thread_test(
     else:
         # Fastdds tool
         process_args = [fds_path, '-i', str(server_id)]
-        if server_address is not None:
+        if server_udp_address is not None:
             process_args.append('-l')
-            process_args.append(str(server_address))
-        if server_port is not None:
+            process_args.append(str(server_udp_address))
+        if server_udp_port is not None:
             process_args.append('-p')
-            process_args.append(str(server_port))
+            process_args.append(str(server_udp_port))
+        if server_tcp_address is not None:
+            process_args.append('-t')
+            process_args.append(str(server_tcp_address))
+        if server_tcp_port is not None:
+            process_args.append('-q')
+            process_args.append(str(server_tcp_port))
 
     # Execute
     logger.debug(f'Executing process {process_id} in test {test_id} with '
