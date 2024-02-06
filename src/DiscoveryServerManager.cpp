@@ -35,7 +35,7 @@ using namespace eprosima::fastrtps::rtps;
 using namespace eprosima::fastdds::rtps;
 using namespace eprosima::discovery_server;
 
-// non exported from fast-RTPS (watch out they may be updated)
+// non exported from Fast-DDS (watch out they may be updated)
 namespace eprosima {
 namespace fastrtps {
 namespace DSxmlparser {
@@ -1036,12 +1036,12 @@ void DiscoveryServerManager::loadClient(
     }
 
     // we must assert that DiscoveryProtocol is CLIENT
-#if FASTRTPS_VERSION_MAJOR >= 2
+#if FASTDDS_VERSION_MAJOR >= 2
     if (dpQOS.wire_protocol().builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::CLIENT &&
             dpQOS.wire_protocol().builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::SUPER_CLIENT)
 #else
     if (atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::CLIENT)
-#endif // if FASTRTPS_VERSION_MAJOR >= 2
+#endif // if FASTDDS_VERSION_MAJOR >= 2
     {
         LOG_ERROR(
             "DiscoveryServerManager::loadClient try to create a client with an incompatible profile: " <<

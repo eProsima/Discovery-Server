@@ -21,8 +21,8 @@ if(NOT fastcdr_FOUND)
     find_package(fastcdr REQUIRED)
 endif()
 
-if(NOT fastrtps_FOUND)
-    find_package(fastrtps REQUIRED)
+if(NOT fastdds_FOUND)
+    find_package(fastdds REQUIRED)
 endif()
 
 # Set C++11
@@ -45,7 +45,7 @@ file(GLOB HELLOWORLD_EXAMPLE_HEADERS "*.h")
 add_executable(HelloWorldExampleDS ${HELLOWORLD_EXAMPLE_SOURCES_CXX} ${HELLOWORLD_EXAMPLE_SOURCES_CPP}
 	${HELLOWORLD_EXAMPLE_HEADERS} ${ALL_FAST_HEADERS})
 
-target_link_libraries(HelloWorldExampleDS fastrtps fastcdr)
+target_link_libraries(HelloWorldExampleDS fastdds fastcdr)
 
 # Properties that change bin names depending on current config.
 # This is convenient because on installation all bins share folder

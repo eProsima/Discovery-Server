@@ -187,11 +187,11 @@ public:
     DiscoveryServerManager(
             const std::string& xml_file_path,
             const bool shared_memory_off);
-#if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 2
+#if FASTDDS_VERSION_MAJOR >= 2 && FASTDDS_VERSION_MINOR >= 2
     FASTDDS_DEPRECATED_UNTIL(3, "eprosima::discovery_server::DiscoveryServerManager(const std::set<std::string>& xml_snapshot_files,"
             "const std::string & output_file)",
             "Old Discovery Server v1 constructor to validate.")
-#endif // if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 2
+#endif // if FASTDDS_VERSION_MAJOR >= 2 && FASTDDS_VERSION_MINOR >= 2
     DiscoveryServerManager(
             const std::set<std::string>& xml_snapshot_files,
             const std::string& output_file);

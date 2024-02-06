@@ -155,7 +155,7 @@ endif()
 
 find_package(fastcdr REQUIRED )
 # new DDS API is required
-find_package(fastrtps 2 REQUIRED)
+find_package(fastdds 2 REQUIRED)
 find_package(OpenSSL QUIET) # according to cmake docs on FindOpenSS is hinted define OPENSSL_ROOT_DIR
 
 #some tests require python
@@ -275,11 +275,11 @@ endif()
 # called in the current directory scope or above.
 # We must populate this variables as project sources grow
 
-# Set fast-RTPS source files
+# Set Fast DDS source files
 
 # add fast headers to enable class view on visual studio IDE
 if (WIN32)
-    get_target_property(FAST_INCLUDE_DIR fastrtps INTERFACE_INCLUDE_DIRECTORIES)
+    get_target_property(FAST_INCLUDE_DIR fastdds INTERFACE_INCLUDE_DIRECTORIES)
     list(GET FAST_INCLUDE_DIR 0 FAST_INCLUDE_DIR)
     #get_filename_component(FAST_INCLUDE_DIR "${FAST_INCLUDE_DIR}" DIRECTORY )
 
@@ -365,7 +365,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 #endif()
 
 # we link dynamically to tinyxml2
-target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr
+target_link_libraries(${PROJECT_NAME} PUBLIC fastdds fastcdr
 	${TINYXML2_LIBRARY}
 	${OPENSSL_TARGET}
 	)
