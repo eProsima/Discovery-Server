@@ -15,9 +15,9 @@
 #include "log/DSLog.h"
 #include "version/config.h"
 
-#if FASTDDS_VERSION_MAJOR > 2 || (FASTDDS_VERSION_MAJOR == 2 && FASTDDS_VERSION_MINOR >= 1)
+
 #include <fastdds/dds/log/StdoutErrConsumer.hpp>
-#endif // if FASTDDS_VERSION_MAJOR >= 2 && FASTDDS_VERSION_MINOR >= 1
+
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 
 #include "DiscoveryServerManager.h"
@@ -50,7 +50,7 @@ int main(
     Log::SetVerbosity(Log::Kind::Error);
 #endif // if LOG_LEVEL_INFO
 
-#if FASTDDS_VERSION_MAJOR >= 2 && FASTDDS_VERSION_MINOR >= 1
+
     // Create a StdoutErrConsumer consumer that logs entries to stderr only when the Log::Kind is equal to WARNING
     // This allows the test validate the output of the executions
     std::unique_ptr<eprosima::fastdds::dds::StdoutErrConsumer> stdouterr_consumer(
@@ -59,7 +59,7 @@ int main(
 
     // Register the consumer
     Log::RegisterConsumer(std::move(stdouterr_consumer));
-#endif // if FASTDDS_VERSION_MAJOR >= 2 && FASTDDS_VERSION_MINOR >= 1
+
 
     // skip program name argv[0] if present
     argc -= (argc > 0);

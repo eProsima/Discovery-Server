@@ -4,7 +4,7 @@
     <!--
         This test verifies that:
         - the clients can locate each others and server's publisher and subscribers.
-        - create dynamic types using Fast-DDS xml schema.
+        - create dynamic types using Fast DDS xml schema.
         - create Publishers and Subscriber profiles
         - specify topics using attributes to constrain the number of profiles needed
     -->

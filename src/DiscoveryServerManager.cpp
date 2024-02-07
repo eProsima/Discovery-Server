@@ -35,7 +35,7 @@ using namespace eprosima::fastrtps::rtps;
 using namespace eprosima::fastdds::rtps;
 using namespace eprosima::discovery_server;
 
-// non exported from Fast-DDS (watch out they may be updated)
+// non exported from Fast DDS (watch out they may be updated)
 namespace eprosima {
 namespace fastrtps {
 namespace DSxmlparser {
@@ -220,34 +220,6 @@ DiscoveryServerManager::DiscoveryServerManager(
 
     correctly_created_ = true;
     LOG_INFO("File " << xml_file_path << " parsed successfully.");
-}
-
-DiscoveryServerManager::DiscoveryServerManager(
-        const std::set<std::string>& xml_snapshot_files,
-        const std::string& output_file)
-    : no_callbacks(true)
-    , auto_shutdown(true)
-    , enable_prefix_validation(true)
-    , last_PDP_callback_(Snapshot::_steady_clock)
-    , last_EDP_callback_(Snapshot::_steady_clock)
-{
-    // validating snapshots files
-    validate_ = true;
-    // keep output_file if any
-    snapshots_output_file = output_file;
-
-    for (const std::string& file : xml_snapshot_files)
-    {
-        if (loadSnapshots(file))
-        {
-            LOG("Loaded snapshot file " << file);
-        }
-        else
-        {
-            // if some file fails, do not validate
-            validate_ = false;
-        }
-    }
 }
 
 void DiscoveryServerManager::runEvents(
@@ -1036,12 +1008,9 @@ void DiscoveryServerManager::loadClient(
     }
 
     // we must assert that DiscoveryProtocol is CLIENT
-#if FASTDDS_VERSION_MAJOR >= 2
+
     if (dpQOS.wire_protocol().builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::CLIENT &&
             dpQOS.wire_protocol().builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::SUPER_CLIENT)
-#else
-    if (atts.rtps.builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::CLIENT)
-#endif // if FASTDDS_VERSION_MAJOR >= 2
     {
         LOG_ERROR(
             "DiscoveryServerManager::loadClient try to create a client with an incompatible profile: " <<

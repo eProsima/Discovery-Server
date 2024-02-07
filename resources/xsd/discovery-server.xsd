@@ -874,7 +874,7 @@
             <xs:element name="participant" type="participantProfileType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="publisher" type="publisherProfileType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="subscriber" type="subscriberProfileType" minOccurs="0" maxOccurs="unbounded"/>
-            <!-- There is not topicProfileType on Fast-DDS schema but the parser works accordingly-->
+            <!-- There is not topicProfileType on Fast DDS schema but the parser works accordingly-->
             <xs:element name="topic" type="topicProfileType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>

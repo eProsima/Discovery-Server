@@ -1,13 +1,13 @@
 repositories:
-    eProsima/Fast-CDR:
+    fastcdr:
         type: git
         url: https://github.com/eProsima/Fast-CDR.git
         version: master
-    eProsima/Fast-DDS:
+    fastdds:
         type: git
         url: https://github.com/eProsima/Fast-DDS.git
         version: master
-    eProsima/Discovery-Server:
+    discovery-server:
         type: git
         url: https://github.com/eProsima/Discovery-Server.git
         version: master
