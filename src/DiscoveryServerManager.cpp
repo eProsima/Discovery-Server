@@ -1759,11 +1759,13 @@ void DiscoveryServerManager::MapServerInfo(
 
 void DiscoveryServerManager::on_participant_discovery(
         DomainParticipant* participant,
-        ParticipantDiscoveryInfo&& info)
+        ParticipantDiscoveryInfo&& info,
+        bool& should_be_ignored)
 {
     bool server = false;
     const GUID_t& partid = info.info.m_guid;
-
+    static_cast<void>(should_be_ignored);
+    
     // if the callback origin was removed ignore
     GUID_t srcGuid = participant->guid();
     if ( nullptr == getParticipant(srcGuid))
