@@ -7,7 +7,7 @@ repositories:
         type: git
         url: https://github.com/eProsima/Fast-DDS.git
         version: master
-    discovery-server:
+    discovery_server:
         type: git
         url: https://github.com/eProsima/Discovery-Server.git
         version: master

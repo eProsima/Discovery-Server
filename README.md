@@ -188,10 +188,10 @@ the `discovery-server-ws/src` directory:
 
 |            PACKAGE                 |                              URL                        |    BRANCH   |
 |:-----------------------------------|:--------------------------------------------------------|:-----------:|
-| fastcdr:                 | https://github.com/eProsima/Fast-CDR.git                |    master   |
-| fastdds:                 | https://github.com/eProsima/Fast-DDS.git               |    master   |
-| discovery-server:         | https://github.com/eProsima/Discovery-Server.git        |    master   |
-| foonathan_memory_vendor:  | https://github.com/eProsima/foonathan_memory_vendor.git |    master   |
+| fastcdr:                           | https://github.com/eProsima/Fast-CDR.git                |    master   |
+| fastdds:                           | https://github.com/eProsima/Fast-DDS.git                |    master   |
+| discovery_server:                  | https://github.com/eProsima/Discovery-Server.git        |    master   |
+| foonathan_memory_vendor:           | https://github.com/eProsima/foonathan_memory_vendor.git |    master   |
 | leethomason/tinyxml2:              | https://github.com/leethomason/tinyxml2.git             |    master   |
 
 ---
