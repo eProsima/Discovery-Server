@@ -1,5 +1,5 @@
 {
     "name": "discovery-server",
     "type": "cmake",
-    "build-dependencies": ["fastcdr", "fastrtps", "tinyxml2"]
+    "build-dependencies": ["fastcdr", "fastdds", "tinyxml2"]
 }

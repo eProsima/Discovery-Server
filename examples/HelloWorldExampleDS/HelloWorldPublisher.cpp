@@ -82,7 +82,6 @@ bool HelloWorldPublisher::init(
         std::default_random_engine gen(std::chrono::system_clock::now().time_since_epoch().count());
         std::uniform_int_distribution<int> rdn(57344, 65535);
         descriptor->add_listener_port(rdn(gen)); // IANA ephemeral port number
-        descriptor->wait_for_tcp_negotiation = false;
         participant_qos.transport().user_transports.push_back(descriptor);
     }
     else

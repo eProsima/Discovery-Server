@@ -72,7 +72,7 @@ static const std::string s_sAliveCount("alive_count");
 static const std::string s_sNotAliveCount("not_alive_count");
 static const std::string s_sDiscovered_timestamp("discovered_timestamp");
 
-} // fastrtps
 } // discovery_server
+} // eprosima
 
 #endif // _IDS_H_

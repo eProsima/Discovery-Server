@@ -45,7 +45,7 @@ The **Discovery Server tool documentation** can be found
 ## Installation Guide
 
 In order to use the Discovery Server tool, it is necessary to have a compatible version of
-[eProsima Fast DDS](https://eprosima-fast-rtps.readthedocs.io/en/latest/) installed (over release 2.0.2).
+[eProsima Fast DDS](https://fast-dds.docs.eprosima.com/en/latest/) installed (over release 3.0.0).
 *Fast DDS* dependencies as tinyxml must be accessible, either because *Fast DDS* was build-installed defining
 `THIRDPARTY=ON|FORCE` or because those libraries have been specifically installed.
 The well known cross-platform tool [colcon](https://colcon.readthedocs.io/en/released/) was chosen to simplify the
@@ -188,10 +188,10 @@ the `discovery-server-ws/src` directory:
 
 |            PACKAGE                 |                              URL                        |    BRANCH   |
 |:-----------------------------------|:--------------------------------------------------------|:-----------:|
-| eProsima/Fast-CDR:                 | https://github.com/eProsima/Fast-CDR.git                |    master   |
-| eProsima/Fast-RTPS:                | https://github.com/eProsima/Fast-RTPS.git               |    master   |
-| eProsima/Discovery-Server:         | https://github.com/eProsima/Discovery-Server.git        |    master   |
-| eProsima/foonathan_memory_vendor:  | https://github.com/eProsima/foonathan_memory_vendor.git |    master   |
+| fastcdr:                           | https://github.com/eProsima/Fast-CDR.git                |    master   |
+| fastdds:                           | https://github.com/eProsima/Fast-DDS.git                |    master   |
+| discovery_server:                  | https://github.com/eProsima/Discovery-Server.git        |    master   |
+| foonathan_memory_vendor:           | https://github.com/eProsima/foonathan_memory_vendor.git |    master   |
 | leethomason/tinyxml2:              | https://github.com/leethomason/tinyxml2.git             |    master   |
 
 ---
