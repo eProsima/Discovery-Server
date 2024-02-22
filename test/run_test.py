@@ -349,7 +349,7 @@ def execute_validate_thread_test(
         logger.debug(f'Adding envvar {name}:{value} to {process_name}')
         my_env[name] = value
     # Set configuration file
-    my_env['FASTRTPS_DEFAULT_PROFILES_FILE'] = config_file
+    my_env['FASTDDS_DEFAULT_PROFILES_FILE'] = config_file
     logger.debug(f'Configuration file {config_file} to {process_name}')
 
     # Launch
@@ -502,7 +502,7 @@ def execute_validate_test(
     )
 
     # Clear /dev/shm
-    subprocess.call('rm -f /dev/shm/*fastrtps*', shell=True)
+    subprocess.call('rm -f /dev/shm/*fastdds*', shell=True)
 
     return result
 

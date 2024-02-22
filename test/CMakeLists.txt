@@ -101,28 +101,25 @@ list(APPEND TEST_LIST
 
 # This test does not run in Fast DDS 2.0.x because signal handling for closing the tool was not
 # backported.
-if(fastrtps_VERSION VERSION_GREATER_EQUAL "2.1.0")
+
     list(APPEND TEST_LIST
     test_23_fast_discovery_server_tool
     )
-endif()
 
 # Adding remote servers to the server using env var was introduced in Fast DDS v2.3.
-if(fastrtps_VERSION VERSION_GREATER_EQUAL "2.3.0")
+
     list(APPEND TEST_LIST
         test_35_fds_two_connected_servers_with_clients
     )
-endif()
 
 # Adding DNS and Environment modification while running was introduced in Fast DDS v2.4.0
-if(fastrtps_VERSION VERSION_GREATER_EQUAL "2.4.0")
+
     list(APPEND TEST_LIST
         test_36_dns_environment_variable_setup
         test_37_dns_fast_discovery_server_tool
 
         test_50_environment_modification
     )
-endif()
 
 # The above TEST_LIST has tests that spawn multiple test cases, we need a new variable to enumerate them
 set(TEST_CASE_LIST)

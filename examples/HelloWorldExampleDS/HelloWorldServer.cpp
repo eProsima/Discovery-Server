@@ -80,7 +80,6 @@ bool HelloWorldServer::init(
             descriptor = std::make_shared<TCPv6TransportDescriptor>();
         }
 
-        descriptor->wait_for_tcp_negotiation = false;
         descriptor->add_listener_port(default_port);
         participant_qos.transport().use_builtin_transports = false;
         participant_qos.transport().user_transports.push_back(descriptor);

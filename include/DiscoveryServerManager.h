@@ -187,14 +187,7 @@ public:
     DiscoveryServerManager(
             const std::string& xml_file_path,
             const bool shared_memory_off);
-#if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 2
-    FASTDDS_DEPRECATED_UNTIL(3, "eprosima::discovery_server::DiscoveryServerManager(const std::set<std::string>& xml_snapshot_files,"
-            "const std::string & output_file)",
-            "Old Discovery Server v1 constructor to validate.")
-#endif // if FASTRTPS_VERSION_MAJOR >= 2 && FASTRTPS_VERSION_MINOR >= 2
-    DiscoveryServerManager(
-            const std::set<std::string>& xml_snapshot_files,
-            const std::string& output_file);
+
     ~DiscoveryServerManager();
 
     // testing database
@@ -290,7 +283,8 @@ public:
     // callback discovery functions
     void on_participant_discovery(
             DomainParticipant* participant,
-            ParticipantDiscoveryInfo&& info) override;
+            ParticipantDiscoveryInfo&& info,
+            bool& should_be_ignored) override;
 
     void on_subscriber_discovery(
             DomainParticipant* participant,
