@@ -70,7 +70,7 @@ void DelayedParticipantDestruction::operator ()(
         std::string name = p->get_qos().name().to_string();
 
         ReturnCode_t ret = manager.deleteParticipant(p);
-        if (ReturnCode_t::RETCODE_OK != ret)
+        if (RETCODE_OK != ret)
         {
             LOG_ERROR("Error during delayed deletion of Participant");
         }

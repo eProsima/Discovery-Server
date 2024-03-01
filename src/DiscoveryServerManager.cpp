@@ -443,7 +443,7 @@ ReturnCode_t DiscoveryServerManager::deleteDataReader(
 {
     if (dr == nullptr)
     {
-        return ReturnCode_t::RETCODE_ERROR;
+        return RETCODE_ERROR;
     }
     fastdds::dds::Subscriber* sub = nullptr;
     {
@@ -455,7 +455,7 @@ ReturnCode_t DiscoveryServerManager::deleteDataReader(
     {
         return sub->delete_datareader(dr);
     }
-    return ReturnCode_t::RETCODE_ERROR;
+    return RETCODE_ERROR;
 }
 
 ReturnCode_t DiscoveryServerManager::deleteDataWriter(
@@ -463,7 +463,7 @@ ReturnCode_t DiscoveryServerManager::deleteDataWriter(
 {
     if (dw == nullptr)
     {
-        return ReturnCode_t::RETCODE_ERROR;
+        return RETCODE_ERROR;
     }
     fastdds::dds::Publisher* pub = nullptr;
     {
@@ -475,7 +475,7 @@ ReturnCode_t DiscoveryServerManager::deleteDataWriter(
     {
         return pub->delete_datawriter(dw);
     }
-    return ReturnCode_t::RETCODE_ERROR;
+    return RETCODE_ERROR;
 }
 
 ReturnCode_t DiscoveryServerManager::deleteParticipant(
@@ -484,7 +484,7 @@ ReturnCode_t DiscoveryServerManager::deleteParticipant(
     {
         if (participant == nullptr)
         {
-            return ReturnCode_t::RETCODE_ERROR;
+            return RETCODE_ERROR;
         }
 
         std::lock_guard<std::recursive_mutex> lock(management_mutex);
@@ -493,7 +493,7 @@ ReturnCode_t DiscoveryServerManager::deleteParticipant(
         entity_map.erase(participant->guid());
 
         ReturnCode_t ret = participant->delete_contained_entities();
-        if (ret != ReturnCode_t::RETCODE_OK)
+        if (ret != RETCODE_OK)
         {
             LOG_ERROR("Error cleaning up participant entities");
         }
@@ -735,13 +735,13 @@ void DiscoveryServerManager::onTerminate()
         entity.second->set_listener(nullptr);
 
         ReturnCode_t ret = entity.second->delete_contained_entities();
-        if (ReturnCode_t::RETCODE_OK != ret)
+        if (RETCODE_OK != ret)
         {
             LOG_ERROR("Error cleaning up client entities");
         }
 
         ret = DomainParticipantFactory::get_instance()->delete_participant(entity.second);
-        if (ReturnCode_t::RETCODE_OK != ret)
+        if (RETCODE_OK != ret)
         {
             LOG_ERROR("Error deleting Client");
         }
@@ -754,13 +754,13 @@ void DiscoveryServerManager::onTerminate()
         entity.second->set_listener(nullptr);
 
         ReturnCode_t ret = entity.second->delete_contained_entities();
-        if (ReturnCode_t::RETCODE_OK != ret)
+        if (RETCODE_OK != ret)
         {
             LOG_ERROR("Error cleaning up simple entities");
         }
 
         ret = DomainParticipantFactory::get_instance()->delete_participant(entity.second);
-        if (ReturnCode_t::RETCODE_OK != ret)
+        if (RETCODE_OK != ret)
         {
             LOG_ERROR("Error deleting Simple Discovery Entity");
         }
@@ -772,13 +772,13 @@ void DiscoveryServerManager::onTerminate()
         entity.second->set_listener(nullptr);
 
         ReturnCode_t ret = entity.second->delete_contained_entities();
-        if (ReturnCode_t::RETCODE_OK != ret)
+        if (RETCODE_OK != ret)
         {
             LOG_ERROR("Error cleaning up server entities");
         }
 
         ret = DomainParticipantFactory::get_instance()->delete_participant(entity.second);
-        if (ReturnCode_t::RETCODE_OK != ret)
+        if (RETCODE_OK != ret)
         {
             LOG_ERROR("Error deleting Server");
         }
@@ -855,7 +855,7 @@ void DiscoveryServerManager::loadServer(
 
     // retrieve profile attributes
     DomainParticipantQos dpQOS;
-    if (ReturnCode_t::RETCODE_OK !=
+    if (RETCODE_OK !=
             DomainParticipantFactory::get_instance()->get_participant_qos_from_profile(std::string(profile_name),
             dpQOS))
     {
@@ -1027,7 +1027,7 @@ void DiscoveryServerManager::loadClient(
 
     // retrieve profile attributes
     DomainParticipantQos dpQOS;
-    if (ReturnCode_t::RETCODE_OK !=
+    if (RETCODE_OK !=
             DomainParticipantFactory::get_instance()->get_participant_qos_from_profile(std::string(profile_name),
             dpQOS))
     {
@@ -1304,7 +1304,7 @@ void DiscoveryServerManager::loadSimple(
     if (profile_name != nullptr)
     {
         // retrieve profile attributes
-        if (ReturnCode_t::RETCODE_OK !=
+        if (RETCODE_OK !=
                 DomainParticipantFactory::get_instance()->get_participant_qos_from_profile(std::string(profile_name),
                 dpQOS))
         {
