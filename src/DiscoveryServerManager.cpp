@@ -1399,28 +1399,6 @@ void DiscoveryServerManager::loadSubscriber(
     // default topic is the static HelloWorld one
     const char* profile_name = sub->Attribute(DSxmlparser::PROFILE_NAME);
 
-    ///SubscriberAttributes subatts;
-    SubscriberQos subqos;
-    DomainParticipant* participant_ =
-            DomainParticipantFactory::get_instance()->create_participant(
-        0, PARTICIPANT_QOS_DEFAULT);
-
-    if (profile_name == nullptr)
-    {
-        // get default subscriber attributes
-        participant_->get_default_subscriber_qos(subqos);
-    }
-    else
-    {
-        // try load from profile
-        if (ReturnCode_t::RETCODE_OK !=
-                participant_->get_subscriber_qos_from_profile(std::string(profile_name), subqos))
-        {
-            LOG_ERROR("DiscoveryServerManager::loadSubscriber couldn't load profile " << profile_name);
-            return;
-        }
-    }
-
     // see if topic is specified
     const char* topic_name = sub->Attribute(DSxmlparser::TOPIC);
     TopicAttributes topicAttr;
@@ -1523,27 +1501,6 @@ void DiscoveryServerManager::loadPublisher(
     // data_readers are created for debugging purposes
     // default topic is the static HelloWorld one
     const char* profile_name = sub->Attribute(DSxmlparser::PROFILE_NAME);
-
-    PublisherQos pubqos;
-    DomainParticipant* participant_ =
-            DomainParticipantFactory::get_instance()->create_participant(
-        0, PARTICIPANT_QOS_DEFAULT);
-
-    if (profile_name == nullptr)
-    {
-        // get default publisher attributes
-        participant_->get_default_publisher_qos(pubqos);
-    }
-    else
-    {
-        // try load from profile
-        if (ReturnCode_t::RETCODE_OK !=
-                participant_->get_publisher_qos_from_profile(std::string(profile_name), pubqos))
-        {
-            LOG_ERROR("DiscoveryServerManager::loadPublisher couldn't load profile " << profile_name);
-            return;
-        }
-    }
 
     // see if topic is specified
     const char* topic_name = sub->Attribute(DSxmlparser::TOPIC);
