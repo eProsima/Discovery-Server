@@ -29,7 +29,6 @@
 #include <fastdds/dds/publisher/DataWriter.hpp>
 #include <fastdds/dds/publisher/Publisher.hpp>
 
-#include <fastrtps/xmlparser/XMLParser.h>
 
 #include "DiscoveryItem.h"
 
@@ -88,8 +87,7 @@ class DelayedParticipantCreation;
 class DelayedParticipantDestruction;
 
 class DiscoveryServerManager
-    : public xmlparser::XMLParser      // access to parsing protected functions
-    , public eprosima::fastdds::dds::DomainParticipantListener // receive discovery callback information and
+    : public eprosima::fastdds::dds::DomainParticipantListener // receive discovery callback information and
                                                                // subscriber lifeliness information
 
 {

@@ -110,7 +110,16 @@ DiscoveryServerManager::DiscoveryServerManager(
             tinyxml2::XMLElement* profiles = child->FirstChildElement(DSxmlparser::PROFILES);
             if (profiles != nullptr)
             {
-                loadProfiles(profiles);
+                tinyxml2::XMLPrinter printer;
+                profiles->Accept(&printer);
+                std::string xmlString = R"(")" + std::string(printer.CStr()) + R"(")";
+                if(ReturnCode_t::RETCODE_OK == DomainParticipantFactory::get_instance()->load_XML_profiles_string(xmlString.c_str(), std::string(printer.CStr()).length()))
+                {
+                    LOG_INFO("Profiles parsed successfully.");
+                }
+                else{
+                    LOG_ERROR("Error parsing profiles!");
+                }
             }
 
             // Server processing requires a two pass analysis
@@ -670,19 +679,7 @@ Topic* DiscoveryServerManager::getParticipantTopicByName(
     return returnTopic;
 }
 
-void DiscoveryServerManager::loadProfiles(
-        tinyxml2::XMLElement* profiles)
-{
-    if (ReturnCode_t::RETCODE_OK !=
-            DomainParticipantFactory::get_instance()->load_XML_profiles_file(profiles->Name()))
-    {
-        LOG_INFO("Profiles parsed successfully.");
-    }
-    else
-    {
-        LOG_ERROR("Error parsing profiles!");
-    }
-}
+
 
 void DiscoveryServerManager::onTerminate()
 {
@@ -1404,8 +1401,8 @@ void DiscoveryServerManager::loadSubscriber(
     TopicAttributes topicAttr;
     if (topic_name != nullptr)
     {
-        if (eprosima::fastrtps::rtps::RTPSDomain::get_topic_attributes_from_profile(std::string(
-                    profile_name), topicAttr))
+        if (!eprosima::fastrtps::rtps::RTPSDomain::get_topic_attributes_from_profile(std::string(
+                    topic_name), topicAttr))
         {
             LOG_ERROR("DiscoveryServerManager::loadSubscriber couldn't load topic profile ");
             return;
@@ -1507,8 +1504,8 @@ void DiscoveryServerManager::loadPublisher(
     TopicAttributes topicAttr;
     if (topic_name != nullptr)
     {
-        if (eprosima::fastrtps::rtps::RTPSDomain::get_topic_attributes_from_profile(std::string(
-                    profile_name), topicAttr))
+        if (!eprosima::fastrtps::rtps::RTPSDomain::get_topic_attributes_from_profile(std::string(
+                    topic_name), topicAttr))
         {
             LOG_ERROR("DiscoveryServerManager::loadPublisher couldn't load topic profile ");
             return;
@@ -1629,8 +1626,6 @@ void DiscoveryServerManager::MapServerInfo(
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
-    uint8_t ident = 1;
-
     // profile name is mandatory
     std::string profile_name(server->Attribute(DSxmlparser::PROFILE_NAME));
 
@@ -1676,43 +1671,8 @@ void DiscoveryServerManager::MapServerInfo(
     // Now we search the locator lists
     serverLocator_map::mapped_type pair;
 
-    tinyxml2::XMLElement* LP = server->FirstChildElement(s_sLP.c_str());
-    if (LP != nullptr)
-    {
-        tinyxml2::XMLElement* list = LP->FirstChildElement(DSxmlparser::META_MULTI_LOC_LIST);
-
-        if (list != nullptr &&
-                (xmlparser::XMLP_ret::XML_OK != getXMLLocatorList(list, pair.first, ident)))
-        {
-            LOG_ERROR("Server " << prefix << " has an ill formed " << DSxmlparser::META_MULTI_LOC_LIST);
-        }
-
-        list = LP->FirstChildElement(DSxmlparser::META_UNI_LOC_LIST);
-        if (list != nullptr &&
-                (xmlparser::XMLP_ret::XML_OK != getXMLLocatorList(list, pair.second, ident)))
-        {
-            LOG_ERROR("Server " << prefix << " has an ill formed " << DSxmlparser::META_UNI_LOC_LIST);
-        }
-
-    }
-    else
-    {
-        LocatorList_t multicast, unicast;
-
-        // retrieve profile attributes
-        if (!pqos)
-        {
-            if (ReturnCode_t::RETCODE_OK !=
-                    DomainParticipantFactory::get_instance()->get_participant_qos_from_profile(profile_name, *pqos))
-            {
-                LOG_ERROR("DiscoveryServerManager::loadServer couldn't load profile " << profile_name);
-                return;
-            }
-        }
-
-        pair.first =  pqos->wire_protocol().builtin.metatrafficMulticastLocatorList;
-        pair.second = pqos->wire_protocol().builtin.metatrafficUnicastLocatorList;
-    }
+    pair.first =  pqos->wire_protocol().builtin.metatrafficMulticastLocatorList;
+    pair.second = pqos->wire_protocol().builtin.metatrafficUnicastLocatorList;
 
     // now save the value
     server_locators[GUID_t(prefix, c_EntityId_RTPSParticipant)] = std::move(pair);
