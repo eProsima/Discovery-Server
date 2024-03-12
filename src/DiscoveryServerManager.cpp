@@ -113,11 +113,14 @@ DiscoveryServerManager::DiscoveryServerManager(
                 tinyxml2::XMLPrinter printer;
                 profiles->Accept(&printer);
                 std::string xmlString = R"(")" + std::string(printer.CStr()) + R"(")";
-                if(ReturnCode_t::RETCODE_OK == DomainParticipantFactory::get_instance()->load_XML_profiles_string(xmlString.c_str(), std::string(printer.CStr()).length()))
+                if (ReturnCode_t::RETCODE_OK ==
+                        DomainParticipantFactory::get_instance()->load_XML_profiles_string(xmlString.c_str(),
+                        std::string(printer.CStr()).length()))
                 {
                     LOG_INFO("Profiles parsed successfully.");
                 }
-                else{
+                else
+                {
                     LOG_ERROR("Error parsing profiles!");
                 }
             }
@@ -678,8 +681,6 @@ Topic* DiscoveryServerManager::getParticipantTopicByName(
 
     return returnTopic;
 }
-
-
 
 void DiscoveryServerManager::onTerminate()
 {
@@ -1641,7 +1642,7 @@ void DiscoveryServerManager::MapServerInfo(
     GuidPrefix_t prefix;
 
     std::shared_ptr<DomainParticipantQos> pqos;
-        // I must load the prefix from the profile
+    // I must load the prefix from the profile
     // retrieve profile QOS
     pqos = std::make_shared<DomainParticipantQos>();
     if (ReturnCode_t::RETCODE_OK !=
