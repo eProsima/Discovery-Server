@@ -18,8 +18,8 @@
 
 #include <tinyxml2.h>
 
-#include <fastrtps/xmlparser/XMLProfileManager.h>
-
+#include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/rtps/RTPSDomain.h>
 #include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
 #include <fastdds/rtps/transport/TCPv4TransportDescriptor.h>
 #include <fastdds/rtps/transport/TCPv6TransportDescriptor.h>
@@ -104,13 +104,25 @@ DiscoveryServerManager::DiscoveryServerManager(
         for (auto child = doc.FirstChildElement(s_sDS.c_str());
                 child != nullptr; child = child->NextSiblingElement(s_sDS.c_str()))
         {
-            // first make XMLProfileManager::loadProfiles parse the config file. Afterwards loaded info is accessible
-            // through XMLProfileManager::fillParticipantAttributes and related
+            // first make loadProfiles parse the config file. Afterwards loaded info is accessible
+            // through get_participant_qos_from_profile() and related
 
             tinyxml2::XMLElement* profiles = child->FirstChildElement(DSxmlparser::PROFILES);
             if (profiles != nullptr)
             {
-                loadProfiles(profiles);
+                tinyxml2::XMLPrinter printer;
+                profiles->Accept(&printer);
+                std::string xmlString = R"(")" + std::string(printer.CStr()) + R"(")";
+                if (ReturnCode_t::RETCODE_OK ==
+                        DomainParticipantFactory::get_instance()->load_XML_profiles_string(xmlString.c_str(),
+                        std::string(printer.CStr()).length()))
+                {
+                    LOG_INFO("Profiles parsed successfully.");
+                }
+                else
+                {
+                    LOG_ERROR("Error parsing profiles!");
+                }
             }
 
             // Server processing requires a two pass analysis
@@ -668,21 +680,6 @@ Topic* DiscoveryServerManager::getParticipantTopicByName(
     }
 
     return returnTopic;
-}
-
-void DiscoveryServerManager::loadProfiles(
-        tinyxml2::XMLElement* profiles)
-{
-    xmlparser::XMLP_ret ret = xmlparser::XMLProfileManager::loadXMLProfiles(*profiles);
-
-    if (ret == xmlparser::XMLP_ret::XML_OK)
-    {
-        LOG_INFO("Profiles parsed successfully.");
-    }
-    else
-    {
-        LOG_ERROR("Error parsing profiles!");
-    }
 }
 
 void DiscoveryServerManager::onTerminate()
@@ -1400,36 +1397,17 @@ void DiscoveryServerManager::loadSubscriber(
     // default topic is the static HelloWorld one
     const char* profile_name = sub->Attribute(DSxmlparser::PROFILE_NAME);
 
-    SubscriberAttributes subatts;
-
-    if (profile_name == nullptr)
-    {
-        // get default subscriber attributes
-        xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(subatts);
-    }
-    else
-    {
-        // try load from profile
-        if (xmlparser::XMLP_ret::XML_OK !=
-                xmlparser::XMLProfileManager::fillSubscriberAttributes(std::string(profile_name), subatts))
-        {
-            LOG_ERROR("DiscoveryServerManager::loadSubscriber couldn't load profile " << profile_name);
-            return;
-        }
-    }
-
     // see if topic is specified
     const char* topic_name = sub->Attribute(DSxmlparser::TOPIC);
-
+    TopicAttributes topicAttr;
     if (topic_name != nullptr)
     {
-        if (xmlparser::XMLP_ret::XML_OK !=
-                xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), subatts.topic))
+        if (!eprosima::fastrtps::rtps::RTPSDomain::get_topic_attributes_from_profile(std::string(
+                    topic_name), topicAttr))
         {
             LOG_ERROR("DiscoveryServerManager::loadSubscriber couldn't load topic profile ");
             return;
         }
-
     }
 
     DelayedEndpointDestruction<DataReader>* pDE = nullptr; // subscriber destruction event
@@ -1451,8 +1429,8 @@ void DiscoveryServerManager::loadSubscriber(
         endpoint_profile = std::string(profile_name);
     }
 
-    DelayedEndpointCreation<DataReader> event(creation_time, subatts.topic.getTopicName().to_string(),
-            subatts.topic.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE,
+    DelayedEndpointCreation<DataReader> event(creation_time, topicAttr.getTopicName().to_string(),
+            topicAttr.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE,
             participant_creation_event);
 
     if (creation_time == getTime())
@@ -1522,31 +1500,13 @@ void DiscoveryServerManager::loadPublisher(
     // default topic is the static HelloWorld one
     const char* profile_name = sub->Attribute(DSxmlparser::PROFILE_NAME);
 
-    PublisherAttributes pubatts;
-
-    if (profile_name == nullptr)
-    {
-        // get default subscriber attributes
-        xmlparser::XMLProfileManager::getDefaultPublisherAttributes(pubatts);
-    }
-    else
-    {
-        // try load from profile
-        if (xmlparser::XMLP_ret::XML_OK !=
-                xmlparser::XMLProfileManager::fillPublisherAttributes(std::string(profile_name), pubatts))
-        {
-            LOG_ERROR("DiscoveryServerManager::loadPublisher couldn't load profile " << profile_name);
-            return;
-        }
-    }
-
     // see if topic is specified
     const char* topic_name = sub->Attribute(DSxmlparser::TOPIC);
-
+    TopicAttributes topicAttr;
     if (topic_name != nullptr)
     {
-        if (xmlparser::XMLP_ret::XML_OK !=
-                xmlparser::XMLProfileManager::fillTopicAttributes(std::string(topic_name), pubatts.topic))
+        if (!eprosima::fastrtps::rtps::RTPSDomain::get_topic_attributes_from_profile(std::string(
+                    topic_name), topicAttr))
         {
             LOG_ERROR("DiscoveryServerManager::loadPublisher couldn't load topic profile ");
             return;
@@ -1573,8 +1533,8 @@ void DiscoveryServerManager::loadPublisher(
         endpoint_profile = std::string(profile_name);
     }
 
-    DelayedEndpointCreation<DataWriter> event(creation_time, pubatts.topic.getTopicName().to_string(),
-            pubatts.topic.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE,
+    DelayedEndpointCreation<DataWriter> event(creation_time, topicAttr.getTopicName().to_string(),
+            topicAttr.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE,
             participant_creation_event);
 
     if (creation_time == getTime())
@@ -1667,8 +1627,6 @@ void DiscoveryServerManager::MapServerInfo(
 {
     std::lock_guard<std::recursive_mutex> lock(management_mutex);
 
-    uint8_t ident = 1;
-
     // profile name is mandatory
     std::string profile_name(server->Attribute(DSxmlparser::PROFILE_NAME));
 
@@ -1682,7 +1640,17 @@ void DiscoveryServerManager::MapServerInfo(
     // server GuidPrefix is either pass as an attribute (preferred to allow profile reuse)
     // or inside the profile.
     GuidPrefix_t prefix;
-    std::shared_ptr<ParticipantAttributes> atts;
+
+    std::shared_ptr<DomainParticipantQos> pqos;
+    // I must load the prefix from the profile
+    // retrieve profile QOS
+    pqos = std::make_shared<DomainParticipantQos>();
+    if (ReturnCode_t::RETCODE_OK !=
+            DomainParticipantFactory::get_instance()->get_participant_qos_from_profile(profile_name, *pqos))
+    {
+        LOG_ERROR("DiscoveryServerManager::loadServer couldn't load profile " << profile_name);
+        return;
+    }
 
     const char* cprefix = server->Attribute(DSxmlparser::PREFIX);
 
@@ -1692,17 +1660,7 @@ void DiscoveryServerManager::MapServerInfo(
     }
     else
     {
-        // I must load the prefix from the profile
-        // retrieve profile attributes
-        atts = std::make_shared<ParticipantAttributes>();
-        if (xmlparser::XMLP_ret::XML_OK !=
-                xmlparser::XMLProfileManager::fillParticipantAttributes(profile_name, *atts))
-        {
-            LOG_ERROR("DiscoveryServerManager::loadServer couldn't load profile " << profile_name);
-            return;
-        }
-
-        prefix = atts->rtps.prefix;
+        prefix = pqos->wire_protocol().prefix;
     }
 
     if (prefix == c_GuidPrefix_Unknown)
@@ -1714,44 +1672,8 @@ void DiscoveryServerManager::MapServerInfo(
     // Now we search the locator lists
     serverLocator_map::mapped_type pair;
 
-    tinyxml2::XMLElement* LP = server->FirstChildElement(s_sLP.c_str());
-    if (LP != nullptr)
-    {
-        tinyxml2::XMLElement* list = LP->FirstChildElement(DSxmlparser::META_MULTI_LOC_LIST);
-
-        if (list != nullptr &&
-                (xmlparser::XMLP_ret::XML_OK != getXMLLocatorList(list, pair.first, ident)))
-        {
-            LOG_ERROR("Server " << prefix << " has an ill formed " << DSxmlparser::META_MULTI_LOC_LIST);
-        }
-
-        list = LP->FirstChildElement(DSxmlparser::META_UNI_LOC_LIST);
-        if (list != nullptr &&
-                (xmlparser::XMLP_ret::XML_OK != getXMLLocatorList(list, pair.second, ident)))
-        {
-            LOG_ERROR("Server " << prefix << " has an ill formed " << DSxmlparser::META_UNI_LOC_LIST);
-        }
-
-    }
-    else
-    {
-        LocatorList_t multicast, unicast;
-
-        // retrieve profile attributes
-        if (!atts)
-        {
-            atts = std::make_shared<ParticipantAttributes>();
-            if (xmlparser::XMLP_ret::XML_OK !=
-                    xmlparser::XMLProfileManager::fillParticipantAttributes(profile_name, *atts))
-            {
-                LOG_ERROR("DiscoveryServerManager::loadServer couldn't load profile " << profile_name);
-                return;
-            }
-        }
-
-        pair.first = atts->rtps.builtin.metatrafficMulticastLocatorList;
-        pair.second = atts->rtps.builtin.metatrafficUnicastLocatorList;
-    }
+    pair.first =  pqos->wire_protocol().builtin.metatrafficMulticastLocatorList;
+    pair.second = pqos->wire_protocol().builtin.metatrafficUnicastLocatorList;
 
     // now save the value
     server_locators[GUID_t(prefix, c_EntityId_RTPSParticipant)] = std::move(pair);
@@ -1765,7 +1687,7 @@ void DiscoveryServerManager::on_participant_discovery(
     bool server = false;
     const GUID_t& partid = info.info.m_guid;
     static_cast<void>(should_be_ignored);
-    
+
     // if the callback origin was removed ignore
     GUID_t srcGuid = participant->guid();
     if ( nullptr == getParticipant(srcGuid))

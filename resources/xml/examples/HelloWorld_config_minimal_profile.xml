@@ -26,10 +26,18 @@
                     <sec>DURATION_INFINITY</sec>
                 </leaseDuration>
             </discovery_config>
+            <metatrafficUnicastLocatorList>
+              <locator>
+                <udpv4>
+                  <address>127.0.0.1</address>
+                  <port>65215</port>
+                </udpv4>
+              </locator>
+            </metatrafficUnicastLocatorList>
         </builtin>
       </rtps>
     </participant>
-    
+
   </profiles>
-  
+
 </DS>

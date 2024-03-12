@@ -18,7 +18,7 @@
 
 #include <fastdds/dds/log/StdoutErrConsumer.hpp>
 
-#include <fastrtps/xmlparser/XMLProfileManager.h>
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 
 #include "DiscoveryServerManager.h"
 #include "arguments.h"
@@ -120,7 +120,7 @@ int main(
     std::string path_to_config = pOp->arg;
 
     // Load Default XML files
-    eprosima::fastrtps::xmlparser::XMLProfileManager::loadDefaultXMLFile();
+    DomainParticipantFactory::get_instance()->load_profiles();
 
     // Create DiscoveryServerManager
     DiscoveryServerManager manager(path_to_config, options[SHM]);
