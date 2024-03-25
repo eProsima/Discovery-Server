@@ -23,6 +23,7 @@ enum  optionIndex
     UNKNOWN,
     HELP,
     CONFIG_FILE,
+    PROPERTIES_FILE,
     OUTPUT_FILE,
     SHM
 };
@@ -45,6 +46,9 @@ const option::Descriptor usage[] = {
 
     { CONFIG_FILE,  0, "c", "config-file",    Arg::check_inp,
       "  -c \t--config-file  Mandatory configuration file path\n"},
+
+    { PROPERTIES_FILE,  0, "p", "props-file",    Arg::check_inp,
+      "  -p \t--props-file  Optional participant properties configuration file path\n"},
 
     { OUTPUT_FILE,  0, "o", "output-file",    Arg::check_inp,
       "  -o \t--output-file  File to write result snapshots. If not specified"

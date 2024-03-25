@@ -225,7 +225,7 @@
             <xs:element name="offsetd3" type="uint16Type" minOccurs="0"/>
         </xs:all>
     </xs:complexType>
-    
+
     <!-- IpAddressPort accepts the following expressions (RFC 3986 ):
         - plain port: 7098
         - ipv4+port:  192.168.2.1:7098
@@ -1075,6 +1075,8 @@
             <xs:attribute name="domainId" type="uint32Type" default="0" use="optional" />
         </xs:complexType>
     </xs:element>
+
+    <xs:element name="properties" type="propertyVectorType" minOccurs="0"/>
 
     <!-- DDS XML TYPES (FULL) -->
     <!-- Primitive types -->

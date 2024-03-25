@@ -380,6 +380,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES RELWITHDEBINFO_POSTFIX -${PROJE
 ###############################################################################
 # Testing
 ###############################################################################
+option(SECURITY "Whether to build security test-suite" OFF)
 
 enable_testing()
 include(CTest)

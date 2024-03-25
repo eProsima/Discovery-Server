@@ -1,6 +1,10 @@
 {
     "configurations":
     {
+        "properties":
+        {
+            "SECURITY": "<CONFIG_RELATIVE_PATH>/properties.xml"
+        },
         "configuration_files":
         {
             "INTRAPROCESS_OFF": "<CONFIG_RELATIVE_PATH>/intraprocess_off.xml",

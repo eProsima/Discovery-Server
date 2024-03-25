@@ -122,8 +122,24 @@ int main(
     // Load Default XML files
     eprosima::fastrtps::xmlparser::XMLProfileManager::loadDefaultXMLFile();
 
+    // Load properties file path from arg
+    pOp = options[PROPERTIES_FILE];
+
+    std::string path_to_properties;
+
+    if ( nullptr != pOp )
+    {
+        if ( pOp->count() != 1)
+        {
+            cout << "Only one properties file can be specified." << endl;
+            return 1;
+        }
+
+        path_to_properties = pOp->arg;
+    }
+
     // Create DiscoveryServerManager
-    DiscoveryServerManager manager(path_to_config, options[SHM]);
+    DiscoveryServerManager manager(path_to_config, path_to_properties, options[SHM]);
     if (!manager.correctly_created())
     {
         return_code = 1;
