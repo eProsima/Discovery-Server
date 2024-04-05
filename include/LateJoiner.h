@@ -437,7 +437,7 @@ void DelayedEndpointDestruction<ReaderWriter>::operator ()(
 
         // and we removed the endpoint: Domain::removeDataWriter or Domain::removeDataReader
         ret = (manager.*LateJoinerDataTraits<ReaderWriter>::remove_endpoint_function)(endpoint);
-        if (ReturnCode_t::RETCODE_OK != ret)
+        if (RETCODE_OK != ret)
         {
             LOG_ERROR("Error deleting Endpoint");
         }
