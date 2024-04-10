@@ -284,13 +284,15 @@ public:
             ParticipantDiscoveryInfo&& info,
             bool& should_be_ignored) override;
 
-    void on_subscriber_discovery(
+    void on_data_reader_discovery(
             DomainParticipant* participant,
-            ReaderDiscoveryInfo&& info) override;
+            ReaderDiscoveryInfo&& info,
+            bool& should_be_ignored) override;
 
-    void on_publisher_discovery(
+    void on_data_writer_discovery(
             DomainParticipant* participant,
-            WriterDiscoveryInfo&& info) override;
+            WriterDiscoveryInfo&& info,
+            bool& should_be_ignored) override;
 
     // callback liveliness functions
     void on_liveliness_changed(
