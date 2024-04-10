@@ -1735,10 +1735,12 @@ void DiscoveryServerManager::on_participant_discovery(
     }
 }
 
-void DiscoveryServerManager::on_subscriber_discovery(
+void DiscoveryServerManager::on_data_reader_discovery(
         DomainParticipant* participant,
-        ReaderDiscoveryInfo&& info)
+        ReaderDiscoveryInfo&& info,
+        bool& should_be_ignored)
 {
+    static_cast<void>(should_be_ignored);
     typedef ReaderDiscoveryInfo::DISCOVERY_STATUS DS;
 
     // if the callback origin was removed ignore
@@ -1813,10 +1815,12 @@ void DiscoveryServerManager::on_subscriber_discovery(
                             << " topic: " << info.info.topicName() << " GUID: " << subsid);
 }
 
-void DiscoveryServerManager::on_publisher_discovery(
+void DiscoveryServerManager::on_data_writer_discovery(
         DomainParticipant* participant,
-        WriterDiscoveryInfo&& info)
+        WriterDiscoveryInfo&& info,
+        bool& should_be_ignored)
 {
+    static_cast<void>(should_be_ignored);
     typedef WriterDiscoveryInfo::DISCOVERY_STATUS DS;
 
     // if the callback origin was removed ignore
