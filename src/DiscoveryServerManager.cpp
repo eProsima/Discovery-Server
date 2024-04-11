@@ -905,43 +905,6 @@ void DiscoveryServerManager::loadServer(
         dpQOS.wire_protocol().builtin.metatrafficUnicastLocatorList = lists.second;
     }
 
-    // load the server list (if present) and update the DomainParticipantQOS builtin
-    tinyxml2::XMLElement* server_list = server->FirstChildElement(s_sSL.c_str());
-
-    if (server_list != nullptr)
-    {
-        RemoteServerList_t& list = dpQOS.wire_protocol().builtin.discovery_config.m_DiscoveryServers;
-        list.clear(); // server elements take precedence over profile ones
-
-        tinyxml2::XMLElement* rserver = server_list->FirstChildElement(s_sRServer.c_str());
-
-        while (rserver != nullptr)
-        {
-            RemoteServerList_t::value_type srv;
-            GuidPrefix_t& prefix = srv.guidPrefix;
-
-            // load the prefix
-            const char* cprefix = rserver->Attribute(DSxmlparser::PREFIX);
-
-            if (cprefix != nullptr &&
-                    !(std::istringstream(cprefix) >> prefix)
-                    && (prefix == c_GuidPrefix_Unknown))
-            {
-                LOG_ERROR("RServers must provide a prefix"); // at least for now
-                return;
-            }
-
-            // load the locator lists
-            serverLocator_map::mapped_type& lists = server_locators[srv.GetParticipant()];
-            srv.metatrafficMulticastLocatorList = lists.first;
-            srv.metatrafficUnicastLocatorList = lists.second;
-
-            list.push_back(std::move(srv));
-
-            rserver = rserver->NextSiblingElement(s_sRServer.c_str());
-        }
-    }
-
     if (shared_memory_off_)
     {
         // Desactivate transport by default
@@ -1054,69 +1017,6 @@ void DiscoveryServerManager::loadClient(
     if (name != nullptr)
     {
         dpQOS.name() = name;
-    }
-
-    // server may be provided by prefix (takes precedence) or by list
-    const char* server = client->Attribute(s_sServer.c_str());
-    if (server != nullptr)
-    {
-        RemoteServerList_t::value_type srv;
-        GuidPrefix_t& prefix = srv.guidPrefix;
-
-        if (!(std::istringstream(server) >> prefix) &&
-                (prefix == c_GuidPrefix_Unknown))
-        {
-            LOG_ERROR("server attribute must provide a prefix"); // at least for now
-            return;
-        }
-
-        RemoteServerList_t& list = dpQOS.wire_protocol().builtin.discovery_config.m_DiscoveryServers;
-        list.clear(); // server elements take precedence over profile ones
-
-        // load the locator lists
-        serverLocator_map::mapped_type& lists = server_locators[srv.GetParticipant()];
-        srv.metatrafficMulticastLocatorList = lists.first;
-        srv.metatrafficUnicastLocatorList = lists.second;
-
-        list.push_back(std::move(srv));
-    }
-    else
-    {
-        // load the server list (if present) and update the builtin
-        tinyxml2::XMLElement* server_list = client->FirstChildElement(s_sSL.c_str());
-
-        if (server_list != nullptr)
-        {
-            RemoteServerList_t& list = dpQOS.wire_protocol().builtin.discovery_config.m_DiscoveryServers;
-            list.clear(); // server elements take precedence over profile ones
-
-            tinyxml2::XMLElement* rserver = server_list->FirstChildElement(s_sRServer.c_str());
-
-            while (rserver != nullptr)
-            {
-                RemoteServerList_t::value_type srv;
-                GuidPrefix_t& prefix = srv.guidPrefix;
-
-                // load the prefix
-                const char* cprefix = rserver->Attribute(DSxmlparser::PREFIX);
-
-                if (cprefix != nullptr && !(std::istringstream(cprefix) >> prefix)
-                        && (prefix == c_GuidPrefix_Unknown))
-                {
-                    LOG_ERROR("RServers must provide a prefix"); // at least for now
-                    return;
-                }
-
-                // load the locator lists
-                serverLocator_map::mapped_type& lists = server_locators[srv.GetParticipant()];
-                srv.metatrafficMulticastLocatorList = lists.first;
-                srv.metatrafficUnicastLocatorList = lists.second;
-
-                list.push_back(std::move(srv));
-
-                rserver = rserver->NextSiblingElement(s_sRServer.c_str());
-            }
-        }
     }
 
     // check for listening ports
