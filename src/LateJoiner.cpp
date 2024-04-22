@@ -29,7 +29,7 @@ void DelayedParticipantCreation::operator ()(
         DiscoveryServerManager& manager ) /*override*/
 {
 
-    DomainParticipant* p = DomainParticipantFactory::get_instance()->create_participant(0, qos, &manager);
+    DomainParticipant* p = DomainParticipantFactory::get_instance()->create_participant(42, qos, &manager);
 
     fastdds::dds::Publisher* publisher_ = p->create_publisher(PUBLISHER_QOS_DEFAULT);
     fastdds::dds::Subscriber* subscriber_ = p->create_subscriber(SUBSCRIBER_QOS_DEFAULT);

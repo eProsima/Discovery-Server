@@ -1106,7 +1106,11 @@ void DiscoveryServerManager::loadClient(
             }
         }
 
-        pT->add_listener_port(static_cast<uint16_t>(listening_port));
+        if (pT->listening_ports.empty())
+        {
+            // if no ports are specified, we will use the default ones
+            pT->add_listener_port(static_cast<uint16_t>(listening_port));
+        }
 
         // set up WAN if specified
         if (!address.empty() && p4)
