@@ -10,7 +10,7 @@
         </client>
     </clients>
 
-    <snapshots file="./test_96_TCPv6_cli.snapshot">
+    <snapshots file="./test_96_tcpv6_cli.snapshot">
         <snapshot time="5">Knows all</snapshot>
     </snapshots>
 
