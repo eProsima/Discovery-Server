@@ -1417,11 +1417,33 @@
                         "generate_validation":
                         {
                             "disposals": false,
-                            "server_endpoints": false
+                            "server_endpoints": true
                         },
                         "ground_truth_validation":
                         {
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_36_dns_environment_variable_setup.snapshot"
+                        }
+                    }
+                },
+
+                "fastddstool_1":
+                {
+                    "kill_time": 3,
+                    "tool_config":
+                    {
+                        "id" : 0,
+                        "udp_address": "localhost",
+                        "udp_port": 36811
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
                         }
                     }
                 }
@@ -1736,7 +1758,7 @@
 
                 "serverB_2":
                 {
-                    "creation_time": 13,
+                    "creation_time": 16,
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_41_reconnect_with_clients_B.xml",
                     "validation":
                     {
@@ -1816,7 +1838,7 @@
 
                 "serverB_2":
                 {
-                    "creation_time": 13,
+                    "creation_time": 16,
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_42_server_reconnect_with_clients_B.xml",
                     "validation":
                     {
@@ -2487,7 +2509,7 @@
                         "generate_validation":
                         {
                             "disposals": false,
-                            "server_endpoints": false
+                            "server_endpoints": true
                         },
                         "ground_truth_validation":
                         {
