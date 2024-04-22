@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DS_Snapshots xmlns="http://www.eprosima.com/XMLSchemas/ds-snapshot">
     <DS_Snapshot timestamp="1605771117973" process_time="10000" last_pdp_callback_time="1217" last_edp_callback_time="2216" someone="true">
-        <description>test_27_tcp_snapshot_1</description>
+        <description>test_99_tcp_snapshot_1</description>
         <ptdb guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1">
             <ptdi guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="10">
                 <subscriber type="HelloWorld" topic="topic_1" guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.2.4" discovered_timestamp="10"/>
-                <publisher type="sample_type_2" topic="topic_2" guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.3" discovered_timestamp="10"/>
+                <publisher type="HelloWorld" topic="topic_2" guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.3" discovered_timestamp="10"/>
             </ptdi>
             <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="client1" discovered_timestamp="215">
                 <subscriber type="HelloWorld" topic="HelloWorldTopic" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.2.4" discovered_timestamp="465"/>
                 <subscriber type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.3.4" discovered_timestamp="465"/>
-                <subscriber type="sample_type_2" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.4.4" discovered_timestamp="465"/>
-                <publisher type="sample_type_2" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="465"/>
+                <subscriber type="HelloWorld" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.4.4" discovered_timestamp="465"/>
+                <publisher type="HelloWorld" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="465"/>
             </ptdi>
             <ptdi guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="client2" discovered_timestamp="320">
-                <subscriber type="sample_type_2" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.4.4" discovered_timestamp="1270"/>
+                <subscriber type="HelloWorld" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.4.4" discovered_timestamp="1270"/>
                 <publisher type="HelloWorld" topic="HelloWorldTopic" guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="1020"/>
                 <publisher type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.2.3" discovered_timestamp="1020"/>
                 <publisher type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.3.3" discovered_timestamp="1020"/>
@@ -22,16 +22,16 @@
         </ptdb>
         <ptdb guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1">
             <ptdi guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1" server="true" alive="true" name="server" discovered_timestamp="310">
-                <publisher type="sample_type_2" topic="topic_2" guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.3" discovered_timestamp="1228"/>
+                <publisher type="HelloWorld" topic="topic_2" guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.3" discovered_timestamp="1228"/>
             </ptdi>
             <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="114">
                 <subscriber type="HelloWorld" topic="HelloWorldTopic" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.2.4" discovered_timestamp="115"/>
                 <subscriber type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.3.4" discovered_timestamp="115"/>
-                <subscriber type="sample_type_2" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.4.4" discovered_timestamp="115"/>
-                <publisher type="sample_type_2" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="114"/>
+                <subscriber type="HelloWorld" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.4.4" discovered_timestamp="115"/>
+                <publisher type="HelloWorld" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="114"/>
             </ptdi>
             <ptdi guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="client2" discovered_timestamp="1218">
-                <subscriber type="sample_type_2" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.4.4" discovered_timestamp="2216"/>
+                <subscriber type="HelloWorld" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.4.4" discovered_timestamp="2216"/>
                 <publisher type="HelloWorld" topic="HelloWorldTopic" guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="2215"/>
                 <publisher type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.2.3" discovered_timestamp="2216"/>
                 <publisher type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.3.3" discovered_timestamp="2216"/>
@@ -40,15 +40,15 @@
         <ptdb guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.1.c1">
             <ptdi guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.c1" server="true" alive="true" name="server" discovered_timestamp="679">
                 <subscriber type="HelloWorld" topic="topic_1" guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.2.4" discovered_timestamp="1228"/>
-                <publisher type="sample_type_2" topic="topic_2" guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.3" discovered_timestamp="2216"/>
+                <publisher type="HelloWorld" topic="topic_2" guid_prefix="4d.49.47.55.45.4c.5f.42.41.52.52.4f" guid_entity="0.0.1.3" discovered_timestamp="2216"/>
             </ptdi>
             <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="client1" discovered_timestamp="1217">
                 <subscriber type="HelloWorld" topic="HelloWorldTopic" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.2.4" discovered_timestamp="2216"/>
                 <subscriber type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.3.4" discovered_timestamp="2216"/>
-                <publisher type="sample_type_2" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="2216"/>
+                <publisher type="HelloWorld" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="2216"/>
             </ptdi>
             <ptdi guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="219">
-                <subscriber type="sample_type_2" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.4.4" discovered_timestamp="220"/>
+                <subscriber type="HelloWorld" topic="topic_2" guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.4.4" discovered_timestamp="220"/>
                 <publisher type="HelloWorld" topic="HelloWorldTopic" guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="219"/>
                 <publisher type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.2.3" discovered_timestamp="220"/>
                 <publisher type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.32.5f.73.31.5f.5f" guid_entity="0.0.3.3" discovered_timestamp="220"/>
