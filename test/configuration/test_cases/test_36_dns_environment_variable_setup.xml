@@ -3,12 +3,8 @@
 
     <!--
         This test merely assesses that the simple participants become full-fledged clients by using
-        the ROS_DISCOVERY_SERVER. They must locate the server defined as the base default one.
+        the ROS_DISCOVERY_SERVER with dns. They must locate the server defined as the base default one.
     -->
-
-    <servers>
-        <server name="server1" profile_name="UDP_server" />
-    </servers>
 
     <simples>
         <simple name="client1" profile_name="UDP_client1"/>
@@ -43,32 +39,6 @@
         <participant profile_name="UDP_client4" >
             <rtps>
                 <prefix>63.6c.69.65.6e.74.34.5f.73.31.5f.5f</prefix>
-            </rtps>
-        </participant>
-
-        <participant profile_name="UDP_server">
-            <rtps>
-                <prefix>44.53.00.5f.45.50.52.4f.53.49.4d.41</prefix>
-                <builtin>
-                    <discovery_config>
-                        <clientAnnouncementPeriod>
-                            <sec>0</sec>
-                            <nanosec>20000000</nanosec>
-                        </clientAnnouncementPeriod>
-                        <discoveryProtocol>SERVER</discoveryProtocol>
-                        <initialAnnouncements>
-                            <count>0</count>
-                        </initialAnnouncements>
-                    </discovery_config>
-                    <metatrafficUnicastLocatorList>
-                        <locator>
-                            <udpv4>
-                                <address>localhost</address>
-                                <port>36811</port>
-                            </udpv4>
-                        </locator>
-                    </metatrafficUnicastLocatorList>
-                </builtin>
             </rtps>
         </participant>
 

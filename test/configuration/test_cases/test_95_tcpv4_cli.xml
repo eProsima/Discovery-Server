@@ -21,14 +21,14 @@
                 <transport_id>transport_client_1</transport_id>
                 <type>TCPv4</type>
                 <listening_ports>
-                    <port>0</port>
+                    <port>42101</port>
                 </listening_ports>
             </transport_descriptor>
             <transport_descriptor>
                 <transport_id>transport_client_2</transport_id>
                 <type>TCPv4</type>
                 <listening_ports>
-                    <port>0</port>
+                    <port>42102</port>
                 </listening_ports>
             </transport_descriptor>
         </transport_descriptors>
@@ -44,17 +44,13 @@
                     <discovery_config>
                         <discoveryProtocol>CLIENT</discoveryProtocol>
                         <discoveryServersList>
-                            <RemoteServer prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41">
-                                <metatrafficUnicastLocatorList>
-                                    <locator>
-                                        <tcpv4>
-                                            <address>127.0.0.1</address>
-                                            <physical_port>42100</physical_port>
-                                            <port>42100</port>
-                                        </tcpv4>
-                                    </locator>
-                                </metatrafficUnicastLocatorList>
-                            </RemoteServer>
+                            <locator>
+                                <tcpv4>
+                                    <address>127.0.0.1</address>
+                                    <physical_port>42100</physical_port>
+                                    <port>42100</port>
+                                </tcpv4>
+                            </locator>
                         </discoveryServersList>
                     </discovery_config>
                 </builtin>
@@ -72,17 +68,13 @@
                     <discovery_config>
                         <discoveryProtocol>CLIENT</discoveryProtocol>
                         <discoveryServersList>
-                            <RemoteServer prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41">
-                                <metatrafficUnicastLocatorList>
-                                    <locator>
-                                        <tcpv4>
-                                            <address>127.0.0.1</address>
-                                            <physical_port>42100</physical_port>
-                                            <port>42100</port>
-                                        </tcpv4>
-                                    </locator>
-                                </metatrafficUnicastLocatorList>
-                            </RemoteServer>
+                            <locator>
+                                <tcpv4>
+                                    <address>127.0.0.1</address>
+                                    <physical_port>42100</physical_port>
+                                    <port>42100</port>
+                                </tcpv4>
+                            </locator>
                         </discoveryServersList>
                     </discovery_config>
                 </builtin>
