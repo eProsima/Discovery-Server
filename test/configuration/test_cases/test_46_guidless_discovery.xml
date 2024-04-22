@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
+    <simples>
+        <simple name="client1" profile_name="UDP_client1_server1">
+            <subscriber topic="topic1" />
+        </simple>
+        <simple name="client2" profile_name="UDP_client2_server1">
+            <publisher topic="topic1"/>
+        </simple>
+    </simples>
+
+    <snapshots file="./test_46_guidless_discovery.snapshot~">
+        <snapshot time="6">Know each other and server</snapshot>
+    </snapshots>
+
+    <profiles>
+        <participant profile_name="UDP_client1_server1"> </participant>
+        <participant profile_name="UDP_client2_server1"> </participant>
+
+        <topic profile_name="topic1">
+            <name>topic_1</name>
+            <dataType>HelloWorld</dataType>
+        </topic>
+
+    </profiles>
+</DS>

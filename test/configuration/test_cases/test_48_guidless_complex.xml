@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
+    <!-- S1 and S2 are created with fastdds tool and connected with env_var.
+         Server 3 must know both servers and clients must know their matching
+         participants:
+         S1: S2 & S3 & C1 & C2 & C3
+         C1: C2
+         C2: C1 & C3
+         C3: C2 -->
+
+    <servers>
+        <server name="server3" profile_name="UDP_server3"/>
+    </servers>
+
+    <clients>
+        <client name="client1_server1" profile_name="UDP_client1_server1">
+            <publisher topic="topic1"/>
+        </client>
+        <client name="client1_server2" profile_name="UDP_client1_server2">
+            <subscriber topic="topic1"/>
+            <publisher topic="topic2"/>
+        </client>
+        <client name="client1_server3" profile_name="UDP_client1_server3">
+            <publisher topic="topic1"/>
+            <subscriber topic="topic2"/>
+        </client>
+    </clients>
+
+    <snapshots file="./test_48_guidless_complex.snapshot~">
+        <snapshot time="6">test_48_guidless_complex_snapshot_1</snapshot>
+    </snapshots>
+
+    <profiles>
+        <participant profile_name="UDP_client1_server1" >
+            <rtps>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>48811</port>
+                                </udpv4>
+                            </locator>
+                        </discoveryServersList>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_client1_server2" >
+            <rtps>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>48812</port>
+                                </udpv4>
+                            </locator>
+                        </discoveryServersList>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_client1_server3" >
+            <rtps>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>48813</port>
+                                </udpv4>
+                            </locator>
+                        </discoveryServersList>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_server3">
+            <rtps>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>SERVER</discoveryProtocol>
+                        <initialAnnouncements>
+                            <count>5</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>
+                            <nanosec>500000000</nanosec>
+                        </leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                                <port>48813</port>
+                            </udpv4>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <topic profile_name="topic1">
+            <name>topic_1</name>
+            <dataType>HelloWorld</dataType>
+        </topic>
+
+        <topic profile_name="topic2">
+            <name>topic_2</name>
+            <dataType>HelloWorld</dataType>
+        </topic>
+
+     </profiles>
+</DS>
