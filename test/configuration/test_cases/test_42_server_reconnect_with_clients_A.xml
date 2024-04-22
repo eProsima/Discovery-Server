@@ -12,9 +12,9 @@
     </clients>
 
     <snapshots file="./test_42_server_reconnect_with_clients_A.snapshot~">
-        <snapshot time="2">Knows server B, client A and client B</snapshot>
-        <snapshot time="12">Do not know server B</snapshot>
-        <snapshot time="18">Knows server B, client A and client B</snapshot>
+        <snapshot time="5">Knows server B, client A and client B</snapshot>
+        <snapshot time="15">Do not know server B</snapshot>
+        <snapshot time="21">Knows server B, client A and client B</snapshot>
     </snapshots>
 
     <profiles>
@@ -26,16 +26,12 @@
                     <discovery_config>
                         <discoveryProtocol>CLIENT</discoveryProtocol>
                         <discoveryServersList>
-                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
-                                <metatrafficUnicastLocatorList>
-                                    <locator>
-                                        <udpv4>
-                                            <address>127.0.0.1</address>
-                                            <port>42811</port>
-                                        </udpv4>
-                                    </locator>
-                                </metatrafficUnicastLocatorList>
-                            </RemoteServer>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>42811</port>
+                                </udpv4>
+                            </locator>
                         </discoveryServersList>
                         <initialAnnouncements>
                             <count>0</count>
@@ -54,21 +50,19 @@
                 <discovery_config>
                     <discoveryProtocol>SERVER</discoveryProtocol>
                     <discoveryServersList>
-                        <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.32">
-                            <metatrafficUnicastLocatorList>
-                                <locator>
-                                    <udpv4>
-                                        <address>127.0.0.1</address>
-                                        <port>42812</port>
-                                    </udpv4>
-                                </locator>
-                            </metatrafficUnicastLocatorList>
-                        </RemoteServer>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                                <port>42812</port>
+                            </udpv4>
+                        </locator>
                     </discoveryServersList>
                     <initialAnnouncements>
-                        <count>0</count>
+                        <count>5</count>
                     </initialAnnouncements>
-                    <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                    <leaseAnnouncement>
+                        <nanosec>500000000</nanosec>
+                    </leaseAnnouncement>
                     <leaseDuration>DURATION_INFINITY</leaseDuration>
                 </discovery_config>
                 <metatrafficUnicastLocatorList>

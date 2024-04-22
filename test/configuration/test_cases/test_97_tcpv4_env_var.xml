@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
 
+    <!-- Force the clients ports to be higher than the one of the server. This will ensure
+         than an extra CONNECT channel is created when the new locator without localhost
+         address is received. In normal behavior this will be avoided by using default guids
+         and letting Fast DDS convert the remote locators, but it cannot be done here
+         because we need to verify with a fixed snapshot. -->
+
     <servers>
         <server name="server" profile_name="TCPv4_server"/>
     </servers>
@@ -27,6 +33,9 @@
                 <listening_ports>
                     <port>42100</port>
                 </listening_ports>
+                <interfaceWhiteList>
+                    <address>lo</address>
+                </interfaceWhiteList>
             </transport_descriptor>
             <transport_descriptor>
                 <transport_id>transport_client_1</transport_id>
@@ -34,6 +43,9 @@
                 <listening_ports>
                     <port>0</port>
                 </listening_ports>
+                <interfaceWhiteList>
+                    <address>lo</address>
+                </interfaceWhiteList>
             </transport_descriptor>
             <transport_descriptor>
                 <transport_id>transport_client_2</transport_id>
@@ -41,6 +53,9 @@
                 <listening_ports>
                     <port>0</port>
                 </listening_ports>
+                <interfaceWhiteList>
+                    <address>lo</address>
+                </interfaceWhiteList>
             </transport_descriptor>
         </transport_descriptors>
 
