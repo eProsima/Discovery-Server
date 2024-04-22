@@ -1,45 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DS_Snapshots xmlns="http://www.eprosima.com/XMLSchemas/ds-snapshot">
-    <DS_Snapshot timestamp="1612341148811" process_time="5000" last_pdp_callback_time="477" last_edp_callback_time="492" someone="true">
-        <description>S2 knows C1 but C1 does not know S2</description>
+    <DS_Snapshot timestamp="1713425659876" process_time="9000" last_pdp_callback_time="7226" last_edp_callback_time="17" someone="true">
+        <description>S1 knows C1 PDP. S2 only knows S1</description>
         <ptdb guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.31" guid_entity="0.0.1.c1">
-            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.32" guid_entity="0.0.1.c1" server="true" alive="true" name="server2" discovered_timestamp="131"/>
-            <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_pub1" discovered_timestamp="19">
-                <publisher type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="471"/>
-            </ptdi>
+            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.32" guid_entity="0.0.1.c1" server="true" alive="true" name="server2" discovered_timestamp="7110"/>
+            <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="client1" discovered_timestamp="5020"/>
         </ptdb>
         <ptdb guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.32" guid_entity="0.0.1.c1">
-            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.31" guid_entity="0.0.1.c1" server="true" alive="true" name="server1" discovered_timestamp="131"/>
-            <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_pub1" discovered_timestamp="19">
-                <publisher type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="471"/>
-            </ptdi>
+            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.31" guid_entity="0.0.1.c1" server="true" alive="true" name="server1" discovered_timestamp="7113"/>
         </ptdb>
         <ptdb guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1">
-            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.31" guid_entity="0.0.1.c1" server="true" alive="true" name="server1" discovered_timestamp="131"/>
-            <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="20">
-                <publisher type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="20"/>
+            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.31" guid_entity="0.0.1.c1" server="true" alive="true" name="server1" discovered_timestamp="5022"/>
+            <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="17">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="17"/>
             </ptdi>
         </ptdb>
     </DS_Snapshot>
-    <DS_Snapshot timestamp="1612341158811" process_time="15000" last_pdp_callback_time="477" last_edp_callback_time="492" someone="true">
+    <DS_Snapshot timestamp="1713425662876" process_time="12000" last_pdp_callback_time="10019" last_edp_callback_time="10472" someone="true">
         <description>All knows each other</description>
         <ptdb guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.31" guid_entity="0.0.1.c1">
-            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.32" guid_entity="0.0.1.c1" server="true" alive="true" name="server2" discovered_timestamp="131"/>
-            <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="client1" discovered_timestamp="19">
-                <publisher type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="471"/>
+            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.32" guid_entity="0.0.1.c1" server="true" alive="true" name="server2" discovered_timestamp="7110"/>
+            <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="client1" discovered_timestamp="5020">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="10018"/>
             </ptdi>
         </ptdb>
         <ptdb guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.32" guid_entity="0.0.1.c1">
-            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.31" guid_entity="0.0.1.c1" server="true" alive="true" name="server1" discovered_timestamp="131"/>
-            <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="client1" discovered_timestamp="19">
-                <publisher type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="471"/>
+            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.31" guid_entity="0.0.1.c1" server="true" alive="true" name="server1" discovered_timestamp="7113"/>
+            <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="client1" discovered_timestamp="10018">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="10472"/>
             </ptdi>
         </ptdb>
         <ptdb guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1">
-            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.31" guid_entity="0.0.1.c1" server="true" alive="true" name="server1" discovered_timestamp="131"/>
-            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.32" guid_entity="0.0.1.c1" server="true" alive="true" name="server2" discovered_timestamp="131"/>
-            <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="20">
-                <publisher type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="20"/>
+            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.31" guid_entity="0.0.1.c1" server="true" alive="true" name="server1" discovered_timestamp="5022"/>
+            <ptdi guid_prefix="44.49.53.43.53.45.52.56.45.52.5f.32" guid_entity="0.0.1.c1" server="true" alive="true" name="server2" discovered_timestamp="10019"/>
+            <ptdi guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="17">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="63.6c.69.65.6e.74.31.5f.73.31.5f.5f" guid_entity="0.0.1.3" discovered_timestamp="17"/>
             </ptdi>
         </ptdb>
     </DS_Snapshot>
