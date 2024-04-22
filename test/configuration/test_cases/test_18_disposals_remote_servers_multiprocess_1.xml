@@ -16,19 +16,17 @@
                 <builtin>
                     <discovery_config>
                         <discoveryServersList>
-                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
-                                <metatrafficUnicastLocatorList>
-                                    <locator>
-                                        <udpv4>
-                                            <address>127.0.0.1</address>
-                                            <port>18811</port>
-                                        </udpv4>
-                                    </locator>
-                                </metatrafficUnicastLocatorList>
-                            </RemoteServer>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>18811</port>
+                                </udpv4>
+                            </locator>
                         </discoveryServersList>
                         <discoveryProtocol>SERVER</discoveryProtocol>
-                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseAnnouncement>
+                            <nanosec>500000000</nanosec>
+                        </leaseAnnouncement>
                         <leaseDuration>DURATION_INFINITY</leaseDuration>
                     </discovery_config>
                     <metatrafficUnicastLocatorList>

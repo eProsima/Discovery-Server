@@ -13,12 +13,12 @@
 
     <clients>
         <client name="client1_server1" profile_name="UDP_client1_server1">
-            <subscriber /> <!-- defaults to helloworld type -->
+            <subscriber topic="HelloWorldTopic"/>
             <publisher topic="topic1"/>
             <publisher topic="topic2"/>
         </client>
         <client name="client2_server1" profile_name="UDP_client2_server1">
-            <publisher />  <!-- defaults to helloworld type -->
+            <publisher topic="HelloWorldTopic"/>
             <subscriber topic="topic1"/>
             <subscriber topic="topic2"/>
         </client>
@@ -37,16 +37,12 @@
                     <discovery_config>
                         <discoveryProtocol>CLIENT</discoveryProtocol>
                         <discoveryServersList>
-                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
-                                <metatrafficUnicastLocatorList>
-                                    <locator>
-                                        <udpv4>
-                                            <address>127.0.0.1</address>
-                                            <port>24811</port>
-                                        </udpv4>
-                                    </locator>
-                                </metatrafficUnicastLocatorList>
-                            </RemoteServer>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>24811</port>
+                                </udpv4>
+                            </locator>
                         </discoveryServersList>
                     </discovery_config>
                 </builtin>
@@ -60,16 +56,12 @@
                     <discovery_config>
                         <discoveryProtocol>CLIENT</discoveryProtocol>
                         <discoveryServersList>
-                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
-                                <metatrafficUnicastLocatorList>
-                                    <locator>
-                                        <udpv4>
-                                            <address>127.0.0.1</address>
-                                            <port>24811</port>
-                                        </udpv4>
-                                    </locator>
-                                </metatrafficUnicastLocatorList>
-                            </RemoteServer>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>24811</port>
+                                </udpv4>
+                            </locator>
                         </discoveryServersList>
                     </discovery_config>
                 </builtin>
@@ -83,6 +75,11 @@
 
         <topic profile_name="topic2">
             <name>topic_2</name>
+            <dataType>HelloWorld</dataType>
+        </topic>
+
+        <topic profile_name="HelloWorldTopic">
+            <name>HelloWorldTopic</name>
             <dataType>HelloWorld</dataType>
         </topic>
 

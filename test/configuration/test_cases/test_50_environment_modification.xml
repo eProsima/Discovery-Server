@@ -37,11 +37,11 @@
     </simples>
 
 
-    <snapshots file="./test_39_environment_modification~">
-        <snapshot time="4">test_39_environment_modification_initial</snapshot>
-        <snapshot time="7">test_39_environment_modification_add_server2</snapshot>
-        <snapshot time="12">test_39_environment_modification_add_server1</snapshot>
-        <snapshot time="16">test_39_environment_modification_final</snapshot>
+    <snapshots file="./test_50_environment_modification~">
+        <snapshot time="4">test_50_environment_modification_initial</snapshot>
+        <snapshot time="7">test_50_environment_modification_add_server2</snapshot>
+        <snapshot time="12">test_50_environment_modification_add_server1</snapshot>
+        <snapshot time="16">test_50_environment_modification_final</snapshot>
     </snapshots>
 
     <environment>
@@ -58,16 +58,12 @@
                     <discovery_config>
                         <discoveryProtocol>CLIENT</discoveryProtocol>
                         <discoveryServersList>
-                            <RemoteServer prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41">
-                                <metatrafficUnicastLocatorList>
-                                    <locator>
-                                        <udpv4>
-                                            <address>127.0.0.1</address>
-                                            <port>38811</port>
-                                        </udpv4>
-                                    </locator>
-                                </metatrafficUnicastLocatorList>
-                            </RemoteServer>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>38811</port>
+                                </udpv4>
+                            </locator>
                         </discoveryServersList>
                         <initialAnnouncements>
                             <count>0</count>
@@ -95,16 +91,12 @@
                     <discovery_config>
                         <discoveryProtocol>CLIENT</discoveryProtocol>
                         <discoveryServersList>
-                            <RemoteServer prefix="44.53.01.5f.45.50.52.4f.53.49.4d.41">
-                                <metatrafficUnicastLocatorList>
-                                    <locator>
-                                        <udpv4>
-                                            <address>127.0.0.1</address>
-                                            <port>38812</port>
-                                        </udpv4>
-                                    </locator>
-                                </metatrafficUnicastLocatorList>
-                            </RemoteServer>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>38812</port>
+                                </udpv4>
+                            </locator>
                         </discoveryServersList>
                         <initialAnnouncements>
                             <count>0</count>
@@ -126,9 +118,11 @@
                     <discovery_config>
                         <discoveryProtocol>SERVER</discoveryProtocol>
                         <initialAnnouncements>
-                            <count>0</count>
+                            <count>5</count>
                         </initialAnnouncements>
-                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseAnnouncement>
+                            <nanosec>500000000</nanosec>
+                        </leaseAnnouncement>
                         <leaseDuration>DURATION_INFINITY</leaseDuration>
                     </discovery_config>
                     <metatrafficUnicastLocatorList>
@@ -154,9 +148,11 @@
                             <nanosec>20000000</nanosec>
                         </clientAnnouncementPeriod>
                         <initialAnnouncements>
-                            <count>0</count>
+                            <count>5</count>
                         </initialAnnouncements>
-                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseAnnouncement>
+                            <nanosec>500000000</nanosec>
+                        </leaseAnnouncement>
                         <leaseDuration>DURATION_INFINITY</leaseDuration>
                     </discovery_config>
                     <metatrafficUnicastLocatorList>

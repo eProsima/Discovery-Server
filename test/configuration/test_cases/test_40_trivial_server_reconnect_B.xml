@@ -19,9 +19,11 @@
                 <discovery_config>
                     <discoveryProtocol>SERVER</discoveryProtocol>
                     <initialAnnouncements>
-                        <count>0</count>
+                        <count>5</count>
                     </initialAnnouncements>
-                    <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                    <leaseAnnouncement>
+                        <nanosec>500000000</nanosec>
+                    </leaseAnnouncement>
                     <leaseDuration>DURATION_INFINITY</leaseDuration>
                 </discovery_config>
                 <metatrafficUnicastLocatorList>
