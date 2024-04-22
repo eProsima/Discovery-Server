@@ -1642,7 +1642,7 @@ void DiscoveryServerManager::MapServerInfo(
 
     if (prefix == c_GuidPrefix_Unknown)
     {
-        LOG_ERROR("Servers cannot have a framework provided prefix"); // at least for now
+        LOG_INFO("Guidless server, locators must be set directly from the XML");
         return;
     }
 

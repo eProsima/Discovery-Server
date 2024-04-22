@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DS_Snapshots xmlns="http://www.eprosima.com/XMLSchemas/ds-snapshot">
+    <DS_Snapshot timestamp="1713781238422" process_time="6000" last_pdp_callback_time="1393" last_edp_callback_time="1437" someone="true">
+        <description>test_48_guidless_complex_snapshot_1</description>
+        <ptdb guid_prefix="01.0f.f4.a0.a2.c1.a2.63.00.00.00.00" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="01.0f.f4.a0.03.08.3c.c2.78.31.f0.9f" guid_entity="0.0.1.c1" server="false" alive="true" name="eProsima Guidless Server" discovered_timestamp="114"/>
+            <ptdi guid_prefix="01.0f.f4.a0.1c.20.4b.70.45.e0.dc.c2" guid_entity="0.0.1.c1" server="false" alive="true" name="eProsima Guidless Server" discovered_timestamp="119"/>
+            <ptdi guid_prefix="01.0f.f4.a0.a2.c1.a2.63.01.00.00.00" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_server1" discovered_timestamp="928">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="01.0f.f4.a0.a2.c1.a2.63.01.00.00.00" guid_entity="0.0.1.3" discovered_timestamp="1391"/>
+            </ptdi>
+            <ptdi guid_prefix="01.0f.f4.a0.a2.c1.a2.63.02.00.00.00" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_server2" discovered_timestamp="932">
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="01.0f.f4.a0.a2.c1.a2.63.02.00.00.00" guid_entity="0.0.2.4" discovered_timestamp="1390"/>
+                <publisher type="HelloWorld" topic="topic_2" guid_prefix="01.0f.f4.a0.a2.c1.a2.63.02.00.00.00" guid_entity="0.0.1.3" discovered_timestamp="1389"/>
+            </ptdi>
+            <ptdi guid_prefix="01.0f.f4.a0.a2.c1.a2.63.03.00.00.00" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_server3" discovered_timestamp="484">
+                <subscriber type="HelloWorld" topic="topic_2" guid_prefix="01.0f.f4.a0.a2.c1.a2.63.03.00.00.00" guid_entity="0.0.2.4" discovered_timestamp="935"/>
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="01.0f.f4.a0.a2.c1.a2.63.03.00.00.00" guid_entity="0.0.1.3" discovered_timestamp="935"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="01.0f.f4.a0.a2.c1.a2.63.01.00.00.00" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="01.0f.f4.a0.1c.20.4b.70.45.e0.dc.c2" guid_entity="0.0.1.c1" server="false" alive="true" name="eProsima Guidless Server" discovered_timestamp="476"/>
+            <ptdi guid_prefix="01.0f.f4.a0.a2.c1.a2.63.01.00.00.00" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="25">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="01.0f.f4.a0.a2.c1.a2.63.01.00.00.00" guid_entity="0.0.1.3" discovered_timestamp="25"/>
+            </ptdi>
+            <ptdi guid_prefix="01.0f.f4.a0.a2.c1.a2.63.02.00.00.00" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_server2" discovered_timestamp="1392">
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="01.0f.f4.a0.a2.c1.a2.63.02.00.00.00" guid_entity="0.0.2.4" discovered_timestamp="1426"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="01.0f.f4.a0.a2.c1.a2.63.02.00.00.00" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="01.0f.f4.a0.03.08.3c.c2.78.31.f0.9f" guid_entity="0.0.1.c1" server="false" alive="true" name="eProsima Guidless Server" discovered_timestamp="481"/>
+            <ptdi guid_prefix="01.0f.f4.a0.a2.c1.a2.63.01.00.00.00" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_server1" discovered_timestamp="1391">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="01.0f.f4.a0.a2.c1.a2.63.01.00.00.00" guid_entity="0.0.1.3" discovered_timestamp="1407"/>
+            </ptdi>
+            <ptdi guid_prefix="01.0f.f4.a0.a2.c1.a2.63.02.00.00.00" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="28">
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="01.0f.f4.a0.a2.c1.a2.63.02.00.00.00" guid_entity="0.0.2.4" discovered_timestamp="30"/>
+                <publisher type="HelloWorld" topic="topic_2" guid_prefix="01.0f.f4.a0.a2.c1.a2.63.02.00.00.00" guid_entity="0.0.1.3" discovered_timestamp="28"/>
+            </ptdi>
+            <ptdi guid_prefix="01.0f.f4.a0.a2.c1.a2.63.03.00.00.00" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_server3" discovered_timestamp="1392">
+                <subscriber type="HelloWorld" topic="topic_2" guid_prefix="01.0f.f4.a0.a2.c1.a2.63.03.00.00.00" guid_entity="0.0.2.4" discovered_timestamp="1408"/>
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="01.0f.f4.a0.a2.c1.a2.63.03.00.00.00" guid_entity="0.0.1.3" discovered_timestamp="1408"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="01.0f.f4.a0.a2.c1.a2.63.03.00.00.00" guid_entity="0.0.1.c1">
+            <ptdi guid_prefix="01.0f.f4.a0.a2.c1.a2.63.00.00.00.00" guid_entity="0.0.1.c1" server="true" alive="true" name="server3" discovered_timestamp="484"/>
+            <ptdi guid_prefix="01.0f.f4.a0.a2.c1.a2.63.02.00.00.00" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_server2" discovered_timestamp="1392">
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="01.0f.f4.a0.a2.c1.a2.63.02.00.00.00" guid_entity="0.0.2.4" discovered_timestamp="1421"/>
+                <publisher type="HelloWorld" topic="topic_2" guid_prefix="01.0f.f4.a0.a2.c1.a2.63.02.00.00.00" guid_entity="0.0.1.3" discovered_timestamp="1421"/>
+            </ptdi>
+            <ptdi guid_prefix="01.0f.f4.a0.a2.c1.a2.63.03.00.00.00" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="33">
+                <subscriber type="HelloWorld" topic="topic_2" guid_prefix="01.0f.f4.a0.a2.c1.a2.63.03.00.00.00" guid_entity="0.0.2.4" discovered_timestamp="33"/>
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="01.0f.f4.a0.a2.c1.a2.63.03.00.00.00" guid_entity="0.0.1.3" discovered_timestamp="33"/>
+            </ptdi>
+        </ptdb>
+    </DS_Snapshot>
+</DS_Snapshots>
