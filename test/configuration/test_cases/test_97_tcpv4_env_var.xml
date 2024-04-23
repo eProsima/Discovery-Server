@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
 
-    <!-- Force the clients ports to be higher than the one of the server. This will ensure
-         than an extra CONNECT channel is created when the new locator without localhost
-         address is received. In normal behavior this will be avoided by using default guids
-         and letting Fast DDS convert the remote locators, but it cannot be done here
-         because we need to verify with a fixed snapshot. -->
+    <!-- In order to avoid extra channel connections between TCP participants
+         we will use the whitelist to force the clients to send their locators
+         with localhost. Otherwise, the server would not reuse the initial
+         channel created and it might cause a failure in the connection,
+         depending of the value of the random logical port assigned.
+         This could be avoided by using default GUIDs. -->
 
     <servers>
         <server name="server" profile_name="TCPv4_server"/>
