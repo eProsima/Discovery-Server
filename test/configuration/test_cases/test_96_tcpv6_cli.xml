@@ -21,15 +21,21 @@
                 <transport_id>transport_client_1</transport_id>
                 <type>TCPv6</type>
                 <listening_ports>
-                    <port>42101</port>
+                    <port>0</port>
                 </listening_ports>
+                <interfaceWhiteList>
+                    <address>::1</address>
+                </interfaceWhiteList>
             </transport_descriptor>
             <transport_descriptor>
                 <transport_id>transport_client_2</transport_id>
                 <type>TCPv6</type>
                 <listening_ports>
-                    <port>42102</port>
+                    <port>0</port>
                 </listening_ports>
+                <interfaceWhiteList>
+                    <address>::1</address>
+                </interfaceWhiteList>
             </transport_descriptor>
         </transport_descriptors>
 
