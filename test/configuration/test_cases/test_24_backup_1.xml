@@ -13,19 +13,19 @@
 
     <clients>
         <client name="client1_server1" profile_name="UDP_client1_server1">
-            <subscriber /> <!-- defaults to helloworld type -->
+            <subscriber topic="HelloWorldTopic"/>
             <publisher topic="topic1"/>
             <publisher topic="topic2"/>
         </client>
         <client name="client2_server1" profile_name="UDP_client2_server1">
-            <publisher />  <!-- defaults to helloworld type -->
+            <publisher topic="HelloWorldTopic"/>
             <subscriber topic="topic1"/>
             <subscriber topic="topic2"/>
         </client>
     </clients>
 
     <snapshots file="./test_24_backup_1.snapshot~">
-        <snapshot time="7">test_24_backup_1_snapshot_clients</snapshot>
+        <snapshot time="10">test_24_backup_1_snapshot_clients</snapshot>
     </snapshots>
 
     <profiles>
@@ -83,6 +83,11 @@
 
         <topic profile_name="topic2">
             <name>topic_2</name>
+            <dataType>HelloWorld</dataType>
+        </topic>
+
+        <topic profile_name="HelloWorldTopic">
+            <name>HelloWorldTopic</name>
             <dataType>HelloWorld</dataType>
         </topic>
 
