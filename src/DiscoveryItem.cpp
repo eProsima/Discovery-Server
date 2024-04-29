@@ -382,6 +382,7 @@ std::vector<const ParticipantDiscoveryItem*> DiscoveryItemDatabase::FindParticip
 
 bool DiscoveryItemDatabase::AddParticipant(
         const GUID_t& spokesman,
+        const std::string& srcName,
         const GUID_t& ptid,
         const std::string& name,
         const std::chrono::steady_clock::time_point& discovered_timestamp,
@@ -389,7 +390,7 @@ bool DiscoveryItemDatabase::AddParticipant(
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    ParticipantDiscoveryDatabase& _database = image[spokesman];
+    ParticipantDiscoveryDatabase& _database = image.access_snapshot(spokesman, srcName);
     ParticipantDiscoveryDatabase::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
     if (it == _database.end() || *it != ptid)
@@ -455,6 +456,7 @@ template<class T>
 bool DiscoveryItemDatabase::AddEndPoint(
         T& (ParticipantDiscoveryItem::* m)() const,
         const GUID_t& spokesman,
+        const std::string& srcName,
         const GUID_t& ptid,
         const GUID_t& id,
         const std::string& _typename,
@@ -463,7 +465,7 @@ bool DiscoveryItemDatabase::AddEndPoint(
 {
     std::lock_guard<std::mutex> lock(database_mutex);
 
-    ParticipantDiscoveryDatabase& _database = image[spokesman];
+    ParticipantDiscoveryDatabase& _database = image.access_snapshot(spokesman, srcName);
     ParticipantDiscoveryDatabase::iterator it = std::lower_bound(_database.begin(), _database.end(), ptid);
 
     if (it == _database.end() || ptid == spokesman )
@@ -534,13 +536,14 @@ bool DiscoveryItemDatabase::RemoveEndPoint(
 
 bool DiscoveryItemDatabase::AddDataReader(
         const GUID_t& spokesman,
+        const std::string& srcName,
         const GUID_t& ptid,
         const GUID_t& sid,
         const std::string& _typename,
         const std::string& topicname,
         const std::chrono::steady_clock::time_point& discovered_timestamp)
 {
-    return AddEndPoint(&ParticipantDiscoveryItem::getDataReaders, spokesman, ptid, sid, _typename, topicname,
+    return AddEndPoint(&ParticipantDiscoveryItem::getDataReaders, spokesman, srcName, ptid, sid, _typename, topicname,
                    discovered_timestamp);
 }
 
@@ -554,13 +557,14 @@ bool DiscoveryItemDatabase::RemoveDataReader(
 
 bool DiscoveryItemDatabase::AddDataWriter(
         const GUID_t& spokesman,
+        const std::string& srcName,
         const GUID_t& ptid,
         const GUID_t& pid,
         const std::string& _typename,
         const std::string& topicname,
         const std::chrono::steady_clock::time_point& discovered_timestamp)
 {
-    return AddEndPoint(&ParticipantDiscoveryItem::getDataWriters, spokesman, ptid, pid, _typename, topicname,
+    return AddEndPoint(&ParticipantDiscoveryItem::getDataWriters, spokesman, srcName, ptid, pid, _typename, topicname,
                    discovered_timestamp);
 }
 
@@ -806,6 +810,26 @@ bool eprosima::discovery_server::operator ==(
     return false;
 }
 
+ParticipantDiscoveryDatabase& Snapshot::access_snapshot (
+        const GUID_t& id,
+        const std::string& name)
+{
+    auto it = std::lower_bound(begin(), end(), id);
+    const ParticipantDiscoveryDatabase* p = nullptr;
+
+    if (it == end() || *it != id)
+    {
+        // not there, emplace
+        p = &(*emplace(id, name).first);
+    }
+    else
+    {
+        p = &*it;
+    }
+
+    return const_cast<ParticipantDiscoveryDatabase&>(*p);
+}
+
 ParticipantDiscoveryDatabase& Snapshot::operator [](
         const GUID_t& id)
 {
@@ -815,7 +839,8 @@ ParticipantDiscoveryDatabase& Snapshot::operator [](
     if (it == end() || *it != id)
     {
         // not there, emplace
-        p = &(*emplace(id).first);
+        // should never be called from this operator
+        p = &(*emplace(id, "").first);
     }
     else
     {
@@ -876,6 +901,11 @@ void Snapshot::to_xml(
             std::stringstream sstream;
             sstream << discovery_database.endpoint_guid.entityId;
             pPtdb->SetAttribute(s_sGUID_entity.c_str(), sstream.str().c_str());
+        }
+        {
+            std::stringstream sstream;
+            sstream << discovery_database.participant_name_;
+            pPtdb->SetAttribute(s_sName.c_str(), sstream.str().c_str());
         }
 
         for (const ParticipantDiscoveryItem& discovery_item : discovery_database)

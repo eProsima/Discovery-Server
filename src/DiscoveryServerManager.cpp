@@ -1594,6 +1594,7 @@ void DiscoveryServerManager::on_participant_discovery(
 
     // if the callback origin was removed ignore
     GUID_t srcGuid = participant->guid();
+    std::string srcName = participant->get_qos().name().to_string();
     if ( nullptr == getParticipant(srcGuid))
     {
         LOG_INFO("Received onParticipantDiscovery callback from unknown participant: " << srcGuid);
@@ -1624,7 +1625,7 @@ void DiscoveryServerManager::on_participant_discovery(
     {
         case ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT:
         {
-            state.AddParticipant(srcGuid, partid, info.info.m_participantName.to_string(), callback_time,
+            state.AddParticipant(srcGuid, srcName, partid, info.info.m_participantName.to_string(), callback_time,
                     server);
             break;
         }
@@ -1649,6 +1650,7 @@ void DiscoveryServerManager::on_data_reader_discovery(
 
     // if the callback origin was removed ignore
     GUID_t srcGuid = participant->guid();
+    std::string srcName = participant->get_qos().name().to_string();
     if ( nullptr == getParticipant(srcGuid))
     {
         LOG_INFO("Received SubscriberDiscovery callback from unknown participant: " << srcGuid);
@@ -1704,7 +1706,7 @@ void DiscoveryServerManager::on_data_reader_discovery(
     switch (info.status)
     {
         case DS::DISCOVERED_READER:
-            state.AddDataReader(srcGuid, partid, subsid, info.info.typeName().to_string(),
+            state.AddDataReader(srcGuid, srcName, partid, subsid, info.info.typeName().to_string(),
                     info.info.topicName().to_string(), callback_time);
             break;
         case DS::REMOVED_READER:
@@ -1729,6 +1731,7 @@ void DiscoveryServerManager::on_data_writer_discovery(
 
     // if the callback origin was removed ignore
     GUID_t srcGuid = participant->guid();
+    std::string srcName = participant->get_qos().name().to_string();
     if ( nullptr == getParticipant(srcGuid))
     {
         LOG_INFO("Received PublisherDiscovery callback from unknown participant: " << srcGuid);
@@ -1786,6 +1789,7 @@ void DiscoveryServerManager::on_data_writer_discovery(
         case DS::DISCOVERED_WRITER:
 
             state.AddDataWriter(srcGuid,
+                    srcName,
                     partid,
                     pubsid,
                     info.info.typeName().to_string(),
