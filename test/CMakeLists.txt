@@ -126,8 +126,6 @@ set(TEST_CASE_LIST)
 
 # Test that are leaky and may fail
 set(FAIL_TEST_CASES
-    test_24_backup
-    test_25_backup_compatibility
     test_26_backup_restore
     test_33_superclient_complex
     test_99_tcp)
