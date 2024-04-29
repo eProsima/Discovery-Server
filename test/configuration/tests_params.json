@@ -65,6 +65,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_01_trivial.snapshot"
                         }
                     }
@@ -100,6 +101,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_02_single_server_medium.snapshot"
                         }
                     }
@@ -136,6 +138,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_03_single_server_large.snapshot"
                         }
                     }
@@ -171,6 +174,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_04_server_ping.snapshot"
                         }
                     }
@@ -206,6 +210,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_05_server_double_ping.snapshot"
                         }
                     }
@@ -241,6 +246,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_06_diamond_servers.snapshot"
                         }
                     }
@@ -276,6 +282,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_07_server_endpoints_two_servers.snapshot"
                         }
                     }
@@ -311,6 +318,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_08_server_endpoints_four_clients.snapshot"
                         }
                     }
@@ -346,6 +354,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_09_servers_serial.snapshot"
                         }
                     }
@@ -381,6 +390,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_10_server_redundancy.snapshot"
                         }
                     }
@@ -416,6 +426,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_11_remote_servers.snapshot"
                         }
                     }
@@ -451,6 +462,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_12_virtual_topics.snapshot"
                         }
                     }
@@ -486,6 +498,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_13_disposals_single_server.snapshot"
                         }
                     }
@@ -521,6 +534,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_14_disposals_remote_servers.snapshot"
                         }
                     }
@@ -556,6 +570,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_15_disposals_client_servers.snapshot"
                         }
                     }
@@ -591,6 +606,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_16_lease_duration_single_client.snapshot"
                         }
                     }
@@ -632,6 +648,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_17_lease_duration_remove_client_server.snapshot"
                         }
                     }
@@ -668,6 +685,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_18_disposals_remote_servers_multiprocess.snapshot"
                         }
                     }
@@ -733,6 +751,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_19_disposals_break_builtin_connections.snapshot"
                         }
                     }
@@ -768,6 +787,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_20_break_builtin_connections.snapshot"
                         }
                     }
@@ -809,6 +829,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_21_disposals_remote_server_trivial.snapshot"
                         }
                     }
@@ -851,6 +872,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_22_environment_variable_setup.snapshot"
                         }
                     }
@@ -881,6 +903,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_23_fast_discovery_server_tool.snapshot"
                         }
                     }
@@ -938,6 +961,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_24_backup_1.snapshot"
                         }
                     }
@@ -962,6 +986,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_24_backup.snapshot"
                         }
                     }
@@ -998,6 +1023,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_25_backup_compatibility.snapshot"
                         }
                     }
@@ -1034,6 +1060,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_26_backup_restore.snapshot"
                         }
                     }
@@ -1059,6 +1086,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_26_backup_restore_1.snapshot"
                         }
                     }
@@ -1089,6 +1117,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_27_slow_arise.snapshot"
                         }
                     }
@@ -1119,6 +1148,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_28_slow_arise_interconnection.snapshot"
                         }
                     }
@@ -1149,6 +1179,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_29_server_ping_late_joiner.snapshot"
                         }
                     }
@@ -1179,6 +1210,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_30_connect_locally_with_remote_entity.snapshot"
                         }
                     }
@@ -1209,6 +1241,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_31_matched_servers_not_share_info.snapshot"
                         }
                     }
@@ -1239,6 +1272,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_32_superclient_trivial.snapshot"
                         }
                     }
@@ -1270,6 +1304,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_33_superclient_complex.snapshot"
                         }
                     }
@@ -1300,6 +1335,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_34_connect_locally_with_remote_server.snapshot"
                         }
                     }
@@ -1330,6 +1366,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_35_fds_two_connected_servers_with_clients.snapshot"
                         }
                     }
@@ -1421,6 +1458,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_36_dns_environment_variable_setup.snapshot"
                         }
                     }
@@ -1473,6 +1511,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_37_dns_fast_discovery_server_tool.snapshot"
                         }
                     }
@@ -1534,6 +1573,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_38_self_connection.snapshot"
                         }
                     }
@@ -1573,6 +1613,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_trivial_reconnect_A.snapshot"
                         }
                     }
@@ -1614,6 +1655,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_39_trivial_reconnect_B.snapshot"
                         }
                     }
@@ -1654,6 +1696,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_40_trivial_server_reconnect_A.snapshot"
                         }
                     }
@@ -1696,6 +1739,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_40_trivial_server_reconnect_B.snapshot"
                         }
                     }
@@ -1735,6 +1779,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_41_reconnect_with_clients_A.snapshot"
                         }
                     }
@@ -1776,6 +1821,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_41_reconnect_with_clients_B.snapshot"
                         }
                     }
@@ -1815,6 +1861,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_42_server_reconnect_with_clients_A.snapshot"
                         }
                     }
@@ -1856,6 +1903,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_42_server_reconnect_with_clients_B.snapshot"
                         }
                     }
@@ -1910,6 +1958,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_43_complex_reconnect_A1.snapshot"
                         }
                     }
@@ -1940,6 +1989,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_43_complex_reconnect_A2.snapshot"
                         }
                     }
@@ -1969,6 +2019,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_43_complex_reconnect_B1.snapshot"
                         }
                     }
@@ -1999,6 +2050,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_43_complex_reconnect_B2.snapshot"
                         }
                     }
@@ -2029,6 +2081,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_44_fast_discovery_server_tool_reconnect.snapshot"
                         }
                     }
@@ -2107,6 +2160,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_45_trivial_client_reconnect_client.snapshot"
                         }
                     }
@@ -2179,6 +2233,11 @@
                         {
                             "disposals": false,
                             "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": true,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_46_guidless_discovery.snapshot"
                         }
                     }
                 },
@@ -2237,6 +2296,11 @@
                         {
                             "disposals": false,
                             "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": true,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_47_guidless_server_double_ping.snapshot"
                         }
                     }
                 }
@@ -2268,6 +2332,11 @@
                         {
                             "disposals": false,
                             "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": true,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_48_guidless_complex.snapshot"
                         }
                     }
                 },
@@ -2369,6 +2438,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_50_environment_modification.snapshot"
                         }
                     }
@@ -2403,6 +2473,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_60_disconnection_A.snapshot"
                         }
                     }
@@ -2426,6 +2497,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_60_disconnection_B.snapshot"
                         }
                     }
@@ -2467,6 +2539,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_61_superclient_environment_variable.snapshot"
                         }
                     }
@@ -2501,6 +2574,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_95_tcpv4_cli.snapshot"
                         }
                     }
@@ -2556,6 +2630,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_96_tcpv6_cli.snapshot"
                         }
                     }
@@ -2618,6 +2693,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_97_tcpv4_env_var.snapshot"
                         }
                     }
@@ -2659,6 +2735,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_98_tcpv6_env_var.snapshot"
                         }
                     }
@@ -2694,6 +2771,7 @@
                         },
                         "ground_truth_validation":
                         {
+                            "guidless": false,
                             "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_99_tcp.snapshot"
                         }
                     }
