@@ -135,8 +135,7 @@ set(TEST_CASE_LIST)
 
 # Test that are leaky and may fail
 set(FAIL_TEST_CASES
-    test_26_backup_restore
-    test_33_superclient_complex)
+    test_26_backup_restore)
 
 # For each test case, create different executables for each configuration
 foreach(TEST IN LISTS TEST_LIST)
