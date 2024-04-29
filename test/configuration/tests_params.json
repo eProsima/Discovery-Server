@@ -1042,7 +1042,7 @@
                 "restore":
                 {
                     "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_26_backup_restore_1.xml",
-                    "creation_time": 4,
+                    "creation_time": 6,
                     "validation":
                     {
                         "count_lines_validation":
