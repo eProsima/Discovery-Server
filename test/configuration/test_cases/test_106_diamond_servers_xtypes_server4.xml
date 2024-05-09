@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
+    <servers>
+        <server name="server4" prefix="44.49.53.43.53.45.52.56.45.52.5f.34" profile_name="UDP_server4"/>
+    </servers>
+
+    <snapshots file="./test_106_diamond_servers_clients.snapshot~">
+        <snapshot time="4">test_106_diamond_servers_snapshot_server4</snapshot>
+    </snapshots>
+
+    <profiles>
+        <participant profile_name="UDP_server1">
+            <rtps>
+                <prefix>44.49.53.43.53.45.52.56.45.52.5F.31</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>SERVER</discoveryProtocol>
+                        <initialAnnouncements>
+                            <count>5</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>
+                            <nanosec>500000000</nanosec>
+                        </leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                                <port>06811</port>
+                            </udpv4>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_server2">
+            <rtps>
+                <prefix>44.49.53.43.53.45.52.56.45.52.5F.32</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryServersList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>06811</port>
+                                </udpv4>
+                            </locator>
+                        </discoveryServersList>
+                        <discoveryProtocol>SERVER</discoveryProtocol>
+                        <initialAnnouncements>
+                            <count>5</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>
+                            <nanosec>500000000</nanosec>
+                        </leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                                <port>06812</port>
+                            </udpv4>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_server3">
+            <rtps>
+                <prefix>44.49.53.43.53.45.52.56.45.52.5F.33</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryServersList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>06811</port>
+                                </udpv4>
+                            </locator>
+                        </discoveryServersList>
+                        <discoveryProtocol>SERVER</discoveryProtocol>
+                        <initialAnnouncements>
+                            <count>5</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>
+                            <nanosec>500000000</nanosec>
+                        </leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                                <port>06813</port>
+                            </udpv4>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_server4">
+            <rtps>
+                <prefix>44.49.53.43.53.45.52.56.45.52.5F.33</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryServersList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>06812</port>
+                                </udpv4>
+                            </locator>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>06813</port>
+                                </udpv4>
+                            </locator>
+                        </discoveryServersList>
+                        <discoveryProtocol>SERVER</discoveryProtocol>
+                        <initialAnnouncements>
+                            <count>5</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>
+                            <nanosec>500000000</nanosec>
+                        </leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                                <port>06814</port>
+                            </udpv4>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+     </profiles>
+</DS>

@@ -106,6 +106,13 @@ list(APPEND TEST_LIST
         test_97_tcpv4_env_var
         test_98_tcpv6_env_var
         test_99_tcp
+
+        test_101_trivial_xtypes
+        test_102_single_server_medium_xtypes
+        test_103_single_server_large_xtypes
+        test_106_diamond_servers_xtypes
+        test_108_server_endpoints_four_clients_xtypes
+        test_114_disposals_remote_servers_xtypes
     )
 
 # This test does not run in Fast DDS 2.0.x because signal handling for closing the tool was not

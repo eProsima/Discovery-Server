@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
+    <servers>
+        <server name="server1" profile_name="UDP_server1" />
+        <server name="server2" prefix="44.49.53.43.53.45.52.56.45.52.5f.32" profile_name="UDP_server2">
+            <subscriber topic="topic1" removal_time="7"/>
+        </server>
+        <server name="server3" prefix="44.49.53.43.53.45.52.56.45.52.5f.33" profile_name="UDP_server3" removal_time="22">
+            <subscriber topic="topic1" removal_time="4"/>
+            <subscriber topic="topic1" creation_time="7"/>
+        </server>
+    </servers>
+
+    <snapshots file="./test_114_disposals_remote_servers_servers.snapshot~">
+
+        <!-- Starting point -->
+        <snapshot time="3">test_114_disposals_remote_servers_snapshot_1_servers</snapshot>
+        <!-- 4 - Remove subscriber1 from server3 -->
+        <snapshot time="6">test_114_disposals_remote_servers_snapshot_2_servers</snapshot>
+        <!--
+            7 - Remove subscriber1 from server2
+            7 - Create subscriber2 in server3
+         -->
+        <snapshot time="9">test_114_disposals_remote_servers_snapshot_3_servers</snapshot>
+        <!-- 10 - Remove publisher 1 from client1_server1 -->
+        <snapshot time="13">test_114_disposals_remote_servers_snapshot_4_servers</snapshot>
+        <!-- 14 - Remove client1_server1 -->
+        <snapshot time="17">test_114_disposals_remote_servers_snapshot_5_servers</snapshot>
+        <!--
+            18 - Create client2_server1
+            18 - Create a publisher in client2_server1
+         -->
+        <snapshot time="21">test_114_disposals_remote_servers_snapshot_6_servers</snapshot>
+        <!-- 22 - Remove server3 -->
+        <snapshot time="25">test_114_disposals_remote_servers_snapshot_7_servers</snapshot>
+
+    </snapshots>
+
+    <profiles>
+        <participant profile_name="UDP_server1">
+            <rtps>
+                <prefix>44.49.53.43.53.45.52.56.45.52.5F.31</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>SERVER</discoveryProtocol>
+                    </discovery_config>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                                <port>14811</port>
+                            </udpv4>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_server2">
+            <rtps>
+                <prefix>44.49.53.43.53.45.52.56.45.52.5F.32</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryServersList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>14811</port>
+                                </udpv4>
+                            </locator>
+                        </discoveryServersList>
+                        <discoveryProtocol>SERVER</discoveryProtocol>
+                    </discovery_config>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                                <port>14812</port>
+                            </udpv4>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_server3">
+            <rtps>
+                <prefix>44.49.53.43.53.45.52.56.45.52.5F.33</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryServersList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>14812</port>
+                                </udpv4>
+                            </locator>
+                        </discoveryServersList>
+                        <discoveryProtocol>SERVER</discoveryProtocol>
+                        <leaseAnnouncement>
+                            <nanosec>500000000</nanosec>
+                        </leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                                <port>14813</port>
+                            </udpv4>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <topic profile_name="topic1">
+            <name>topic_1</name>
+            <dataType>HelloWorld</dataType>
+        </topic>
+
+     </profiles>
+</DS>
