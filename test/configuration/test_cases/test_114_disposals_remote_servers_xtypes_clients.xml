@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
+    <clients>
+        <client removal_time="14" name="client1_server1" profile_name="UDP_client1_server1">
+            <publisher removal_time="10" topic="topic1"/>
+        </client>
+        <client creation_time="18" name="client2_server1" profile_name="UDP_client2_server1">
+            <publisher topic="topic1"/>
+        </client>
+    </clients>
+
+    <snapshots file="./test_114_disposals_remote_servers_clients.snapshot~">
+
+        <!-- Starting point -->
+        <snapshot time="3">test_114_disposals_remote_servers_snapshot_1_clients</snapshot>
+        <!-- 4 - Remove subscriber1 from server3 -->
+        <snapshot time="6">test_114_disposals_remote_servers_snapshot_2_clients</snapshot>
+        <!--
+            7 - Remove subscriber1 from server2
+            7 - Create subscriber2 in server3
+         -->
+        <snapshot time="9">test_114_disposals_remote_servers_snapshot_3_clients</snapshot>
+        <!-- 10 - Remove publisher 1 from client1_server1 -->
+        <snapshot time="13">test_114_disposals_remote_servers_snapshot_4_clients</snapshot>
+        <!-- 14 - Remove client1_server1 -->
+        <!-- No clients here -->
+        <!--
+            18 - Create client2_server1
+            18 - Create a publisher in client2_server1
+         -->
+        <snapshot time="21">test_114_disposals_remote_servers_snapshot_6_clients</snapshot>
+        <!-- 22 - Remove server3 -->
+        <snapshot time="25">test_114_disposals_remote_servers_snapshot_7_clients</snapshot>
+
+    </snapshots>
+
+    <profiles>
+        <participant profile_name="UDP_client1_server1" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.31.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>14811</port>
+                                </udpv4>
+                            </locator>
+                        </discoveryServersList>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="UDP_client2_server1" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.32.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>14811</port>
+                                </udpv4>
+                            </locator>
+                        </discoveryServersList>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <topic profile_name="topic1">
+            <name>topic_1</name>
+            <dataType>HelloWorld</dataType>
+        </topic>
+
+     </profiles>
+</DS>
