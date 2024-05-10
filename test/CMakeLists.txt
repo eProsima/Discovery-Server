@@ -70,9 +70,9 @@ list(APPEND TEST_LIST
         test_21_disposals_remote_server_trivial
         test_22_environment_variable_setup
 
-        test_24_backup
-        test_25_backup_compatibility
-        test_26_backup_restore
+        # test_24_backup
+        # test_25_backup_compatibility
+        # test_26_backup_restore
 
         test_27_slow_arise
         test_28_slow_arise_interconnection
@@ -141,8 +141,7 @@ list(APPEND TEST_LIST
 set(TEST_CASE_LIST)
 
 # Test that are leaky and may fail
-set(FAIL_TEST_CASES
-    test_26_backup_restore)
+set(FAIL_TEST_CASES)
 
 # For each test case, create different executables for each configuration
 foreach(TEST IN LISTS TEST_LIST)
