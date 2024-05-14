@@ -160,7 +160,7 @@ void HelloWorldSubscriber::SubListener::on_subscription_matched(
 void HelloWorldSubscriber::SubListener::on_data_available(
         DataReader* sub)
 {
-    if (sub->take_next_sample((void*)&m_hello, &m_info) == ReturnCode_t::RETCODE_OK)
+    if (sub->take_next_sample((void*)&m_hello, &m_info) == RETCODE_OK)
     {
         if (m_info.sample_state == NOT_READ_SAMPLE_STATE)
         {
