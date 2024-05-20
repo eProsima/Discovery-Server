@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-#include <fastrtps/rtps/common/Guid.h>
+#include <fastdds/rtps/common/Guid.h>
 
 namespace tinyxml2 {
 class XMLElement;
