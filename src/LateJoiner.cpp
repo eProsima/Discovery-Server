@@ -19,7 +19,7 @@
 #include "log/DSLog.h"
 #include "DiscoveryServerManager.h"
 
-using namespace eprosima::fastrtps;
+using namespace eprosima::fastdds;
 using namespace eprosima::discovery_server;
 // New API
 using namespace eprosima::fastdds::dds;

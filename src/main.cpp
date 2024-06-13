@@ -24,9 +24,9 @@
 #include "arguments.h"
 
 using namespace eprosima;
-using namespace fastrtps;
 using namespace fastdds;
-using namespace fastrtps::rtps;
+using namespace fastdds;
+using namespace fastdds::rtps;
 using namespace fastdds::rtps;
 using namespace discovery_server;
 

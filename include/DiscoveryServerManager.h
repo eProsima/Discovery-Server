@@ -32,9 +32,9 @@
 
 #include "DiscoveryItem.h"
 
-using namespace eprosima::fastrtps;
 using namespace eprosima::fastdds;
-using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds;
+using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::dds;
 
@@ -43,14 +43,14 @@ class XMLElement;
 } // namespace tinyxml2
 
 namespace eprosima {
-namespace fastrtps {
+namespace fastdds {
 namespace rtps {
 
 class PDP;
 class BuiltinProtocols;
 
 } // namespace rtps
-} // namespace fastrtps
+} // namespace fastdds
 
 namespace discovery_server {
 

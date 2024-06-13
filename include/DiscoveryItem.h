@@ -34,7 +34,7 @@ class XMLDocument;
 namespace eprosima {
 namespace discovery_server {
 
-typedef fastrtps::rtps::GUID_t GUID_t;
+typedef fastdds::rtps::GUID_t GUID_t;
 
 //! common discovery info
 struct DiscoveryItem

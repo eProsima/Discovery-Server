@@ -29,15 +29,15 @@
 #include "LateJoiner.h"
 #include "log/DSLog.h"
 
-using namespace eprosima::fastrtps;
 using namespace eprosima::fastdds;
-using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds;
+using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::rtps;
 using namespace eprosima::discovery_server;
 
 // non exported from Fast DDS (watch out they may be updated)
 namespace eprosima {
-namespace fastrtps {
+namespace fastdds {
 namespace DSxmlparser {
 const char* PROFILES = "profiles";
 const char* PROFILE_NAME = "profile_name";
@@ -50,7 +50,7 @@ const char* PUBLISHER = "publisher";
 const char* SUBSCRIBER = "subscriber";
 const char* TOPIC = "topic";
 } // namespace DSxmlparser
-} // namespace fastrtps
+} // namespace fastdds
 } // namespace eprosima
 
 /*static members*/
@@ -1402,7 +1402,7 @@ void DiscoveryServerManager::loadSubscriber(
     TopicAttributes topicAttr;
     if (topic_name != nullptr)
     {
-        if (!eprosima::fastrtps::rtps::RTPSDomain::get_topic_attributes_from_profile(std::string(
+        if (!eprosima::fastdds::rtps::RTPSDomain::get_topic_attributes_from_profile(std::string(
                     topic_name), topicAttr))
         {
             LOG_ERROR("DiscoveryServerManager::loadSubscriber couldn't load topic profile ");
@@ -1505,7 +1505,7 @@ void DiscoveryServerManager::loadPublisher(
     TopicAttributes topicAttr;
     if (topic_name != nullptr)
     {
-        if (!eprosima::fastrtps::rtps::RTPSDomain::get_topic_attributes_from_profile(std::string(
+        if (!eprosima::fastdds::rtps::RTPSDomain::get_topic_attributes_from_profile(std::string(
                     topic_name), topicAttr))
         {
             LOG_ERROR("DiscoveryServerManager::loadPublisher couldn't load topic profile ");
