@@ -33,8 +33,6 @@
 #include "DiscoveryItem.h"
 
 using namespace eprosima::fastdds;
-using namespace eprosima::fastdds;
-using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::dds;
 
@@ -87,7 +85,7 @@ class DelayedParticipantCreation;
 class DelayedParticipantDestruction;
 
 class DiscoveryServerManager
-    : public eprosima::fastdds::dds::DomainParticipantListener // receive discovery callback information and
+    : public DomainParticipantListener // receive discovery callback information and
                                                                // subscriber lifeliness information
 
 {

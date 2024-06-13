@@ -20,9 +20,8 @@
 #include "DiscoveryServerManager.h"
 
 using namespace eprosima::fastdds;
-using namespace eprosima::discovery_server;
-// New API
 using namespace eprosima::fastdds::dds;
+using namespace eprosima::discovery_server;
 
 // delayed creation of a new participant
 void DelayedParticipantCreation::operator ()(
@@ -31,8 +30,8 @@ void DelayedParticipantCreation::operator ()(
 
     DomainParticipant* p = DomainParticipantFactory::get_instance()->create_participant(0, qos, &manager);
 
-    fastdds::dds::Publisher* publisher_ = p->create_publisher(PUBLISHER_QOS_DEFAULT);
-    fastdds::dds::Subscriber* subscriber_ = p->create_subscriber(SUBSCRIBER_QOS_DEFAULT);
+    Publisher* publisher_ = p->create_publisher(PUBLISHER_QOS_DEFAULT);
+    Subscriber* subscriber_ = p->create_subscriber(SUBSCRIBER_QOS_DEFAULT);
 
     ParticipantCreatedEntityInfo info;
 
@@ -101,13 +100,13 @@ const LateJoinerDataTraits<DataWriter>::removeEndpoint LateJoinerDataTraits<Data
 
 /*static*/
 DataWriter* LateJoinerDataTraits<DataWriter>::createEndpoint(
-        fastdds::dds::DomainEntity* publisher,
+        DomainEntity* publisher,
         Topic* topic,
         const std::string& profile_name,
         void*)
 {
 
-    fastdds::dds::Publisher* pub = static_cast<fastdds::dds::Publisher*>(publisher);
+    Publisher* pub = static_cast<Publisher*>(publisher);
 
     if (profile_name.empty())
     {
@@ -129,12 +128,12 @@ const LateJoinerDataTraits<DataReader>::removeEndpoint LateJoinerDataTraits<Data
 
 /*static*/
 DataReader* LateJoinerDataTraits<DataReader>::createEndpoint(
-        fastdds::dds::DomainEntity* subscriber,
+        DomainEntity* subscriber,
         Topic* topic,
         const std::string& profile_name,
-        fastdds::dds::SubscriberListener* list /* = nullptr*/)
+        SubscriberListener* list /* = nullptr*/)
 {
-    fastdds::dds::Subscriber* sub = static_cast<fastdds::dds::Subscriber*>(subscriber);
+    Subscriber* sub = static_cast<Subscriber*>(subscriber);
 
     if (profile_name.empty())
     {

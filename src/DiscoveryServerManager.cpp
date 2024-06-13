@@ -30,8 +30,6 @@
 #include "log/DSLog.h"
 
 using namespace eprosima::fastdds;
-using namespace eprosima::fastdds;
-using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::rtps;
 using namespace eprosima::discovery_server;
 

@@ -25,8 +25,6 @@
 
 using namespace eprosima;
 using namespace fastdds;
-using namespace fastdds;
-using namespace fastdds::rtps;
 using namespace fastdds::rtps;
 using namespace discovery_server;
 
