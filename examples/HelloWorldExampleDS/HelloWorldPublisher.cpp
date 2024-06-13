@@ -94,7 +94,7 @@ bool HelloWorldPublisher::init(
         participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
     }
 
-    participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::CLIENT;
+    participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol = DiscoveryProtocol::CLIENT;
     participant_qos.wire_protocol().participant_id = 2;
     participant_qos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastdds::c_TimeInfinite;
     participant_qos.name("Participant_pub");

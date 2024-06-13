@@ -30,7 +30,6 @@
 #include "log/DSLog.h"
 
 using namespace eprosima::fastdds;
-using namespace eprosima::fastdds::rtps;
 using namespace eprosima::discovery_server;
 
 // non exported from Fast DDS (watch out they may be updated)
@@ -921,7 +920,7 @@ void DiscoveryServerManager::loadServer(
     // We define the PDP as external (when moved to fast library it would be SERVER)
     DiscoverySettings& b = dpQOS.wire_protocol().builtin.discovery_config;
     (void)b;
-    assert(b.discoveryProtocol == SERVER || b.discoveryProtocol == BACKUP);
+    assert(b.discoveryProtocol == eprosima::fastdds::rtps::DiscoveryProtocol::SERVER || b.discoveryProtocol == eprosima::fastdds::rtps::DiscoveryProtocol::BACKUP);
 
     // Create the participant or the associated events
     DelayedParticipantCreation event(creation_time, std::move(dpQOS), &DiscoveryServerManager::addServer);
@@ -1004,8 +1003,8 @@ void DiscoveryServerManager::loadClient(
 
     // we must assert that DiscoveryProtocol is CLIENT
 
-    if (dpQOS.wire_protocol().builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::CLIENT &&
-            dpQOS.wire_protocol().builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::SUPER_CLIENT)
+    if (dpQOS.wire_protocol().builtin.discovery_config.discoveryProtocol != DiscoveryProtocol::CLIENT &&
+            dpQOS.wire_protocol().builtin.discovery_config.discoveryProtocol != DiscoveryProtocol::SUPER_CLIENT)
     {
         LOG_ERROR(
             "DiscoveryServerManager::loadClient try to create a client with an incompatible profile: " <<
@@ -1277,7 +1276,7 @@ void DiscoveryServerManager::loadSimple(
         }
 
         // we must assert that DiscoveryProtocol is CLIENT
-        if (dpQOS.wire_protocol().builtin.discovery_config.discoveryProtocol != DiscoveryProtocol_t::SIMPLE)
+        if (dpQOS.wire_protocol().builtin.discovery_config.discoveryProtocol != DiscoveryProtocol::SIMPLE)
         {
             LOG_ERROR(
                 "DiscoveryServerManager::loadSimple try to create a simple participant with an incompatible profile: " <<
