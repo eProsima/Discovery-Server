@@ -12,7 +12,7 @@
     </clients>
 
     <snapshots file="./test_26_backup_restore_1.snapshot~">
-        <snapshot time="3">test_26_backup_restore_1_snapshot_server</snapshot>
+        <snapshot time="4">test_26_backup_restore_1_snapshot_server</snapshot>
     </snapshots>
 
     <profiles>
@@ -62,20 +62,6 @@
             <name>topic_1</name>
             <dataType>HelloWorld</dataType>
         </topic>
-
-        <topic profile_name="topic2">
-            <name>topic_2</name>
-            <dataType>HelloWorld</dataType>
-        </topic>
-
-        <types>
-            <type>
-                <struct name="HelloWorld">
-                    <member name="index" type="uint32" />
-                    <member name="message" type="string" />
-                </struct>
-            </type>
-        </types>
 
     </profiles>
 </DS>

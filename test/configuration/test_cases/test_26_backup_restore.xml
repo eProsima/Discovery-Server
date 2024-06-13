@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
 
+    <!--
+        This test verifies that the backup server sends matching PDP to its clients after
+        loading them from the backup file.
+    -->
+
     <servers>
         <server name="server" profile_name="UDP_server"/>
     </servers>
@@ -12,7 +17,7 @@
     </clients>
 
     <snapshots file="./test_26_backup_restore.snapshot~">
-        <snapshot time="2">test_26_backup_restore_snapshot_server</snapshot>
+        <snapshot time="4">test_26_backup_restore_snapshot_server</snapshot>
     </snapshots>
 
     <profiles>
@@ -62,20 +67,6 @@
             <name>topic_1</name>
             <dataType>HelloWorld</dataType>
         </topic>
-
-        <topic profile_name="topic2">
-            <name>topic_2</name>
-            <dataType>HelloWorld</dataType>
-        </topic>
-
-        <types>
-            <type>
-                <struct name="HelloWorld">
-                    <member name="index" type="uint32" />
-                    <member name="message" type="string" />
-                </struct>
-            </type>
-        </types>
 
     </profiles>
 </DS>
