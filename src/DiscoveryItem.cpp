@@ -31,7 +31,7 @@
                                                                  return a_eResult; }
 #endif // ifndef XMLCheckResult
 
-using namespace eprosima::fastrtps;
+using namespace eprosima::fastdds;
 using namespace eprosima::discovery_server;
 
 // basic discovery items operations
@@ -581,7 +581,7 @@ void DiscoveryItemDatabase::UpdateSubLiveliness(
 
     // Retrieve the participant that owns this subscriber
     GUID_t pguid(subs);
-    pguid.entityId = eprosima::fastrtps::rtps::c_EntityId_RTPSParticipant;
+    pguid.entityId = eprosima::fastdds::rtps::c_EntityId_RTPSParticipant;
 
     if (image.find(pguid) == image.end())
     {
@@ -962,8 +962,8 @@ void Snapshot::from_xml(
         tinyxml2::XMLElement* pRoot)
 {
     using namespace tinyxml2;
-    using eprosima::fastrtps::rtps::GuidPrefix_t;
-    using eprosima::fastrtps::rtps::EntityId_t;
+    using eprosima::fastdds::rtps::GuidPrefix_t;
+    using eprosima::fastdds::rtps::EntityId_t;
 
     if (pRoot != nullptr)
     {

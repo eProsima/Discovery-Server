@@ -33,10 +33,8 @@
 #include <fastdds/dds/publisher/qos/DataWriterQos.hpp>
 #include <fastdds/utils/IPLocator.h>
 
-using namespace eprosima::fastdds;
-using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::dds;
-using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds::rtps;
 
 HelloWorldPublisher::HelloWorldPublisher()
     : mp_participant(nullptr)
@@ -96,9 +94,9 @@ bool HelloWorldPublisher::init(
         participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
     }
 
-    participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::CLIENT;
+    participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol = DiscoveryProtocol::CLIENT;
     participant_qos.wire_protocol().participant_id = 2;
-    participant_qos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastrtps::c_TimeInfinite;
+    participant_qos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastdds::c_TimeInfinite;
     participant_qos.name("Participant_pub");
 
     mp_participant = DomainParticipantFactory::get_instance()->create_participant(0, participant_qos);
@@ -115,7 +113,7 @@ bool HelloWorldPublisher::init(
     TopicQos topic_qos = TOPIC_QOS_DEFAULT;
 
     topic_qos.history().depth = 30;
-    topic_qos.history().kind = KEEP_LAST_HISTORY_QOS;
+    topic_qos.history().kind = eprosima::fastdds::KEEP_LAST_HISTORY_QOS;
     topic_qos.resource_limits().max_samples = 50;
     topic_qos.resource_limits().allocated_samples = 20;
 
@@ -124,7 +122,7 @@ bool HelloWorldPublisher::init(
 
     datawriter_qos.reliable_writer_qos().times.heartbeatPeriod.seconds = 2;
     datawriter_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 0;
-    datawriter_qos.reliability().kind = RELIABLE_RELIABILITY_QOS;
+    datawriter_qos.reliability().kind = eprosima::fastdds::RELIABLE_RELIABILITY_QOS;
 
     mp_publisher = mp_participant->create_publisher(publisher_qos);
 

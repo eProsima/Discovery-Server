@@ -30,7 +30,7 @@
 namespace eprosima {
 namespace discovery_server {
 
-using eprosima::fastrtps::rtps::GUID_t;
+using eprosima::fastdds::rtps::GUID_t;
 
 class DelayedParticipantDestruction;
 

@@ -115,7 +115,7 @@ const option::Descriptor usage[] = {
 /*static*/ const std::regex Arg::ipv4(R"(^((?:[0-9]{1,3}\.){3}[0-9]{1,3})?:?(?:(\d+))?$)");
 /*static*/ const std::regex Arg::ipv6(R"(^\[?((?:[0-9a-fA-F]{0,4}\:){7}[0-9a-fA-F]{0,4})?(?:\]:)?(?:(\d+))?$)");
 
-using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::dds;
 
 int main(int argc, char** argv)

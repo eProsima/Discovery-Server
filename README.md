@@ -206,7 +206,7 @@ The *Fast DDS* XML schema was duly updated to accommodate the new Discovery Serv
 
 -   The participant profile ``<builtin>`` tag contains a ``<discovery_config>`` tag where all discovery-related info is
     gathered. This new tag contains the following new XML child elements:
-	- ``<discoveryProtocol>``: specifies the discovery type through the ``DiscoveryProtocol_t`` enumeration.
+	- ``<discoveryProtocol>``: specifies the discovery type through the ``DiscoveryProtocol`` enumeration.
 	- ``<discoveryServersList>``: specifies the server or servers to which a Client/Server connects.
 	- ``<clientAnnouncementPeriod>``: specifies the time span between PDP metatraffic exchange.
 

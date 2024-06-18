@@ -27,9 +27,6 @@
 #include <fastdds/rtps/transport/TCPv6TransportDescriptor.h>
 #include <fastdds/utils/IPLocator.h>
 
-using namespace eprosima::fastrtps;
-using namespace eprosima::fastrtps::rtps;
-
 using namespace eprosima::fastdds;
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::rtps;
@@ -43,9 +40,9 @@ bool HelloWorldServer::init(
         Locator server_address)
 {
 
-    eprosima::fastdds::dds::DomainParticipantQos participant_qos = eprosima::fastdds::dds::PARTICIPANT_QOS_DEFAULT;
+    DomainParticipantQos participant_qos = PARTICIPANT_QOS_DEFAULT;
 
-    participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::SERVER;
+    participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol = DiscoveryProtocol::SERVER;
     std::istringstream iss("44.49.53.43.53.45.52.56.45.52.5F.31");
     iss >> participant_qos.wire_protocol().prefix;
     participant_qos.wire_protocol().builtin.discovery_config.leaseDuration = c_TimeInfinite;

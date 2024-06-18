@@ -32,8 +32,6 @@
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/utils/IPLocator.h>
 
-using namespace eprosima::fastdds;
-using namespace eprosima::fastrtps::rtps;
 using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::dds;
 
@@ -92,9 +90,9 @@ bool HelloWorldSubscriber::init(
         participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
     }
 
-    participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol = DiscoveryProtocol_t::CLIENT;
+    participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol = DiscoveryProtocol::CLIENT;
     participant_qos.wire_protocol().participant_id = 3;
-    participant_qos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastrtps::c_TimeInfinite;
+    participant_qos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastdds::c_TimeInfinite;
     participant_qos.name("Participant_sub");
 
     mp_participant = DomainParticipantFactory::get_instance()->create_participant(0, participant_qos);
@@ -111,15 +109,15 @@ bool HelloWorldSubscriber::init(
     TopicQos topic_qos = TOPIC_QOS_DEFAULT;
 
     topic_qos.history().depth = 30;
-    topic_qos.history().kind = KEEP_LAST_HISTORY_QOS;
+    topic_qos.history().kind = eprosima::fastdds::KEEP_LAST_HISTORY_QOS;
     topic_qos.resource_limits().max_samples = 50;
     topic_qos.resource_limits().allocated_samples = 20;
 
     SubscriberQos subscriber_qos = SUBSCRIBER_QOS_DEFAULT;
     DataReaderQos datareader_qos = DATAREADER_QOS_DEFAULT;
 
-    datareader_qos.reliability().kind = RELIABLE_RELIABILITY_QOS;
-    datareader_qos.durability().kind = TRANSIENT_LOCAL_DURABILITY_QOS;
+    datareader_qos.reliability().kind = eprosima::fastdds::RELIABLE_RELIABILITY_QOS;
+    datareader_qos.durability().kind = eprosima::fastdds::TRANSIENT_LOCAL_DURABILITY_QOS;
 
     mp_subscriber = mp_participant->create_subscriber(subscriber_qos);
 
