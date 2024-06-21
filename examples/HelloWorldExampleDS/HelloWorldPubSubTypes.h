@@ -29,15 +29,13 @@
 #include <fastdds/rtps/common/SerializedPayload.h>
 #include <fastdds/utils/md5.h>
 
-#include "HelloWorld.h"
+#include "HelloWorld.hpp"
 
 
 #if !defined(GEN_API_VER) || (GEN_API_VER != 2)
 #error \
     Generated HelloWorld is not compatible with current installed Fast DDS. Please, regenerate it with fastddsgen.
 #endif  // GEN_API_VER
-
-
 
 
 /*!
@@ -55,14 +53,14 @@ public:
     eProsima_user_DllExport ~HelloWorldPubSubType() override;
 
     eProsima_user_DllExport bool serialize(
-            void* data,
+            const void* const data,
             eprosima::fastdds::rtps::SerializedPayload_t* payload) override
     {
         return serialize(data, payload, eprosima::fastdds::dds::DEFAULT_DATA_REPRESENTATION);
     }
 
     eProsima_user_DllExport bool serialize(
-            void* data,
+            const void* const data,
             eprosima::fastdds::rtps::SerializedPayload_t* payload,
             eprosima::fastdds::dds::DataRepresentationId_t data_representation) override;
 
@@ -71,17 +69,17 @@ public:
             void* data) override;
 
     eProsima_user_DllExport std::function<uint32_t()> getSerializedSizeProvider(
-            void* data) override
+            const void* const data) override
     {
         return getSerializedSizeProvider(data, eprosima::fastdds::dds::DEFAULT_DATA_REPRESENTATION);
     }
 
     eProsima_user_DllExport std::function<uint32_t()> getSerializedSizeProvider(
-            void* data,
+            const void* const data,
             eprosima::fastdds::dds::DataRepresentationId_t data_representation) override;
 
     eProsima_user_DllExport bool getKey(
-            void* data,
+            const void* const data,
             eprosima::fastdds::rtps::InstanceHandle_t* ihandle,
             bool force_md5 = false) override;
 
@@ -89,6 +87,9 @@ public:
 
     eProsima_user_DllExport void deleteData(
             void* data) override;
+
+    //Register TypeObject representation in Fast DDS TypeObjectRegistry
+    eProsima_user_DllExport void register_type_object_representation() override;
 
 #ifdef TOPIC_DATA_TYPE_API_HAS_IS_BOUNDED
     eProsima_user_DllExport inline bool is_bounded() const override
