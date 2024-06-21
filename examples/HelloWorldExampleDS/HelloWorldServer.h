@@ -21,7 +21,7 @@
 #define HELLOWORLDSERVER_H_
 
 #include <fastdds/dds/domain/DomainParticipant.hpp>
-#include <fastdds/rtps/common/Locator.h>
+#include <fastdds/rtps/common/Locator.hpp>
 
 namespace eprosima {
 namespace fastdds {
