@@ -1,0 +1,57 @@
+
+name: Fast DDS Discovery Server Ubuntu CI (nightly)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 1 * * *'
+
+jobs:
+  nightly-ubuntu-ci-master:
+    uses: eProsima/Discovery-Server/.github/workflows/reusable-ubuntu-ci.yml@master
+    with:
+      os-image: 'ubuntu-22.04'
+      label: 'nightly-ubuntu-ci-master'
+      discovery-server-branch: 'master'
+      fastdds-branch: 'master'
+      run-build: true
+      run-tests: true
+      use-ccache: false
+
+  nightly-ubuntu-ci-v1_2_2:
+    strategy:
+      fail-fast: false
+      matrix:
+        setup:
+          - os-image: 'ubuntu-22.04'
+            fastdds-branch:
+              - '2.14.x'
+              - '2.13.x'
+    uses: eProsima/Discovery-Server/.github/workflows/reusable-ubuntu-ci.yml@1.2.x
+    with:
+      os-image: ${{ matrix.setup.os-image }}
+      label: 'nightly-ubuntu-ci-v1.2.2-${{ matrix.setup.fastdds-branch }}'
+      discovery-server-branch: 'v1.2.2'
+      fastdds-branch: ${{ matrix.setup.fastdds-branch }}
+      run-build: true
+      run-tests: true
+      use-ccache: false
+
+  nightly-ubuntu-ci-v1_2_1:
+    strategy:
+      fail-fast: false
+      matrix:
+        setup:
+          - os-image: 'ubuntu-22.04'
+            fastdds-branch: '2.10.x'
+          - os-image: 'ubuntu-20.04'
+            fastdds-branch: '2.6.x'
+    uses: eProsima/Discovery-Server/.github/workflows/reusable-ubuntu-ci.yml@1.2.x
+    with:
+      os-image: ${{ matrix.setup.os-image }}
+      label: 'nightly-ubuntu-ci-v1.2.1-${{ matrix.setup.fastdds-branch }}'
+      discovery-server-branch: 'v1.2.1'
+      fastdds-branch: ${{ matrix.setup.fastdds-branch }}
+      run-build: true
+      run-tests: true
+      use-ccache: false
