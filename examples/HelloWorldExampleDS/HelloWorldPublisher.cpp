@@ -23,7 +23,7 @@
 #include <random>
 #include <thread>
 
-#include <fastdds/rtps/transport/TCPv4TransportDescriptor.h>
+#include <fastdds/rtps/transport/TCPv4TransportDescriptor.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
@@ -31,7 +31,7 @@
 #include <fastdds/dds/publisher/DataWriter.hpp>
 #include <fastdds/dds/publisher/qos/PublisherQos.hpp>
 #include <fastdds/dds/publisher/qos/DataWriterQos.hpp>
-#include <fastdds/utils/IPLocator.h>
+#include <fastdds/utils/IPLocator.hpp>
 
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::rtps;
@@ -113,7 +113,7 @@ bool HelloWorldPublisher::init(
     TopicQos topic_qos = TOPIC_QOS_DEFAULT;
 
     topic_qos.history().depth = 30;
-    topic_qos.history().kind = eprosima::fastdds::KEEP_LAST_HISTORY_QOS;
+    topic_qos.history().kind = eprosima::fastdds::dds::KEEP_LAST_HISTORY_QOS;
     topic_qos.resource_limits().max_samples = 50;
     topic_qos.resource_limits().allocated_samples = 20;
 
@@ -122,7 +122,7 @@ bool HelloWorldPublisher::init(
 
     datawriter_qos.reliable_writer_qos().times.heartbeatPeriod.seconds = 2;
     datawriter_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 0;
-    datawriter_qos.reliability().kind = eprosima::fastdds::RELIABLE_RELIABILITY_QOS;
+    datawriter_qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
 
     mp_publisher = mp_participant->create_publisher(publisher_qos);
 

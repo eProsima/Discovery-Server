@@ -21,11 +21,11 @@
 
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
-#include <fastdds/rtps/common/Guid.h>
+#include <fastdds/rtps/common/Guid.hpp>
 
 #include "DiscoveryServerManager.h"
 #include "log/DSLog.h"
-#include "../resources/static_types/HelloWorldPubSubTypes.h"
+#include "../resources/static_types/HelloWorldPubSubTypes.hpp"
 
 namespace eprosima {
 namespace discovery_server {

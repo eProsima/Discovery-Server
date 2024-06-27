@@ -22,7 +22,7 @@
 #include <random>
 #include <chrono>
 #include <thread>
-#include <fastdds/rtps/transport/TCPv4TransportDescriptor.h>
+#include <fastdds/rtps/transport/TCPv4TransportDescriptor.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
@@ -30,7 +30,7 @@
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/qos/SubscriberQos.hpp>
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
-#include <fastdds/utils/IPLocator.h>
+#include <fastdds/utils/IPLocator.hpp>
 
 using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::dds;
@@ -109,15 +109,15 @@ bool HelloWorldSubscriber::init(
     TopicQos topic_qos = TOPIC_QOS_DEFAULT;
 
     topic_qos.history().depth = 30;
-    topic_qos.history().kind = eprosima::fastdds::KEEP_LAST_HISTORY_QOS;
+    topic_qos.history().kind = eprosima::fastdds::dds::KEEP_LAST_HISTORY_QOS;
     topic_qos.resource_limits().max_samples = 50;
     topic_qos.resource_limits().allocated_samples = 20;
 
     SubscriberQos subscriber_qos = SUBSCRIBER_QOS_DEFAULT;
     DataReaderQos datareader_qos = DATAREADER_QOS_DEFAULT;
 
-    datareader_qos.reliability().kind = eprosima::fastdds::RELIABLE_RELIABILITY_QOS;
-    datareader_qos.durability().kind = eprosima::fastdds::TRANSIENT_LOCAL_DURABILITY_QOS;
+    datareader_qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
+    datareader_qos.durability().kind = eprosima::fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS;
 
     mp_subscriber = mp_participant->create_subscriber(subscriber_qos);
 
