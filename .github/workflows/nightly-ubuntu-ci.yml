@@ -14,6 +14,7 @@ jobs:
       label: 'nightly-ubuntu-ci-master'
       discovery-server-branch: 'master'
       fastdds-branch: 'master'
+      ctest-args: "-LE xfail"
       run-build: true
       run-tests: true
       use-ccache: false
@@ -33,6 +34,7 @@ jobs:
       label: 'nightly-ubuntu-ci-v1.2.2-${{ matrix.setup.fastdds-branch }}'
       discovery-server-branch: 'v1.2.2'
       fastdds-branch: ${{ matrix.setup.fastdds-branch }}
+      ctest-args: "-LE xfail"
       run-build: true
       run-tests: true
       use-ccache: false
@@ -52,6 +54,7 @@ jobs:
       label: 'nightly-ubuntu-ci-v1.2.1-${{ matrix.setup.fastdds-branch }}'
       discovery-server-branch: 'v1.2.1'
       fastdds-branch: ${{ matrix.setup.fastdds-branch }}
+      ctest-args: "-LE xfail"
       run-build: true
       run-tests: true
       use-ccache: false

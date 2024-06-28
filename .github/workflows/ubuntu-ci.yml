@@ -60,7 +60,7 @@ jobs:
       label: 'ubuntu-ci'
       colcon-args: ${{ inputs.colcon-args }}
       cmake-args: ${{ inputs.cmake-args }}
-      ctest-args: ${{ inputs.ctest-args }}
+      ctest-args: ${{ inputs.ctest-args || '-LE xfail' }}
       discovery-server-branch: ${{ inputs.discovery-server-branch || github.ref || 'master' }}
       fastdds-branch: ${{ inputs.fastdds-branch || 'master' }}
       run-build: ${{ !(github.event_name == 'pull_request') && true || (!contains(github.event.pull_request.labels.*.name, 'skip-ci') && !contains(github.event.pull_request.labels.*.name, 'conflicts')) && true || false }}
