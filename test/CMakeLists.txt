@@ -94,8 +94,17 @@ list(APPEND TEST_LIST
         test_44_fast_discovery_server_tool_reconnect
         test_45_trivial_client_reconnect
 
+        test_46_guidless_discovery
+        test_47_guidless_server_double_ping
+        test_48_guidless_complex
+
         test_60_disconnection
         test_61_superclient_environment_variable
+
+        test_95_tcpv4_cli
+        test_96_tcpv6_cli
+        test_97_tcpv4_env_var
+        test_98_tcpv6_env_var
         test_99_tcp
     )
 
@@ -126,9 +135,7 @@ set(TEST_CASE_LIST)
 
 # Test that are leaky and may fail
 set(FAIL_TEST_CASES
-    test_26_backup_restore
-    test_33_superclient_complex
-    test_99_tcp)
+    test_26_backup_restore)
 
 # For each test case, create different executables for each configuration
 foreach(TEST IN LISTS TEST_LIST)

@@ -49,9 +49,7 @@ bool HelloWorldPublisher::init(
     m_hello.index(0);
     m_hello.message("HelloWorld");
 
-    RemoteServerAttributes ratt;
-
-    ratt.ReadguidPrefix("44.49.53.43.53.45.52.56.45.52.5F.31");
+    LocatorList_t remote_server;
 
     DomainParticipantQos participant_qos = PARTICIPANT_QOS_DEFAULT;
 
@@ -70,8 +68,8 @@ bool HelloWorldPublisher::init(
         IPLocator::setPhysicalPort(server_address, default_port);
         IPLocator::setLogicalPort(server_address, 65215);
 
-        ratt.metatrafficUnicastLocatorList.push_back(server_address);
-        participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
+        remote_server.push_back(server_address);
+        participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(remote_server);
         participant_qos.transport().use_builtin_transports = false;
         std::shared_ptr<TCPv4TransportDescriptor> descriptor = std::make_shared<TCPv4TransportDescriptor>();
 
@@ -90,8 +88,8 @@ bool HelloWorldPublisher::init(
             IPLocator::setIPv4(server_address, 127, 0, 0, 1);
         }
 
-        ratt.metatrafficUnicastLocatorList.push_back(server_address);
-        participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(ratt);
+        remote_server.push_back(server_address);
+        participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(remote_server);
     }
 
     participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol = DiscoveryProtocol::CLIENT;

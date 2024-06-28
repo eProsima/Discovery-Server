@@ -349,12 +349,6 @@
         <xs:attribute name="prefix" type="guid" use="required"/>
     </xs:complexType>
 
-    <xs:complexType name="DiscoveryServerList">
-        <xs:sequence>
-            <xs:element name="RemoteServer" type="RemoteServerAttributes" minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
-
     <xs:complexType name="initialAnnouncementsType">
         <xs:all minOccurs="0">
             <xs:element name="count" type="uint32Type" minOccurs="0"/>
@@ -372,7 +366,7 @@
             <xs:element name="initialAnnouncements" type="initialAnnouncementsType" minOccurs="0"/>
             <xs:element name="simpleEDP" type="simpleEDPType" minOccurs="0"/>
             <xs:element name="clientAnnouncementPeriod" type="durationType" minOccurs="0"/>
-            <xs:element name="discoveryServersList" type="DiscoveryServerList" minOccurs="0"/>
+            <xs:element name="discoveryServersList" type="locatorListType" minOccurs="0"/>
             <xs:element name="staticEndpointXMLFilename" type="stringType" minOccurs="0"/>
         </xs:all>
     </xs:complexType>
@@ -915,7 +909,6 @@
                     </xs:choice>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="ServersList" type="ServersListType" minOccurs="0" maxOccurs="1" />
             <!-- not mandatory may be present in the profile -->
             <xs:choice minOccurs="0">
                 <!-- publisher and subscriber must be contiguous but in any order -->
@@ -942,19 +935,8 @@
         <!-- removal time in seconds from startup-->
     </xs:complexType>
 
-    <xs:complexType name="ServersListType">
-        <xs:sequence>
-            <xs:element name="RServer" minOccurs="1" maxOccurs="unbounded">
-                <xs:complexType>
-                    <xs:attribute name="prefix" type="guid" use="required" />
-                </xs:complexType>
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-
     <xs:complexType name="clientType">
         <xs:sequence >
-            <xs:element name="ServersList" type="ServersListType" minOccurs="0" maxOccurs="1" />
             <xs:choice minOccurs="0">
                 <!-- publisher and subscriber must be contiguous but in any order -->
                 <xs:sequence>

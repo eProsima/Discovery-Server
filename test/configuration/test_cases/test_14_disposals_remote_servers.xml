@@ -25,23 +25,23 @@
 
         <!-- Starting point -->
         <snapshot time="3">test_14_disposals_remote_servers_snapshot_1</snapshot>
-        <!-- Remove subscriber1 from server3 -->
+        <!-- 4 - Remove subscriber1 from server3 -->
         <snapshot time="6">test_14_disposals_remote_servers_snapshot_2</snapshot>
         <!--
-            Remove subscriber1 from server2
-            Create subscriber2 in server3
+            7 - Remove subscriber1 from server2
+            7 - Create subscriber2 in server3
          -->
         <snapshot time="9">test_14_disposals_remote_servers_snapshot_3</snapshot>
-        <!-- Remove publisher 1 from client1_server1 -->
+        <!-- 10 - Remove publisher 1 from client1_server1 -->
         <snapshot time="13">test_14_disposals_remote_servers_snapshot_4</snapshot>
-        <!-- Remove client1_server1 -->
+        <!-- 14 - Remove client1_server1 -->
         <snapshot time="17">test_14_disposals_remote_servers_snapshot_5</snapshot>
         <!--
-            Create client2_server1
-            Create a publisher in client2_server1
+            18 - Create client2_server1
+            18 - Create a publisher in client2_server1
          -->
         <snapshot time="21">test_14_disposals_remote_servers_snapshot_6</snapshot>
-        <!-- Remove server3 -->
+        <!-- 22 - Remove server3 -->
         <snapshot time="25">test_14_disposals_remote_servers_snapshot_7</snapshot>
 
     </snapshots>
@@ -54,16 +54,12 @@
                     <discovery_config>
                         <discoveryProtocol>CLIENT</discoveryProtocol>
                         <discoveryServersList>
-                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
-                                <metatrafficUnicastLocatorList>
-                                    <locator>
-                                        <udpv4>
-                                            <address>127.0.0.1</address>
-                                            <port>14811</port>
-                                        </udpv4>
-                                    </locator>
-                                </metatrafficUnicastLocatorList>
-                            </RemoteServer>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>14811</port>
+                                </udpv4>
+                            </locator>
                         </discoveryServersList>
                     </discovery_config>
                 </builtin>
@@ -77,16 +73,12 @@
                     <discovery_config>
                         <discoveryProtocol>CLIENT</discoveryProtocol>
                         <discoveryServersList>
-                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
-                                <metatrafficUnicastLocatorList>
-                                    <locator>
-                                        <udpv4>
-                                            <address>127.0.0.1</address>
-                                            <port>14811</port>
-                                        </udpv4>
-                                    </locator>
-                                </metatrafficUnicastLocatorList>
-                            </RemoteServer>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>14811</port>
+                                </udpv4>
+                            </locator>
                         </discoveryServersList>
                     </discovery_config>
                 </builtin>
@@ -118,16 +110,12 @@
                 <builtin>
                     <discovery_config>
                         <discoveryServersList>
-                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
-                                <metatrafficUnicastLocatorList>
-                                    <locator>
-                                        <udpv4>
-                                            <address>127.0.0.1</address>
-                                            <port>14811</port>
-                                        </udpv4>
-                                    </locator>
-                                </metatrafficUnicastLocatorList>
-                            </RemoteServer>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>14811</port>
+                                </udpv4>
+                            </locator>
                         </discoveryServersList>
                         <discoveryProtocol>SERVER</discoveryProtocol>
                     </discovery_config>
@@ -149,19 +137,17 @@
                 <builtin>
                     <discovery_config>
                         <discoveryServersList>
-                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.32">
-                                <metatrafficUnicastLocatorList>
-                                    <locator>
-                                        <udpv4>
-                                            <address>127.0.0.1</address>
-                                            <port>14812</port>
-                                        </udpv4>
-                                    </locator>
-                                </metatrafficUnicastLocatorList>
-                            </RemoteServer>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>14812</port>
+                                </udpv4>
+                            </locator>
                         </discoveryServersList>
                         <discoveryProtocol>SERVER</discoveryProtocol>
-                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseAnnouncement>
+                            <nanosec>500000000</nanosec>
+                        </leaseAnnouncement>
                         <leaseDuration>DURATION_INFINITY</leaseDuration>
                     </discovery_config>
                     <metatrafficUnicastLocatorList>
