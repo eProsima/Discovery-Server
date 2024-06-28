@@ -23,17 +23,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        setup:
-          - os-image: 'ubuntu-22.04'
-            fastdds-branch:
-              - '2.14.x'
-              - '2.13.x'
+        fastdds-branch:
+         - '2.14.x'
+         - '2.13.x'
     uses: eProsima/Discovery-Server/.github/workflows/reusable-ubuntu-ci.yml@1.2.x
     with:
-      os-image: ${{ matrix.setup.os-image }}
-      label: 'nightly-ubuntu-ci-v1.2.2-${{ matrix.setup.fastdds-branch }}'
+      # It would be desirable to have a matrix of ubuntu OS for this job, but due to the issue opened in this ticket:
+      # https://github.com/orgs/community/discussions/128118 , it has been set as a single OS job.
+      os-image: 'ubuntu-22.04'
+      label: 'nightly-ubuntu-ci-v1.2.2-${{ matrix.fastdds-branch }}'
       discovery-server-branch: 'v1.2.2'
-      fastdds-branch: ${{ matrix.setup.fastdds-branch }}
+      fastdds-branch: ${{ matrix.fastdds-branch }}
       ctest-args: "-LE xfail"
       run-build: true
       run-tests: true
