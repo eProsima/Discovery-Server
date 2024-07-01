@@ -47,3 +47,5 @@
 - [ ] The PR has a milestone assigned.
 - [ ] The title and description correctly express the PR's purpose.
 - [ ] Check contributor checklist is correct.
+- [ ] Check CI results: changes do not issue any warning.
+- [ ] Check CI results: failing tests are unrelated with the changes.
