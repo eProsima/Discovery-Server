@@ -1,4 +1,3 @@
-
 name: Fast DDS Discovery Server Ubuntu CI (nightly)
 
 on:
@@ -10,6 +9,8 @@ jobs:
   nightly-ubuntu-ci-master:
     uses: eProsima/Discovery-Server/.github/workflows/reusable-ubuntu-ci.yml@master
     with:
+      # It would be desirable to have a matrix of ubuntu OS for this job, but due to the issue opened in this ticket:
+      # https://github.com/orgs/community/discussions/128118 , it has been set as a single OS job.
       os-image: 'ubuntu-22.04'
       label: 'nightly-ubuntu-ci-master'
       discovery-server-branch: 'master'
