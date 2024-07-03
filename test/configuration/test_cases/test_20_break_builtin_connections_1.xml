@@ -8,7 +8,7 @@
     </servers>
 
     <snapshots file="./test_20_break_builtin_connections_1.snapshot~">
-        <!-- This server will be kill 4 seconds after initialization -->
+        <!-- This server will be killed 4 seconds after initialization -->
         <snapshot time="20">test_20_break_builtin_connections_1_snapshot_1</snapshot>
     </snapshots>
 
@@ -20,20 +20,16 @@
                 <builtin>
                     <discovery_config>
                         <discoveryServersList>
-                            <RemoteServer prefix="44.49.53.43.53.45.52.56.45.52.5F.31">
-                                <metatrafficUnicastLocatorList>
-                                    <locator>
-                                        <udpv4>
-                                            <address>127.0.0.1</address>
-                                            <port>20811</port>
-                                        </udpv4>
-                                    </locator>
-                                </metatrafficUnicastLocatorList>
-                            </RemoteServer>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>20811</port>
+                                </udpv4>
+                            </locator>
                         </discoveryServersList>
                         <discoveryProtocol>SERVER</discoveryProtocol>
                         <initialAnnouncements>
-                            <count>0</count>
+                            <count>5</count>
                         </initialAnnouncements>
                         <leaseDuration>
                             <sec>5</sec>

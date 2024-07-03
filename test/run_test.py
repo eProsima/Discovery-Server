@@ -317,11 +317,11 @@ def execute_validate_thread_test(
         try:
             # Try to set args for fastdds tool
             # If any is missing could not be an error
-            server_id = process_params['tool_config']['id']
-            server_udp_address = process_params['tool_config']['udp_address']
-            server_udp_port = process_params['tool_config']['udp_port']
-            server_tcp_port = process_params['tool_config']['tcp_address']
-            server_tcp_port = process_params['tool_config']['tcp_port']
+            server_id = process_params['tool_config'].get('id', None)
+            server_udp_address = process_params['tool_config'].get('udp_address', None)
+            server_udp_port = process_params['tool_config'].get('udp_port', None)
+            server_tcp_address = process_params['tool_config'].get('tcp_address', None)
+            server_tcp_port = process_params['tool_config'].get('tcp_port', None)
         except KeyError:
             pass
 
@@ -360,7 +360,10 @@ def execute_validate_thread_test(
 
     else:
         # Fastdds tool
-        process_args = [fds_path, '-i', str(server_id)]
+        process_args = [fds_path]
+        if server_id is not None:
+            process_args.append('-i')
+            process_args.append(str(server_id))
         if server_udp_address is not None:
             process_args.append('-l')
             process_args.append(str(server_udp_address))

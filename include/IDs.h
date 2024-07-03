@@ -31,8 +31,6 @@ static const std::string s_sSimples("simples");
 static const std::string s_sSimple("simple");
 static const std::string s_sPersist("persist");
 static const std::string s_sLP("ListeningPorts");
-static const std::string s_sSL("ServersList");
-static const std::string s_sRServer("RServer");
 static const std::string s_sTime("time");
 static const std::string s_sSomeone("someone");
 static const std::string s_sShowLiveliness("show_liveliness");

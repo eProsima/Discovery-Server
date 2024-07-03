@@ -326,6 +326,8 @@ struct ParticipantDiscoveryDatabase : public DiscoveryItem, public std::set<Part
     typedef std::set<ParticipantDiscoveryItem>::size_type size_type;
     typedef ParticipantDiscoveryDatabase::iterator iterator;
 
+    std::string participant_name_;
+
     // we need a special iterator that ignores zombie members
     struct smart_iterator
         : std::iterator<
@@ -365,8 +367,10 @@ struct ParticipantDiscoveryDatabase : public DiscoveryItem, public std::set<Part
     };
 
     ParticipantDiscoveryDatabase(
-            const GUID_t& id )
+            const GUID_t& id,
+            const std::string& name = std::string())
         : DiscoveryItem(id)
+        , participant_name_(name)
     {
     }
 
@@ -481,6 +485,10 @@ struct Snapshot : public std::set<ParticipantDiscoveryDatabase>
     const ParticipantDiscoveryDatabase* operator [](
             const GUID_t&) const;
 
+    ParticipantDiscoveryDatabase& access_snapshot(
+            const GUID_t& ptid,
+            const std::string& name);
+
     void to_xml(
             tinyxml2::XMLElement* pRoot,
             tinyxml2::XMLDocument& xmlDoc) const;
@@ -508,6 +516,7 @@ class DiscoveryItemDatabase
         class T>
     bool AddEndPoint(T & (ParticipantDiscoveryItem::* m)() const,
             const GUID_t& spokesman,
+            const std::string& srcName,
             const GUID_t& ptid,
             const GUID_t& sid,
             const std::string& _typename,
@@ -542,6 +551,7 @@ public:
     //! Adds a new participant, returns false if allocation fails
     bool AddParticipant(
             const GUID_t& spokesman,
+            const std::string& srcName,
             const GUID_t& ptid,
             const std::string& name = std::string(),
             const std::chrono::steady_clock::time_point& discovered_timestamp = std::chrono::steady_clock::now(),
@@ -559,6 +569,7 @@ public:
     //! Adds a new Subscriber, returns false if allocation fails
     bool AddDataReader(
             const GUID_t& spokesman,
+            const std::string& srcName,
             const GUID_t& ptid,
             const GUID_t& sid,
             const std::string& _typename,
@@ -573,6 +584,7 @@ public:
     //! Adds a new Publisher, returns false if allocation fails
     bool AddDataWriter(
             const GUID_t& spokesman,
+            const std::string& srcName,
             const GUID_t& ptid,
             const GUID_t& pid,
             const std::string& _typename,

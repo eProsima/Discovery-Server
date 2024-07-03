@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
 
+    <!-- In order to avoid extra channel connections between TCP participants
+         we will use the whitelist to force the clients to send their locators
+         with localhost. Otherwise, the server would not reuse the initial
+         channel created and it might cause a failure in the connection,
+         depending of the value of the random logical port assigned.
+         This could be avoided by using default GUIDs. -->
+
     <servers>
         <server name="server" profile_name="TCPv6_server"/>
     </servers>
@@ -15,7 +22,7 @@
     </simples>
 
     <snapshots file="./test_98_tcpv6_env_var.snapshot~">
-        <snapshot time="5">Knows all</snapshot>
+        <snapshot time="10">Knows all</snapshot>
     </snapshots>
 
     <profiles>
@@ -27,6 +34,9 @@
                 <listening_ports>
                     <port>42100</port>
                 </listening_ports>
+                <interfaceWhiteList>
+                    <address>::1</address>
+                </interfaceWhiteList>
             </transport_descriptor>
             <transport_descriptor>
                 <transport_id>transport_client_1</transport_id>
@@ -34,6 +44,9 @@
                 <listening_ports>
                     <port>0</port>
                 </listening_ports>
+                <interfaceWhiteList>
+                    <address>::1</address>
+                </interfaceWhiteList>
             </transport_descriptor>
             <transport_descriptor>
                 <transport_id>transport_client_2</transport_id>
@@ -41,6 +54,9 @@
                 <listening_ports>
                     <port>0</port>
                 </listening_ports>
+                <interfaceWhiteList>
+                    <address>::1</address>
+                </interfaceWhiteList>
             </transport_descriptor>
         </transport_descriptors>
 

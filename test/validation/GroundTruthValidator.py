@@ -44,6 +44,7 @@ class GroundTruthValidator(validator.Validator):
         """Validate the snapshots resulting from a Discovery-Server test."""
         # Get parameters from test params
         try:
+            self.guidless = self.validation_params_['guidless']
             self.val_snapshot = \
                 self.parse_xml_snapshot(self.validation_params_['file_path'])
             self.gt_snapshot = \
@@ -59,8 +60,13 @@ class GroundTruthValidator(validator.Validator):
         self.val_dict = {'DS_Snapshots': {}}
         self.servers = self.process_servers()
 
-        self.__trim_snapshot_dict(self.gt_snapshot, self.gt_dict)
-        self.__trim_snapshot_dict(self.val_snapshot, self.val_dict)
+        if self.guidless:
+            self.logger.debug('Groundtruth validator in GuidLess mode.')
+            self.__trim_snapshot_dict_guidless(self.gt_snapshot, self.gt_dict)
+            self.__trim_snapshot_dict_guidless(self.val_snapshot, self.val_dict)
+        else:
+            self.__trim_snapshot_dict(self.gt_snapshot, self.gt_dict)
+            self.__trim_snapshot_dict(self.val_snapshot, self.val_dict)
 
         n_tests = 0
         successful_tests = []
@@ -194,6 +200,84 @@ class GroundTruthValidator(validator.Validator):
                                 f'subscriber_{subscriber_guid}'] = {
                                     'topic': sub['@topic'],
                                     'guid': subscriber_guid
+                                }
+
+    def __trim_snapshot_dict_guidless(self, original_dict, trimmed_dict):
+        """
+        Create the ground truth and validation dicts parsing the snapshots in guidless mode.
+        The @name parameter is used instead of the guid to uniquely identify the entities.
+
+        :param original_dict: The original dictionary.
+        :param trimmed_dict: The resulting dictionary after trim.
+        """
+        for ds_snapshot in self.__dict2list(
+                original_dict['DS_Snapshots']['DS_Snapshot']):
+            trimmed_dict['DS_Snapshots'][f"{ds_snapshot['description']}"] = {}
+
+            try:
+                ptdb_l = self.__dict2list(ds_snapshot['ptdb'])
+            except KeyError:
+                self.logger.debug(
+                    f"Snapshot {ds_snapshot['@timestamp']} does not "
+                    'contain any participant.')
+                continue
+
+            for ptdb in ptdb_l:
+                trimmed_dict[
+                    'DS_Snapshots'][
+                    f"{ds_snapshot['description']}"][
+                    f"ptdb_{ptdb['@name']}"] = {
+                        'name': ptdb['@name']}
+
+                try:
+                    ptdi_l = self.__dict2list(ptdb['ptdi'])
+                except KeyError:
+                    self.logger.debug(
+                        f"Participant {ptdb['@name']} does not "
+                        'match any remote participant.')
+                    continue
+
+                for ptdi in ptdi_l:
+                    if ptdi['@name'] == '':
+                        ptdi_name = ptdb['@name']
+                    else:
+                        ptdi_name = ptdi['@name']
+
+                    trimmed_dict[
+                        'DS_Snapshots'][
+                        f"{ds_snapshot['description']}"][
+                        f"ptdb_{ptdb['@name']}"][
+                        f"ptdi_{ptdi_name}"] = {
+                            'name': ptdi_name}
+
+                    # Publishers and subscribers do not have names, but are in this ptdi block,
+                    # so we can assume that they belong to this participant.
+                    if 'publisher' in (x.lower() for x in ptdi.keys()):
+                        for pub in self.__dict2list(ptdi['publisher']):
+                            publisher_id = '{}_{}'.format(
+                                ptdi_name, pub['@guid_entity'])
+                            assert (ptdi['@guid_prefix'] == pub['@guid_prefix'])
+                            trimmed_dict[
+                                'DS_Snapshots'][
+                                f"{ds_snapshot['description']}"][
+                                f"ptdb_{ptdb['@name']}"][
+                                f"ptdi_{ptdi_name}"][
+                                f'publisher_{publisher_id}'] = {
+                                    'topic': pub['@topic']
+                                }
+
+                    if 'subscriber' in (x.lower() for x in ptdi.keys()):
+                        for sub in self.__dict2list(ptdi['subscriber']):
+                            subscriber_id = '{}_{}'.format(
+                                ptdi_name, sub['@guid_entity'])
+                            assert (ptdi['@guid_prefix'] == sub['@guid_prefix'])
+                            trimmed_dict[
+                                'DS_Snapshots'][
+                                f"{ds_snapshot['description']}"][
+                                f"ptdb_{ptdb['@name']}"][
+                                f"ptdi_{ptdi_name}"][
+                                f'subscriber_{subscriber_id}'] = {
+                                    'topic': sub['@topic']
                                 }
 
     def __dict2list(self, d):

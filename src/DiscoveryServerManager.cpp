@@ -871,43 +871,6 @@ void DiscoveryServerManager::loadServer(
         dpQOS.wire_protocol().builtin.metatrafficUnicastLocatorList = lists.second;
     }
 
-    // load the server list (if present) and update the DomainParticipantQOS builtin
-    tinyxml2::XMLElement* server_list = server->FirstChildElement(s_sSL.c_str());
-
-    if (server_list != nullptr)
-    {
-        RemoteServerList_t& list = dpQOS.wire_protocol().builtin.discovery_config.m_DiscoveryServers;
-        list.clear(); // server elements take precedence over profile ones
-
-        tinyxml2::XMLElement* rserver = server_list->FirstChildElement(s_sRServer.c_str());
-
-        while (rserver != nullptr)
-        {
-            RemoteServerList_t::value_type srv;
-            GuidPrefix_t& prefix = srv.guidPrefix;
-
-            // load the prefix
-            const char* cprefix = rserver->Attribute(DSxmlparser::PREFIX);
-
-            if (cprefix != nullptr &&
-                    !(std::istringstream(cprefix) >> prefix)
-                    && (prefix == c_GuidPrefix_Unknown))
-            {
-                LOG_ERROR("RServers must provide a prefix"); // at least for now
-                return;
-            }
-
-            // load the locator lists
-            serverLocator_map::mapped_type& lists = server_locators[srv.GetParticipant()];
-            srv.metatrafficMulticastLocatorList = lists.first;
-            srv.metatrafficUnicastLocatorList = lists.second;
-
-            list.push_back(std::move(srv));
-
-            rserver = rserver->NextSiblingElement(s_sRServer.c_str());
-        }
-    }
-
     if (shared_memory_off_)
     {
         // Desactivate transport by default
@@ -1019,69 +982,6 @@ void DiscoveryServerManager::loadClient(
         dpQOS.name() = name;
     }
 
-    // server may be provided by prefix (takes precedence) or by list
-    const char* server = client->Attribute(s_sServer.c_str());
-    if (server != nullptr)
-    {
-        RemoteServerList_t::value_type srv;
-        GuidPrefix_t& prefix = srv.guidPrefix;
-
-        if (!(std::istringstream(server) >> prefix) &&
-                (prefix == c_GuidPrefix_Unknown))
-        {
-            LOG_ERROR("server attribute must provide a prefix"); // at least for now
-            return;
-        }
-
-        RemoteServerList_t& list = dpQOS.wire_protocol().builtin.discovery_config.m_DiscoveryServers;
-        list.clear(); // server elements take precedence over profile ones
-
-        // load the locator lists
-        serverLocator_map::mapped_type& lists = server_locators[srv.GetParticipant()];
-        srv.metatrafficMulticastLocatorList = lists.first;
-        srv.metatrafficUnicastLocatorList = lists.second;
-
-        list.push_back(std::move(srv));
-    }
-    else
-    {
-        // load the server list (if present) and update the builtin
-        tinyxml2::XMLElement* server_list = client->FirstChildElement(s_sSL.c_str());
-
-        if (server_list != nullptr)
-        {
-            RemoteServerList_t& list = dpQOS.wire_protocol().builtin.discovery_config.m_DiscoveryServers;
-            list.clear(); // server elements take precedence over profile ones
-
-            tinyxml2::XMLElement* rserver = server_list->FirstChildElement(s_sRServer.c_str());
-
-            while (rserver != nullptr)
-            {
-                RemoteServerList_t::value_type srv;
-                GuidPrefix_t& prefix = srv.guidPrefix;
-
-                // load the prefix
-                const char* cprefix = rserver->Attribute(DSxmlparser::PREFIX);
-
-                if (cprefix != nullptr && !(std::istringstream(cprefix) >> prefix)
-                        && (prefix == c_GuidPrefix_Unknown))
-                {
-                    LOG_ERROR("RServers must provide a prefix"); // at least for now
-                    return;
-                }
-
-                // load the locator lists
-                serverLocator_map::mapped_type& lists = server_locators[srv.GetParticipant()];
-                srv.metatrafficMulticastLocatorList = lists.first;
-                srv.metatrafficUnicastLocatorList = lists.second;
-
-                list.push_back(std::move(srv));
-
-                rserver = rserver->NextSiblingElement(s_sRServer.c_str());
-            }
-        }
-    }
-
     // check for listening ports
     const char* lp = client->Attribute(s_sListeningPort.c_str());
     if (lp != nullptr)
@@ -1169,7 +1069,11 @@ void DiscoveryServerManager::loadClient(
             }
         }
 
-        pT->add_listener_port(static_cast<uint16_t>(listening_port));
+        if (pT->listening_ports.empty())
+        {
+            // if no ports are specified, we will use the default ones
+            pT->add_listener_port(static_cast<uint16_t>(listening_port));
+        }
 
         // set up WAN if specified
         if (!address.empty() && p4)
@@ -1662,7 +1566,7 @@ void DiscoveryServerManager::MapServerInfo(
 
     if (prefix == c_GuidPrefix_Unknown)
     {
-        LOG_ERROR("Servers cannot have a framework provided prefix"); // at least for now
+        LOG_INFO("Guidless server, locators must be set directly from the XML");
         return;
     }
 
@@ -1687,6 +1591,7 @@ void DiscoveryServerManager::on_participant_discovery(
 
     // if the callback origin was removed ignore
     GUID_t srcGuid = participant->guid();
+    std::string srcName = participant->get_qos().name().to_string();
     if ( nullptr == getParticipant(srcGuid))
     {
         LOG_INFO("Received onParticipantDiscovery callback from unknown participant: " << srcGuid);
@@ -1717,7 +1622,7 @@ void DiscoveryServerManager::on_participant_discovery(
     {
         case ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT:
         {
-            state.AddParticipant(srcGuid, partid, info.info.m_participantName.to_string(), callback_time,
+            state.AddParticipant(srcGuid, srcName, partid, info.info.m_participantName.to_string(), callback_time,
                     server);
             break;
         }
@@ -1742,6 +1647,7 @@ void DiscoveryServerManager::on_data_reader_discovery(
 
     // if the callback origin was removed ignore
     GUID_t srcGuid = participant->guid();
+    std::string srcName = participant->get_qos().name().to_string();
     if ( nullptr == getParticipant(srcGuid))
     {
         LOG_INFO("Received SubscriberDiscovery callback from unknown participant: " << srcGuid);
@@ -1797,7 +1703,7 @@ void DiscoveryServerManager::on_data_reader_discovery(
     switch (info.status)
     {
         case DS::DISCOVERED_READER:
-            state.AddDataReader(srcGuid, partid, subsid, info.info.typeName().to_string(),
+            state.AddDataReader(srcGuid, srcName, partid, subsid, info.info.typeName().to_string(),
                     info.info.topicName().to_string(), callback_time);
             break;
         case DS::REMOVED_READER:
@@ -1822,6 +1728,7 @@ void DiscoveryServerManager::on_data_writer_discovery(
 
     // if the callback origin was removed ignore
     GUID_t srcGuid = participant->guid();
+    std::string srcName = participant->get_qos().name().to_string();
     if ( nullptr == getParticipant(srcGuid))
     {
         LOG_INFO("Received PublisherDiscovery callback from unknown participant: " << srcGuid);
@@ -1879,6 +1786,7 @@ void DiscoveryServerManager::on_data_writer_discovery(
         case DS::DISCOVERED_WRITER:
 
             state.AddDataWriter(srcGuid,
+                    srcName,
                     partid,
                     pubsid,
                     info.info.typeName().to_string(),
