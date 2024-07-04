@@ -1,0 +1,21 @@
+name: Fast DDS Discovery Server Ubuntu CI (weekly)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 * * * 1' # Run at minute 0 on Monday
+
+jobs:
+  weekly-ubuntu-ci-v1_2_1:
+    uses: eProsima/Discovery-Server/.github/workflows/reusable-ubuntu-ci.yml@1.2.x
+    with:
+      # It would be desirable to have a matrix of ubuntu OS for this job, but due to the issue opened in this ticket:
+      # https://github.com/orgs/community/discussions/128118 , it has been set as a single OS job.
+      os-version: 'ubuntu-20.04'
+      label: 'weekly-ubuntu-ci-v1.2.1-2.6.x'
+      discovery-server-branch: 'v1.2.1'
+      fastdds-branch: '2.6.x'
+      ctest-args: "-LE xfail"
+      run-build: true
+      run-tests: true
+      use-ccache: false
