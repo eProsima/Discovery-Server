@@ -44,6 +44,17 @@ idl_files=(${idl_files[@]/$files_to_exclude})
 
 ret_value=0
 
+# CDR option check
+if [[ $1 == "CDRv1" ]]; then
+    cdr_arg="-cdr v1"
+elif [[ $1 == "CDRv2" ]]; then
+    cdr_arg="-cdr v2"
+elif [[ $1 == "CDRv1v2" ]]; then
+    cdr_arg="-cdr both"
+else
+    cdr_arg=""
+fi
+
 for idl_file in "${idl_files[@]}"; do
     idl_dir=$(dirname "$idl_file")
     file_from_gen=$(basename "$idl_file")
@@ -52,13 +63,8 @@ for idl_file in "${idl_files[@]}"; do
 
     cd "${idl_dir}"
 
-    # Detect if needs type_object.
-    [[ ${files_not_needing_typeobject[*]} =~ $idl_file ]] && to_arg='-no-typeobjectsupport' || to_arg=''
-
     # Detect if needs case sensitive.
     [[ ${files_needing_case_sensitive[*]} =~ $idl_file ]] && cs_arg='-cs' || cs_arg=''
-
-    [[ ${files_needing_no_typesupport[*]} =~ $idl_file ]] && nosupport_arg='-no-typesupport' || nosupport_arg=''
 
     # Detect if needs output directories.
     not_processed=true
@@ -68,14 +74,14 @@ for idl_file in "${idl_files[@]}"; do
             od_entry_split=(${od_entry//\|/ })
             for od_entry_split_element in ${od_entry_split[@]:1}; do
                 od_arg="-d ${od_entry_split_element}"
-                fastddsgen -replace -genapi $to_arg $cs_arg $od_arg "$file_from_gen" -no-dependencies
+                fastddsgen -replace $cdr_arg $cs_arg $od_arg "$file_from_gen"
             done
             break
         fi
     done
 
     if $not_processed ; then
-        fastddsgen -replace -genapi $to_arg $cs_arg $nosupport_arg "$file_from_gen" -no-dependencies
+        fastddsgen -replace $cdr_arg $cs_arg "$file_from_gen"
     fi
 
     if [[ $? != 0 ]]; then
