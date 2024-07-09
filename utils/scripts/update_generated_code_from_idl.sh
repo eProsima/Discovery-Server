@@ -45,11 +45,11 @@ idl_files=(${idl_files[@]/$files_to_exclude})
 ret_value=0
 
 # CDR option check
-if [[ $1 == "CDRv1" ]]; then
+if [[ $1 == "cdr-v1" ]]; then
     cdr_arg="-cdr v1"
-elif [[ $1 == "CDRv2" ]]; then
+elif [[ $1 == "cdr-v2" ]]; then
     cdr_arg="-cdr v2"
-elif [[ $1 == "CDRv1v2" ]]; then
+elif [[ $1 == "cdr-both" ]]; then
     cdr_arg="-cdr both"
 else
     cdr_arg=""
