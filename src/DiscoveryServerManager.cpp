@@ -1722,12 +1722,12 @@ void DiscoveryServerManager::on_data_reader_discovery(
 
 void DiscoveryServerManager::on_data_writer_discovery(
         DomainParticipant* participant,
-        rtps::WRITER_DISCOVERY_STATUS reason,
+        rtps::WriterDiscoveryStatus reason,
         const PublicationBuiltinTopicData& info,
         bool& should_be_ignored)
 {
     should_be_ignored = false;
-    typedef WRITER_DISCOVERY_STATUS DS;
+    typedef WriterDiscoveryStatus DS;
 
     // if the callback origin was removed ignore
     GUID_t srcGuid = participant->guid();
@@ -1862,9 +1862,9 @@ std::ostream& eprosima::discovery_server::operator <<(
 
 std::ostream& eprosima::discovery_server::operator <<(
         std::ostream& o,
-        WRITER_DISCOVERY_STATUS s)
+        WriterDiscoveryStatus s)
 {
-    typedef WRITER_DISCOVERY_STATUS DS;
+    typedef WriterDiscoveryStatus DS;
 
     switch (s)
     {
