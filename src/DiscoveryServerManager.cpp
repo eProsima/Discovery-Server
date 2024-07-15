@@ -1641,11 +1641,12 @@ void DiscoveryServerManager::on_participant_discovery(
 
 void DiscoveryServerManager::on_data_reader_discovery(
         DomainParticipant* participant,
-        ReaderDiscoveryInfo&& info,
+        ReaderDiscoveryStatus reason,
+        const ReaderProxyData& info,
         bool& should_be_ignored)
 {
     static_cast<void>(should_be_ignored);
-    typedef ReaderDiscoveryInfo::DISCOVERY_STATUS DS;
+    typedef ReaderDiscoveryStatus DS;
 
     // if the callback origin was removed ignore
     GUID_t srcGuid = participant->guid();
@@ -1656,8 +1657,8 @@ void DiscoveryServerManager::on_data_reader_discovery(
         return;
     }
 
-    const GUID_t& subsid = info.info.guid();
-    GUID_t partid = iHandle2GUID(info.info.RTPSParticipantKey());
+    const GUID_t& subsid = info.guid();
+    GUID_t partid = iHandle2GUID(info.RTPSParticipantKey());
 
     // non reported info
     std::string part_name;
@@ -1702,11 +1703,11 @@ void DiscoveryServerManager::on_data_reader_discovery(
         part_name = ss.str();
     }
 
-    switch (info.status)
+    switch (reason)
     {
         case DS::DISCOVERED_READER:
-            state.AddDataReader(srcGuid, srcName, partid, subsid, info.info.typeName().to_string(),
-                    info.info.topicName().to_string(), callback_time);
+            state.AddDataReader(srcGuid, srcName, partid, subsid, info.typeName().to_string(),
+                    info.topicName().to_string(), callback_time);
             break;
         case DS::REMOVED_READER:
             state.RemoveDataReader(srcGuid, partid, subsid);
@@ -1716,8 +1717,8 @@ void DiscoveryServerManager::on_data_reader_discovery(
     }
 
     LOG_INFO("Participant " << participant->get_qos().name().to_string() << " reports a subscriber of participant "
-                            << part_name << " is " << info.status << " with typename: " << info.info.typeName()
-                            << " topic: " << info.info.topicName() << " GUID: " << subsid);
+                            << part_name << " is " << reason << " with typename: " << info.typeName()
+                            << " topic: " << info.topicName() << " GUID: " << subsid);
 }
 
 void DiscoveryServerManager::on_data_writer_discovery(
@@ -1841,9 +1842,9 @@ std::ostream& eprosima::discovery_server::operator <<(
 
 std::ostream& eprosima::discovery_server::operator <<(
         std::ostream& o,
-        ReaderDiscoveryInfo::DISCOVERY_STATUS s)
+        ReaderDiscoveryStatus s)
 {
-    typedef ReaderDiscoveryInfo::DISCOVERY_STATUS DS;
+    typedef ReaderDiscoveryStatus DS;
 
     switch (s)
     {
