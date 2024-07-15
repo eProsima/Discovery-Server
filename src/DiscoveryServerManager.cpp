@@ -1792,8 +1792,8 @@ void DiscoveryServerManager::on_data_writer_discovery(
                     srcName,
                     partid,
                     pubsid,
-                    info.type_name,
-                    info.topic_name,
+                    info.type_name.to_string(),
+                    info.topic_name.to_string(),
                     callback_time);
             break;
         case DS::REMOVED_WRITER:
