@@ -21,20 +21,14 @@ jobs:
       use-ccache: false
 
   nightly-ubuntu-ci-v1_2_2:
-    strategy:
-      fail-fast: false
-      matrix:
-        fastdds-branch:
-         - '2.14.x'
-         - '2.13.x'
     uses: eProsima/Discovery-Server/.github/workflows/reusable-ubuntu-ci.yml@1.2.x
     with:
       # It would be desirable to have a matrix of ubuntu OS for this job, but due to the issue opened in this ticket:
       # https://github.com/orgs/community/discussions/128118 , it has been set as a single OS job.
       os-version: 'ubuntu-22.04'
-      label: 'nightly-ubuntu-ci-v1.2.2-${{ matrix.fastdds-branch }}'
+      label: 'nightly-ubuntu-ci-v1.2.2-2.14.x'
       discovery-server-branch: 'v1.2.2'
-      fastdds-branch: ${{ matrix.fastdds-branch }}
+      fastdds-branch: '2.14.x'
       ctest-args: "-LE xfail"
       run-build: true
       run-tests: true

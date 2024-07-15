@@ -11,7 +11,6 @@ Please, refer to the [master branch](https://github.com/eProsima/Discovery-Serve
 |Fast DDS Version|Discovery Server Version|Discovery Server Latest Release|
 |----------------|------------------------|-------------------------------|
 |2.14|1.2.2|[v1.2.2](https://github.com/eProsima/Discovery-Server/releases/tag/v1.2.2)|
-|2.13|1.2.2|[v1.2.2](https://github.com/eProsima/Discovery-Server/releases/tag/v1.2.2)|
 |2.10|1.2.1|[v1.2.1](https://github.com/eProsima/Discovery-Server/releases/tag/v1.2.1)|
 |2.6|1.2.1|[v1.2.1](https://github.com/eProsima/Discovery-Server/releases/tag/v1.2.1)|
 
