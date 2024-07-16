@@ -279,7 +279,8 @@ public:
     // callback discovery functions
     void on_participant_discovery(
             DomainParticipant* participant,
-            ParticipantDiscoveryInfo&& info,
+            ParticipantDiscoveryStatus status,
+            const ParticipantBuiltinTopicData& info,
             bool& should_be_ignored) override;
 
     void on_data_reader_discovery(
@@ -339,7 +340,7 @@ public:
 
 std::ostream& operator <<(
         std::ostream&,
-        ParticipantDiscoveryInfo::DISCOVERY_STATUS);
+        ParticipantDiscoveryStatus);
 std::ostream& operator <<(
         std::ostream&,
         ReaderDiscoveryStatus);
