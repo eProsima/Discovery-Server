@@ -285,7 +285,7 @@ public:
     void on_data_reader_discovery(
             DomainParticipant* participant,
             ReaderDiscoveryStatus reason,
-            const ReaderProxyData& info,
+            const SubscriptionBuiltinTopicData& info,
             bool& should_be_ignored) override;
 
     void on_data_writer_discovery(
