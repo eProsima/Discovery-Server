@@ -289,7 +289,8 @@ public:
 
     void on_data_writer_discovery(
             DomainParticipant* participant,
-            WriterDiscoveryInfo&& info,
+            rtps::WriterDiscoveryStatus reason,
+            const PublicationBuiltinTopicData& info,
             bool& should_be_ignored) override;
 
     // callback liveliness functions
@@ -343,7 +344,7 @@ std::ostream& operator <<(
         ReaderDiscoveryInfo::DISCOVERY_STATUS);
 std::ostream& operator <<(
         std::ostream&,
-        WriterDiscoveryInfo::DISCOVERY_STATUS);
+        WriterDiscoveryStatus);
 
 } // namespace discovery_server
 } // namespace eprosima

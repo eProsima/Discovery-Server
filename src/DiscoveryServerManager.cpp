@@ -18,11 +18,13 @@
 
 #include <tinyxml2.h>
 
+#include <fastdds/dds/builtin/topic/PublicationBuiltinTopicData.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/rtps/RTPSDomain.hpp>
 #include <fastdds/rtps/transport/UDPv4TransportDescriptor.hpp>
 #include <fastdds/rtps/transport/TCPv4TransportDescriptor.hpp>
 #include <fastdds/rtps/transport/TCPv6TransportDescriptor.hpp>
+#include <fastdds/rtps/writer/WriterDiscoveryStatus.hpp>
 
 #include "DiscoveryServerManager.h"
 #include "IDs.h"
@@ -1720,11 +1722,12 @@ void DiscoveryServerManager::on_data_reader_discovery(
 
 void DiscoveryServerManager::on_data_writer_discovery(
         DomainParticipant* participant,
-        WriterDiscoveryInfo&& info,
+        rtps::WriterDiscoveryStatus reason,
+        const PublicationBuiltinTopicData& info,
         bool& should_be_ignored)
 {
-    static_cast<void>(should_be_ignored);
-    typedef WriterDiscoveryInfo::DISCOVERY_STATUS DS;
+    should_be_ignored = false;
+    typedef WriterDiscoveryStatus DS;
 
     // if the callback origin was removed ignore
     GUID_t srcGuid = participant->guid();
@@ -1735,8 +1738,8 @@ void DiscoveryServerManager::on_data_writer_discovery(
         return;
     }
 
-    const GUID_t& pubsid = info.info.guid();
-    GUID_t partid = iHandle2GUID(info.info.RTPSParticipantKey());
+    const GUID_t& pubsid = info.guid;
+    GUID_t partid = info.participant_guid;
 
     // non reported info
     std::string part_name;
@@ -1781,7 +1784,7 @@ void DiscoveryServerManager::on_data_writer_discovery(
         part_name = ss.str();
     }
 
-    switch (info.status)
+    switch (reason)
     {
         case DS::DISCOVERED_WRITER:
 
@@ -1789,8 +1792,8 @@ void DiscoveryServerManager::on_data_writer_discovery(
                     srcName,
                     partid,
                     pubsid,
-                    info.info.typeName().to_string(),
-                    info.info.topicName().to_string(),
+                    info.type_name.to_string(),
+                    info.topic_name.to_string(),
                     callback_time);
             break;
         case DS::REMOVED_WRITER:
@@ -1802,8 +1805,8 @@ void DiscoveryServerManager::on_data_writer_discovery(
     }
 
     LOG_INFO("Participant " << participant->get_qos().name().to_string() << " reports a publisher of participant "
-                            << part_name << " is " << info.status << " with typename: " << info.info.typeName()
-                            << " topic: " << info.info.topicName() << " GUID: " << pubsid);
+                            << part_name << " is " << reason << " with typename: " << info.type_name
+                            << " topic: " << info.topic_name << " GUID: " << pubsid);
 }
 
 void DiscoveryServerManager::on_liveliness_changed(
@@ -1859,9 +1862,9 @@ std::ostream& eprosima::discovery_server::operator <<(
 
 std::ostream& eprosima::discovery_server::operator <<(
         std::ostream& o,
-        WriterDiscoveryInfo::DISCOVERY_STATUS s)
+        WriterDiscoveryStatus s)
 {
-    typedef WriterDiscoveryInfo::DISCOVERY_STATUS DS;
+    typedef WriterDiscoveryStatus DS;
 
     switch (s)
     {
