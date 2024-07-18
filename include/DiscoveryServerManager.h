@@ -284,7 +284,8 @@ public:
 
     void on_data_reader_discovery(
             DomainParticipant* participant,
-            ReaderDiscoveryInfo&& info,
+            ReaderDiscoveryStatus reason,
+            const SubscriptionBuiltinTopicData& info,
             bool& should_be_ignored) override;
 
     void on_data_writer_discovery(
@@ -341,7 +342,7 @@ std::ostream& operator <<(
         ParticipantDiscoveryInfo::DISCOVERY_STATUS);
 std::ostream& operator <<(
         std::ostream&,
-        ReaderDiscoveryInfo::DISCOVERY_STATUS);
+        ReaderDiscoveryStatus);
 std::ostream& operator <<(
         std::ostream&,
         WriterDiscoveryStatus);
