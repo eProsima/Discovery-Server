@@ -315,7 +315,7 @@ public:
     }
 
     // default topic
-    static TopicAttributes builtin_defaultTopic;
+    static TopicDescriptionItem default_topic_description;
 
     // parsing regex
     static const std::regex ipv4_regular_expression;

@@ -36,6 +36,29 @@ namespace discovery_server {
 
 typedef fastdds::rtps::GUID_t GUID_t;
 
+struct TopicDescriptionItem
+{
+    TopicDescriptionItem()
+    {
+        name = "UNDEF";
+        type_name = "UNDEF";
+    }
+
+    TopicDescriptionItem(
+            const std::string& name,
+            const std::string& type_name)
+        : name(name)
+        , type_name(type_name)
+    {
+
+    }
+
+    ~TopicDescriptionItem() = default;
+
+    std::string name;
+    std::string type_name;
+};
+
 //! common discovery info
 struct DiscoveryItem
 {
