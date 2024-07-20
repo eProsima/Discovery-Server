@@ -681,6 +681,66 @@ Topic* DiscoveryServerManager::getParticipantTopicByName(
     return returnTopic;
 }
 
+bool DiscoveryServerManager::fill_topic_description_profile(
+    tinyxml2::XMLElement* elem,
+    TopicDescriptionItem& topic_description)
+{
+    /*
+        <xs:complexType name="topicDescriptionType">
+        <xs:all minOccurs="0">
+                <xs:element name="name" type="stringType" minOccurs="0"/>
+                <xs:element name="dataType" type="stringType" minOccurs="0"/>
+        </xs:all>
+        </xs:complexType>
+    */
+
+    bool ret = true;
+    tinyxml2::XMLElement* p_aux0 = elem->FirstChildElement();
+    const char* name = nullptr;
+    for (; p_aux0 != NULL; p_aux0 = p_aux0->NextSiblingElement())
+    {
+            name = p_aux0->Name();
+
+            if (strcmp(name, DSxmlparser::NAME) == 0)
+            {
+                // name - stringType
+                const char* text = p_aux0->GetText();
+                if (nullptr != text)
+                {
+                    topic_description.name = text;
+                }
+                else
+                {
+                    LOG_ERROR("<" << p_aux0->Value() << "> GetText XML_ERROR");
+                    ret = false;
+                    break;
+                }
+            }
+            else if (strcmp(name, DSxmlparser::DATA_TYPE) == 0)
+            {
+                // dataType - stringType
+                const char* text = p_aux0->GetText();
+                if (nullptr != text)
+                {
+                    topic_description.type_name = text;
+                }
+                else
+                {
+                    LOG_ERROR("<" << p_aux0->Value() << "> GetText XML_ERROR");
+                    ret = false;
+                    break;
+                }
+            }
+            else
+            {
+                LOG_ERROR("Invalid element found into 'topicDescriptionType'. Name: " << name);
+                ret = false;
+            }
+    }
+
+    return ret;
+}
+
 void DiscoveryServerManager::onTerminate()
 {
     {

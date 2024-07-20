@@ -317,6 +317,10 @@ public:
     // default topic
     static TopicDescriptionItem default_topic_description;
 
+    static bool fill_topic_description_profile(
+        tinyxml2::XMLElement* elem,
+        TopicDescriptionItem& topic_description);
+
     // parsing regex
     static const std::regex ipv4_regular_expression;
 
