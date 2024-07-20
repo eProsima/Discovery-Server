@@ -38,6 +38,7 @@ using namespace eprosima::discovery_server;
 namespace eprosima {
 namespace fastdds {
 namespace DSxmlparser {
+const char* DATA_TYPE = "dataType";
 const char* PROFILES = "profiles";
 const char* PROFILE_NAME = "profile_name";
 const char* PREFIX = "prefix";
@@ -53,7 +54,7 @@ const char* TOPIC = "topic";
 } // namespace eprosima
 
 /*static members*/
-TopicAttributes DiscoveryServerManager::builtin_defaultTopic("HelloWorldTopic", "HelloWorld");
+TopicDescriptionItem DiscoveryServerManager::default_topic_description("HelloWorldTopic", "HelloWorld");
 const std::regex DiscoveryServerManager::ipv4_regular_expression("^((?:[0-9]{1,3}\\.){3}[0-9]{1,3})?:?(?:(\\d+))?$");
 const std::chrono::seconds DiscoveryServerManager::last_snapshot_delay_ = std::chrono::seconds(1);
 
@@ -121,6 +122,27 @@ DiscoveryServerManager::DiscoveryServerManager(
                 else
                 {
                     LOG_ERROR("Error parsing profiles!");
+                }
+
+                // Store Topic Profiles
+                tinyxml2::XMLElement* topic_profile = profiles->FirstChildElement(s_sTopic.c_str());
+                while (nullptr != topic_profile)
+                {
+                    const char* topic_profile_name = topic_profile->Attribute(DSxmlparser::PROFILE_NAME);
+                    if (topic_profile_name != nullptr)
+                    {
+                        auto topic_desc_it = topic_description_profiles_map.find(topic_profile_name);
+                        if (topic_desc_it == topic_description_profiles_map.end())
+                        {
+                            auto &topic_desc = topic_description_profiles_map[topic_profile_name];
+                            if (!fill_topic_description_profile(topic_profile, topic_desc))
+                            {
+                                LOG_ERROR("Error parsing topic profiles");
+                                break;
+                            }
+                        }
+                    }
+                    topic_profile = topic_profile->NextSiblingElement(s_sTopic.c_str());
                 }
             }
 
@@ -1362,14 +1384,19 @@ void DiscoveryServerManager::loadSubscriber(
 
     // see if topic is specified
     const char* topic_name = sub->Attribute(DSxmlparser::TOPIC);
-    TopicAttributes topicAttr;
+    TopicDescriptionItem topic_description;
     if (topic_name != nullptr)
     {
-        if (!eprosima::fastdds::rtps::RTPSDomain::get_topic_attributes_from_profile(std::string(
-                    topic_name), topicAttr))
+        if (topic_name != nullptr)
         {
-            LOG_ERROR("DiscoveryServerManager::loadSubscriber couldn't load topic profile ");
-            return;
+            try
+            {
+                topic_description = topic_description_profiles_map.at(topic_name);
+            }
+            catch (...)
+            {
+                LOG_ERROR("Topic " << topic_name << " not found in the topic description profiles");
+            }
         }
     }
 
@@ -1392,8 +1419,8 @@ void DiscoveryServerManager::loadSubscriber(
         endpoint_profile = std::string(profile_name);
     }
 
-    DelayedEndpointCreation<DataReader> event(creation_time, topicAttr.getTopicName().to_string(),
-            topicAttr.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE,
+    DelayedEndpointCreation<DataReader> event(creation_time, topic_description.name,
+            topic_description.type_name, topic_name, endpoint_profile, part_guid, pDE,
             participant_creation_event);
 
     if (creation_time == getTime())
@@ -1409,11 +1436,11 @@ void DiscoveryServerManager::loadSubscriber(
 
 void DiscoveryServerManager::loadPublisher(
         GUID_t& part_guid,
-        tinyxml2::XMLElement* sub,
+        tinyxml2::XMLElement* pub,
         DelayedParticipantCreation* participant_creation_event /*= nullptr*/,
         DelayedParticipantDestruction* participant_destruction_event /*= nullptr*/)
 {
-    assert(sub != nullptr);
+    assert(pub != nullptr);
 
     // check if we need to create an event
     std::chrono::steady_clock::time_point creation_time, removal_time;
@@ -1442,7 +1469,7 @@ void DiscoveryServerManager::loadPublisher(
     }
 
     {
-        const char* creation_time_str = sub->Attribute(s_sCreationTime.c_str());
+        const char* creation_time_str = pub->Attribute(s_sCreationTime.c_str());
         if (creation_time_str != nullptr)
         {
             int aux;
@@ -1450,7 +1477,7 @@ void DiscoveryServerManager::loadPublisher(
             creation_time = getTime() + std::chrono::seconds(aux);
         }
 
-        const char* removal_time_str = sub->Attribute(s_sRemovalTime.c_str());
+        const char* removal_time_str = pub->Attribute(s_sRemovalTime.c_str());
         if (removal_time_str != nullptr)
         {
             int aux;
@@ -1461,22 +1488,24 @@ void DiscoveryServerManager::loadPublisher(
 
     // data_readers are created for debugging purposes
     // default topic is the static HelloWorld one
-    const char* profile_name = sub->Attribute(DSxmlparser::PROFILE_NAME);
+    const char* profile_name = pub->Attribute(DSxmlparser::PROFILE_NAME);
 
     // see if topic is specified
-    const char* topic_name = sub->Attribute(DSxmlparser::TOPIC);
-    TopicAttributes topicAttr;
+    const char* topic_name = pub->Attribute(DSxmlparser::TOPIC);
+    TopicDescriptionItem topic_description;
     if (topic_name != nullptr)
     {
-        if (!eprosima::fastdds::rtps::RTPSDomain::get_topic_attributes_from_profile(std::string(
-                    topic_name), topicAttr))
+        try
         {
-            LOG_ERROR("DiscoveryServerManager::loadPublisher couldn't load topic profile ");
-            return;
+            topic_description = topic_description_profiles_map.at(topic_name);
+        }
+        catch (...)
+        {
+            LOG_ERROR("Topic " << topic_name << " not found in the topic description profiles");
         }
     }
 
-    DelayedEndpointDestruction<DataWriter>* pDE = nullptr; // subscriber destruction event
+    DelayedEndpointDestruction<DataWriter>* pDE = nullptr; // publisher destruction event
 
     if (removal_time != getTime())
     {
@@ -1496,8 +1525,8 @@ void DiscoveryServerManager::loadPublisher(
         endpoint_profile = std::string(profile_name);
     }
 
-    DelayedEndpointCreation<DataWriter> event(creation_time, topicAttr.getTopicName().to_string(),
-            topicAttr.getTopicDataType().to_string(), topic_name, endpoint_profile, part_guid, pDE,
+    DelayedEndpointCreation<DataWriter> event(creation_time, topic_description.name,
+            topic_description.type_name, topic_name, endpoint_profile, part_guid, pDE,
             participant_creation_event);
 
     if (creation_time == getTime())
