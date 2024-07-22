@@ -386,15 +386,6 @@ include(CTest)
 add_subdirectory(test)
 
 ###############################################################################
-# Examples
-###############################################################################
-option(COMPILE_EXAMPLES "Build example" OFF)
-
-if(COMPILE_EXAMPLES)
-    add_subdirectory(examples/HelloWorldExampleDS)
-endif()
-
-###############################################################################
 # Installation
 ###############################################################################
 
@@ -410,7 +401,6 @@ endif()
 set(BIN_INSTALL_DIR bin/ CACHE PATH "Installation directory for binaries")
 set(INCLUDE_INSTALL_DIR include/ CACHE PATH "Installation directory for C++ headers")
 set(INCLUDE_SOURCE_DIR src/ CACHE PATH "Installation directory for C++ sources")
-set(EXAMPLES_INSTALL_DIR examples/ CACHE PATH "Installation directory for examples")
 set(LIB_INSTALL_DIR lib/ CACHE PATH "Installation directory for libraries")
 set(LICENSE_INSTALL_DIR license/ CACHE PATH "Installation directory for licenses")
 set(EXPORT_INSTALL_DIR export/ CACHE PATH "Installation directory for cmake exports")
