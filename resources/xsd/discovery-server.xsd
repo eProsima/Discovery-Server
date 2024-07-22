@@ -201,7 +201,7 @@
     <xs:complexType name="writerTimesType">
         <xs:all minOccurs="0">
             <xs:element name="initialHeartbeatDelay" type="durationType" minOccurs="0"/>
-            <xs:element name="heartbeatPeriod" type="durationType" minOccurs="0"/>
+            <xs:element name="heartbeat_period" type="durationType" minOccurs="0"/>
             <xs:element name="nackResponseDelay" type="durationType" minOccurs="0"/>
             <xs:element name="nackSupressionDuration" type="durationType" minOccurs="0"/>
         </xs:all>

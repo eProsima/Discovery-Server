@@ -118,8 +118,8 @@ bool HelloWorldPublisher::init(
     PublisherQos publisher_qos = PUBLISHER_QOS_DEFAULT;
     DataWriterQos datawriter_qos = DATAWRITER_QOS_DEFAULT;
 
-    datawriter_qos.reliable_writer_qos().times.heartbeatPeriod.seconds = 2;
-    datawriter_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 0;
+    datawriter_qos.reliable_writer_qos().times.heartbeat_period.seconds = 2;
+    datawriter_qos.reliable_writer_qos().times.heartbeat_period.nanosec = 0;
     datawriter_qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
 
     mp_publisher = mp_participant->create_publisher(publisher_qos);
