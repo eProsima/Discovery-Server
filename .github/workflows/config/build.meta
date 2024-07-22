@@ -3,3 +3,6 @@ names:
         cmake-args:
             - "-DNO_TLS=ON"
             - "-DSECURITY=OFF"
+    discovery-server:
+        cmake-args:
+            - "-DCOMPILE_EXAMPLES=ON"
