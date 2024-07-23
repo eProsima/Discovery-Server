@@ -4,7 +4,6 @@ files_to_exclude=(
     )
 
 files_not_needing_typeobject=(
-    './examples/HelloWorldExampleDS/HelloWorld.idl'
     './resources/static_types/HelloWorld.idl'
     )
 
