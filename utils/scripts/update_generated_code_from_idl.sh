@@ -4,7 +4,7 @@ files_to_exclude=(
     )
 
 files_not_needing_typeobject=(
-    './resources/static_types/HelloWorld.idl'
+    './resources/xtypes/HelloWorld.idl'
     )
 
 files_needing_case_sensitive=(

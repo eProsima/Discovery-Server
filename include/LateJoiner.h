@@ -25,7 +25,7 @@
 
 #include "DiscoveryServerManager.h"
 #include "log/DSLog.h"
-#include "../resources/static_types/HelloWorldPubSubTypes.hpp"
+#include "../resources/xtypes/HelloWorldPubSubTypes.hpp"
 
 namespace eprosima {
 namespace discovery_server {
