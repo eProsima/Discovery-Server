@@ -1584,11 +1584,12 @@ void DiscoveryServerManager::MapServerInfo(
 
 void DiscoveryServerManager::on_participant_discovery(
         DomainParticipant* participant,
-        ParticipantDiscoveryInfo&& info,
+        ParticipantDiscoveryStatus status,
+        const ParticipantBuiltinTopicData& info,
         bool& should_be_ignored)
 {
     bool server = false;
-    const GUID_t& partid = info.info.m_guid;
+    const GUID_t& partid = info.guid;
     static_cast<void>(should_be_ignored);
 
     // if the callback origin was removed ignore
@@ -1601,7 +1602,7 @@ void DiscoveryServerManager::on_participant_discovery(
     }
 
     LOG_INFO("Participant " << participant->get_qos().name().to_string() << " reports a participant "
-                            << info.info.m_participantName << " is " << info.status << ". Prefix " << partid);
+                            << info.participant_name << " is " << status << ". Prefix " << partid);
 
     std::chrono::steady_clock::time_point callback_time = std::chrono::steady_clock::now();
     {
@@ -1620,16 +1621,16 @@ void DiscoveryServerManager::on_participant_discovery(
     // add to database, it has its own mtx
     // note that when a participant is destroyed he will wait for all his callbacks to return
     // state will be alive during all callbacks
-    switch (info.status)
+    switch (status)
     {
-        case ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT:
+        case ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT:
         {
-            state.AddParticipant(srcGuid, srcName, partid, info.info.m_participantName.to_string(), callback_time,
+            state.AddParticipant(srcGuid, srcName, partid, info.participant_name.to_string(), callback_time,
                     server);
             break;
         }
-        case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
-        case ParticipantDiscoveryInfo::DROPPED_PARTICIPANT:
+        case ParticipantDiscoveryStatus::REMOVED_PARTICIPANT:
+        case ParticipantDiscoveryStatus::DROPPED_PARTICIPANT:
         {
             state.RemoveParticipant(srcGuid, partid);
             break;
@@ -1819,19 +1820,17 @@ void DiscoveryServerManager::on_liveliness_changed(
 
 std::ostream& eprosima::discovery_server::operator <<(
         std::ostream& o,
-        ParticipantDiscoveryInfo::DISCOVERY_STATUS s)
+        ParticipantDiscoveryStatus s)
 {
-    typedef ParticipantDiscoveryInfo::DISCOVERY_STATUS DS;
-
     switch (s)
     {
-        case DS::DISCOVERED_PARTICIPANT:
+        case ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT:
             return o << "DISCOVERED_PARTICIPANT";
-        case DS::CHANGED_QOS_PARTICIPANT:
+        case ParticipantDiscoveryStatus::CHANGED_QOS_PARTICIPANT:
             return o << "CHANGED_QOS_PARTICIPANT";
-        case DS::REMOVED_PARTICIPANT:
+        case ParticipantDiscoveryStatus::REMOVED_PARTICIPANT:
             return o << "REMOVED_PARTICIPANT";
-        case DS::DROPPED_PARTICIPANT:
+        case ParticipantDiscoveryStatus::DROPPED_PARTICIPANT:
             return o << "DROPPED_PARTICIPANT";
         default: // unknown value, error
             o.setstate(std::ios::failbit);
