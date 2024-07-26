@@ -376,11 +376,11 @@ void DelayedEndpointCreation<ReaderWriter>::operator ()(
     if (type_name == "UNDEF")
     {
         topic = manager.getParticipantTopicByName(part,
-                        DiscoveryServerManager::builtin_defaultTopic.getTopicName().to_string());
+                        DiscoveryServerManager::default_topic_description.name);
         if ( nullptr == topic)
         {
-            topic = part->create_topic(DiscoveryServerManager::builtin_defaultTopic.getTopicName().to_string(),
-                            DiscoveryServerManager::builtin_defaultTopic.topicDataType.to_string(),
+            topic = part->create_topic(DiscoveryServerManager::default_topic_description.name,
+                            DiscoveryServerManager::default_topic_description.type_name,
                             part->get_default_topic_qos());
             manager.setParticipantTopic(part, topic);
         }

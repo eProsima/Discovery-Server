@@ -128,6 +128,9 @@ class DiscoveryServerManager
     // Snapshops container
     snapshots_list snapshots;
 
+    // Topic description profiles
+    std::map<std::string, TopicDescriptionItem> topic_description_profiles_map;
+
     volatile bool no_callbacks;      // ongoing participant destruction
     bool auto_shutdown;         // close when event processing is finished?
     bool enable_prefix_validation; // allow multiple servers share the same prefix? (only for testing purposes)
@@ -315,7 +318,11 @@ public:
     }
 
     // default topic
-    static TopicAttributes builtin_defaultTopic;
+    static TopicDescriptionItem default_topic_description;
+
+    static bool fill_topic_description_profile(
+        tinyxml2::XMLElement* elem,
+        TopicDescriptionItem& topic_description);
 
     // parsing regex
     static const std::regex ipv4_regular_expression;
