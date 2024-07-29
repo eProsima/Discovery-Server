@@ -297,12 +297,12 @@ set(${PROJECT_NAME}_schema_files
     )
 
 # testing static types
-file(GLOB ${PROJECT_NAME}_static_types
-    resources/static_types/*.*
+file(GLOB ${PROJECT_NAME}_xtypes
+    resources/xtypes/*.*
     )
 
 #filter out the idl within the static types
-set( ${PROJECT_NAME}_idl ${${PROJECT_NAME}_static_types} )
+set( ${PROJECT_NAME}_idl ${${PROJECT_NAME}_xtypes} )
 list(FILTER ${PROJECT_NAME}_idl INCLUDE REGEX "\\.idl$" )
 
 set(${PROJECT_NAME}_header_files
@@ -329,11 +329,11 @@ set(${PROJECT_NAME}_source_files
 
 # Executable
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_source_files} ${${PROJECT_NAME}_header_files}
-                ${${PROJECT_NAME}_python_tests} ${${PROJECT_NAME}_static_types})
+                ${${PROJECT_NAME}_python_tests} ${${PROJECT_NAME}_xtypes})
 
 # schema, types and auxiliary xmls
 source_group(resources\\xsd FILES ${${PROJECT_NAME}_schema_files} )
-source_group(resources\\static_types FILES ${${PROJECT_NAME}_static_types} )
+source_group(resources\\xtypes FILES ${${PROJECT_NAME}_xtypes} )
 
 # avoid visual studio from trying to compile .idl files with midl
 set_source_files_properties(${${PROJECT_NAME}_idl} PROPERTIES HEADER_FILE_ONLY TRUE)

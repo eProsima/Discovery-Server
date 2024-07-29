@@ -2777,6 +2777,478 @@
                     }
                 }
             }
+        },
+
+        "test_101_trivial_xtypes":
+        {
+            "processes":
+            {
+                "servers":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_101_trivial_xtypes_servers.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_101_trivial_xtypes_servers.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_101_trivial_xtypes_servers.snapshot"
+                        }
+                    }
+                },
+
+                "clients":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_101_trivial_xtypes_clients.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_101_trivial_xtypes_clients.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_101_trivial_xtypes_clients.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+
+        "test_102_single_server_medium_xtypes":
+        {
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_102_single_server_medium_xtypes.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_102_single_server_medium_xtypes.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_102_single_server_medium_xtypes.snapshot"
+                        }
+                    }
+                },
+
+                "server":
+                {
+                    "kill_time": 9,
+                    "tool_config":
+                    {
+                        "id" : 0,
+                        "udp_address": "127.0.0.1",
+                        "udp_port": 10281
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_103_single_server_large_xtypes":
+        {
+            "contrains": ["shm_size"],
+            "processes":
+            {
+                "clients":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_103_single_server_large_xtypes.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_103_single_server_large_xtypes.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_103_single_server_large_xtypes.snapshot"
+                        }
+                    }
+                },
+
+                "server":
+                {
+                    "kill_time": 61,
+                    "tool_config":
+                    {
+                        "id" : 0,
+                        "udp_address": "127.0.0.1",
+                        "udp_port": 10381
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_106_diamond_servers_xtypes":
+        {
+            "processes":
+            {
+                "server1":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_106_diamond_servers_xtypes_server1.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_106_diamond_servers_xtypes_server1.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_106_diamond_servers_xtypes_server1.snapshot"
+                        }
+                    }
+                },
+
+                "server2":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_106_diamond_servers_xtypes_server2.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_106_diamond_servers_xtypes_server2.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_106_diamond_servers_xtypes_server2.snapshot"
+                        }
+                    }
+                },
+
+                "server3":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_106_diamond_servers_xtypes_server3.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_106_diamond_servers_xtypes_server3.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_106_diamond_servers_xtypes_server3.snapshot"
+                        }
+                    }
+                },
+
+                "server4":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_106_diamond_servers_xtypes_server4.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_106_diamond_servers_xtypes_server4.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_106_diamond_servers_xtypes_server4.snapshot"
+                        }
+                    }
+                },
+
+                "clients":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_106_diamond_servers_xtypes_clients.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_106_diamond_servers_xtypes_clients.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_106_diamond_servers_xtypes_clients.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_108_server_endpoints_four_clients_xtypes":
+        {
+            "processes":
+            {
+                "servers":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_108_server_endpoints_four_clients_xtypes_servers.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_108_server_endpoints_four_clients_xtypes_servers.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_108_server_endpoints_four_clients_xtypes_servers.snapshot"
+                        }
+                    }
+                },
+
+                "clients":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_108_server_endpoints_four_clients_xtypes_clients.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_108_server_endpoints_four_clients_xtypes_clients.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": false,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_108_server_endpoints_four_clients_xtypes_clients.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_114_disposals_remote_servers_xtypes":
+        {
+            "processes":
+            {
+                "servers":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_114_disposals_remote_servers_xtypes_servers.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_114_disposals_remote_servers_xtypes_servers.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_114_disposals_remote_servers_xtypes_servers.snapshot"
+                        }
+                    }
+                },
+
+                "clients":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_114_disposals_remote_servers_xtypes_clients.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_114_disposals_remote_servers_xtypes_clients.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": true
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_114_disposals_remote_servers_xtypes_clients.snapshot"
+                        }
+                    }
+                }
+            }
         }
     }
 }
