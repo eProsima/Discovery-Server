@@ -25,8 +25,6 @@
 #include <fastdds/rtps/common/CdrSerialization.hpp>
 
 #include "HelloWorldCdrAux.hpp"
-#include "HelloWorldTypeObjectSupport.hpp"
-
 using SerializedPayload_t = eprosima::fastdds::rtps::SerializedPayload_t;
 using InstanceHandle_t = eprosima::fastdds::rtps::InstanceHandle_t;
 using DataRepresentationId_t = eprosima::fastdds::dds::DataRepresentationId_t;
@@ -184,7 +182,8 @@ bool HelloWorldPubSubType::compute_key(
             HelloWorld_max_key_cdr_typesize);
 
     // Object that serializes the data.
-    eprosima::fastcdr::Cdr ser(fastbuffer, eprosima::fastcdr::Cdr::BIG_ENDIANNESS, eprosima::fastcdr::CdrVersion::XCDRv1);
+    eprosima::fastcdr::Cdr ser(fastbuffer, eprosima::fastcdr::Cdr::BIG_ENDIANNESS, eprosima::fastcdr::CdrVersion::XCDRv2);
+    ser.set_encoding_flag(eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR2);
     eprosima::fastcdr::serialize_key(ser, *p_type);
     if (force_md5 || HelloWorld_max_key_cdr_typesize > 16)
     {
@@ -208,7 +207,8 @@ bool HelloWorldPubSubType::compute_key(
 
 void HelloWorldPubSubType::register_type_object_representation()
 {
-    register_HelloWorld_type_identifier(type_identifiers_);
+    EPROSIMA_LOG_WARNING(XTYPES_TYPE_REPRESENTATION,
+        "TypeObject type representation support disabled in generated code");
 }
 
 

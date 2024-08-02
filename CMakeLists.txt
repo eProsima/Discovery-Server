@@ -43,7 +43,7 @@ execute_process(COMMAND git describe --tags WORKING_DIRECTORY ${CMAKE_CURRENT_LI
 if (GIT_TAG_VERSION)
     string(REGEX MATCH "[0-9]+(\\.[0-9]+)*" PROJECT_VERSION ${GIT_TAG_VERSION} )
 else()
-    set(PROJECT_VERSION "0.0.1")
+    set(PROJECT_VERSION "2.0.0")
 endif()
 
 if (NOT PROJECT_VERSION)
