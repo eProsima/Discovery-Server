@@ -2,20 +2,20 @@ repositories:
     fastcdr:
         type: git
         url: https://github.com/eProsima/Fast-CDR.git
-        version: master
+        version: v2.2.3
     fastdds:
         type: git
         url: https://github.com/eProsima/Fast-DDS.git
-        version: master
+        version: v3.0.0
     discovery_server:
         type: git
         url: https://github.com/eProsima/Discovery-Server.git
-        version: master
+        version: v2.0.0
     leethomason/tinyxml2:
         type: git
         url: https://github.com/leethomason/tinyxml2.git
-        version: master
+        version: v6.0.0
     foonathan_memory_vendor:
         type: git
         url: https://github.com/eProsima/foonathan_memory_vendor.git
-        version: master
+        version: v1.3.1
