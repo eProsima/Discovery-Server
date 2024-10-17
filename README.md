@@ -3,6 +3,15 @@
 The [RTPS standard](http://www.omg.org/spec/DDSI-RTPS/2.3) specifies in section 8.5 a non-centralized, distributed,
 simple discovery mechanism. This mechanism was devised to allow interoperability between independent
 vendor-specific implementations but it is not expected to be optimal in every environment.
+
+## Commercial support
+
+Looking for commercial support? Write us to info@eprosima.com
+
+Find more about us at [eProsima’s webpage](https://eprosima.com/).
+
+## Overview
+
 There are several scenarios where the simple discovery mechanism is unsuitable, or it just simply cannot be
 applied:
 
@@ -286,10 +295,3 @@ You can access the documentation online, which is hosted on
 * [Examples](https://eprosima-discovery-server.readthedocs.io/en/latest/HelloWorldExample.html)
 * [Tests](https://eprosima-discovery-server.readthedocs.io/en/latest/tests.html)
 * [Release notes](https://eprosima-discovery-server.readthedocs.io/en/latest/notes.html) -->
-
-
-
-## Getting Help
-
-If you need support you can reach us by mail at `support@eProsima.com` or by phone at `+34 91 804 34 48`.
-
