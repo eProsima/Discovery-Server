@@ -5,7 +5,7 @@
          we will use the whitelist to force the clients to send their locators
          with localhost. Otherwise, the server would not reuse the initial
          channel created and it might cause a failure in the connection,
-         depending of the value of the random logical port assigned.
+         depending on the value of the random logical port assigned.
          This could be avoided by using default GUIDs. -->
 
     <clients>
