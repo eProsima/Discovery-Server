@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
 
-    <!-- In order to avoid extra channel connections between TCP participants
-         we will use the whitelist to force the clients to send their locators
-         with localhost. Otherwise, the server would not reuse the initial
-         channel created and it might cause a failure in the connection,
-         depending on the value of the random logical port assigned.
-         This could be avoided by using default GUIDs. -->
+    <!-- When a DS with a custom GUID (-i param of CLI) listens on any (0.0.0.0) and the clients use
+         localhost (127.0.0.1) to connect to the server, the GUID comparison is insufficient to
+         correctly transform the server's locator when it is received by the client. A more reliable
+         method is required to check if the server's locator is from the same host as the client.
+         This test is a regression from #22006.-->
 
     <clients>
         <client name="client1" profile_name="TCPv4_client_1" listening_port="0">
@@ -17,7 +16,7 @@
         </client>
     </clients>
 
-    <snapshots file="./test_95_tcpv4_cli.snapshot">
+    <snapshots file="./test_94_tcpv4_custom_guid_transform_locators.snapshot">
         <snapshot time="5">Knows all</snapshot>
     </snapshots>
 
@@ -30,9 +29,6 @@
                 <listening_ports>
                     <port>0</port>
                 </listening_ports>
-                <interfaceWhiteList>
-                    <address>lo</address>
-                </interfaceWhiteList>
             </transport_descriptor>
             <transport_descriptor>
                 <transport_id>transport_client_2</transport_id>
@@ -40,9 +36,6 @@
                 <listening_ports>
                     <port>0</port>
                 </listening_ports>
-                <interfaceWhiteList>
-                    <address>lo</address>
-                </interfaceWhiteList>
             </transport_descriptor>
         </transport_descriptors>
 
@@ -60,8 +53,8 @@
                             <locator>
                                 <tcpv4>
                                     <address>127.0.0.1</address>
-                                    <physical_port>42100</physical_port>
-                                    <port>42100</port>
+                                    <physical_port>42200</physical_port>
+                                    <port>42200</port>
                                 </tcpv4>
                             </locator>
                         </discoveryServersList>
@@ -84,8 +77,8 @@
                             <locator>
                                 <tcpv4>
                                     <address>127.0.0.1</address>
-                                    <physical_port>42100</physical_port>
-                                    <port>42100</port>
+                                    <physical_port>42200</physical_port>
+                                    <port>42200</port>
                                 </tcpv4>
                             </locator>
                         </discoveryServersList>
