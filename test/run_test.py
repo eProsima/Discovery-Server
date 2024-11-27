@@ -67,6 +67,30 @@ USAGE = ('python3 run_test.py -e <path/to/discovery-server/executable>'
 # run independently of ctest
 MAX_TIME = 60*5
 
+# The following classes must match with the ones in tools/fastdds/discovery/parser.py
+class Command(shared.Enum):
+    SERVER = "server" # Does not need to be specified
+    AUTO = "auto"
+    START = "start"
+    STOP = "stop"
+    ADD = "add"
+    SET = "set"
+    LIST = "list"
+    INFO = "info"
+    UNKNOWN = "unknown"
+
+# This map is used to convert the string command to an integer used in the cpp tool
+command_to_int = {
+    Command.AUTO: 0,
+    Command.START: 1,
+    Command.STOP: 2,
+    Command.ADD: 3,
+    Command.SET: 4,
+    Command.LIST: 5,
+    Command.INFO: 6,
+    Command.SERVER: 42
+}
+
 
 def parse_options():
     """
@@ -309,6 +333,13 @@ def execute_validate_thread_test(
         server_udp_port = None
         server_tcp_address = None
         server_tcp_port = None
+        # Discovery Server Auto mode
+        auto_keyword = None
+        start_keyword = None
+        stop_keyword = None
+        add_keyword = None
+        set_keyword = None
+        domain_arg = None
         if fds_path is None:
             logger.error('Non tool given and needed')
             result_list.append(False)
@@ -322,6 +353,12 @@ def execute_validate_thread_test(
             server_udp_port = process_params['tool_config'].get('udp_port', None)
             server_tcp_address = process_params['tool_config'].get('tcp_address', None)
             server_tcp_port = process_params['tool_config'].get('tcp_port', None)
+            auto_keyword = process_params['tool_config'].get('auto', None)
+            start_keyword = process_params['tool_config'].get('start', None)
+            stop_keyword = process_params['tool_config'].get('stop', None)
+            add_keyword = process_params['tool_config'].get('add', None)
+            set_keyword = process_params['tool_config'].get('set', None)
+            domain_arg = process_params['tool_config'].get('domain', None)
         except KeyError:
             pass
 
@@ -343,15 +380,20 @@ def execute_validate_thread_test(
     # Wait for initial time
     time.sleep(creation_time)
 
+    # Save domain used with AUTO mode
+    ros_domain_id_value = None
     # Set env var
     my_env = os.environ.copy()
     for name, value in env_var:
         logger.debug(f'Adding envvar {name}:{value} to {process_name}')
         my_env[name] = value
+        if name == 'ROS_DOMAIN_ID':
+            ros_domain_id_value = value
     # Set configuration file
     my_env['FASTDDS_DEFAULT_PROFILES_FILE'] = config_file
     logger.debug(f'Configuration file {config_file} to {process_name}')
 
+    stop_domain = None  # Be sure that no stop command is called if not needed
     # Launch
     if xml_config_file is not None:
         # Create args with config file and outputfile
@@ -361,6 +403,31 @@ def execute_validate_thread_test(
     else:
         # Fastdds tool
         process_args = [fds_path]
+        remote_server = ""
+        # Index to choose the command to execute
+        if auto_keyword is not None:
+            stop_domain = 0 if ros_domain_id_value is None else ros_domain_id_value
+            process_args.append(str(command_to_int[Command.AUTO]))
+        elif start_keyword is not None:
+            stop_domain = 0 if ros_domain_id_value is None else ros_domain_id_value
+            process_args.append(str(command_to_int[Command.START]))
+            remote_server = str(start_keyword)
+        elif stop_keyword is not None:
+            process_args.append(str(command_to_int[Command.STOP]))
+            logger.info(f'Stop keyword: {str(stop_keyword)}')
+            if str(stop_keyword) == 'all':
+                process_args.append(str(stop_keyword))
+            else:
+                logger.info(f'Stop keyword: {str(stop_keyword)} is not all')
+        elif add_keyword is not None:
+            process_args.append(str(command_to_int[Command.ADD]))
+            remote_server = str(add_keyword)
+        elif set_keyword is not None:
+            process_args.append(str(command_to_int[Command.SET]))
+            remote_server = str(set_keyword)
+        else:
+            process_args.append(str(command_to_int[Command.SERVER]))
+        # Args for fastdds tool
         if server_id is not None:
             process_args.append('-i')
             process_args.append(str(server_id))
@@ -376,6 +443,15 @@ def execute_validate_thread_test(
         if server_tcp_port is not None:
             process_args.append('-q')
             process_args.append(str(server_tcp_port))
+        if domain_arg is not None:
+            process_args.append('-d')
+            process_args.append(str(domain_arg))
+            # Only update stop_domain with AUTO and START keywords
+            if stop_domain is not None:
+                stop_domain = domain_arg
+        # Add remote servers if present
+        if remote_server != "":
+            process_args.append(remote_server)
 
     # Execute
     logger.debug(f'Executing process {process_id} in test {test_id} with '
@@ -415,6 +491,20 @@ def execute_validate_thread_test(
     # In case we must clear the generated file
     if result and clear:
         clear_file(working_directory(), result_file)
+
+    #######
+    # CLEAN
+    # Stop fastdds tool if run with AUTO mode
+    if stop_domain is not None:
+        # Wait for kill time
+        logger.debug(f'Waiting for {kill_time - creation_time} seconds to kill server in domain [{stop_domain}]')
+        time.sleep(kill_time - creation_time)
+        process_args = [fds_path]
+        process_args.append(str(command_to_int[Command.STOP]))
+        process_args.append('-d')
+        process_args.append(str(stop_domain))
+        logger.debug(f'Killing server in domain [{stop_domain}] with process: {process_args}')
+        _, _ = asyncio.run(run_command(process_args, my_env, kill_time))
 
     # Update result_list and return
     result_list.append(result)
@@ -848,6 +938,17 @@ if __name__ == '__main__':
         fds_path=(args.fds if args.fds else None),
         debug=args.debug,
     )
+
+    # Stop all fastdds tool processes. It is needed for servers started with the
+    # ROS_DISCOVERY_SERVER=AUTO environment variable
+    if args.fds is not None:
+        stop_args = [args.fds]
+        stop_args.append(str(command_to_int[Command.STOP]))
+        stop_args.append('all')
+        logger.info(f'Stopping all fastdds tool processes with command: {stop_args}')
+        _, _ = asyncio.run(run_command(stop_args, None, 3))
+    else:
+        logger.info('No fastdds tool process to stop')
 
     val.print_result_bool(
         logger,
