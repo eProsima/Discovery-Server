@@ -101,6 +101,14 @@ list(APPEND TEST_LIST
         test_60_disconnection
         test_61_superclient_environment_variable
 
+        test_80_auto
+        test_81_auto_ros_domain_id_env_var
+        test_82_auto_ros_static_peers_env_var
+        test_83_start
+        test_84_add
+        test_85_set_add_stop
+        test_86_stop_all_servers
+
         test_94_tcpv4_custom_guid_transform_locators
         test_95_tcpv4_cli
         test_96_tcpv6_cli

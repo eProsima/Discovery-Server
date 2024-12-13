@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
+    <!-- S1 is created with Fast DDS CLI tool in AUTO mode.
+         Default domain is used (0).
+         Clients must know their matching participants:
+         S1: C1 & C2
+         C1: C2 & S1
+         C2: C1 & S1
+         Note that in AUTO mode all clients are Superclients-->
+
+    <simples>
+        <simple name="client1">
+            <publisher topic="topic1"/>
+        </simple>
+        <simple name="client2">
+            <subscriber topic="topic1"/>
+        </simple>
+    </simples>
+
+    <snapshots file="./test_80_auto.snapshot~">
+        <snapshot time="5">test_80_auto_snapshot</snapshot>
+    </snapshots>
+
+    <profiles>
+        <topic profile_name="topic1">
+            <name>topic_1</name>
+            <dataType>HelloWorld</dataType>
+        </topic>
+
+     </profiles>
+</DS>
