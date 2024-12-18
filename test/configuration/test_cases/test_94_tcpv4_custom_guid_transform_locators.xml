@@ -9,10 +9,10 @@
          This test is a regression from #22006.-->
 
     <clients>
-        <client name="client1" profile_name="TCPv4_client_1" listening_port="0">
+        <client name="client1" profile_name="TCPv4_client_1">
             <subscriber topic="topic1"/>
         </client>
-        <client name="client2" profile_name="TCPv4_client_2" listening_port="0">
+        <client name="client2" profile_name="TCPv4_client_2">
             <publisher topic="topic1"/>
         </client>
     </clients>
@@ -51,13 +51,17 @@
                     <discovery_config>
                         <discoveryProtocol>CLIENT</discoveryProtocol>
                         <discoveryServersList>
-                            <locator>
-                                <tcpv4>
-                                    <address>127.0.0.1</address>
-                                    <physical_port>42200</physical_port>
-                                    <port>42200</port>
-                                </tcpv4>
-                            </locator>
+                            <RemoteServer prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <tcpv4>
+                                            <address>127.0.0.1</address>
+                                            <physical_port>42200</physical_port>
+                                            <port>42200</port>
+                                        </tcpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
                         </discoveryServersList>
                     </discovery_config>
                 </builtin>
@@ -75,13 +79,17 @@
                     <discovery_config>
                         <discoveryProtocol>CLIENT</discoveryProtocol>
                         <discoveryServersList>
-                            <locator>
-                                <tcpv4>
-                                    <address>127.0.0.1</address>
-                                    <physical_port>42200</physical_port>
-                                    <port>42200</port>
-                                </tcpv4>
-                            </locator>
+                            <RemoteServer prefix="44.53.00.5f.45.50.52.4f.53.49.4d.41">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <tcpv4>
+                                            <address>127.0.0.1</address>
+                                            <physical_port>42200</physical_port>
+                                            <port>42200</port>
+                                        </tcpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                            </RemoteServer>
                         </discoveryServersList>
                     </discovery_config>
                 </builtin>

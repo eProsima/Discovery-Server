@@ -2545,7 +2545,7 @@
                         "generate_validation":
                         {
                             "disposals": false,
-                            "server_endpoints": false
+                            "server_endpoints": true
                         },
                         "ground_truth_validation":
                         {
