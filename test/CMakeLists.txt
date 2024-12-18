@@ -96,6 +96,12 @@ list(APPEND TEST_LIST
 
         test_60_disconnection
         test_61_superclient_environment_variable
+
+        test_94_tcpv4_custom_guid_transform_locators
+        test_95_tcpv4_cli
+        test_96_tcpv6_cli
+        test_97_tcpv4_env_var
+        test_98_tcpv6_env_var
         test_99_tcp
     )
 

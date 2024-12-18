@@ -6,10 +6,10 @@
     </servers>
 
     <simples>
-        <simple name="client1" profile_name="TCPv4_client_1" listening_port="0">
+        <simple name="client1" profile_name="TCPv4_client_1">
             <subscriber topic="topic1"/>
         </simple>
-        <simple name="client2" profile_name="TCPv4_client_2" listening_port="0">
+        <simple name="client2" profile_name="TCPv4_client_2">
             <publisher topic="topic1"/>
         </simple>
     </simples>

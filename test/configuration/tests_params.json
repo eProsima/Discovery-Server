@@ -2271,6 +2271,64 @@
             }
         },
 
+        "test_94_tcpv4_custom_guid_transform_locators":
+        {
+            "description": [
+                "Test that a TCP discovery server with a custom GUID (-i CLI param) and listening on any (0.0.0.0)\n",
+                "is able to communicate with a client that connects to localhost (127.0.0.1).\n",
+                "This test is a regression from #22006"
+            ],
+
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_94_tcpv4_custom_guid_transform_locators.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_94_tcpv4_custom_guid_transform_locators.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_94_tcpv4_custom_guid_transform_locators.snapshot"
+                        }
+                    }
+                },
+                "fastddstool":
+                {
+                    "kill_time": 6,
+                    "tool_config":
+                    {
+                        "id" : 0,
+                        "tcp_address": "0.0.0.0",
+                        "tcp_port": 42200
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
         "test_95_tcpv4_cli":
         {
             "description": [
@@ -2487,7 +2545,7 @@
                         "generate_validation":
                         {
                             "disposals": false,
-                            "server_endpoints": false
+                            "server_endpoints": true
                         },
                         "ground_truth_validation":
                         {

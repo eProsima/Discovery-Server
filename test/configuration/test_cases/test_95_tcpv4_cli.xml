@@ -2,10 +2,10 @@
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
 
     <clients>
-        <client name="client1" profile_name="TCPv4_client_1" listening_port="0">
+        <client name="client1" profile_name="TCPv4_client_1">
             <subscriber topic="topic1"/>
         </client>
-        <client name="client2" profile_name="TCPv4_client_2" listening_port="0">
+        <client name="client2" profile_name="TCPv4_client_2">
             <publisher topic="topic1"/>
         </client>
     </clients>
