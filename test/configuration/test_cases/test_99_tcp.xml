@@ -18,21 +18,21 @@
 
     <clients>
         <client name="client1" profile_name="TCP_client_1" listening_port="27812">
-            <subscriber /> <!-- defaults to helloworld type -->
+            <subscriber topic="HelloWorldTopic"/>
             <subscriber topic="topic_1" />
             <subscriber topic="topic_2" />
             <publisher topic="topic_2" />
         </client>
         <client name="client2" profile_name="TCP_client_2" listening_port="27813">
-            <publisher />  <!-- defaults to helloworld type -->
+            <publisher topic="HelloWorldTopic"/>
             <publisher topic="topic_1" />
             <publisher topic="topic_1" />
             <subscriber topic="topic_2" />
         </client>
     </clients>
 
-    <snapshots file="./test_27_tcp.snapshot~">
-        <snapshot time="10">test_27_tcp_snapshot_1</snapshot>
+    <snapshots file="./test_99_tcp.snapshot~">
+        <snapshot time="10">test_99_tcp_snapshot_1</snapshot>
     </snapshots>
 
     <profiles>
@@ -44,8 +44,6 @@
                 <listening_ports>
                     <port>27811</port>
                 </listening_ports>
-                <calculate_crc>false</calculate_crc>
-                <check_crc>false</check_crc>
             </transport_descriptor>
         </transport_descriptors>
 
@@ -129,31 +127,13 @@
 
         <topic profile_name="topic_2">
             <name>topic_2</name>
-            <dataType>sample_type_2</dataType>
+            <dataType>HelloWorld</dataType>
+        </topic>
+
+        <topic profile_name="HelloWorldTopic">
+            <name>HelloWorldTopic</name>
+            <dataType>HelloWorld</dataType>
         </topic>
     </profiles>
-
-    <types>
-        <type>
-            <struct name="HelloWorld">
-                <member name="index" type="uint32" />
-                <member name="message" type="string" />
-            </struct>
-        </type>
-
-        <type>
-            <union name="sample_type_2">
-                <discriminator type="byte" />
-                <case>
-                    <caseDiscriminator value="0" />
-                    <member name="index" type="uint32" />
-                </case>
-                <case>
-                    <caseDiscriminator value="1" />
-                    <member name="message" type="string" />
-                </case>
-            </union>
-        </type>
-    </types>
 
 </DS>
