@@ -3098,7 +3098,7 @@
         "test_86_stop_all_servers":
         {
             "description": [
-                "This test verifies that 'shutdown' stops all running servers."
+                "This test verifies that 'stop' without '-d' stops all running servers."
             ],
 
             "processes":
@@ -3193,7 +3193,7 @@
                     "kill_time": 8,
                     "tool_config":
                     {
-                        "shutdown" : ""
+                        "stop" : ""
                     },
                     "validation":
                     {

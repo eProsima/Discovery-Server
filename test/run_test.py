@@ -44,6 +44,7 @@ import json
 import logging
 import os
 import pathlib
+import psutil
 import signal
 import subprocess
 import sys
@@ -77,7 +78,6 @@ class Command(shared.Enum):
     SET = "set"
     LIST = "list"
     INFO = "info"
-    SHUTDOWN = "shutdown"
     UNKNOWN = "unknown"
 
 # This map is used to convert the string command to an integer used in the cpp tool
@@ -89,7 +89,6 @@ command_to_int = {
     Command.SET: 4,
     Command.LIST: 5,
     Command.INFO: 6,
-    Command.SHUTDOWN: 7,
     Command.SERVER: 42
 }
 
@@ -236,15 +235,49 @@ async def run_command(process_args, environment, timeout):
     except asyncio.TimeoutError:
         pass
 
+    # There are three kinds of processes:
+    # a) Standard processes which consist of a domain participant with a XML configuration file. These
+    #    processes are stopped by sending a SIGINT signal to the process. They do not have childs.
+    # b) Fast DDS CLI commands in AUTO mode (with daemon). Theses processes do not require to manually
+    #    stop them, as the daemon will stop them automatically after calling it (fastdds discovery stop).
+    #    Hence, the executed process (python parser) will end and we will fail to the the parent process,
+    #    raising the exception.
+    # c) Fast DDS CLI commands in parameter mode (-l, -p, -t, -q). We need to stop the cpp child process,
+    #    as it is the one with signal handler.
     try:
-        proc.send_signal(signal.SIGINT)
+        psutil_proc = psutil.Process(proc.pid)
+        children = psutil_proc.children(recursive=True)
+        if children:
+            for child in children:
+                if 'fast-discovery-server' in child.name():
+                     # c) Standard process
+                    logger.debug(f'Sending SIGINT signal to: {child.pid}')
+                    child.send_signal(signal.SIGINT)
+        else:
+            # a) Standard process
+            logger.debug(f'Sending SIGINT signal to single process: {proc.pid}')
+            proc.send_signal(signal.SIGINT)
         time.sleep(1)
     except Exception:
+        # b) Fast DDS CLI in AUTO mode
         pass
 
     try:
-        proc.kill()
+        psutil_proc = psutil.Process(proc.pid)
+        children = psutil_proc.children(recursive=True)
+        if children:
+            for child in children:
+                if 'fast-discovery-server' in child.name():
+                     # c) Standard process
+                    logger.debug(f'Sending SIGKILL signal to: {child.pid}')
+                    child.send_signal(signal.SIGKILL)
+        else:
+            # a) Standard process
+            logger.debug(f'Sending SIGKILL signal to single process: {proc.pid}')
+            proc.kill()
+
     except Exception:
+        # b) Fast DDS CLI in AUTO mode
         pass
 
     return (await proc.wait(), num_lines[1])
@@ -339,7 +372,6 @@ def execute_validate_thread_test(
         auto_keyword = None
         start_keyword = None
         stop_keyword = None
-        shutdown_keyword = None
         add_keyword = None
         set_keyword = None
         domain_arg = None
@@ -359,7 +391,6 @@ def execute_validate_thread_test(
             auto_keyword = process_params['tool_config'].get('auto', None)
             start_keyword = process_params['tool_config'].get('start', None)
             stop_keyword = process_params['tool_config'].get('stop', None)
-            shutdown_keyword = process_params['tool_config'].get('shutdown', None)
             add_keyword = process_params['tool_config'].get('add', None)
             set_keyword = process_params['tool_config'].get('set', None)
             domain_arg = process_params['tool_config'].get('domain', None)
@@ -417,8 +448,6 @@ def execute_validate_thread_test(
             process_args.append(str(start_keyword))
         elif stop_keyword is not None:
             process_args.append(Command.STOP.value)
-        elif shutdown_keyword is not None:
-            process_args.append(Command.SHUTDOWN.value)
         elif add_keyword is not None:
             process_args.append(Command.ADD.value)
             process_args.append(str(add_keyword))
@@ -426,7 +455,8 @@ def execute_validate_thread_test(
             process_args.append(Command.SET.value)
             process_args.append(str(set_keyword))
         else:
-            process_args.append(Command.SERVER.value)
+            # Conventional server mode
+            pass
         # Args for fastdds tool
         if server_id is not None:
             process_args.append('-i')
@@ -491,7 +521,7 @@ def execute_validate_thread_test(
 
     #######
     # CLEAN
-    # Stop fastdds tool if run with AUTO mode
+    # Stop fastdds DS started with the tool (only if run with AUTO mode)
     if stop_domain is not None:
         # Wait for kill time
         logger.debug(f'Waiting for {kill_time - creation_time} seconds to kill server in domain [{stop_domain}]')
@@ -936,11 +966,11 @@ if __name__ == '__main__':
         debug=args.debug,
     )
 
-    # Stop all fastdds tool processes. It is needed for servers started with the
-    # ROS_DISCOVERY_SERVER=AUTO environment variable
+    # Stop all fastdds tool processes and the daemon. It is needed for servers
+    # started with the ROS_DISCOVERY_SERVER=AUTO environment variable
     if args.fds is not None:
         stop_args = [args.fds]
-        stop_args.extend(['discovery', 'shutdown'])
+        stop_args.extend(['discovery', 'stop'])
         logger.info(f'Killing Fast DDS daemon with command: {stop_args}')
         _, _ = asyncio.run(run_command(stop_args, None, 3))
     else:
