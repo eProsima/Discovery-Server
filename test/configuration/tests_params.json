@@ -2951,7 +2951,7 @@
                 },
                 "cli_auto_d1":
                 {
-                    "kill_time": 20,
+                    "kill_time": 43,
                     "tool_config":
                     {
                         "auto" : "",
@@ -2971,7 +2971,7 @@
                 },
                 "cli_auto_d2":
                 {
-                    "kill_time": 20,
+                    "kill_time": 43,
                     "tool_config":
                     {
                         "auto" : "",
@@ -2991,7 +2991,7 @@
                 },
                 "cli_auto_d3":
                 {
-                    "kill_time": 20,
+                    "kill_time": 43,
                     "tool_config":
                     {
                         "auto" : "",
@@ -3011,7 +3011,7 @@
                 },
                 "cli_auto_d4":
                 {
-                    "kill_time": 20,
+                    "kill_time": 43,
                     "tool_config":
                     {
                         "auto" : "",
@@ -3052,8 +3052,8 @@
                 },
                 "cli_set_d2":
                 {
-                    "creation_time": 10,
-                    "kill_time": 12,
+                    "creation_time": 18,
+                    "kill_time": 20,
                     "tool_config":
                     {
                         "set" : "127.0.0.1:4",
@@ -3073,8 +3073,8 @@
                 },
                 "cli_stop_d1":
                 {
-                    "creation_time": 15,
-                    "kill_time": 17,
+                    "creation_time": 30,
+                    "kill_time": 31,
                     "tool_config":
                     {
                         "stop" : "",

@@ -8,7 +8,7 @@
             S2: C2  |  C2: S2
             S3: C3  |  C3: S3
             S4: C4  |  C4: S4
-         - Fast DDS CLI tool is called with the ADD keyword to make S2 point to S1.
+         - Fast DDS CLI tool is called with the ADD keyword to make S2 point to S1 and S3.
          Snapshot 2 (S4_isolated):
             S1: C1 & S2 & S3  |  C1: S1 & C2 & C3
             S2: C2 & S1 & S3  |  C2: S2 & C1 & C3
@@ -50,9 +50,9 @@
 
     <snapshots file="./test_85_set_add_stop.snapshot~">
         <snapshot time="3">All_isolated</snapshot>
-        <snapshot time="8">S4_isolated</snapshot>
-        <snapshot time="14">S1_S3_isolated_from_S2_S4</snapshot>
-        <snapshot time="19">S1_stopped</snapshot>
+        <snapshot time="17">S4_isolated</snapshot>
+        <snapshot time="29">S1_S3_isolated_from_S2_S4</snapshot>
+        <snapshot time="42">S1_stopped</snapshot>
     </snapshots>
 
     <profiles>
@@ -88,8 +88,6 @@
                         <initialAnnouncements>
                             <count>0</count>
                         </initialAnnouncements>
-                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
-                        <leaseDuration>DURATION_INFINITY</leaseDuration>
                     </discovery_config>
                 </builtin>
             </rtps>
@@ -117,8 +115,6 @@
                         <initialAnnouncements>
                             <count>0</count>
                         </initialAnnouncements>
-                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
-                        <leaseDuration>DURATION_INFINITY</leaseDuration>
                     </discovery_config>
                 </builtin>
             </rtps>
@@ -146,8 +142,6 @@
                         <initialAnnouncements>
                             <count>0</count>
                         </initialAnnouncements>
-                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
-                        <leaseDuration>DURATION_INFINITY</leaseDuration>
                     </discovery_config>
                 </builtin>
             </rtps>
@@ -175,8 +169,6 @@
                         <initialAnnouncements>
                             <count>0</count>
                         </initialAnnouncements>
-                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
-                        <leaseDuration>DURATION_INFINITY</leaseDuration>
                     </discovery_config>
                 </builtin>
             </rtps>
