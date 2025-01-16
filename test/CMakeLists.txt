@@ -109,6 +109,7 @@ list(APPEND TEST_LIST
         test_85_set_add_stop
         test_86_stop_all_servers
 
+        test_93_tcp_reconnect_with_clients
         test_94_tcpv4_custom_guid_transform_locators
         test_95_tcpv4_cli
         test_96_tcpv6_cli

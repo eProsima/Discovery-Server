@@ -3210,6 +3210,88 @@
             }
         },
 
+        "test_93_tcp_reconnect_with_clients":
+        {
+            "description": [
+                "Server B connects with Server A. Server B leaves. Server B turns back with same configuration"
+            ],
+
+            "processes":
+            {
+                "serverA":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_93_tcp_reconnect_with_clients_A.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_93_tcp_reconnect_with_clients_A.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_93_tcp_reconnect_with_clients_A.snapshot"
+                        }
+                    }
+                },
+
+                "serverB_1":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_93_tcp_reconnect_with_clients_B.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+
+                "serverB_2":
+                {
+                    "creation_time": 16,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_93_tcp_reconnect_with_clients_B.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_93_tcp_reconnect_with_clients_B.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_93_tcp_reconnect_with_clients_B.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
         "test_94_tcpv4_custom_guid_transform_locators":
         {
             "description": [
