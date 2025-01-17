@@ -2550,7 +2550,7 @@
         "test_80_auto":
         {
             "description": [
-                "Test that two clients with AUTO discovery are able to communicate between themselfs.",
+                "Test that two clients with EASY_MODE discovery are able to communicate between themselfs.",
                 "The server is automatically instantiated using the Fast DDS CLI tool call from Fast DDS."
             ],
 
@@ -2562,8 +2562,8 @@
                     "environment_variables":
                     [
                         {
-                            "name": "ROS_DISCOVERY_SERVER",
-                            "value": "AUTO"
+                            "name": "EASY_MODE",
+                            "value": "127.0.0.1"
                         }
                     ],
                     "validation":
@@ -2593,9 +2593,12 @@
         "test_81_auto_ros_domain_id_env_var":
         {
             "description": [
-                "Test that two clients with AUTO discovery are able to communicate between themselfs.",
+                "Test that two clients with EASY_MODE discovery are able to communicate between themselfs.",
                 "The server is instantiated using the Fast DDS CLI tool with the keyword 'auto'.",
-                "The Domain ID is specified using the ROS_DISCOVERY_SERVER environment variable."
+                "The Domain ID is specified using the ROS_DOMAIN_ID environment variable.",
+                "The EASY_MODE cannot be properly tested in this repo because it is meant for connecting",
+                "different hosts, and the tests are run in the same host. Only its correct parsing and",
+                "server creation is tested here."
             ],
 
             "processes":
@@ -2632,8 +2635,8 @@
                     "environment_variables":
                     [
                         {
-                            "name": "ROS_DISCOVERY_SERVER",
-                            "value": "AUTO"
+                            "name": "EASY_MODE",
+                            "value": "127.0.0.1"
                         }
                     ],
                     "validation":

@@ -238,7 +238,7 @@ async def run_command(process_args, environment, timeout):
     # There are three kinds of processes:
     # a) Standard processes which consist of a domain participant with a XML configuration file. These
     #    processes are stopped by sending a SIGINT signal to the process. They do not have childs.
-    # b) Fast DDS CLI commands in AUTO mode (with daemon). Theses processes do not require to manually
+    # b) Fast DDS CLI commands in EASY_MODE (with daemon). Theses processes do not require to manually
     #    stop them, as the daemon will stop them automatically after calling it (fastdds discovery stop).
     #    Hence, the executed process (python parser) will end and we will fail to the the parent process,
     #    raising the exception.
@@ -259,7 +259,7 @@ async def run_command(process_args, environment, timeout):
             proc.send_signal(signal.SIGINT)
         time.sleep(1)
     except Exception:
-        # b) Fast DDS CLI in AUTO mode
+        # b) Fast DDS CLI in EASY_MODE
         pass
 
     try:
@@ -277,7 +277,7 @@ async def run_command(process_args, environment, timeout):
             proc.kill()
 
     except Exception:
-        # b) Fast DDS CLI in AUTO mode
+        # b) Fast DDS CLI in EASY_MODE
         pass
 
     return (await proc.wait(), num_lines[1])
@@ -368,7 +368,7 @@ def execute_validate_thread_test(
         server_udp_port = None
         server_tcp_address = None
         server_tcp_port = None
-        # Discovery Server Auto mode
+        # Discovery Server EASY_MODE
         auto_keyword = None
         start_keyword = None
         stop_keyword = None
@@ -415,7 +415,7 @@ def execute_validate_thread_test(
     # Wait for initial time
     time.sleep(creation_time)
 
-    # Save domain used with AUTO mode
+    # Save domain used with EASY_MODE
     ros_domain_id_value = None
     # Set env var
     my_env = os.environ.copy()
@@ -521,7 +521,7 @@ def execute_validate_thread_test(
 
     #######
     # CLEAN
-    # Stop fastdds DS started with the tool (only if run with AUTO mode)
+    # Stop fastdds DS started with the tool (only if run with EASY_MODE)
     if stop_domain is not None:
         # Wait for kill time
         logger.debug(f'Waiting for {kill_time - creation_time} seconds to kill server in domain [{stop_domain}]')
@@ -967,7 +967,7 @@ if __name__ == '__main__':
     )
 
     # Stop all fastdds tool processes and the daemon. It is needed for servers
-    # started with the ROS_DISCOVERY_SERVER=AUTO environment variable
+    # started with the EASY_MODE environment variable
     if args.fds is not None:
         stop_args = [args.fds]
         stop_args.extend(['discovery', 'stop'])
