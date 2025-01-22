@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
 
-    <!-- Servers are created with Fast DDS CLI tool in EASY_MODE.
+    <!-- Servers are created with Fast DDS CLI tool in ROS2_EASY_MODE.
          Clients must know their matching participants:
          Snapshot 1 (Each client know its server):
             S1: C1  |  C1: S1
