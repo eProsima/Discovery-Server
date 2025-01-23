@@ -2547,6 +2547,754 @@
             }
         },
 
+        "test_80_auto":
+        {
+            "description": [
+                "Test that two clients with ROS2_EASY_MODE discovery are able to communicate between themselfs.",
+                "The server is automatically instantiated using the Fast DDS CLI tool call from Fast DDS."
+            ],
+
+            "processes":
+            {
+                "clients":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_80_auto.xml",
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS2_EASY_MODE",
+                            "value": "127.0.0.1"
+                        }
+                    ],
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_80_auto.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": true,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_80_auto.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_81_auto_ros_domain_id_env_var":
+        {
+            "description": [
+                "Test that two clients with ROS2_EASY_MODE discovery are able to communicate between themselfs.",
+                "The server is instantiated using the Fast DDS CLI tool with the keyword 'auto'.",
+                "The Domain ID is specified using the ROS_DOMAIN_ID environment variable.",
+                "The ROS2_EASY_MODE cannot be properly tested in this repo because it is meant for connecting",
+                "different hosts, and the tests are run in the same host. Only its correct parsing and",
+                "server creation is tested here."
+            ],
+
+            "processes":
+            {
+                "cli_auto":
+                {
+                    "kill_time": 5,
+                    "tool_config":
+                    {
+                        "auto" : ""
+                    },
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS_DOMAIN_ID",
+                            "value": "42"
+                        }
+                    ],
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "clients":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_81_auto_ros_domain_id_env_var.xml",
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS2_EASY_MODE",
+                            "value": "127.0.0.1"
+                        }
+                    ],
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_81_auto_ros_domain_id_env_var.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": true,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_81_auto_ros_domain_id_env_var.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_82_auto_ros_static_peers_env_var":
+        {
+            "description": [
+                "Test that two servers are able to discover each other and exchange data using the 'ROS_STATIC_PEERS'",
+                "environment variable."
+            ],
+
+            "processes":
+            {
+                "clients":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_82_auto_ros_static_peers_env_var.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_82_auto_ros_static_peers_env_var.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": true,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_82_auto_ros_static_peers_env_var.snapshot"
+                        }
+                    }
+                },
+                "cli_auto_d0":
+                {
+                    "kill_time": 6,
+                    "tool_config":
+                    {
+                        "auto" : "",
+                        "domain" : "0"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "cli_auto_d3":
+                {
+                    "kill_time": 6,
+                    "tool_config":
+                    {
+                        "auto" : "",
+                        "domain" : "3"
+                    },
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS_STATIC_PEERS",
+                            "value": "127.0.0.1:7402"
+                        }
+                    ],
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_83_start":
+        {
+            "description": [
+                "Test that two servers are able to discover each other using the 'start' keyword."
+            ],
+
+            "processes":
+            {
+                "clients":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_83_start.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_83_start.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": true,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_83_start.snapshot"
+                        }
+                    }
+                },
+                "cli_auto_d0":
+                {
+                    "kill_time": 6,
+                    "tool_config":
+                    {
+                        "auto" : "",
+                        "domain" : "0"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "cli_start_d3":
+                {
+                    "kill_time": 6,
+                    "tool_config":
+                    {
+                        "start" : "127.0.0.1:0",
+                        "domain" : "3"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_84_add":
+        {
+            "description": [
+                "Test that two servers are able to discover each other using the 'add' keyword."
+            ],
+
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_84_add.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_84_add.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": true,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_84_add.snapshot"
+                        }
+                    }
+                },
+                "cli_auto_d0":
+                {
+                    "kill_time": 6,
+                    "tool_config":
+                    {
+                        "auto" : "",
+                        "domain" : "0"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "cli_auto_d3":
+                {
+                    "kill_time": 6,
+                    "tool_config":
+                    {
+                        "auto" : "",
+                        "domain" : "3"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "cli_add_d3":
+                {
+                    "creation_time": 3,
+                    "kill_time": 6,
+                    "tool_config":
+                    {
+                        "add" : "127.0.0.1:0",
+                        "domain" : "3"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_85_set_add_stop":
+        {
+            "description": [
+                "This test verifies:",
+                "1. The 'add' keyword accepts list of locators",
+                "2. The 'set' keyword replaces the list of remote servers (single server)",
+                "3. The 'stop' keyword stops a server and it is undiscovered by the other servers"
+            ],
+
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_85_set_add_stop.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_85_set_add_stop.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": true,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_85_set_add_stop.snapshot"
+                        }
+                    }
+                },
+                "cli_auto_d1":
+                {
+                    "kill_time": 43,
+                    "tool_config":
+                    {
+                        "auto" : "",
+                        "domain" : "1"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "cli_auto_d2":
+                {
+                    "kill_time": 43,
+                    "tool_config":
+                    {
+                        "auto" : "",
+                        "domain" : "2"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "cli_auto_d3":
+                {
+                    "kill_time": 43,
+                    "tool_config":
+                    {
+                        "auto" : "",
+                        "domain" : "3"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "cli_auto_d4":
+                {
+                    "kill_time": 43,
+                    "tool_config":
+                    {
+                        "auto" : "",
+                        "domain" : "4"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "cli_add_d2":
+                {
+                    "creation_time": 4,
+                    "kill_time": 6,
+                    "tool_config":
+                    {
+                        "add" : "127.0.0.1:1;127.0.0.1:3",
+                        "domain" : "2"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "cli_set_d2":
+                {
+                    "creation_time": 18,
+                    "kill_time": 20,
+                    "tool_config":
+                    {
+                        "set" : "127.0.0.1:4",
+                        "domain" : "2"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "cli_stop_d1":
+                {
+                    "creation_time": 30,
+                    "kill_time": 31,
+                    "tool_config":
+                    {
+                        "stop" : "",
+                        "domain" : "1"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_86_stop_all_servers":
+        {
+            "description": [
+                "This test verifies that 'stop' without '-d' stops all running servers."
+            ],
+
+            "processes":
+            {
+                "main":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_86_stop_all_servers.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_86_stop_all_servers.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": true,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_86_stop_all_servers.snapshot"
+                        }
+                    }
+                },
+                "cli_auto_d1":
+                {
+                    "kill_time": 8,
+                    "tool_config":
+                    {
+                        "auto" : "",
+                        "domain" : "1"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "cli_auto_d2":
+                {
+                    "kill_time": 8,
+                    "tool_config":
+                    {
+                        "auto" : "",
+                        "domain" : "2"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "cli_auto_d3":
+                {
+                    "kill_time": 8,
+                    "tool_config":
+                    {
+                        "auto" : "",
+                        "domain" : "3"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "cli_stop":
+                {
+                    "creation_time": 4,
+                    "kill_time": 8,
+                    "tool_config":
+                    {
+                        "stop" : ""
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                }
+            }
+        },
+
+        "test_93_tcp_reconnect_with_clients":
+        {
+            "description": [
+                "Server B connects with Server A. Server B leaves. Server B turns back with same configuration"
+            ],
+
+            "processes":
+            {
+                "serverA":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_93_tcp_reconnect_with_clients_A.xml",
+                    "validation":
+                    {
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_93_tcp_reconnect_with_clients_A.snapshot"
+                        },
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "generate_validation":
+                        {
+                            "disposals": true,
+                            "server_endpoints": false
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_93_tcp_reconnect_with_clients_A.snapshot"
+                        }
+                    }
+                },
+
+                "serverB_1":
+                {
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_93_tcp_reconnect_with_clients_B.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+
+                "serverB_2":
+                {
+                    "creation_time": 16,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_93_tcp_reconnect_with_clients_B.xml",
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_93_tcp_reconnect_with_clients_B.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": false,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_93_tcp_reconnect_with_clients_B.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
         "test_94_tcpv4_custom_guid_transform_locators":
         {
             "description": [

@@ -44,6 +44,7 @@ import json
 import logging
 import os
 import pathlib
+import psutil
 import signal
 import subprocess
 import sys
@@ -66,6 +67,30 @@ USAGE = ('python3 run_test.py -e <path/to/discovery-server/executable>'
 # This is done by ctest automatically, but this script could be
 # run independently of ctest
 MAX_TIME = 60*5
+
+# The following classes must match with the ones in tools/fastdds/discovery/parser.py
+class Command(shared.Enum):
+    SERVER = "server" # Does not need to be specified
+    AUTO = "auto"
+    START = "start"
+    STOP = "stop"
+    ADD = "add"
+    SET = "set"
+    LIST = "list"
+    INFO = "info"
+    UNKNOWN = "unknown"
+
+# This map is used to convert the string command to an integer used in the cpp tool
+command_to_int = {
+    Command.AUTO: 0,
+    Command.START: 1,
+    Command.STOP: 2,
+    Command.ADD: 3,
+    Command.SET: 4,
+    Command.LIST: 5,
+    Command.INFO: 6,
+    Command.SERVER: 42
+}
 
 
 def parse_options():
@@ -210,15 +235,49 @@ async def run_command(process_args, environment, timeout):
     except asyncio.TimeoutError:
         pass
 
+    # There are three kinds of processes:
+    # a) Standard processes which consist of a domain participant with a XML configuration file. These
+    #    processes are stopped by sending a SIGINT signal to the process. They do not have childs.
+    # b) Fast DDS CLI commands in ROS2_EASY_MODE (with daemon). Theses processes do not require to manually
+    #    stop them, as the daemon will stop them automatically after calling it (fastdds discovery stop).
+    #    Hence, the executed process (python parser) will end and we will fail to the the parent process,
+    #    raising the exception.
+    # c) Fast DDS CLI commands in parameter mode (-l, -p, -t, -q). We need to stop the cpp child process,
+    #    as it is the one with signal handler.
     try:
-        proc.send_signal(signal.SIGINT)
+        psutil_proc = psutil.Process(proc.pid)
+        children = psutil_proc.children(recursive=True)
+        if children:
+            for child in children:
+                if 'fast-discovery-server' in child.name():
+                     # c) Standard process
+                    logger.debug(f'Sending SIGINT signal to: {child.pid}')
+                    child.send_signal(signal.SIGINT)
+        else:
+            # a) Standard process
+            logger.debug(f'Sending SIGINT signal to single process: {proc.pid}')
+            proc.send_signal(signal.SIGINT)
         time.sleep(1)
     except Exception:
+        # b) Fast DDS CLI in ROS2_EASY_MODE
         pass
 
     try:
-        proc.kill()
+        psutil_proc = psutil.Process(proc.pid)
+        children = psutil_proc.children(recursive=True)
+        if children:
+            for child in children:
+                if 'fast-discovery-server' in child.name():
+                     # c) Standard process
+                    logger.debug(f'Sending SIGKILL signal to: {child.pid}')
+                    child.send_signal(signal.SIGKILL)
+        else:
+            # a) Standard process
+            logger.debug(f'Sending SIGKILL signal to single process: {proc.pid}')
+            proc.kill()
+
     except Exception:
+        # b) Fast DDS CLI in ROS2_EASY_MODE
         pass
 
     return (await proc.wait(), num_lines[1])
@@ -309,6 +368,13 @@ def execute_validate_thread_test(
         server_udp_port = None
         server_tcp_address = None
         server_tcp_port = None
+        # Discovery Server ROS2_EASY_MODE
+        auto_keyword = None
+        start_keyword = None
+        stop_keyword = None
+        add_keyword = None
+        set_keyword = None
+        domain_arg = None
         if fds_path is None:
             logger.error('Non tool given and needed')
             result_list.append(False)
@@ -322,6 +388,12 @@ def execute_validate_thread_test(
             server_udp_port = process_params['tool_config'].get('udp_port', None)
             server_tcp_address = process_params['tool_config'].get('tcp_address', None)
             server_tcp_port = process_params['tool_config'].get('tcp_port', None)
+            auto_keyword = process_params['tool_config'].get('auto', None)
+            start_keyword = process_params['tool_config'].get('start', None)
+            stop_keyword = process_params['tool_config'].get('stop', None)
+            add_keyword = process_params['tool_config'].get('add', None)
+            set_keyword = process_params['tool_config'].get('set', None)
+            domain_arg = process_params['tool_config'].get('domain', None)
         except KeyError:
             pass
 
@@ -343,15 +415,20 @@ def execute_validate_thread_test(
     # Wait for initial time
     time.sleep(creation_time)
 
+    # Save domain used with ROS2_EASY_MODE
+    ros_domain_id_value = None
     # Set env var
     my_env = os.environ.copy()
     for name, value in env_var:
         logger.debug(f'Adding envvar {name}:{value} to {process_name}')
         my_env[name] = value
+        if name == 'ROS_DOMAIN_ID':
+            ros_domain_id_value = value
     # Set configuration file
     my_env['FASTDDS_DEFAULT_PROFILES_FILE'] = config_file
     logger.debug(f'Configuration file {config_file} to {process_name}')
 
+    stop_domain = None  # Be sure that no stop command is called if not needed
     # Launch
     if xml_config_file is not None:
         # Create args with config file and outputfile
@@ -360,7 +437,27 @@ def execute_validate_thread_test(
 
     else:
         # Fastdds tool
-        process_args = [fds_path]
+        process_args = [fds_path, 'discovery']
+        # Index to choose the command to execute
+        if auto_keyword is not None:
+            stop_domain = 0 if ros_domain_id_value is None else ros_domain_id_value
+            process_args.append(Command.AUTO.value)
+        elif start_keyword is not None:
+            stop_domain = 0 if ros_domain_id_value is None else ros_domain_id_value
+            process_args.append(Command.START.value)
+            process_args.append(str(start_keyword))
+        elif stop_keyword is not None:
+            process_args.append(Command.STOP.value)
+        elif add_keyword is not None:
+            process_args.append(Command.ADD.value)
+            process_args.append(str(add_keyword))
+        elif set_keyword is not None:
+            process_args.append(Command.SET.value)
+            process_args.append(str(set_keyword))
+        else:
+            # Conventional server mode
+            pass
+        # Args for fastdds tool
         if server_id is not None:
             process_args.append('-i')
             process_args.append(str(server_id))
@@ -376,6 +473,12 @@ def execute_validate_thread_test(
         if server_tcp_port is not None:
             process_args.append('-q')
             process_args.append(str(server_tcp_port))
+        if domain_arg is not None:
+            process_args.append('-d')
+            process_args.append(str(domain_arg))
+            # Only update stop_domain with AUTO and START keywords
+            if stop_domain is not None:
+                stop_domain = domain_arg
 
     # Execute
     logger.debug(f'Executing process {process_id} in test {test_id} with '
@@ -415,6 +518,20 @@ def execute_validate_thread_test(
     # In case we must clear the generated file
     if result and clear:
         clear_file(working_directory(), result_file)
+
+    #######
+    # CLEAN
+    # Stop fastdds DS started with the tool (only if run with ROS2_EASY_MODE)
+    if stop_domain is not None:
+        # Wait for kill time
+        logger.debug(f'Waiting for {kill_time - creation_time} seconds to kill server in domain [{stop_domain}]')
+        time.sleep(kill_time - creation_time)
+        process_args = [fds_path, 'discovery']
+        process_args.append(Command.STOP.value)
+        process_args.append('-d')
+        process_args.append(str(stop_domain))
+        logger.debug(f'Killing server in domain [{stop_domain}] with process: {process_args}')
+        _, _ = asyncio.run(run_command(process_args, my_env, kill_time))
 
     # Update result_list and return
     result_list.append(result)
@@ -848,6 +965,16 @@ if __name__ == '__main__':
         fds_path=(args.fds if args.fds else None),
         debug=args.debug,
     )
+
+    # Stop all fastdds tool processes and the daemon. It is needed for servers
+    # started with the ROS2_EASY_MODE environment variable
+    if args.fds is not None:
+        stop_args = [args.fds]
+        stop_args.extend(['discovery', 'stop'])
+        logger.info(f'Killing Fast DDS daemon with command: {stop_args}')
+        _, _ = asyncio.run(run_command(stop_args, None, 3))
+    else:
+        logger.info('No fastdds tool process to stop')
 
     val.print_result_bool(
         logger,

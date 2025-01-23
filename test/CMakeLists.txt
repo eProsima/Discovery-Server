@@ -101,6 +101,15 @@ list(APPEND TEST_LIST
         test_60_disconnection
         test_61_superclient_environment_variable
 
+        test_80_auto
+        test_81_auto_ros_domain_id_env_var
+        test_82_auto_ros_static_peers_env_var
+        test_83_start
+        test_84_add
+        test_85_set_add_stop
+        test_86_stop_all_servers
+
+        test_93_tcp_reconnect_with_clients
         test_94_tcpv4_custom_guid_transform_locators
         test_95_tcpv4_cli
         test_96_tcpv6_cli
@@ -145,6 +154,12 @@ set(TEST_CASE_LIST)
 set(FAIL_TEST_CASES)
 
 # For each test case, create different executables for each configuration
+find_program(FASTDDS_PYTHON_EXECUTABLE fastdds PATHS ${CMAKE_INSTALL_PREFIX}/bin)
+if(FASTDDS_PYTHON_EXECUTABLE)
+    message(STATUS "Found Fast DDS CLI executable at: ${FASTDDS_PYTHON_EXECUTABLE}")
+else()
+    message(WARNING "Fast DDS CLI Executable not found!")
+endif()
 foreach(TEST IN LISTS TEST_LIST)
 
     unset(TEST_NAME)
@@ -155,7 +170,7 @@ foreach(TEST IN LISTS TEST_LIST)
         COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
         -e $<TARGET_FILE:${PROJECT_NAME}>
         -p ${TESTS_PARAMS}
-        -f $<$<TARGET_EXISTS:fastdds::fast-discovery-server>:$<TARGET_FILE:fastdds::fast-discovery-server>>
+        -f ${FASTDDS_PYTHON_EXECUTABLE}
         -t ${TEST}
         -s true
         -i false) # Remove this argument to execute test with and without intraprocess
@@ -176,7 +191,7 @@ foreach(TEST IN LISTS TEST_LIST)
         COMMAND ${PYTHON_EXECUTABLE} ${RUN_TEST}
         -e $<TARGET_FILE:${PROJECT_NAME}>
         -p ${TESTS_PARAMS}
-        -f $<$<TARGET_EXISTS:fastdds::fast-discovery-server>:$<TARGET_FILE:fastdds::fast-discovery-server>>
+        -f ${FASTDDS_PYTHON_EXECUTABLE}
         -t ${TEST}
         -s false
         -i false) # Remove this argument to execute test with and without intraprocess

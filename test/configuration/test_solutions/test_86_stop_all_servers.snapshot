@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DS_Snapshots xmlns="http://www.eprosima.com/XMLSchemas/ds-snapshot">
+    <DS_Snapshot timestamp="1713777801549" process_time="6001" last_pdp_callback_time="472" last_edp_callback_time="923" someone="true">
+        <description>Servers_up</description>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S1">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S2">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S3">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+    </DS_Snapshot>
+    <DS_Snapshot timestamp="1713777801549" process_time="6001" last_pdp_callback_time="472" last_edp_callback_time="923" someone="true">
+        <description>Servers_down</description>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S1">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S2">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S3">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+    </DS_Snapshot>
+</DS_Snapshots>

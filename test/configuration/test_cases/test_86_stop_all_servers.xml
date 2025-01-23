@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
+    <!-- Servers are created with Fast DDS CLI tool in ROS2_EASY_MODE.
+         Clients must know their matching participants:
+         Snapshot 1 (Each client know its server):
+            S1: C1  |  C1: S1
+            S2: C2  |  C2: S2
+            S3: C3  |  C3: S3
+         - Fast DDS CLI tool is called with the STOP keyword and 'all' argument.
+         Snapshot 2 (Servers down):
+            ******* |  C1: -
+            ******* |  C2: -
+            ******* |  C3: -  -->
+
+    <clients>
+        <client name="client1_S1" profile_name="client1_S1" listening_port="0">
+            <subscriber topic="topic1"/>
+        </client>
+        <client name="client1_S2" profile_name="client1_S2" listening_port="0">
+            <subscriber topic="topic1"/>
+        </client>
+        <client name="client1_S3" profile_name="client1_S3" listening_port="0">
+            <subscriber topic="topic1"/>
+        </client>
+    </clients>
+
+    <snapshots file="./test_85_set_add_stop.snapshot~">
+        <snapshot time="3">Servers_up</snapshot>
+        <snapshot time="7">Servers_down</snapshot>
+    </snapshots>
+
+    <profiles>
+        <participant profile_name="client1_S1" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.31.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>7652</port>
+                                </udpv4>
+                            </locator>
+                        </discoveryServersList>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="client1_S2" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.32.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>7902</port>
+                                </udpv4>
+                            </locator>
+                        </discoveryServersList>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <participant profile_name="client1_S3" >
+            <rtps>
+                <prefix>63.6c.69.65.6e.74.33.5f.73.31.5f.5f</prefix>
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>CLIENT</discoveryProtocol>
+                        <discoveryServersList>
+                            <locator>
+                                <udpv4>
+                                    <address>127.0.0.1</address>
+                                    <port>8152</port>
+                                </udpv4>
+                            </locator>
+                        </discoveryServersList>
+                        <initialAnnouncements>
+                            <count>0</count>
+                        </initialAnnouncements>
+                        <leaseAnnouncement>DURATION_INFINITY</leaseAnnouncement>
+                        <leaseDuration>DURATION_INFINITY</leaseDuration>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <topic profile_name="topic1">
+            <name>topic_1</name>
+            <dataType>HelloWorld</dataType>
+        </topic>
+     </profiles>
+</DS>

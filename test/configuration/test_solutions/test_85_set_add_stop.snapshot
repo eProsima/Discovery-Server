@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DS_Snapshots xmlns="http://www.eprosima.com/XMLSchemas/ds-snapshot">
+    <DS_Snapshot timestamp="1713777801549" process_time="6001" last_pdp_callback_time="472" last_edp_callback_time="923" someone="true">
+        <description>All_isolated</description>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S1">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="923"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S2">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="923"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S3">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="923"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S4">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="923"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+    </DS_Snapshot>
+    <DS_Snapshot timestamp="1713777801549" process_time="6001" last_pdp_callback_time="472" last_edp_callback_time="923" someone="true">
+        <description>S4_isolated</description>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S1">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="923"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S2" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S3" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S2">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="923"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S1" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S3" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S3">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="923"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S1" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S2" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S4">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="923"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+    </DS_Snapshot>
+    <DS_Snapshot timestamp="1713777801549" process_time="6001" last_pdp_callback_time="472" last_edp_callback_time="923" someone="true">
+        <description>S1_S3_isolated_from_S2_S4</description>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S1">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="923"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S2" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S3" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S2">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="923"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S1" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S3" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S4" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S3">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="923"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S1" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S2" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S4">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="923"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S2" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+    </DS_Snapshot>
+    <DS_Snapshot timestamp="1713777801549" process_time="6001" last_pdp_callback_time="472" last_edp_callback_time="923" someone="true">
+        <description>S1_stopped</description>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S1">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="923"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S2" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S3" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S2">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="923"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S1" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S3" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S4" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S3">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="923"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S1" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S2" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+        <ptdb guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" name="client1_S4">
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="true" alive="true" name="DiscoveryServerAuto" discovered_timestamp="113"/>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="" discovered_timestamp="14">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="923"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+            <ptdi guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.c1" server="false" alive="true" name="client1_S2" discovered_timestamp="471">
+                <publisher type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.1.3" discovered_timestamp="17"/>
+                <subscriber type="HelloWorld" topic="topic_1" guid_prefix="XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX.XX" guid_entity="0.0.2.4" discovered_timestamp="14"/>
+            </ptdi>
+        </ptdb>
+    </DS_Snapshot>
+</DS_Snapshots>
