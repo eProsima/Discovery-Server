@@ -2595,7 +2595,7 @@
             "description": [
                 "Test that two clients with ROS2_EASY_MODE discovery are able to communicate between themselfs.",
                 "The server is instantiated using the Fast DDS CLI tool with the keyword 'auto'.",
-                "The Domain ID is specified using the ROS_DOMAIN_ID environment variable.",
+                "The Domain ID is specified trhough the CLI and the ROS_DOMAIN_ID variable is ignored.",
                 "The ROS2_EASY_MODE cannot be properly tested in this repo because it is meant for connecting",
                 "different hosts, and the tests are run in the same host. Only its correct parsing and",
                 "server creation is tested here."
@@ -2608,13 +2608,14 @@
                     "kill_time": 5,
                     "tool_config":
                     {
-                        "auto" : ""
+                        "auto" : "127.0.0.1:0",
+                        "domain" : "42"
                     },
                     "environment_variables":
                     [
                         {
                             "name": "ROS_DOMAIN_ID",
-                            "value": "42"
+                            "value": "7"
                         }
                     ],
                     "validation":
@@ -2666,8 +2667,8 @@
         "test_82_auto_ros_static_peers_env_var":
         {
             "description": [
-                "Test that two servers are able to discover each other and exchange data using the 'ROS_STATIC_PEERS'",
-                "environment variable."
+                "Test that two servers are able to discover each other and exchange data using the connection",
+                "passed through the CLI."
             ],
 
             "processes":
@@ -2701,7 +2702,7 @@
                     "kill_time": 6,
                     "tool_config":
                     {
-                        "auto" : "",
+                        "auto" : "127.0.0.1:0",
                         "domain" : "0"
                     },
                     "validation":
@@ -2721,16 +2722,9 @@
                     "kill_time": 6,
                     "tool_config":
                     {
-                        "auto" : "",
+                        "auto" : "127.0.0.1:0",
                         "domain" : "3"
                     },
-                    "environment_variables":
-                    [
-                        {
-                            "name": "ROS_STATIC_PEERS",
-                            "value": "127.0.0.1:7402"
-                        }
-                    ],
                     "validation":
                     {
                         "exit_code_validation":
@@ -2783,7 +2777,7 @@
                     "kill_time": 6,
                     "tool_config":
                     {
-                        "auto" : "",
+                        "auto" : "127.0.0.1:0",
                         "domain" : "0"
                     },
                     "validation":
@@ -2858,7 +2852,7 @@
                     "kill_time": 6,
                     "tool_config":
                     {
-                        "auto" : "",
+                        "auto" : "127.0.0.1:0",
                         "domain" : "0"
                     },
                     "validation":
@@ -2878,7 +2872,7 @@
                     "kill_time": 6,
                     "tool_config":
                     {
-                        "auto" : "",
+                        "auto" : "127.0.0.1:3",
                         "domain" : "3"
                     },
                     "validation":
@@ -2957,7 +2951,7 @@
                     "kill_time": 43,
                     "tool_config":
                     {
-                        "auto" : "",
+                        "auto" : "127.0.0.1:1",
                         "domain" : "1"
                     },
                     "validation":
@@ -2977,7 +2971,7 @@
                     "kill_time": 43,
                     "tool_config":
                     {
-                        "auto" : "",
+                        "auto" : "127.0.0.1:2",
                         "domain" : "2"
                     },
                     "validation":
@@ -2997,7 +2991,7 @@
                     "kill_time": 43,
                     "tool_config":
                     {
-                        "auto" : "",
+                        "auto" : "127.0.0.1:3",
                         "domain" : "3"
                     },
                     "validation":
@@ -3017,7 +3011,7 @@
                     "kill_time": 43,
                     "tool_config":
                     {
-                        "auto" : "",
+                        "auto" : "127.0.0.1:4",
                         "domain" : "4"
                     },
                     "validation":
@@ -3135,7 +3129,7 @@
                     "kill_time": 8,
                     "tool_config":
                     {
-                        "auto" : "",
+                        "auto" : "127.0.0.1:1",
                         "domain" : "1"
                     },
                     "validation":
@@ -3155,7 +3149,7 @@
                     "kill_time": 8,
                     "tool_config":
                     {
-                        "auto" : "",
+                        "auto" : "127.0.0.1:2",
                         "domain" : "2"
                     },
                     "validation":
@@ -3175,7 +3169,7 @@
                     "kill_time": 8,
                     "tool_config":
                     {
-                        "auto" : "",
+                        "auto" : "127.0.0.1:3",
                         "domain" : "3"
                     },
                     "validation":

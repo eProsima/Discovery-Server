@@ -442,6 +442,7 @@ def execute_validate_thread_test(
         if auto_keyword is not None:
             stop_domain = 0 if ros_domain_id_value is None else ros_domain_id_value
             process_args.append(Command.AUTO.value)
+            process_args.append(str(auto_keyword))
         elif start_keyword is not None:
             stop_domain = 0 if ros_domain_id_value is None else ros_domain_id_value
             process_args.append(Command.START.value)
