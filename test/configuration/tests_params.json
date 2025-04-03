@@ -3207,6 +3207,122 @@
             }
         },
 
+        "test_87_set_modifies_env_var":
+        {
+            "description": [
+                "This test verifies that 'set' modifies the remote connection of a server."
+            ],
+
+            "processes":
+            {
+                "client_incorrect":
+                {
+                    "creation_time": 1,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_87_set_modifies_env_var_A.xml",
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS2_EASY_MODE",
+                            "value": "127.0.0.1"
+                        }
+                    ],
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 4
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_87_set_modifies_env_var_A.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": true,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_87_set_modifies_env_var_A.snapshot"
+                        }
+                    }
+                },
+                "cli_auto":
+                {
+                    "kill_time": 11,
+                    "tool_config":
+                    {
+                        "auto" : "127.1.1.1:42",
+                        "domain" : "42"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "cli_set":
+                {
+                    "creation_time": 5,
+                    "kill_time": 7,
+                    "tool_config":
+                    {
+                        "set" : "127.0.0.1:42",
+                        "domain" : "42"
+                    },
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        }
+                    }
+                },
+                "client_ok":
+                {
+                    "creation_time": 6,
+                    "xml_config_file": "<CONFIG_RELATIVE_PATH>/test_cases/test_87_set_modifies_env_var_B.xml",
+                    "environment_variables":
+                    [
+                        {
+                            "name": "ROS2_EASY_MODE",
+                            "value": "127.0.0.1"
+                        }
+                    ],
+                    "validation":
+                    {
+                        "exit_code_validation":
+                        {
+                            "expected_exit_code": 0
+                        },
+                        "stderr_validation":
+                        {
+                            "err_expected_lines": 0
+                        },
+                        "count_lines_validation":
+                        {
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_87_set_modifies_env_var_B.snapshot"
+                        },
+                        "ground_truth_validation":
+                        {
+                            "guidless": true,
+                            "file_path": "<CONFIG_RELATIVE_PATH>/test_solutions/test_87_set_modifies_env_var_B.snapshot"
+                        }
+                    }
+                }
+            }
+        },
+
         "test_93_tcp_reconnect_with_clients":
         {
             "description": [
