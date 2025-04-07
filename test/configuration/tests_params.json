@@ -2595,7 +2595,7 @@
             "description": [
                 "Test that two clients with ROS2_EASY_MODE discovery are able to communicate between themselfs.",
                 "The server is instantiated using the Fast DDS CLI tool with the keyword 'auto'.",
-                "The Domain ID is specified trhough the CLI and the ROS_DOMAIN_ID variable is ignored.",
+                "The Domain ID is specified through the CLI and the ROS_DOMAIN_ID variable is ignored.",
                 "The ROS2_EASY_MODE cannot be properly tested in this repo because it is meant for connecting",
                 "different hosts, and the tests are run in the same host. Only its correct parsing and",
                 "server creation is tested here."
