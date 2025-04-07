@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DS xmlns="http://www.eprosima.com/XMLSchemas/discovery-server" user_shutdown="false">
+
+    <!-- Servers are created with Fast DDS CLI tool in ROS2_EASY_MODE.
+         Clients must be able to connect to the server after 'set' is used:
+         Snapshot 1 (Server knows no-one):
+         - Fast DDS CLI tool is called with the 'set' keyword argument.
+         Snapshot 2 (Servers knows the client):
+    -->
+
+    <simples>
+        <simple name="client_fail_1">
+            <publisher topic="topic1"/>
+        </simple>
+        <simple name="client_fail_2">
+            <subscriber topic="topic1"/>
+        </simple>
+    </simples>
+
+    <snapshots file="./test_87_set_modifies_env_var_A.snapshot~">
+        <snapshot time="4">Incorrect_value</snapshot>
+    </snapshots>
+
+    <profiles>
+        <topic profile_name="topic1">
+            <name>topic_1</name>
+            <dataType>HelloWorld</dataType>
+        </topic>
+     </profiles>
+</DS>
