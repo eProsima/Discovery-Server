@@ -141,11 +141,14 @@ jobs:
           cmake_build_type: ${{ matrix.cmake-build-type }}
           workspace: ${{ github.workspace }}
 
+      - name: 'Tar workspace'
+        run: tar -cvf github_ws.tar ${{ github.workspace }}
+
       - name: Upload build artifacts
         uses: eProsima/eProsima-CI/external/upload-artifact@v0
         with:
           name: discovery_server_build_${{ inputs.label }}
-          path: ${{ github.workspace }}
+          path: github_ws.tar
 
   discovery_server_tests:
     needs: discovery_server_build
@@ -160,7 +163,9 @@ jobs:
         uses: eProsima/eProsima-CI/external/download-artifact@v0
         with:
           name: discovery_server_build_${{ inputs.label }}
-          path: ${{ github.workspace }}
+
+      - name: 'Restore workspace'
+        run: tar -xvf github_ws.tar -C ${{ github.workspace }} --strip-components=5
 
       - name: Install Fix Python version
         uses: eProsima/eProsima-CI/external/setup-python@v0
